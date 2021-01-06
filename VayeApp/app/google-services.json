@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "790320844872",
+    "project_id": "vaye-app",
+    "storage_bucket": "vaye-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790320844872:android:25069d3da427d02d0d087d",
+        "android_client_info": {
+          "package_name": "com.vaye.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "790320844872-0or0qea26vvqi3rsddg97kouoq19ccbq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOQEp64mi1tVyVCFFFmnJe1bVOl17wBtQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "790320844872-0or0qea26vvqi3rsddg97kouoq19ccbq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "790320844872-8e3e5um9mtsvq46oejpb6h5d20l1nueu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vaye.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
