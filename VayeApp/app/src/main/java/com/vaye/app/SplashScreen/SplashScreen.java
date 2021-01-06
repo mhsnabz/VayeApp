@@ -1,5 +1,6 @@
 package com.vaye.app.SplashScreen;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -9,18 +10,28 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.vaye.app.Interfaces.FirestoreService;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.vaye.app.Interfaces.CurrentUserService;
+import com.vaye.app.Interfaces.TaskUserHandler;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.LoginRegister.LoginActivity;
 import com.vaye.app.MainActivity;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.TaskUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
 
 public class SplashScreen extends AppCompatActivity {
     ImageView logo;
     FirebaseAuth auth = FirebaseAuth.getInstance();
-    String currentUser = auth.getUid();
+    String currentUserUid = auth.getUid();
+    CurrentUser currentUser;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -38,19 +49,44 @@ public class SplashScreen extends AppCompatActivity {
                 }catch (InterruptedException ex){
                     ex.printStackTrace();
                 }finally {
+                    if (currentUserUid != null){
 
-                    if (currentUser != null){
+                        DocumentReference reference = FirebaseFirestore.getInstance().collection("status")
+                                .document(currentUserUid);
+                                reference.get().addOnCompleteListener(SplashScreen.this, new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()){
+                                            if (task.getResult().exists()){
+                                                if (task.getResult().getBoolean("status")){
+                                                    UserService.shared().getCurrentUser(currentUserUid, new CurrentUserService() {
+                                                        @Override
+                                                        public void onCallback(CurrentUser user) {
+                                                            Log.d("CurrentUserName", "onCallback: " + user.getName());
+                                                            Intent i = new Intent(SplashScreen.this , MainActivity.class);
+                                                            i.putExtra("currentUser",user);
+                                                            startActivity(i);
+                                                            finish();
+                                                        }
+                                                    });
+                                                }else{
+                                                    checkIsCompelte(currentUserUid);
+                                                }
+                                            }else{
+                                                Intent i = new Intent(SplashScreen.this , LoginActivity.class);
+                                                startActivity(i);
+                                                finish();
+                                            }
+                                        }
+                                    }
+                                }).addOnFailureListener(SplashScreen.this, new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
 
-                        UserService.shared().getCurrentUser(currentUser, new FirestoreService() {
-                            @Override
-                            public void onCallback(CurrentUser user) {
-                                Log.d("CurrentUserName", "onCallback: " + user.getName());
-                                Intent i = new Intent(SplashScreen.this , MainActivity.class);
-                                i.putExtra("currentUser",user);
-                                startActivity(i);
-                                finish();
-                            }
-                        });
+                                    }
+                                });
+
+
 
                     }else{
                         Intent i = new Intent(SplashScreen.this , LoginActivity.class);
@@ -63,5 +99,46 @@ public class SplashScreen extends AppCompatActivity {
             }
         };
         thread.start();
+    }
+
+    private void checkIsCompelte(String uid){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("priority")
+                .document(uid);
+        ref.get().addOnCompleteListener(SplashScreen.this, new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getString("priority").equals("student")){
+                        UserService.shared().checkUserIsComplete(uid, new TrueFalse() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    UserService.shared().getTaskUser(uid, new TaskUserHandler() {
+                                        @Override
+                                        public void onCallback(TaskUser user) {
+                                            //TODO: student registiration
+                                        }
+                                    });
+                                }else{
+
+                                }
+                            }
+                        });
+                    }else if (task.getResult().getString("priority").equals("teacher")){
+                        UserService.shared().getTaskUser(uid, new TaskUserHandler() {
+                            @Override
+                            public void onCallback(TaskUser user) {
+                                //TODO: student registiration
+                            }
+                        });
+                    }
+                }
+            }
+        }).addOnFailureListener(SplashScreen.this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
     }
 }
