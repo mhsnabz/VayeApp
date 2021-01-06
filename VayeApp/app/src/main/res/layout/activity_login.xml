@@ -15,8 +15,68 @@
         android:src="@drawable/logo"
         ></ImageView>
 
-
     <LinearLayout
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/text"
+        android:layout_marginBottom="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Devam ederek "
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textSize="12dp"
+            ></TextView>
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Hizmet Şartları"
+            android:textAllCaps="false"
+            android:textColor="@color/mainColor"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="12dp"
+
+            ></TextView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" ve "
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textSize="12dp"
+            ></TextView>
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Gizlilik Politikası"
+            android:textAllCaps="false"
+            android:textColor="@color/mainColor"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="12dp"
+
+            ></TextView>
+    </LinearLayout>
+    <TextView
+
+        android:layout_marginBottom="30dp"
+        android:id="@+id/text"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/fprgetPass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hükümlerimizi kabul ettiğinizi bildirirsiniz. "
+        android:fontFamily="@font/nunito_semibold"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        ></TextView>
+    <LinearLayout
+        android:id="@+id/fprgetPass"
         android:layout_marginBottom="20dp"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
@@ -43,4 +103,5 @@
             android:textAllCaps="false"
             android:textColor="@color/mainColor"></TextView>
     </LinearLayout>
+
 </RelativeLayout>
