@@ -17,11 +17,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.TaskUserHandler;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.LoginRegister.LoginActivity;
-import com.vaye.app.MainActivity;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.TaskUser;
 import com.vaye.app.R;
@@ -63,7 +63,7 @@ public class SplashScreen extends AppCompatActivity {
                                                         @Override
                                                         public void onCallback(CurrentUser user) {
                                                             Log.d("CurrentUserName", "onCallback: " + user.getName());
-                                                            Intent i = new Intent(SplashScreen.this , MainActivity.class);
+                                                            Intent i = new Intent(SplashScreen.this , HomeActivity.class);
                                                             i.putExtra("currentUser",user);
                                                             startActivity(i);
                                                             finish();
