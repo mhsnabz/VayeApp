@@ -7,11 +7,14 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
 import com.vaye.app.Controller.HomeController.School.SchoolFragment;
+import com.vaye.app.Model.CurrentUser;
 
 public class PagerViewApadater extends FragmentPagerAdapter {
     public PagerViewApadater(@NonNull FragmentManager fm) {
         super(fm);
     }
+
+
 
     @NonNull
     @Override

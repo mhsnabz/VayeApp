@@ -23,7 +23,9 @@ import android.widget.Toast;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
 import com.vaye.app.Controller.HomeController.PagerAdapter.PagerViewApadater;
+import com.vaye.app.Controller.HomeController.School.SchoolFragment;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
@@ -55,6 +57,13 @@ public class HomeActivity extends AppCompatActivity {
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             setUserProile(currentUser);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("currentUser",intentIncoming.getParcelableExtra("currentUser"));
+
+            BolumFragment fragobj = new BolumFragment();
+            fragobj.setArguments(bundle);
+            SchoolFragment schoolFragment = new SchoolFragment();
+            schoolFragment.setArguments(bundle);
 
         }
 
@@ -98,6 +107,8 @@ public class HomeActivity extends AppCompatActivity {
         });
 
     }
+
+
 
 
     //TODO:--functions
