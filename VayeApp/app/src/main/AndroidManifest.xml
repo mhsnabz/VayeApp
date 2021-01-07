@@ -17,6 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp">
+        <activity android:name=".Controller.Profile.CurrentUserProfile"></activity>
+        <activity android:name=".Controller.Profile.EditProfileActivity" />
         <activity
             android:name=".Controller.HomeController.HomeActivity"
             android:launchMode="singleTop"
