@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.VayeApp" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.VayeApp" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/dark</item>
 
@@ -15,5 +15,14 @@
 
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="Theme.VayeApp.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.VayeApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.VayeApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

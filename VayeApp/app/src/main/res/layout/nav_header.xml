@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/header"
+        >
+        <ImageButton
+            android:id="@+id/edit"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+           android:layout_marginTop="30dp"
+            android:layout_marginRight="20dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/edit"
+
+            ></ImageButton>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/profileImage"
+            app:civ_border_color="@android:color/darker_gray"
+            app:civ_border_width="1dp"
+            android:src="@android:color/darker_gray"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/edit"
+
+            ></de.hdodenhof.circleimageview.CircleImageView>
+
+        <ImageButton
+            android:layout_width="25dp"
+
+            android:layout_height="25dp"
+            android:scaleType="fitXY"
+            android:layout_toEndOf="@id/profileImage"
+            android:layout_marginTop="130dp"
+            android:layout_marginLeft="-20dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/plus"></ImageButton>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/profileImage"
+            android:id="@+id/name"
+            android:text="Mahsun Abuzeyitoğlu"
+            android:textAlignment="center"
+            android:fontFamily="@font/nunito_sans_semibold"
+            android:textColor="@color/black"
+            android:textSize="16dp"
+            android:layout_marginTop="5dp"
+            android:textStyle="bold"
+
+            ></TextView>
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/name"
+            android:layout_centerHorizontal="true"
+            android:text="mhsnabz"
+            android:fontFamily="@font/nunito_semibold"
+            ></TextView>
+        <Button
+           android:background="@drawable/edit_button_background"
+            android:id="@+id/showProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_below="@id/username"
+
+            android:layout_centerHorizontal="true"
+            android:text="Profili Görüntüle"
+            android:textSize="10dp"
+            android:textAllCaps="false"
+            android:layout_marginTop="5dp"
+            ></Button>
+        <RelativeLayout
+            android:id="@+id/line1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/showProfile"
+            ></RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/button1"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/line1"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            >
+            <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/home"
+                android:id="@+id/homeButton"
+                ></ImageButton>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@id/homeButton"
+                android:background="@android:color/transparent"
+                android:text="Bilgisayar Mühendisliği"
+                android:textAllCaps="false"
+                android:fontFamily="@font/nunito_semibold"
+                android:textAlignment="textStart"
+                android:id="@+id/homeButton2"
+                ></Button>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/line2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"
+
+            android:layout_below="@id/button1"
+            ></RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/button2"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/line2"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            >
+            <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/notification"
+                android:id="@+id/notButton"
+                ></ImageButton>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@id/notButton"
+                android:background="@android:color/transparent"
+                android:text="Bildirim Ayarları"
+                android:textAllCaps="false"
+                android:fontFamily="@font/nunito_semibold"
+                android:textAlignment="textStart"
+                android:id="@+id/notButton2"
+                ></Button>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/button3"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/button2"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            >
+            <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/star"
+                android:id="@+id/rateUs"
+                ></ImageButton>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@id/rateUs"
+                android:background="@android:color/transparent"
+                android:text="Bizi Değerlendir"
+                android:textAllCaps="false"
+                android:fontFamily="@font/nunito_semibold"
+                android:textAlignment="textStart"
+                android:id="@+id/rateU2"
+                ></Button>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/button4"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/button3"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            >
+            <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/setting"
+                android:id="@+id/setting"
+                ></ImageButton>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@id/setting"
+                android:background="@android:color/transparent"
+                android:text="Ayarlar"
+                android:textAllCaps="false"
+                android:fontFamily="@font/nunito_semibold"
+                android:textAlignment="textStart"
+                android:id="@+id/settin2"
+                ></Button>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/button5"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/button4"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+
+            >
+            <ImageButton
+
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/exit"
+                android:id="@+id/exit"
+                ></ImageButton>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@id/exit"
+                android:background="@android:color/transparent"
+                android:text="Çıkış"
+                android:textAllCaps="false"
+                android:fontFamily="@font/nunito_semibold"
+                android:textAlignment="textStart"
+                android:id="@+id/exi2"
+                ></Button>
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+</RelativeLayout>

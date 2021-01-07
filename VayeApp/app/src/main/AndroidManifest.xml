@@ -17,18 +17,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp">
-        <activity android:name=".Controller.HomeController.HomeActivity" android:launchMode="singleTop"
-            android:screenOrientation="portrait" ></activity>
-        <activity android:name=".Controller.VayeAppController.VayeAppActivity" android:launchMode="singleTop"
-            android:screenOrientation="portrait"  />
-        <activity android:name=".Controller.NotificationController.NotificationActivity" android:launchMode="singleTop"
-            android:screenOrientation="portrait"  />
-        <activity android:name=".Controller.ChatController.ChatActivity"  android:launchMode="singleTop"
+        <activity
+            android:name=".Controller.HomeController.HomeActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
-        <activity android:name=".LoginRegister.LoginActivity" android:launchMode="singleTop"
-            android:screenOrientation="portrait"  />
-        <activity android:name=".SplashScreen.SplashScreen" android:launchMode="singleTop"
-            android:screenOrientation="portrait" >
+        <activity
+            android:name=".Controller.VayeAppController.VayeAppActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Controller.NotificationController.NotificationActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Controller.ChatController.ChatActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".LoginRegister.LoginActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SplashScreen.SplashScreen"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
