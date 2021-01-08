@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -18,10 +19,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.HomeActivity;
+import com.vaye.app.Controller.HomeController.LessonPostAdapter.LessonPostAdapter;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
@@ -44,6 +47,9 @@ public class BolumFragment extends Fragment {
     ArrayList<LessonPostModel> lessonPostModels;
     ArrayList<String> postIds;
     DocumentSnapshot lastPage;
+    LessonPostAdapter adapter;
+    LinearLayoutManager layoutManager
+            = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
     public BolumFragment() {
 
     }
@@ -56,7 +62,7 @@ public class BolumFragment extends Fragment {
         HomeActivity activity = (HomeActivity) getActivity();
 
         currentUser = activity.getIntent().getParcelableExtra("currentUser");
-        Log.d(TAG, "onCreate: " + currentUser.getName());
+
         lessonPostModels = new ArrayList<>();
         getPostId(currentUser, new StringArrayListInterface() {
             @Override
@@ -68,6 +74,7 @@ public class BolumFragment extends Fragment {
                            public void onCallback(LessonPostModel postModels) {
                                lessonPostModels.add(postModels);
                                Log.d(TAG, "onCallback: " + postModels.getText());
+                               adapter.notifyDataSetChanged();
                            }
                        });
                    }
@@ -75,6 +82,9 @@ public class BolumFragment extends Fragment {
                }
             }
         });
+
+
+
     }
 
     @Override
@@ -83,12 +93,17 @@ public class BolumFragment extends Fragment {
             rootView = inflater.inflate(R.layout.fragment_bolum, container, false);
             newPost = (FloatingActionButton)rootView.findViewById(R.id.newPostButton);
             postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
+            postList.setLayoutManager(layoutManager);
             newPost.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     setNewPost();
                 }
             });
+
+        adapter = new LessonPostAdapter(lessonPostModels , currentUser , getActivity());
+        postList.setAdapter(adapter);
+
             return rootView;
     }
 
@@ -100,8 +115,8 @@ public class BolumFragment extends Fragment {
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("lesson-post")
-                .limit(5)
-                .orderBy("postId", Query.Direction.DESCENDING);
+                .limitToLast(5)
+                .orderBy("postId" , Query.Direction.DESCENDING);
         db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
