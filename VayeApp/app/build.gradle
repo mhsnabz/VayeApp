@@ -58,4 +58,8 @@ dependencies {
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation 'com.pixplicity.multiviewpager:library:1.0'
+    implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation project(':nativetemplates')
+
 }

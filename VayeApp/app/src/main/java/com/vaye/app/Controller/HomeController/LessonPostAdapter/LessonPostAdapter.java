@@ -1,6 +1,8 @@
 package com.vaye.app.Controller.HomeController.LessonPostAdapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,9 @@ import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.ads.nativetemplates.NativeTemplateStyle;
+import com.google.android.ads.nativetemplates.TemplateView;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.firebase.Timestamp;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Callback;
@@ -40,6 +45,7 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
     private static final int VIEW_TYPE_LESSON_POST = 1;
     private static final int VIEW_TYPE_LESSON_POST_DATA  = 2;
     private static final int VIEW_TYPE_ADS  = 3;
+    private static final int VIEW_TYPE_EMPTY  = 4;
     public LessonPostAdapter(ArrayList<LessonPostModel> post, CurrentUser currentUser, Context context) {
         this.post = post;
         this.currentUser = currentUser;
@@ -63,10 +69,17 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
             return new LessonPostViewHolder(itemView);
 
         }else if (viewType == VIEW_TYPE_ADS){
-            return null;
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.navite_ads_layout, parent, false);
+
+            return new LessonPostViewHolder(itemView);
         }
-        else{
-            return  null;
+        else {
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.empty_lesson_post, parent, false);
+
+            return new LessonPostViewHolder(itemView);
+
         }
 
 
@@ -75,12 +88,14 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
     @Override
     public int getItemViewType(int position) {
         LessonPostModel model = (LessonPostModel)post.get(position);
-        if (model.getThumbData() == null){
-            return  VIEW_TYPE_LESSON_POST;
-        }else if (model.getThumbData().size() > 0 ){
-            return  VIEW_TYPE_LESSON_POST_DATA;
-        }else if (model.getEmpty().equals("empty")){
+        if (model.getType().equals("ads")) {
             return  VIEW_TYPE_ADS;
+        }else if ( model.getType().equals("data")){
+            return  VIEW_TYPE_LESSON_POST_DATA;
+        }else if  ( model.getType().equals("post")){
+            return   VIEW_TYPE_LESSON_POST;
+        }else if (model.getEmpty().equals("empty")){
+            return  VIEW_TYPE_EMPTY;
         }
         return super.getItemViewType(position);
     }
@@ -90,7 +105,65 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
 
 
         if (getItemViewType(i) == VIEW_TYPE_LESSON_POST_DATA){
-           holder.setImages(post.get(i).getThumbData());
+
+            holder.setCommentLbl(post.get(i).getComment());
+            holder.setName(post.get(i).getSenderName());
+            holder.setUserName(post.get(i).getUsername());
+            holder.setProfileImage(post.get(i).getThumb_image());
+            holder.setLessonName(post.get(i).getLessonName());
+            holder.setText(post.get(i).getText());
+            holder.setDislikeLbl(post.get(i).getDislike());
+            holder.setLikeLbl(post.get(i).getLikes());
+            holder.setLike(post.get(i).getLikes(),currentUser , context);
+            holder.setDislike(post.get(i).getDislike(),currentUser , context);
+            holder.setFav(post.get(i).getFavori(),currentUser,context);
+            holder.setTime(post.get(i).getPostTime());
+            holder.itemView.findViewById(R.id.fav).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MajorPostService.shared().setFav(currentUser, post.get(i), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                holder.setFav(post.get(i).getFavori() , currentUser , context);
+                                notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            });
+
+            holder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MajorPostService.shared().setLike(currentUser, post.get(i), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                holder.setLike(post.get(i).getLikes(),currentUser,context);
+                                notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            });
+
+            holder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MajorPostService.shared().setDislike(currentUser, post.get(i), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                holder.setDislike(post.get(i).getDislike() , currentUser , context);
+                                notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            });
+
+            holder.setImages(post.get(i).getThumbData());
 
            holder.itemView.findViewById(R.id.one_image).setOnClickListener(new View.OnClickListener() {
                @Override
@@ -105,64 +178,70 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
                 }
             });
 
+        }else if (getItemViewType(i) == VIEW_TYPE_LESSON_POST){
+            holder.setCommentLbl(post.get(i).getComment());
+            holder.setName(post.get(i).getSenderName());
+            holder.setUserName(post.get(i).getUsername());
+            holder.setProfileImage(post.get(i).getThumb_image());
+            holder.setLessonName(post.get(i).getLessonName());
+            holder.setText(post.get(i).getText());
+            holder.setDislikeLbl(post.get(i).getDislike());
+            holder.setLikeLbl(post.get(i).getLikes());
+            holder.setLike(post.get(i).getLikes(),currentUser , context);
+            holder.setDislike(post.get(i).getDislike(),currentUser , context);
+            holder.setFav(post.get(i).getFavori(),currentUser,context);
+            holder.setTime(post.get(i).getPostTime());
+            holder.itemView.findViewById(R.id.fav).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MajorPostService.shared().setFav(currentUser, post.get(i), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                holder.setFav(post.get(i).getFavori() , currentUser , context);
+                                notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            });
+
+            holder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MajorPostService.shared().setLike(currentUser, post.get(i), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                holder.setLike(post.get(i).getLikes(),currentUser,context);
+                                notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            });
+
+            holder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MajorPostService.shared().setDislike(currentUser, post.get(i), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                holder.setDislike(post.get(i).getDislike() , currentUser , context);
+                                notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            });
+
+        }else if (getItemViewType(i) == VIEW_TYPE_ADS){
+            holder.setNative_ads(post.get(i).getNativeAd());
+        }else {
+            return;
         }
 
-        holder.setCommentLbl(post.get(i).getComment());
-        holder.setName(post.get(i).getSenderName());
-        holder.setUserName(post.get(i).getUsername());
-        holder.setProfileImage(post.get(i).getThumb_image());
-        holder.setLessonName(post.get(i).getLessonName());
-        holder.setText(post.get(i).getText());
-        holder.setDislikeLbl(post.get(i).getDislike());
-        holder.setLikeLbl(post.get(i).getLikes());
-        holder.setLike(post.get(i).getLikes(),currentUser , context);
-        holder.setDislike(post.get(i).getDislike(),currentUser , context);
-        holder.setFav(post.get(i).getFavori(),currentUser,context);
-        holder.setTime(post.get(i).getPostTime());
-        holder.itemView.findViewById(R.id.fav).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-              MajorPostService.shared().setFav(currentUser, post.get(i), new TrueFalse<Boolean>() {
-                  @Override
-                  public void callBack(Boolean _value) {
-                      if (_value){
-                          holder.setFav(post.get(i).getFavori() , currentUser , context);
-                          notifyDataSetChanged();
-                      }
-                  }
-              });
-            }
-        });
-
-        holder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MajorPostService.shared().setLike(currentUser, post.get(i), new TrueFalse<Boolean>() {
-                    @Override
-                    public void callBack(Boolean _value) {
-                        if (_value){
-                            holder.setLike(post.get(i).getLikes(),currentUser,context);
-                            notifyDataSetChanged();
-                        }
-                    }
-                });
-            }
-        });
-
-        holder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MajorPostService.shared().setDislike(currentUser, post.get(i), new TrueFalse<Boolean>() {
-                    @Override
-                    public void callBack(Boolean _value) {
-                        if (_value){
-                            holder.setDislike(post.get(i).getDislike() , currentUser , context);
-                            notifyDataSetChanged();
-                        }
-                    }
-                });
-            }
-        });
 
 
     }
@@ -174,9 +253,10 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
 }
  class LessonPostViewHolder extends RecyclerView.ViewHolder{
 
-
     public LessonPostViewHolder(@NonNull View itemView) {
         super(itemView);
+
+
     }
 
     CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
@@ -235,6 +315,12 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
      ProgressBar four_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_four_progres1);
      ProgressBar four_progres_2 = (ProgressBar)itemView.findViewById(R.id.image_four_progres2);
      ProgressBar four_progres_3 = (ProgressBar)itemView.findViewById(R.id.image_four_progres3);
+
+     //TODO-native ads layer
+     TemplateView native_ads = (TemplateView)itemView.findViewById(R.id.native_ads);
+
+
+
 
 
 
@@ -472,6 +558,12 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
     }
 
 
+    public void setNative_ads(UnifiedNativeAd ads){
+        NativeTemplateStyle style = new NativeTemplateStyle.Builder()
+                .withMainBackgroundColor(new ColorDrawable(Color.parseColor("#ffffff"))).build();
+        native_ads.setStyles(style);
+        native_ads.setNativeAd(ads);
+    }
 
 
 }

@@ -3,8 +3,10 @@ package com.vaye.app.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
 
@@ -14,41 +16,8 @@ public class LessonPostModel implements Parcelable {
     Long post_ID;
     int comment;
     Timestamp postTime;
-    NativeAd nativeAd;
-    String empty;
-    public LessonPostModel(Timestamp postTime, NativeAd nativeAd) {
-        this.postTime = postTime;
-        this.nativeAd = nativeAd;
-    }
-
-    public LessonPostModel(String postId, String empty) {
-        this.postId = postId;
-        this.empty = empty;
-    }
-
-    public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumbData, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime) {
-        this.lessonName = lessonName;
-        this.senderName = senderName;
-        this.text = text;
-        this.senderUid = senderUid;
-        this.postId = postId;
-        this.link = link;
-        this.id = id;
-        this.thumb_image = thumb_image;
-        this.username = username;
-        this.thumbData = thumbData;
-        this.data = data;
-        this.silent = silent;
-        this.favori = favori;
-        this.dislike = dislike;
-        this.likes = likes;
-        this.post_ID = post_ID;
-        this.comment = comment;
-        this.postTime = postTime;
-    }
-
-    public LessonPostModel() {
-    }
+    UnifiedNativeAd nativeAd;
+    String empty, type;
 
     protected LessonPostModel(Parcel in) {
         lessonName = in.readString();
@@ -74,6 +43,7 @@ public class LessonPostModel implements Parcelable {
         comment = in.readInt();
         postTime = in.readParcelable(Timestamp.class.getClassLoader());
         empty = in.readString();
+        type = in.readString();
     }
 
     public static final Creator<LessonPostModel> CREATOR = new Creator<LessonPostModel>() {
@@ -92,160 +62,195 @@ public class LessonPostModel implements Parcelable {
         return lessonName;
     }
 
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public String getSenderUid() {
-        return senderUid;
-    }
-
-    public String getPostId() {
-        return postId;
-    }
-
-    public String getLink() {
-        return link;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getThumb_image() {
-        return thumb_image;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public ArrayList<String> getThumbData() {
-        return thumbData;
-    }
-
-    public ArrayList<String> getData() {
-        return data;
-    }
-
-    public ArrayList<String> getSilent() {
-        return silent;
-    }
-
-    public ArrayList<String> getFavori() {
-        return favori;
-    }
-
-    public ArrayList<String> getDislike() {
-        return dislike;
-    }
-
-    public ArrayList<String> getLikes() {
-        return likes;
-    }
-
-    public Long getPost_ID() {
-        return post_ID;
-    }
-
-    public int getComment() {
-        return comment;
-    }
-
-    public Timestamp getPostTime() {
-        return postTime;
-    }
-
-    public NativeAd getNativeAd() {
-        return nativeAd;
-    }
-
-    public String getEmpty() {
-        return empty;
-    }
-
     public void setLessonName(String lessonName) {
         this.lessonName = lessonName;
+    }
+
+    public String getSenderName() {
+        return senderName;
     }
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
     }
 
+    public String getText() {
+        return text;
+    }
+
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getSenderUid() {
+        return senderUid;
     }
 
     public void setSenderUid(String senderUid) {
         this.senderUid = senderUid;
     }
 
+    public String getPostId() {
+        return postId;
+    }
+
     public void setPostId(String postId) {
         this.postId = postId;
+    }
+
+    public String getLink() {
+        return link;
     }
 
     public void setLink(String link) {
         this.link = link;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getThumb_image() {
+        return thumb_image;
     }
 
     public void setThumb_image(String thumb_image) {
         this.thumb_image = thumb_image;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public ArrayList<String> getThumbData() {
+        return thumbData;
     }
 
     public void setThumbData(ArrayList<String> thumbData) {
         this.thumbData = thumbData;
     }
 
+    public ArrayList<String> getData() {
+        return data;
+    }
+
     public void setData(ArrayList<String> data) {
         this.data = data;
+    }
+
+    public ArrayList<String> getSilent() {
+        return silent;
     }
 
     public void setSilent(ArrayList<String> silent) {
         this.silent = silent;
     }
 
+    public ArrayList<String> getFavori() {
+        return favori;
+    }
+
     public void setFavori(ArrayList<String> favori) {
         this.favori = favori;
+    }
+
+    public ArrayList<String> getDislike() {
+        return dislike;
     }
 
     public void setDislike(ArrayList<String> dislike) {
         this.dislike = dislike;
     }
 
+    public ArrayList<String> getLikes() {
+        return likes;
+    }
+
     public void setLikes(ArrayList<String> likes) {
         this.likes = likes;
+    }
+
+    public Long getPost_ID() {
+        return post_ID;
     }
 
     public void setPost_ID(Long post_ID) {
         this.post_ID = post_ID;
     }
 
+    public int getComment() {
+        return comment;
+    }
+
     public void setComment(int comment) {
         this.comment = comment;
+    }
+
+    public Timestamp getPostTime() {
+        return postTime;
     }
 
     public void setPostTime(Timestamp postTime) {
         this.postTime = postTime;
     }
 
-    public void setNativeAd(NativeAd nativeAd) {
+    public UnifiedNativeAd getNativeAd() {
+        return nativeAd;
+    }
+
+    public void setNativeAd(UnifiedNativeAd nativeAd) {
         this.nativeAd = nativeAd;
+    }
+
+    public String getEmpty() {
+        return empty;
     }
 
     public void setEmpty(String empty) {
         this.empty = empty;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public LessonPostModel() {
+    }
+
+    public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumbData, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime, UnifiedNativeAd nativeAd, String empty, String type) {
+        this.lessonName = lessonName;
+        this.senderName = senderName;
+        this.text = text;
+        this.senderUid = senderUid;
+        this.postId = postId;
+        this.link = link;
+        this.id = id;
+        this.thumb_image = thumb_image;
+        this.username = username;
+        this.thumbData = thumbData;
+        this.data = data;
+        this.silent = silent;
+        this.favori = favori;
+        this.dislike = dislike;
+        this.likes = likes;
+        this.post_ID = post_ID;
+        this.comment = comment;
+        this.postTime = postTime;
+        this.nativeAd = nativeAd;
+        this.empty = empty;
+        this.type = type;
     }
 
     @Override
@@ -279,5 +284,10 @@ public class LessonPostModel implements Parcelable {
         parcel.writeInt(comment);
         parcel.writeParcelable(postTime, i);
         parcel.writeString(empty);
+        parcel.writeString(type);
+    }
+
+    public static Creator<LessonPostModel> getCREATOR() {
+        return CREATOR;
     }
 }
