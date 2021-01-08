@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/image_one"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        >
+
+        <LinearLayout
+            android:weightSum="2"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/image_four_image1"
+
+                    android:layout_margin="1dp"
+                    app:riv_corner_radius="8dp"
+                    android:layout_width="match_parent"
+
+                    android:scaleType="centerCrop"
+                    android:layout_height="match_parent">
+                </com.makeramen.roundedimageview.RoundedImageView>
+                <ProgressBar
+                    android:visibility="gone"
+                    android:id="@+id/image_four_progres1"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_centerInParent="true"
+                    ></ProgressBar>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/image_four_image2"
+                    android:layout_weight="1"
+                    android:layout_margin="1dp"
+                    app:riv_corner_radius="8dp"
+                    android:layout_width="match_parent"
+
+                    android:scaleType="centerCrop"
+                    android:layout_height="match_parent">
+                </com.makeramen.roundedimageview.RoundedImageView>
+                <ProgressBar
+                    android:id="@+id/image_four_progres2"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone"
+                    ></ProgressBar>
+            </RelativeLayout>
+
+        </LinearLayout>
+        <LinearLayout
+            android:weightSum="2"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/image_four_image3"
+
+                    android:layout_margin="1dp"
+                    app:riv_corner_radius="8dp"
+                    android:layout_width="match_parent"
+
+                    android:scaleType="centerCrop"
+                    android:layout_height="match_parent">
+                </com.makeramen.roundedimageview.RoundedImageView>
+                <ProgressBar
+                    android:id="@+id/image_four_progres3"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone"
+                    ></ProgressBar>
+            </RelativeLayout>
+
+
+            <RelativeLayout
+
+                android:layout_weight="1"
+                android:layout_margin="1dp"
+
+                android:layout_width="match_parent"
+                android:src="@drawable/deneme"
+                android:scaleType="centerCrop"
+                android:layout_height="match_parent">
+                <com.makeramen.roundedimageview.RoundedImageView
+
+                    android:id="@+id/image_four_image4"
+
+                    app:riv_corner_radius="8dp"
+                    android:layout_width="wrap_content"
+
+                    android:scaleType="centerCrop"
+                    android:layout_height="wrap_content">
+
+                </com.makeramen.roundedimageview.RoundedImageView>
+                <RelativeLayout
+
+                    android:layout_margin="1dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:background="#80666666" >
+
+                    <TextView
+
+                        android:layout_centerInParent="true"
+                        android:id="@+id/textImageCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:text="+1"
+                        android:textSize="50dp"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"/>
+                </RelativeLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

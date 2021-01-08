@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="110dp"
+    android:layout_height="110dp"
+
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<com.makeramen.roundedimageview.RoundedImageView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp"
+    android:id="@+id/imageView"
+    android:scaleType="fitXY"
+    app:riv_corner_radius="8dp"
+    android:src="@drawable/deneme"
+        android:adjustViewBounds="true"
+    android:layout_centerInParent="true"
+    ></com.makeramen.roundedimageview.RoundedImageView>
+    <ProgressBar
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_centerInParent="true"
+        android:id="@+id/progress"
+        ></ProgressBar>
+</RelativeLayout>

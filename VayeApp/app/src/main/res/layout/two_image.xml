@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/image_one"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        >
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/image_two_image1"
+
+                android:layout_margin="1dp"
+                app:riv_corner_radius="8dp"
+                android:layout_width="match_parent"
+                android:src="@drawable/deneme"
+                android:scaleType="centerCrop"
+                android:layout_height="match_parent">
+            </com.makeramen.roundedimageview.RoundedImageView>
+            <ProgressBar
+                android:visibility="gone"
+                android:id="@+id/image_two_progres1"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerInParent="true"
+                ></ProgressBar>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/image_two_image2"
+
+                android:layout_margin="1dp"
+                app:riv_corner_radius="8dp"
+                android:layout_width="match_parent"
+                android:src="@drawable/deneme"
+                android:scaleType="centerCrop"
+                android:layout_height="match_parent">
+            </com.makeramen.roundedimageview.RoundedImageView>
+            <ProgressBar
+                android:visibility="gone"
+                android:id="@+id/image_two_progres2"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerInParent="true"
+                ></ProgressBar>
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>

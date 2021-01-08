@@ -56,4 +56,6 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+    implementation 'com.pixplicity.multiviewpager:library:1.0'
 }

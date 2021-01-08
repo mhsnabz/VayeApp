@@ -35,6 +35,8 @@ import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Services.UserService;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class BolumFragment extends Fragment {
@@ -74,6 +76,15 @@ public class BolumFragment extends Fragment {
                            public void onCallback(LessonPostModel postModels) {
                                lessonPostModels.add(postModels);
                                Log.d(TAG, "onCallback: " + postModels.getText());
+
+                               Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                   public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+
+                                       return obj2.getPost_ID().compareTo(obj1.getPost_ID());
+
+                                   }
+
+                               });
                                adapter.notifyDataSetChanged();
                            }
                        });
@@ -115,7 +126,7 @@ public class BolumFragment extends Fragment {
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("lesson-post")
-                .limitToLast(5)
+                .limit(5)
                 .orderBy("postId" , Query.Direction.DESCENDING);
         db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
