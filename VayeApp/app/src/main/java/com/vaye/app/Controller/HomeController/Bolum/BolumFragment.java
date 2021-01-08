@@ -126,7 +126,7 @@ public class BolumFragment extends Fragment {
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("lesson-post")
-                .limit(5)
+
                 .orderBy("postId" , Query.Direction.DESCENDING);
         db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override

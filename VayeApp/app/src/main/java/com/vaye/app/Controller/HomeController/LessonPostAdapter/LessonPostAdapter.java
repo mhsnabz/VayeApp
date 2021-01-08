@@ -202,7 +202,8 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
     RelativeLayout two_image = (RelativeLayout)itemView.findViewById(R.id.two_image);
     RelativeLayout there_image = (RelativeLayout)itemView.findViewById(R.id.there_image);
     RelativeLayout four_image = (RelativeLayout)itemView.findViewById(R.id.four_image);
-
+    RelativeLayout transparentView = (RelativeLayout)itemView.findViewById(R.id.transparentView);
+     TextView textImageCount = (TextView)itemView.findViewById(R.id.textImageCount);
 
     //TODO:-layer one images
 
@@ -417,6 +418,12 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
             there_image.setVisibility(View.GONE);
             there_image.setVisibility(View.GONE);
             four_image.setVisibility(View.VISIBLE);
+            if (thumbImages.size() == 4){
+                textImageCount.setVisibility(View.GONE);
+                transparentView.setVisibility(View.GONE);
+            }else{
+                textImageCount.setText( "+"+String.valueOf((thumbImages.size() + 1)-4));
+            }
             Picasso.get().load(thumbImages.get(0)).centerCrop().placeholder(android.R.color.darker_gray).resize(256,256).into(four_image_1, new Callback() {
                 @Override
                 public void onSuccess() {
@@ -463,5 +470,8 @@ public class LessonPostAdapter extends RecyclerView.Adapter<LessonPostViewHolder
             });
         }
     }
+
+
+
 
 }

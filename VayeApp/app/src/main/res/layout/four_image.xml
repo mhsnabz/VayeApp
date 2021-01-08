@@ -99,26 +99,26 @@
                 android:layout_margin="1dp"
 
                 android:layout_width="match_parent"
-                android:src="@drawable/deneme"
-                android:scaleType="centerCrop"
+
                 android:layout_height="match_parent">
                 <com.makeramen.roundedimageview.RoundedImageView
 
                     android:id="@+id/image_four_image4"
 
                     app:riv_corner_radius="8dp"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
 
                     android:scaleType="centerCrop"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                 </com.makeramen.roundedimageview.RoundedImageView>
                 <RelativeLayout
+                    android:visibility="visible"
+                    android:id="@+id/transparentView"
 
-                    android:layout_margin="1dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
+
                     android:background="#80666666" >
 
                     <TextView
