@@ -14,37 +14,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.ads.nativetemplates.NativeTemplateStyle;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.HomeActivity;
-import com.vaye.app.Controller.HomeController.LessonPostAdapter.LessonPostAdapter;
-import com.vaye.app.Interfaces.CurrentUserService;
+import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
-import com.vaye.app.Services.MajorPostService;
-import com.vaye.app.Services.UserService;
-import com.vaye.app.Util.AdsHelper.AdUnifiedListening;
+import com.vaye.app.Util.AdsHelper.AdUnifiedListeningg;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -59,10 +52,10 @@ public class BolumFragment extends Fragment {
     ArrayList<LessonPostModel> lessonPostModels;
     ArrayList<String> postIds;
     DocumentSnapshot lastPage;
-    LessonPostAdapter adapter;
+    MajorPostAdapter adapter;
     SwipeRefreshLayout swipeRefreshLayout;
-    LinearLayoutManager layoutManager
-            = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+    LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+    AdLoader adLoader;
     public BolumFragment() {
 
     }
@@ -87,7 +80,7 @@ public class BolumFragment extends Fragment {
             postList.setHasFixedSize(true);
 
         HomeActivity activity = (HomeActivity) getActivity();
-
+        MobileAds.initialize(getActivity(),getResources().getString(R.string.unit_id));
         currentUser = activity.getIntent().getParcelableExtra("currentUser");
 
 
@@ -114,7 +107,7 @@ public class BolumFragment extends Fragment {
     }
 
 
-    public void createUnifiedAds(int unitid , AdUnifiedListening listening){
+    public void createUnifiedAds(int unitid , AdUnifiedListeningg listening){
         AdLoader.Builder builder = new AdLoader.Builder(getContext(),getContext().getString(unitid));
         builder.forUnifiedNativeAd(listening);
         builder.withAdListener(listening);
@@ -127,7 +120,7 @@ public class BolumFragment extends Fragment {
     private void getPost(CurrentUser currentUser ){
         swipeRefreshLayout.setRefreshing(true);
         lessonPostModels = new ArrayList<>();
-        adapter = new LessonPostAdapter(lessonPostModels , currentUser , getActivity());
+        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity());
         postList.setAdapter(adapter);
         getPostId(currentUser, new StringArrayListInterface() {
             @Override
@@ -159,21 +152,47 @@ public class BolumFragment extends Fragment {
             }
         });
 
-        createUnifiedAds(R.string.unit_id, new AdUnifiedListening() {
-            @Override
-            public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
-                if (getAdLoader().isLoading()){
-                    lessonPostModels.add(new LessonPostModel("","","","","","","","","",null,null,null,null,null,null,null,0,
-                            lessonPostModels.get(lessonPostModels.size() -1).getPostTime(),unifiedNativeAd,"","ads"));
-                    adapter.notifyDataSetChanged();
-                }else{
-                    lessonPostModels.add( new LessonPostModel("","","","","","","","","",null,null,null,null,null,null,null,0,
-                            lessonPostModels.get(lessonPostModels.size() -1).getPostTime(),null,"","empty"));
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
+        getAds();
 
+
+
+    }
+
+    private void getAds(){
+        AdLoader.Builder builder = new AdLoader.Builder(getActivity(),getResources().getString(R.string.unit_id));
+
+        adLoader = builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
+            @Override
+            public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd)
+            {
+                lessonPostModels.add(new LessonPostModel("","","","","","","","","",null,null,null,null,null,null,null,0,
+                        lessonPostModels.get(lessonPostModels.size() -1).getPostTime(),unifiedNativeAd,"","ads"));
+            }
+        }).withAdListener(new AdListener(){
+            @Override
+            public void onAdImpression() {
+                super.onAdImpression();
+            }
+
+            @Override
+            public void onAdClicked() {
+                super.onAdClicked();
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                Log.d(TAG, "onAdFailedToLoad: "+loadAdError);
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+            }
+
+        }).build();
+
+        adLoader.loadAd(new  AdRequest.Builder().build());
     }
 
     private void setNewPost(){
@@ -221,5 +240,15 @@ public class BolumFragment extends Fragment {
             }
         });
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        for (int i = 0; i<lessonPostModels.size() ; i++){
+         if  (lessonPostModels.get(i).getNativeAd() != null){
+             lessonPostModels.get(i).getNativeAd().destroy();
+         }
+        }
     }
 }

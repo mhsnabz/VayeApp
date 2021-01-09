@@ -1,14 +1,24 @@
 package com.vaye.app.Controller.HomeController;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -46,6 +56,9 @@ public class HomeActivity extends AppCompatActivity {
     TextView bolumLbl , schoolLbl;
     RelativeLayout line1,line2;
     ViewPager viewPager;
+    private int STORAGE_PERMISSION_CODE = 1;
+    private int STOREGE_READ_WRİTE_CODE = 2;
+    private int STROGE_MANAGE_CODE = 3;
 
     private PagerViewApadater pagerViewApadater;
     @Override
@@ -175,6 +188,58 @@ public class HomeActivity extends AppCompatActivity {
             schoolLbl.setTextSize(16);
         }
     }
+
+    private void requestStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this , Manifest.permission.CAMERA) +
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)+
+                ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) +
+                ContextCompat.checkSelfPermission(this,Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED){
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.MANAGE_EXTERNAL_STORAGE)){
+                AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+                builder.setTitle("İzin Vermeniz Gerekmektedir");
+                builder.setMessage("Kamera , Galeri ");
+                builder.setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ActivityCompat.requestPermissions(HomeActivity.this , new String[] {
+                                        Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE ,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                        Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                                },STORAGE_PERMISSION_CODE
+                        );
+                    }
+                });
+                builder.setNegativeButton("VAZGEÇ",null);
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }else{
+                ActivityCompat.requestPermissions(this , new String[] {
+                                Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE ,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                        },STORAGE_PERMISSION_CODE
+                );
+            }
+        }else{
+
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        requestStoragePermission();
+    }
+
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {

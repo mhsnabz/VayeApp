@@ -1,6 +1,8 @@
 package com.vaye.app.Util;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Build;
 
 import com.google.firebase.Timestamp;
 import com.vaye.app.R;
@@ -62,6 +64,13 @@ public class Helper {
             }
         }
         return "";
+    }
+    public  boolean isDownloadManagerAvailable(Context context) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            return true;
+        }
+        return false;
     }
 }
 
