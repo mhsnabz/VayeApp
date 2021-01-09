@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.Image;
+import android.net.Uri;
 import android.net.http.SslError;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -26,6 +28,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.listener.OnErrorListener;
+import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
+import com.github.barteksc.pdfviewer.listener.OnRenderListener;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.koushikdutta.async.future.Future;
@@ -39,7 +46,14 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.koushikdutta.ion.Ion;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -77,11 +91,13 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
                     .inflate(R.layout.single_pdf_view, parent, false);
 
             return new PDFViewHolder(itemView);
-        }else {
+        }else if (viewType == DOC){
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.single_doc_holder, parent, false);
+
+            return new DocViewHolder(itemView);
+        }
         return null;
-
-    }
-
 
     }
 
@@ -96,8 +112,12 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
                 break;
             case PDF:
                 PDFViewHolder viewHolder = (PDFViewHolder) holder;
-                ((PDFViewHolder) holder).showPdf(url.get(i));
+                ((PDFViewHolder) viewHolder).showPdf(url.get(i));
+
                 break;
+            case DOC:
+                DocViewHolder docViewHolder = (DocViewHolder) holder;
+                docViewHolder.setDoc(url.get(i));
         }
     }
 
@@ -117,6 +137,23 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
             return PDF;
         }
         return super.getItemViewType(position);
+    }
+
+    public class DocViewHolder extends RecyclerView.ViewHolder{
+
+        public DocViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+
+        WebView webView = (WebView)itemView.findViewById(R.id.webView);
+        public void setDoc(String  url){
+            String doc="<iframe src='http://docs.google.com/gview?embedded=true&url="+url+"' width='100%' height='100%' style='border: none;'></iframe>";
+
+           // url=url.replaceAll(" ","%20");
+            String newUA= "Chrome/43.0.2357.65 ";
+            webView.getSettings().setUserAgentString(newUA);
+            webView.loadUrl("https://view.officeapps.live.com/op/view.aspx?src="+url);
+        }
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
@@ -162,56 +199,60 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
             super(itemView);
         }
 
-        WebView webView = (WebView)itemView.findViewById(R.id.webView);
+        PDFView pdfView = (PDFView) itemView.findViewById(R.id.pdfView);
 
-        public void showPdf(String url){
-            Log.d("allDAtasAdapter", "showPdf: " + url);
-            WaitDialog.show((AppCompatActivity) context,"");
-            webView.getSettings().setJavaScriptEnabled(true);
-            webView.setWebViewClient(new WebViewClient() {
-                @Override
-                public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                    super.onPageStarted(view, url, favicon);
-                    WaitDialog.dismiss();
-                }
-
-                @Override
-                public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    WaitDialog.dismiss();
-                }
-
-                @Override
-                public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-                    super.onReceivedHttpError(view, request, errorResponse);
-                    TipDialog.show((AppCompatActivity) context, "Pdf Yüklenirken Hata Oluştu", TipDialog.TYPE.ERROR);
+        public void showPdf(String _url) {
 
 
-                }
 
-                @Override
-                public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-                    super.onReceivedSslError(view, handler, error);
-                    TipDialog.show((AppCompatActivity) context, "Pdf Yüklenirken Hata Oluştu", TipDialog.TYPE.ERROR);
 
-                }
-
-                @Override
-                public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                    super.onReceivedError(view, request, error);
-                    TipDialog.show((AppCompatActivity) context, "Pdf Yüklenirken Hata Oluştu", TipDialog.TYPE.ERROR);
-                }
-            });
-
-            String pdf = url;
-            String doc="<iframe src='http://docs.google.com/gview?embedded=true&url='+url 'width='100%' height='100%' style='border: none;'></iframe>";
-
-            webView.getSettings().setJavaScriptEnabled(true);
-
-            webView.getSettings().setAllowFileAccess(true);
-
-            webView.loadUrl( "http://docs.google.com/gview?embedded=true&url=https://firebasestorage.googleapis.com/v0/b/vaye-app.appspot.com/o/İSTE%2FBilgisayar%20Mühendisliği%2FBilişim%20Hukuku%2F@mhsnabz%2F1610132319770%2F1610132325127.pdf?alt=media&token=bda8711d-e604-4e74-9e55-b1e22ea4f15c");
+            try{
+                new RetrievePdfStream().execute(_url);
+            }
+            catch (Exception e){
+                Toast.makeText(context, "Failed to load Url :" + e.toString(), Toast.LENGTH_SHORT).show();
+            }
         }
+
+        class RetrievePdfStream extends AsyncTask<String, Void, InputStream> {
+            @Override
+            protected InputStream doInBackground(String... strings) {
+                InputStream inputStream = null;
+
+                try {
+                    URL url = new URL(strings[0]);
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    if (urlConnection.getResponseCode() == 200) {
+                        inputStream = new BufferedInputStream(urlConnection.getInputStream());
+
+                    }
+                } catch (IOException e) {
+                    return null;
+
+                }
+                return inputStream;
+            }
+            @Override
+            protected void onPostExecute(InputStream inputStream) {
+                pdfView.fromStream(inputStream)
+                        .enableSwipe(true)
+                        .onRender(new OnRenderListener() {
+                            @Override
+                            public void onInitiallyRendered(int nbPages, float pageWidth, float pageHeight) {
+                                pdfView.fitToWidth();
+                            }
+                        })
+                        .swipeHorizontal(false)
+                        .onError(new OnErrorListener() {
+                            @Override
+                            public void onError(Throwable t) {
+
+                            }
+                        })
+                        .load();
+            }
+        }
+
     }
 
 

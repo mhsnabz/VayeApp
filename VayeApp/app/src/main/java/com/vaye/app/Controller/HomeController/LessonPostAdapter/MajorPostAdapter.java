@@ -76,7 +76,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public int getItemViewType(int position) {
         LessonPostModel model = (LessonPostModel)post.get(position);
-        if (model.getType().equals("ads")) {
+        if (model.getType()!=null&& model.getType().equals("ads")) {
             return  VIEW_TYPE_ADS;
         }else if ( model.getType().equals("data")){
             return  VIEW_TYPE_LESSON_POST_DATA;

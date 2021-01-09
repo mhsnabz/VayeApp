@@ -1,5 +1,6 @@
 package com.vaye.app.Controller.HomeController.Bolum;
 
+import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -21,9 +22,12 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -122,35 +126,46 @@ public class BolumFragment extends Fragment {
         lessonPostModels = new ArrayList<>();
         adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity());
         postList.setAdapter(adapter);
-        getPostId(currentUser, new StringArrayListInterface() {
+        getAllPost(currentUser);
+       /* getPostId(currentUser, new StringArrayListInterface() {
             @Override
             public void getArrayList(ArrayList<String> list) {
                 if (!list.isEmpty()){
-                    for(int i = 0; i<list.size() ; i++){
-                        getLessonPost(currentUser, list.get(i), new LessonPostModelCompletion() {
+
+                    for (String id : list){
+
+                        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                .document("lesson-post")
+                                .collection("post").document(id);
+
+                        ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
                             @Override
-                            public void onCallback(LessonPostModel postModels) {
-                                lessonPostModels.add(postModels);
-                                Log.d(TAG, "onCallback: " + postModels.getText());
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (documentSnapshot.exists()){
+                                    lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
+                                    Log.d(TAG, "onSuccess: "+ documentSnapshot.getString("type"));
+                                    adapter.notifyDataSetChanged();
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }else {
 
-                                Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
-                                    public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                }
 
-                                        return obj2.getPost_ID().compareTo(obj1.getPost_ID());
-
-                                    }
-
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
 
                             }
                         });
+
+
+                        Log.d(TAG, "getArrayList: postid" + id);
+
                     }
 
                 }
             }
-        });
+        });*/
 
         getAds();
 
@@ -158,6 +173,78 @@ public class BolumFragment extends Fragment {
 
     }
 
+
+    private void getAllPost(CurrentUser currentUser){
+        Query db = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("lesson-post")
+                .limit(5)
+                .orderBy("postId" , Query.Direction.DESCENDING);
+
+            db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    if (!queryDocumentSnapshots.isEmpty()){
+                        for (DocumentSnapshot item : queryDocumentSnapshots.getDocuments()){
+                            if (item.exists()){
+                                DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                        .document("lesson-post")
+                                        .collection("post").document(item.getId());
+
+                                ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()){
+                                            lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
+                                            Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                                public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+
+                                                    return obj2.getPost_ID().compareTo(obj1.getPost_ID());
+
+                                                }
+
+                                            });
+                                            adapter.notifyDataSetChanged();
+                                            swipeRefreshLayout.setRefreshing(false);
+                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+
+                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                        }else {
+                                            deletePostId(currentUser , item.getId());
+                                        }
+
+                                    }
+                                }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                    }
+                                });
+                            }
+                        }
+                    }else{
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+
+                }
+            }).addOnFailureListener(getActivity(),new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+
+
+            getAds();
+    }
+
+    private void deletePostId(CurrentUser currentUser , String postID){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("lesson-post")
+                .document(postID);
+                ref.delete();
+    }
     private void getAds(){
         AdLoader.Builder builder = new AdLoader.Builder(getActivity(),getResources().getString(R.string.unit_id));
 
@@ -165,8 +252,12 @@ public class BolumFragment extends Fragment {
             @Override
             public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd)
             {
-                lessonPostModels.add(new LessonPostModel("","","","","","","","","",null,null,null,null,null,null,null,0,
-                        lessonPostModels.get(lessonPostModels.size() -1).getPostTime(),unifiedNativeAd,"","ads"));
+                if (!lessonPostModels.isEmpty()){
+                    lessonPostModels.add(new LessonPostModel("","","","","","","","","",null,null,null,null,null,null,null,0,
+                            lessonPostModels.get(lessonPostModels.size() -1).getPostTime(),unifiedNativeAd,"","ads"));
+                    adapter.notifyDataSetChanged();
+                }
+
             }
         }).withAdListener(new AdListener(){
             @Override
@@ -203,7 +294,7 @@ public class BolumFragment extends Fragment {
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("lesson-post")
-                .limit(5)
+                .limit(1)
                 .orderBy("postId" , Query.Direction.DESCENDING);
         db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -214,9 +305,31 @@ public class BolumFragment extends Fragment {
                     }else{
 
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            postIds.add(item.getId());
-                            lastPage =  task.getResult().getDocuments().get(task.getResult().size() - 1);
-                            System.out.println("last page ->" + lastPage.getId());
+                            DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                    .document("lesson-post")
+                                    .collection("post").document(item.getId());
+
+                            ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if (documentSnapshot.exists()){
+                                        lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
+                                        Log.d(TAG, "onSuccess: "+ documentSnapshot.getString("type"));
+                                        adapter.notifyDataSetChanged();
+                                        swipeRefreshLayout.setRefreshing(false);
+                                        lastPage =  task.getResult().getDocuments().get(task.getResult().size() - 1);
+                                    }else {
+                                        deletePostId(currentUser , item.getId());
+                                    }
+
+                                }
+                            }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                }
+                            });
+
                         }
                         result.getArrayList(postIds);
                     }
@@ -225,22 +338,11 @@ public class BolumFragment extends Fragment {
         });
     }
     private void getLessonPost(CurrentUser currentUser , String postIds , LessonPostModelCompletion result){
-        CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post");
-        ref.document(postIds).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isComplete()){
 
-                    if (task.getResult().exists()){
-                        result.onCallback(task.getResult().toObject(LessonPostModel.class));
-                    }
-                }
-            }
-        });
 
     }
+
+
 
     @Override
     public void onDestroy() {
