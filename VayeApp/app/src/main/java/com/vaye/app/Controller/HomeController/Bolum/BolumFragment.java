@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
@@ -21,6 +23,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -58,6 +61,11 @@ public class BolumFragment extends Fragment {
     DocumentSnapshot lastPage;
     MajorPostAdapter adapter;
     SwipeRefreshLayout swipeRefreshLayout;
+    int currentItems, totalItems, scrollOutItems;
+    Boolean isLoadMore = true;
+    ProgressBar progressBar ;
+    NestedScrollView scrollView;
+        int totalAdsCount = 0;
     LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
     AdLoader adLoader;
     public BolumFragment() {
@@ -82,7 +90,8 @@ public class BolumFragment extends Fragment {
             postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
             postList.setLayoutManager(layoutManager);
             postList.setHasFixedSize(true);
-
+            scrollView = (NestedScrollView)rootView.findViewById(R.id.nestedScroolView);
+            progressBar = (ProgressBar)rootView.findViewById(R.id.progress);
         HomeActivity activity = (HomeActivity) getActivity();
         MobileAds.initialize(getActivity(),getResources().getString(R.string.unit_id));
         currentUser = activity.getIntent().getParcelableExtra("currentUser");
@@ -107,7 +116,38 @@ public class BolumFragment extends Fragment {
 
         getPost(currentUser);
 
+
+        scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if ( isLoadMore &&  (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())){
+
+                   progressBar.setVisibility(View.VISIBLE);
+                    loadMoreItem(currentUser);
+                    isLoadMore = false;
+                    Log.d(TAG, "onScrollChange: "+"load more item");
+                    if (!lessonPostModels.isEmpty()){
+                        for (int i = 0 ; i < lessonPostModels.size() ; i++){
+                            if (lessonPostModels.get(i).getType().equals("ads"))
+                                totalAdsCount ++;
+                        }
+
+                        if ((lessonPostModels.size() - totalAdsCount) % 5 == 0){
+                           // if (!lessonPostModels.get(lessonPostModels.size() -1).getType().equals("ads"))
+                            getAds();
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                    }
+
+
+                }
+            }
+        });
+
             return rootView;
+
+
     }
 
 
@@ -127,48 +167,194 @@ public class BolumFragment extends Fragment {
         adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity());
         postList.setAdapter(adapter);
         getAllPost(currentUser);
-       /* getPostId(currentUser, new StringArrayListInterface() {
-            @Override
-            public void getArrayList(ArrayList<String> list) {
-                if (!list.isEmpty()){
 
-                    for (String id : list){
+        if (!lessonPostModels.isEmpty()){
 
-                        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                .document("lesson-post")
-                                .collection("post").document(id);
+            if ((lessonPostModels.size() - totalAdsCount) % 5 == 0)
+                getAds();
+        }
 
-                        ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                if (documentSnapshot.exists()){
-                                    lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
-                                    Log.d(TAG, "onSuccess: "+ documentSnapshot.getString("type"));
-                                    adapter.notifyDataSetChanged();
-                                    swipeRefreshLayout.setRefreshing(false);
-                                }else {
+    }
 
+    private void loadMoreItem(CurrentUser currentUser){
+        if (lastPage!=null){
+           // isLoadMore = true;
+            Query db = FirebaseFirestore.getInstance().collection("user")
+                    .document(currentUser.getUid())
+                    .collection("lesson-post")
+                    .limit(5).orderBy("postId" , Query.Direction.DESCENDING).startAfter(lastPage);
+
+
+
+            db.get().addOnCompleteListener(getActivity(), new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                if (item.exists()){
+                                    DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                            .document("lesson-post")
+                                            .collection("post").document(item.getId());
+
+
+                                    ref.get().addOnCompleteListener(getActivity(), new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task1)
+                                        {
+                                            if (task1.getResult().exists()){
+                                               lessonPostModels.add(task1.getResult().toObject(LessonPostModel.class));
+                                                Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                                    public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                                        return obj2.getPostTime().compareTo(obj1.getPostTime());
+                                                    }
+
+                                                });
+                                                adapter.notifyDataSetChanged();
+                                                isLoadMore = true;
+                                                lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
+
+                                                Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                            }else {
+                                                isLoadMore = false;
+                                                deletePostId(currentUser , item.getId());
+                                            }
+                                        }
+                                    }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+
+                                        }
+                                    }).addOnCanceledListener(getActivity(), new OnCanceledListener() {
+                                        @Override
+                                        public void onCanceled() {
+
+                                        }
+                                    });
+
+                                   /* ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if (documentSnapshot.exists()){
+
+                                                lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
+                                                Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                                    public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                                        return obj2.getPostTime().compareTo(obj1.getPostTime());
+                                                    }
+
+                                                });
+                                                adapter.notifyDataSetChanged();
+
+
+
+                                            }else {
+                                                isLoadMore = false;
+                                                deletePostId(currentUser , item.getId());
+                                            }
+
+                                        }
+                                    }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+
+                                        }
+                                    });*/
+                                }else{
+
+                                    isLoadMore = false;
+                                    deletePostId(currentUser , item.getId());
                                 }
-
                             }
-                        }).addOnFailureListener(getActivity(), new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-
-                            }
-                        });
-
-
-                        Log.d(TAG, "getArrayList: postid" + id);
-
+                        }else {
+                            isLoadMore = false;
+                            progressBar.setVisibility(View.GONE);
+                        }
                     }
+                }
+            }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG, "onFailure: "+e.getLocalizedMessage());
+                    progressBar.setVisibility(View.GONE);
+                }
+            }).addOnCanceledListener(getActivity(), new OnCanceledListener() {
+                @Override
+                public void onCanceled() {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });
+
+
+          /*  db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots)
+                {
+                    if (!queryDocumentSnapshots.isEmpty()){
+
+                        for (DocumentSnapshot item : queryDocumentSnapshots.getDocuments()){
+                            Log.d(TAG, "onSuccess: "+ item.getId());
+                            if (item.exists()){
+                                DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                        .document("lesson-post")
+                                        .collection("post").document(item.getId());
+                                ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()){
+                                            lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
+
+
+                                            Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                                public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
+                                                }
+
+                                            });
+                                            adapter.notifyDataSetChanged();
+
+
+                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                            isLoadMore = true;
+                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+
+                                        }else {
+                                            isLoadMore = false;
+                                            deletePostId(currentUser , item.getId());
+                                        }
+
+                                    }
+                                }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                    }
+                                });
+                            }else{
+
+                                isLoadMore = false;
+                                deletePostId(currentUser , item.getId());
+                            }
+                        }
+
+                    }else{
+                        isLoadMore = false;
+                        progressBar.setVisibility(View.GONE);
+                    }
+                }
+            }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
 
                 }
-            }
-        });*/
+            });*/
 
-        getAds();
 
+
+        }else{
+            isLoadMore = false;
+            progressBar.setVisibility(View.GONE);
+        }
 
 
     }
@@ -199,15 +385,16 @@ public class BolumFragment extends Fragment {
                                             Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
                                                 public int compare(LessonPostModel obj1, LessonPostModel obj2) {
 
-                                                    return obj2.getPost_ID().compareTo(obj1.getPost_ID());
+                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
 
                                                 }
 
                                             });
                                             adapter.notifyDataSetChanged();
                                             swipeRefreshLayout.setRefreshing(false);
+                                            progressBar.setVisibility(View.GONE);
                                             lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-
+                                            isLoadMore = true;
                                             Log.d(TAG, "onSuccess: "+lastPage.getId());
                                         }else {
                                             deletePostId(currentUser , item.getId());
@@ -223,7 +410,9 @@ public class BolumFragment extends Fragment {
                             }
                         }
                     }else{
+                        isLoadMore = false;
                         swipeRefreshLayout.setRefreshing(false);
+                        progressBar.setVisibility(View.GONE);
                     }
 
                 }
@@ -236,6 +425,7 @@ public class BolumFragment extends Fragment {
 
 
             getAds();
+
     }
 
     private void deletePostId(CurrentUser currentUser , String postID){
