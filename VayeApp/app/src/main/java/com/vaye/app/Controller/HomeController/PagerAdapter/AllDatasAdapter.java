@@ -2,6 +2,7 @@ package com.vaye.app.Controller.HomeController.PagerAdapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -73,6 +75,7 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int PDF = 1;
     private static final int IMAGE  = 2;
     private static final int DOC  = 3;
+    private static final int DOC_PDF = 4;
 
 
 
@@ -86,7 +89,14 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
                     .inflate(R.layout.single_image, parent, false);
 
             return new ImageViewHolder(itemView);
-        }else if (viewType==PDF){
+        }
+        else if (viewType == DOC_PDF){
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.pdf_doc_item, parent, false);
+
+            return new PDF_DOC_ViewHolder(itemView);
+        }
+        else if (viewType==PDF){
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.single_pdf_view, parent, false);
 
@@ -110,14 +120,22 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ImageViewHolder postHolder = (ImageViewHolder) holder;
                 postHolder.setImageView(url.get(i));
                 break;
-            case PDF:
-                PDFViewHolder viewHolder = (PDFViewHolder) holder;
-                ((PDFViewHolder) viewHolder).showPdf(url.get(i));
+            case DOC_PDF:
+                PDF_DOC_ViewHolder dataHolder = (PDF_DOC_ViewHolder) holder;
+                Button btn = (Button)dataHolder.itemView.findViewById(R.id.showButton);
+                if (url.get(i).contains("doc") || url.get(i).contains("docx")){
+                    btn.setText("WORD Dosyasını Görüntüle");
+                }else if (url.get(i).contains("pdf")){
+                    btn.setText("PDF'yi Görüntüle");
+                }
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dataHolder.showData(url.get(i));
+                    }
+                });
 
                 break;
-            case DOC:
-                DocViewHolder docViewHolder = (DocViewHolder) holder;
-                docViewHolder.setDoc(url.get(i));
         }
     }
 
@@ -131,10 +149,9 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
         String URL = url.get(position);
         if (URL.contains("jpg")){
             return  IMAGE;
-        }else if (URL.contains("doc") || URL.contains("docx")){
-            return  DOC;
-        }else if (URL.contains("pdf")){
-            return PDF;
+        }
+        else if (URL.contains("pdf") ||URL.contains("doc") || URL.contains("docx") ){
+            return DOC_PDF;
         }
         return super.getItemViewType(position);
     }
@@ -255,6 +272,18 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     }
 
+    public class PDF_DOC_ViewHolder extends RecyclerView.ViewHolder{
 
+
+        public PDF_DOC_ViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        Button showButton = (Button)itemView.findViewById(R.id.showButton);
+
+        public void showData(String url){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            context.startActivity(browserIntent);
+        }
+    }
 
 }

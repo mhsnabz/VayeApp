@@ -70,4 +70,10 @@ public class AllDatasActivity extends AppCompatActivity {
         finish();
         Helper.shared().back(AllDatasActivity.this);
     }
+
+    @Override
+    public void finish() {
+        super.finish();
+      //  adapter.
+    }
 }

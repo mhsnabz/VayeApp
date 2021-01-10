@@ -192,13 +192,11 @@ public class HomeActivity extends AppCompatActivity {
     private void requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this , Manifest.permission.CAMERA) +
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)+
-                ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) +
-                ContextCompat.checkSelfPermission(this,Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+                ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED){
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA) ||
                     ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.MANAGE_EXTERNAL_STORAGE)){
+                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) ){
                 AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
                 builder.setTitle("İzin Vermeniz Gerekmektedir");
                 builder.setMessage("Kamera , Galeri ");
@@ -207,8 +205,7 @@ public class HomeActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         ActivityCompat.requestPermissions(HomeActivity.this , new String[] {
                                         Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE ,
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                        Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE
                                 },STORAGE_PERMISSION_CODE
                         );
                     }
@@ -219,8 +216,8 @@ public class HomeActivity extends AppCompatActivity {
             }else{
                 ActivityCompat.requestPermissions(this , new String[] {
                                 Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE ,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+
                         },STORAGE_PERMISSION_CODE
                 );
             }
