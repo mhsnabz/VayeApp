@@ -70,12 +70,12 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
     ArrayList<String> url;
     Context context;
     CurrentUser currentUser;
-    Future<File> downloading;
 
-    private static final int PDF = 1;
-    private static final int IMAGE  = 2;
-    private static final int DOC  = 3;
-    private static final int DOC_PDF = 4;
+
+
+    private static final int IMAGE  = 1;
+
+    private static final int DOC_PDF = 2;
 
 
 
@@ -95,17 +95,6 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
                     .inflate(R.layout.pdf_doc_item, parent, false);
 
             return new PDF_DOC_ViewHolder(itemView);
-        }
-        else if (viewType==PDF){
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.single_pdf_view, parent, false);
-
-            return new PDFViewHolder(itemView);
-        }else if (viewType == DOC){
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.single_doc_holder, parent, false);
-
-            return new DocViewHolder(itemView);
         }
         return null;
 
@@ -156,22 +145,7 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
         return super.getItemViewType(position);
     }
 
-    public class DocViewHolder extends RecyclerView.ViewHolder{
 
-        public DocViewHolder(@NonNull View itemView) {
-            super(itemView);
-        }
-
-        WebView webView = (WebView)itemView.findViewById(R.id.webView);
-        public void setDoc(String  url){
-            String doc="<iframe src='http://docs.google.com/gview?embedded=true&url="+url+"' width='100%' height='100%' style='border: none;'></iframe>";
-
-           // url=url.replaceAll(" ","%20");
-            String newUA= "Chrome/43.0.2357.65 ";
-            webView.getSettings().setUserAgentString(newUA);
-            webView.loadUrl("https://view.officeapps.live.com/op/view.aspx?src="+url);
-        }
-    }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
 
@@ -210,67 +184,7 @@ public class AllDatasAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
 
 
     }
-    public class PDFViewHolder extends RecyclerView.ViewHolder{
 
-        public PDFViewHolder(@NonNull View itemView) {
-            super(itemView);
-        }
-
-        PDFView pdfView = (PDFView) itemView.findViewById(R.id.pdfView);
-
-        public void showPdf(String _url) {
-
-
-
-
-            try{
-                new RetrievePdfStream().execute(_url);
-            }
-            catch (Exception e){
-                Toast.makeText(context, "Failed to load Url :" + e.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        class RetrievePdfStream extends AsyncTask<String, Void, InputStream> {
-            @Override
-            protected InputStream doInBackground(String... strings) {
-                InputStream inputStream = null;
-
-                try {
-                    URL url = new URL(strings[0]);
-                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                    if (urlConnection.getResponseCode() == 200) {
-                        inputStream = new BufferedInputStream(urlConnection.getInputStream());
-
-                    }
-                } catch (IOException e) {
-                    return null;
-
-                }
-                return inputStream;
-            }
-            @Override
-            protected void onPostExecute(InputStream inputStream) {
-                pdfView.fromStream(inputStream)
-                        .enableSwipe(true)
-                        .onRender(new OnRenderListener() {
-                            @Override
-                            public void onInitiallyRendered(int nbPages, float pageWidth, float pageHeight) {
-                                pdfView.fitToWidth();
-                            }
-                        })
-                        .swipeHorizontal(false)
-                        .onError(new OnErrorListener() {
-                            @Override
-                            public void onError(Throwable t) {
-
-                            }
-                        })
-                        .load();
-            }
-        }
-
-    }
 
     public class PDF_DOC_ViewHolder extends RecyclerView.ViewHolder{
 

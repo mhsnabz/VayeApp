@@ -127,7 +127,7 @@ public class HomeActivity extends AppCompatActivity {
     //TODO:--functions
     private void setUserProile(CurrentUser currentUser){
 
-        setupBottomNavBar();
+        setupBottomNavBar(currentUser);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
@@ -160,9 +160,9 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void setupBottomNavBar(){
+    private void setupBottomNavBar(CurrentUser currentUser){
         BottomNavigationView navBar = (BottomNavigationView)findViewById(R.id.bottom_nav_bar);
-        BottomNavHelper.enableNavigation(this,navBar);
+        BottomNavHelper.enableNavigation(this,navBar,currentUser);
         Menu menu = navBar.getMenu();
         MenuItem menuItem = menu.getItem(0);
         menuItem.setChecked(true);
