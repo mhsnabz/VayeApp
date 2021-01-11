@@ -24,6 +24,7 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.LessonSettingService;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,38 +73,7 @@ public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdap
         holder.itemView.findViewById(R.id.add).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new BottomSheet.Builder((Activity) context).sheet(R.menu.lesson_menu).listener(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Button button = (Button)((Activity) context).findViewById(R.id.addLesson);
-                        button.setBackgroundResource(R.drawable.about);
-                    switch (i){
-                        case R.id.addLesson:
-
-                            Toast.makeText(context,"Ders Ekle",Toast.LENGTH_SHORT).show();
-                            dialogInterface.dismiss();
-                            break;
-                        case R.id.reportLesson:
-                            dialogInterface.dismiss();
-
-                            break;
-                        case R.id.aboutLesson:
-                            dialogInterface.dismiss();
-
-                            break;
-                        case R.id.cancel:
-                            dialogInterface.dismiss();
-
-                            break;
-                    }
-
-                    }
-                }).setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface) {
-
-                    }
-                }).show();
+                Helper.shared().BottomSheetDialogHelper((Activity) context);
             }
         });
 

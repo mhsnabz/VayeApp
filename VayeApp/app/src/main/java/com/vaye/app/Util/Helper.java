@@ -3,7 +3,15 @@ package com.vaye.app.Util;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
@@ -72,5 +80,28 @@ public class Helper {
         }
         return false;
     }
+
+    public void BottomSheetDialogHelper(Activity activity ){
+        RecyclerView recyclerView;
+        Button cancel;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+
+          recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+          cancel = (Button)view.findViewById(R.id.dismis);
+          cancel.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                  Toast.makeText(activity,"Cancel Click",Toast.LENGTH_SHORT).show();
+                    bottomSheetDialog.dismiss();
+              }
+          });
+
+          bottomSheetDialog.setContentView(view);
+          bottomSheetDialog.show();
+
+    }
+
 }
 

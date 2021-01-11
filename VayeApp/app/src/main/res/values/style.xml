@@ -3,4 +3,10 @@
     <style name="progressBarBlue" parent="@style/Theme.AppCompat">
         <item name="colorAccent">@color/gray</item>
     </style>
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="background">@android:color/transparent</item>
+    </style>
 </resources>
