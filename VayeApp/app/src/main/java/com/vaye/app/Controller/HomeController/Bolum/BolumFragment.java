@@ -110,7 +110,7 @@ public class BolumFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getPost(currentUser);
+               // getPost(currentUser);
             }
         });
 
@@ -232,34 +232,6 @@ public class BolumFragment extends Fragment {
                                         }
                                     });
 
-                                   /* ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                            if (documentSnapshot.exists()){
-
-                                                lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
-                                                Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
-                                                    public int compare(LessonPostModel obj1, LessonPostModel obj2) {
-                                                        return obj2.getPostTime().compareTo(obj1.getPostTime());
-                                                    }
-
-                                                });
-                                                adapter.notifyDataSetChanged();
-
-
-
-                                            }else {
-                                                isLoadMore = false;
-                                                deletePostId(currentUser , item.getId());
-                                            }
-
-                                        }
-                                    }).addOnFailureListener(getActivity(), new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-
-                                        }
-                                    });*/
                                 }else{
 
                                     isLoadMore = false;
@@ -284,70 +256,6 @@ public class BolumFragment extends Fragment {
                     progressBar.setVisibility(View.GONE);
                 }
             });
-
-
-          /*  db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot queryDocumentSnapshots)
-                {
-                    if (!queryDocumentSnapshots.isEmpty()){
-
-                        for (DocumentSnapshot item : queryDocumentSnapshots.getDocuments()){
-                            Log.d(TAG, "onSuccess: "+ item.getId());
-                            if (item.exists()){
-                                DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                        .document("lesson-post")
-                                        .collection("post").document(item.getId());
-                                ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        if (documentSnapshot.exists()){
-                                            lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
-
-
-                                            Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
-                                                public int compare(LessonPostModel obj1, LessonPostModel obj2) {
-                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
-                                                }
-
-                                            });
-                                            adapter.notifyDataSetChanged();
-
-
-                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                                            isLoadMore = true;
-                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
-
-                                        }else {
-                                            isLoadMore = false;
-                                            deletePostId(currentUser , item.getId());
-                                        }
-
-                                    }
-                                }).addOnFailureListener(getActivity(), new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-
-                                    }
-                                });
-                            }else{
-
-                                isLoadMore = false;
-                                deletePostId(currentUser , item.getId());
-                            }
-                        }
-
-                    }else{
-                        isLoadMore = false;
-                        progressBar.setVisibility(View.GONE);
-                    }
-                }
-            }).addOnFailureListener(getActivity(), new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-
-                }
-            });*/
 
 
 

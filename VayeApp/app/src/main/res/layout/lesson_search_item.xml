@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="55dp">
+
+    <ImageButton
+        android:src="@drawable/plus"
+
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/add"
+        android:background="@android:color/transparent"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        ></ImageButton>
+    <ImageButton
+        android:src="@drawable/cancel"
+
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/delete"
+        android:background="@android:color/transparent"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        ></ImageButton>
+    <LinearLayout
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/add"
+
+        >
+        <TextView
+            android:layout_marginBottom="3dp"
+            android:id="@+id/lessonName"
+            android:text="..."
+            android:textColor="@color/black"
+            android:fontFamily="@font/nunito_semibold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="4dp"
+            android:textSize="16sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </TextView>
+        <TextView
+            android:text="..."
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="12sp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/followersCount"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"></TextView>
+    </LinearLayout>
+
+</RelativeLayout>

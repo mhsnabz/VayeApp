@@ -1,6 +1,5 @@
 package com.vaye.app.Controller.HomeController;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -13,9 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,17 +22,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
+import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
 import com.vaye.app.Controller.HomeController.PagerAdapter.PagerViewApadater;
 import com.vaye.app.Controller.HomeController.School.SchoolFragment;
+import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
@@ -52,10 +50,11 @@ public class HomeActivity extends AppCompatActivity {
     CircleImageView profileIamge;
     CurrentUser currentUser;
     TextView name , username;
-
+    TextView title;
     TextView bolumLbl , schoolLbl;
     RelativeLayout line1,line2;
     ViewPager viewPager;
+    ImageButton addLesson , notificationSetting;
     private int STORAGE_PERMISSION_CODE = 1;
     private int STOREGE_READ_WRİTE_CODE = 2;
     private int STROGE_MANAGE_CODE = 3;
@@ -119,6 +118,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+
     }
 
 
@@ -131,6 +131,15 @@ public class HomeActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
+        title = toolbar.findViewById(R.id.toolbar_title);
+        addLesson = (ImageButton)toolbar.findViewById(R.id.addLesson);
+        notificationSetting = (ImageButton)toolbar.findViewById(R.id.notificationSetting);
+
+        setSupportActionBar(toolbar);
+
+        toolbar.setTitle("");
+        toolbar.setSubtitle("");
+        title.setText("Vaye App");
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -158,6 +167,13 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         });
+
+        addLesson.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addLesson();
+            }
+        });
     }
 
     private void setupBottomNavBar(CurrentUser currentUser){
@@ -170,8 +186,22 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    private void addLesson(){
+        if (currentUser.getPriority().equals("teacher")){
+
+        }else if (currentUser.getPriority().equals("student")){
+            Intent i = new Intent(HomeActivity.this , StudentSetLessonActivity.class);
+            i.putExtra("currentUser",currentUser);
+            startActivity(i);
+            Helper.shared().go(HomeActivity.this);
+        }
+    }
+
     private void changeTabs(int positon){
         if (positon == 0){
+            addLesson.setVisibility(View.VISIBLE);
+            notificationSetting.setVisibility(View.GONE);
+            title.setText(currentUser.getBolum());
             line1.setVisibility(View.VISIBLE);
             line2.setVisibility(View.GONE);
             bolumLbl.setTextColor(getColor(R.color.black));
@@ -180,6 +210,9 @@ public class HomeActivity extends AppCompatActivity {
             schoolLbl.setTextSize(12);
 
         }else if (positon == 1){
+            addLesson.setVisibility(View.GONE);
+            notificationSetting.setVisibility(View.VISIBLE);
+            title.setText(currentUser.getShort_school() + " Kulüpleri");
             line1.setVisibility(View.GONE);
             line2.setVisibility(View.VISIBLE);
             bolumLbl.setTextColor(getColor(R.color.gray));
