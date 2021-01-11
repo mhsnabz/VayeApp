@@ -41,6 +41,7 @@ import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class StudentSetLessonActivity extends AppCompatActivity {
     CurrentUser currentUser;
@@ -48,7 +49,7 @@ public class StudentSetLessonActivity extends AppCompatActivity {
     TextView title;
     RecyclerView lessonList;
     String TAG = "StudentSetLessonActivity";
-    ArrayList<LessonModel> model = new ArrayList<>();
+    ArrayList <LessonModel> model = new ArrayList<>();
     StudentLessonAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class StudentSetLessonActivity extends AppCompatActivity {
     }
 
     private void getLessons(CurrentUser currentUser){
+
         WaitDialog.show(StudentSetLessonActivity.this , "Lütfen Bekleyin");
         // let db = Firestore.firestore().collection(user.short_school)
            //     .document("lesson").collection(user.bolum)
@@ -150,11 +152,21 @@ public class StudentSetLessonActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 Log.d("TAG", "onQueryTextChange: " + newText);
-                return false;
+
+                ArrayList<LessonModel> filtred = new ArrayList<>();
+                for (LessonModel item : model){
+                    if (item.getLessonName().toLowerCase().contains(newText.toLowerCase())){
+                        filtred.add(item);
+                    }
+                }
+                adapter.setList(filtred);
+                adapter.notifyDataSetChanged();
+
+                return true;
             }
         });
-        return true;
 
+        return true;
 
     }
 

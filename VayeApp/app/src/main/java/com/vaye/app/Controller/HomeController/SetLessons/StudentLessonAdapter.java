@@ -24,10 +24,14 @@ import com.vaye.app.Services.LessonSettingService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdapter.StudentLessonViewHolder>  implements Filterable {
+public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdapter.StudentLessonViewHolder>   {
 
     ArrayList<LessonModel> list;
-    ArrayList<LessonModel> listFilter;
+
+    public void setList(ArrayList<LessonModel> list) {
+        this.list = list;
+    }
+
     CurrentUser currentUser;
     Context context;
 
@@ -75,38 +79,8 @@ public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdap
         return list.size();
     }
 
-    @Override
-    public Filter getFilter() {
-        return filter;
-    }
 
-    Filter filter = new Filter() {
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            List<LessonModel> newFilteredList = new ArrayList<>();
-            if (constraint == null || constraint.length() == 0){
-                newFilteredList.addAll(list);
-            }else{
-                String filterPattern = constraint.toString().toLowerCase().trim();
-                for (LessonModel item : list){
-                    if (item.getLessonName().toLowerCase().contains(filterPattern)){
-                        newFilteredList.add(item);
-                    }
-                }
-            }
-            FilterResults results = new FilterResults();
-            results.values = newFilteredList;
-            return results;
-        }
 
-        @Override
-        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            listFilter.clear();
-            listFilter.addAll((List) filterResults.values);
-            notifyDataSetChanged();;
-
-        }
-    };
 
     class StudentLessonViewHolder extends RecyclerView.ViewHolder{
 
