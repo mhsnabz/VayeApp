@@ -61,6 +61,7 @@ dependencies {
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     implementation("com.squareup.okhttp3:okhttp")
     implementation project(':nativetemplates')
+    implementation 'com.cocosw:bottomsheet:1.+@aar'
 
 
 

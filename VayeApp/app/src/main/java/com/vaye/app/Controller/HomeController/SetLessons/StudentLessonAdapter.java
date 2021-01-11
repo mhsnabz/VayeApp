@@ -1,9 +1,12 @@
 package com.vaye.app.Controller.HomeController.SetLessons;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cocosw.bottomsheet.BottomSheet;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasAdapter;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -68,7 +72,38 @@ public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdap
         holder.itemView.findViewById(R.id.add).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context,"Ders Ekle",Toast.LENGTH_SHORT).show();
+                new BottomSheet.Builder((Activity) context).sheet(R.menu.lesson_menu).listener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Button button = (Button)((Activity) context).findViewById(R.id.addLesson);
+                        button.setBackgroundResource(R.drawable.about);
+                    switch (i){
+                        case R.id.addLesson:
+
+                            Toast.makeText(context,"Ders Ekle",Toast.LENGTH_SHORT).show();
+                            dialogInterface.dismiss();
+                            break;
+                        case R.id.reportLesson:
+                            dialogInterface.dismiss();
+
+                            break;
+                        case R.id.aboutLesson:
+                            dialogInterface.dismiss();
+
+                            break;
+                        case R.id.cancel:
+                            dialogInterface.dismiss();
+
+                            break;
+                    }
+
+                    }
+                }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+
+                    }
+                }).show();
             }
         });
 
