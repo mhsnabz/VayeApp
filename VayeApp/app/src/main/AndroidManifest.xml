@@ -20,7 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.HomeController.SetLessons.StudentSetLessonActivity"></activity>
+        <activity android:name=".Controller.HomeController.LessonPostEdit.EditPostActivity"></activity>
+        <activity android:name=".Controller.HomeController.SetLessons.StudentSetLessonActivity" />
         <activity android:name=".Controller.HomeController.SetLessons.TeacherSetLessonActivity" />
         <activity android:name=".Controller.HomeController.PagerAdapter.AllDatasActivity" />
         <activity android:name=".Controller.Profile.CurrentUserProfile" />

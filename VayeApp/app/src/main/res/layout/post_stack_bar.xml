@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_weight="100"
+    android:orientation="horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_marginRight="40dp"
+    android:layout_marginLeft="40dp"
+    android:layout_height="wrap_content">
+    <ImageButton
+        android:id="@+id/allery"
+        android:src="@drawable/gallery_btn"
+        android:background="@android:color/transparent"
+
+        android:layout_weight="20"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        ></ImageButton>
+    <ImageButton
+        android:id="@+id/pdf"
+        android:src="@drawable/pdf_btn"
+        android:background="@android:color/transparent"
+
+        android:layout_weight="20"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        ></ImageButton>
+    <ImageButton
+        android:id="@+id/doc"
+        android:src="@drawable/doc_btn"
+        android:background="@android:color/transparent"
+
+        android:layout_weight="20"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        ></ImageButton>
+    <ImageButton
+        android:id="@+id/link"
+        android:src="@drawable/link_btn"
+        android:background="@android:color/transparent"
+
+        android:layout_weight="20"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        ></ImageButton>
+</LinearLayout>

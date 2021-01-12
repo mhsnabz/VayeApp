@@ -8,4 +8,5 @@
     <color name="gray">#b3b3b3</color>
     <color name="ligthGray">#d3d3d3</color>
     <color name="cancelColor">#F1EEF7</color>
+    <color name="linkColor">#468CF7</color>
 </resources>
