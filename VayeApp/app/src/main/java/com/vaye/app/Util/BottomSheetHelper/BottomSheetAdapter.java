@@ -18,12 +18,17 @@ import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHol
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
+import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.LessonSettingService;
 import com.vaye.app.Util.Helper;
 
 public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
+
+    static final int view_lesson = 0;
+    static final int view_currentUser = 1;
+
 
     String target;
     CurrentUser currentUser;
@@ -32,7 +37,18 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     BottomSheetDialog dialog;
     LessonModel lessonModel;
 
-   static final int view_lesson = 0;
+    LessonPostModel post;
+
+    public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model,BottomSheetDialog dialog, LessonPostModel post) {
+        this.target = target;
+        this.currentUser = currentUser;
+        this.context = context;
+        this.dialog = dialog;
+        this.post = post;
+        this.model = model;
+    }
+
+
 
     public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog, LessonModel lessonModel) {
         this.target = target;
@@ -47,6 +63,8 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public int getItemViewType(int position) {
         if (model.getTarget().equals(BottomSheetTarget.lessonTarget)){
             return view_lesson;
+        }else if (model.getTarget().equals(BottomSheetTarget.lesson_currentUser_target)){
+            return view_currentUser;
         }
         return super.getItemViewType(position);
     }
@@ -61,6 +79,13 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         .inflate(R.layout.action_sheet_single_item, parent, false);
 
                 return new BottomSheetLessonViewHolder(itemView);
+
+            case view_currentUser:
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.action_sheet_single_item, parent, false);
+
+                return new BottomSheetLessonCurrentUserViewHolder(view);
+
         }
 
         return null;
@@ -103,6 +128,29 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
         }
+        else if (viewType == view_currentUser){
+            BottomSheetLessonCurrentUserViewHolder currentUser_holder = (BottomSheetLessonCurrentUserViewHolder) holder;
+            currentUser_holder.setTitle(model.getItems().get(i));
+            currentUser_holder.setImageOne(model.getImagesHolder().get(i));
+
+            currentUser_holder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_düzenle)){
+                        Toast.makeText(context , "Gönderiyi Düzenle",Toast.LENGTH_SHORT).show();
+                    }
+                    else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_sil))
+                    {
+                        Toast.makeText(context , "Gönderiyi Sil",Toast.LENGTH_SHORT).show();
+
+                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_sessize_al)){
+                        Toast.makeText(context , "Gönderiyi Sessize Al",Toast.LENGTH_SHORT).show();
+                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderi_bildirimlerini_ac)){
+                        Toast.makeText(context , "Gönderiyi Bildirimlerini  Aç",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
 
@@ -128,6 +176,22 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             title.setText(text);
         }
 
+    }
+
+    class BottomSheetLessonCurrentUserViewHolder extends  RecyclerView.ViewHolder{
+
+        public BottomSheetLessonCurrentUserViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+
+        ImageButton imageView = (ImageButton)itemView.findViewById(R.id.image);
+        TextView title = (TextView) itemView.findViewById(R.id.title);
+        void setImageOne(int _res){
+            imageView.setImageResource(_res);
+        }
+        void setTitle(String text){
+            title.setText(text);
+        }
     }
 
 

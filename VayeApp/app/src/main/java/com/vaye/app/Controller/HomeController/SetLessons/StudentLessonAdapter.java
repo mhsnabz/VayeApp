@@ -78,12 +78,17 @@ public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdap
         holder.itemView.findViewById(R.id.add).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
+
+
                 ArrayList<String > items = new ArrayList<>();
                 items.add("Dersi Takip Et");
                 items.add("Ders Hakkında");
                 items.add("Problem Bildir");
                 ArrayList<Integer> res = new ArrayList<>();
-                res.add(R.drawable.plus);res.add(R.drawable.about);
+                res.add(R.drawable.plus);
+                res.add(R.drawable.about);
                 res.add(R.drawable.report);
 
                 BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.lessonTarget,res );
@@ -152,4 +157,6 @@ public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdap
             remove.setVisibility(View.VISIBLE);
         }
     }
+
+
 }

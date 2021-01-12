@@ -24,6 +24,9 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -93,6 +96,36 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         switch (viewType) {
             case VIEW_TYPE_LESSON_POST_DATA:
                 MajorPostViewHolder postHolder = (MajorPostViewHolder) holder;
+
+                postHolder.more.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (post.get(i).getSenderUid().equals(currentUser.getUid())){
+                            ArrayList<String > items = new ArrayList<>();
+                            items.add(BottomSheetActionTarget.gonderiyi_düzenle);
+                            items.add(BottomSheetActionTarget.gonderiyi_sil);
+                            items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
+                            ArrayList<Integer> res = new ArrayList<>();
+                            res.add(R.drawable.edit);
+                            res.add(R.drawable.trash);
+                            res.add(R.drawable.slient);
+
+
+                            BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.lesson_currentUser_target,res);
+
+                            Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
+
                 LessonPostModel menuItemData = post.get(i);
 
                 postHolder.setCommentLbl(menuItemData.getComment());
@@ -203,6 +236,40 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case VIEW_TYPE_LESSON_POST:
                 MajorPostViewHolder itemHolder = (MajorPostViewHolder) holder;
                 LessonPostModel menuItem = post.get(i);
+
+
+                itemHolder.more.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+
+                        if (post.get(i).getSenderUid().equals(currentUser.getUid())){
+                            ArrayList<String > items = new ArrayList<>();
+                            items.add(BottomSheetActionTarget.gonderiyi_düzenle);
+                            items.add(BottomSheetActionTarget.gonderiyi_sil);
+                            items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
+                            ArrayList<Integer> res = new ArrayList<>();
+                            res.add(R.drawable.edit);
+                            res.add(R.drawable.trash);
+                            res.add(R.drawable.slient);
+
+
+                            BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.lesson_currentUser_target,res);
+
+                            Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }
+
+
+
+                    }
+                });
 
                 itemHolder.setCommentLbl(menuItem.getComment());
 

@@ -30,6 +30,8 @@ public class MajorPostViewHolder extends RecyclerView.ViewHolder{
         super(itemView);
     }
 
+
+
     CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
     ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
     TextView name = (TextView)itemView.findViewById(R.id.name);
