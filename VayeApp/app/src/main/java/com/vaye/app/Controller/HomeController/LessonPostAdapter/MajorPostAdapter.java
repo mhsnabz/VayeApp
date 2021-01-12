@@ -96,7 +96,6 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         switch (viewType) {
             case VIEW_TYPE_LESSON_POST_DATA:
                 MajorPostViewHolder postHolder = (MajorPostViewHolder) holder;
-
                 postHolder.more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -104,13 +103,22 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             ArrayList<String > items = new ArrayList<>();
                             items.add(BottomSheetActionTarget.gonderiyi_düzenle);
                             items.add(BottomSheetActionTarget.gonderiyi_sil);
-                            items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
                             ArrayList<Integer> res = new ArrayList<>();
                             res.add(R.drawable.edit);
                             res.add(R.drawable.trash);
-                            res.add(R.drawable.slient);
 
-
+                            MajorPostService.shared().check_currentUser_post_is_slient(currentUser, post.get(i), new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        items.add(BottomSheetActionTarget.gonderi_bildirimlerini_ac);
+                                        res.add(R.drawable.slient_selected);
+                                    }else {
+                                        items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
+                                        res.add(R.drawable.slient);
+                                    }
+                                }
+                            });
                             BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.lesson_currentUser_target,res);
 
                             Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
@@ -247,12 +255,22 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             ArrayList<String > items = new ArrayList<>();
                             items.add(BottomSheetActionTarget.gonderiyi_düzenle);
                             items.add(BottomSheetActionTarget.gonderiyi_sil);
-                            items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
                             ArrayList<Integer> res = new ArrayList<>();
                             res.add(R.drawable.edit);
                             res.add(R.drawable.trash);
-                            res.add(R.drawable.slient);
 
+                            MajorPostService.shared().check_currentUser_post_is_slient(currentUser, post.get(i), new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        items.add(BottomSheetActionTarget.gonderi_bildirimlerini_ac);
+                                        res.add(R.drawable.slient_selected);
+                                    }else {
+                                        items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
+                                        res.add(R.drawable.slient);
+                                    }
+                                }
+                            });
 
                             BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.lesson_currentUser_target,res);
 

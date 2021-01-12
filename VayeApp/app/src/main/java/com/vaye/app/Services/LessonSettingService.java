@@ -315,8 +315,7 @@ public class LessonSettingService {
         }
     }
 
-    private void removeNotificationGetterList(CurrentUser currentUser ,String  lessonName , TrueFalse<Boolean> completion)
-    {
+    private void removeNotificationGetterList(CurrentUser currentUser ,String  lessonName , TrueFalse<Boolean> completion) {
         //let dbNoti = Firestore.firestore().collection(currentUser.short_school)
         //                                            .document("lesson").collection(currentUser.bolum)
         //                                            .document(lessonName!).collection("notification_getter").

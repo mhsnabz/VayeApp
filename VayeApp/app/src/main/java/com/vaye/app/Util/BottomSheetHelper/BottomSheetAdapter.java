@@ -21,6 +21,7 @@ import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.LessonSettingService;
+import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.Helper;
 
 public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -144,9 +145,24 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         Toast.makeText(context , "Gönderiyi Sil",Toast.LENGTH_SHORT).show();
 
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_sessize_al)){
-                        Toast.makeText(context , "Gönderiyi Sessize Al",Toast.LENGTH_SHORT).show();
+                        MajorPostService.shared().setCurrentUserPostSlient((Activity) context, currentUser, post, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    dialog.dismiss();;
+
+                                }
+                            }
+                        });
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderi_bildirimlerini_ac)){
-                        Toast.makeText(context , "Gönderiyi Bildirimlerini  Aç",Toast.LENGTH_SHORT).show();
+                       MajorPostService.shared().setCurrentUserPostNotSilent((Activity) context, currentUser, post, new TrueFalse<Boolean>() {
+                           @Override
+                           public void callBack(Boolean _value) {
+                               if (_value)
+                                   dialog.dismiss();
+
+                           }
+                       });
                     }
                 }
             });

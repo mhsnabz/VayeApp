@@ -1,6 +1,9 @@
 package com.vaye.app.Services;
 
+import android.app.Activity;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -13,6 +16,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -121,4 +126,54 @@ public class MajorPostService {
             });
         }
     }
+
+    public void setCurrentUserPostSlient(Activity activity , CurrentUser currentUser , LessonPostModel post , TrueFalse<Boolean> completion){
+        WaitDialog.show((AppCompatActivity) activity, null);
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(post.getPostId());
+        Map<String , Object> map = new HashMap<>();
+        map.put("silent",FieldValue.arrayUnion(currentUser.getUid()));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    TipDialog.show((AppCompatActivity) activity, "Gönderi Bildirimleri Kapatıldı ", TipDialog.TYPE.SUCCESS);
+                    post.getSilent().add(currentUser.getUid());
+                    completion.callBack(true);
+                }
+            }
+        });
+    }
+    public void setCurrentUserPostNotSilent(Activity activity , CurrentUser currentUser , LessonPostModel post , TrueFalse<Boolean> completion){
+        WaitDialog.show((AppCompatActivity) activity, null);
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(post.getPostId());
+        Map<String , Object> map = new HashMap<>();
+        map.put("silent",FieldValue.arrayRemove(currentUser.getUid()));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    TipDialog.show((AppCompatActivity) activity, "Gönderi Bildirimleri Açıldı ", TipDialog.TYPE.SUCCESS);
+                    post.getSilent().remove(currentUser.getUid());
+
+                    completion.callBack(true);
+                }
+            }
+        });
+    }
+
+    public void check_currentUser_post_is_slient(CurrentUser currentUser , LessonPostModel model , TrueFalse<Boolean> completion){
+        if (model.getSilent().contains(currentUser.getUid())){
+            completion.callBack(true);
+        }else{
+            completion.callBack(false);
+        }
+    }
+
 }
