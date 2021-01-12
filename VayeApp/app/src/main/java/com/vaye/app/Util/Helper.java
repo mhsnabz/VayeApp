@@ -111,7 +111,7 @@ public class Helper {
                     bottomSheetDialog.dismiss();
               }
           });
-         
+
           bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
               @Override
               public void onDismiss(DialogInterface dialogInterface) {
