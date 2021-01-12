@@ -5,16 +5,23 @@ import android.content.Context;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
+import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetAdapter;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 
 import java.util.Calendar;
 
@@ -81,14 +88,26 @@ public class Helper {
         return false;
     }
 
-    public void BottomSheetDialogHelper(Activity activity ){
+    public void BottomSheetDialogHelper(Activity activity, String  target , CurrentUser currentUser , BottomSheetModel model , LessonModel lessonModel){
         RecyclerView recyclerView;
+
         Button cancel;
+
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
         View view = LayoutInflater.from(activity.getApplicationContext())
                 .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
-
+        BottomSheetAdapter adapter = new BottomSheetAdapter(target ,currentUser ,activity ,model , bottomSheetDialog , lessonModel);
           recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+          recyclerView.setAdapter(adapter);
+          recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+          adapter.notifyDataSetChanged();
+
+          recyclerView.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                  bottomSheetDialog.dismiss();
+              }
+          });
           cancel = (Button)view.findViewById(R.id.dismis);
           cancel.setOnClickListener(new View.OnClickListener() {
               @Override
@@ -100,6 +119,15 @@ public class Helper {
 
           bottomSheetDialog.setContentView(view);
           bottomSheetDialog.show();
+
+    }
+
+    public void DismisBottomSheetDialog(Activity activity){
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.dismiss();
 
     }
 
