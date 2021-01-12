@@ -2,6 +2,7 @@ package com.vaye.app.Util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.R;
@@ -88,7 +90,7 @@ public class Helper {
         return false;
     }
 
-    public void BottomSheetDialogHelper(Activity activity, String  target , CurrentUser currentUser , BottomSheetModel model , LessonModel lessonModel){
+    public void BottomSheetDialogHelper(Activity activity, String  target , CurrentUser currentUser , BottomSheetModel model , LessonModel lessonModel , TrueFalse<Boolean> val){
         RecyclerView recyclerView;
 
         Button cancel;
@@ -101,13 +103,6 @@ public class Helper {
           recyclerView.setAdapter(adapter);
           recyclerView.setLayoutManager(new LinearLayoutManager(activity));
           adapter.notifyDataSetChanged();
-
-          recyclerView.setOnClickListener(new View.OnClickListener() {
-              @Override
-              public void onClick(View view) {
-                  bottomSheetDialog.dismiss();
-              }
-          });
           cancel = (Button)view.findViewById(R.id.dismis);
           cancel.setOnClickListener(new View.OnClickListener() {
               @Override
@@ -116,7 +111,13 @@ public class Helper {
                     bottomSheetDialog.dismiss();
               }
           });
-
+         
+          bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+              @Override
+              public void onDismiss(DialogInterface dialogInterface) {
+                  val.callBack(true);
+              }
+          });
           bottomSheetDialog.setContentView(view);
           bottomSheetDialog.show();
 

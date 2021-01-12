@@ -50,7 +50,12 @@ public class StudentSetLessonActivity extends AppCompatActivity {
     RecyclerView lessonList;
     String TAG = "StudentSetLessonActivity";
     ArrayList <LessonModel> model = new ArrayList<>();
-    StudentLessonAdapter adapter;
+      StudentLessonAdapter adapter = new StudentLessonAdapter(model , currentUser , StudentSetLessonActivity.this);
+
+    public StudentLessonAdapter getAdapter() {
+        return adapter;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

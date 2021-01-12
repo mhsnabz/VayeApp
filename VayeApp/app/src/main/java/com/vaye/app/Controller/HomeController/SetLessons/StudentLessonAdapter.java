@@ -71,7 +71,8 @@ public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdap
             @Override
             public void onClick(View view) {
 
-
+        LessonSettingService.shared().removeLesson(list.get(i),currentUser , (Activity) context);
+        notifyDataSetChanged();
             }
         });
         holder.itemView.findViewById(R.id.add).setOnClickListener(new View.OnClickListener() {
@@ -87,7 +88,15 @@ public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdap
 
                 BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.lessonTarget,res );
 
-                Helper.shared().BottomSheetDialogHelper((Activity) context,BottomSheetTarget.lessonTarget , currentUser , model , list.get(i) );
+                Helper.shared().BottomSheetDialogHelper((Activity) context, BottomSheetTarget.lessonTarget, currentUser, model, list.get(i), new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            notifyDataSetChanged();
+                        }
+                    }
+                });
+
             }
         });
 
@@ -137,6 +146,10 @@ public class StudentLessonAdapter extends RecyclerView.Adapter<StudentLessonAdap
                     }
                 }
             });
+        }
+        public void changeImage(){
+            add.setVisibility(View.GONE);
+            remove.setVisibility(View.VISIBLE);
         }
     }
 }

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.R;
@@ -80,8 +81,15 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 public void onClick(View view) {
                     if (model.getItems().get(i).equals(BottomSheetActionTarget.dersi_takip_et)){
 
-                        LessonSettingService.shared().addLesson(lessonModel , currentUser , (Activity) context);
-                        dialog.dismiss();
+                        LessonSettingService.shared().addLesson(lessonModel, currentUser, (Activity) context, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
+
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.ders_hakkında)){
                         Toast.makeText(context,"About Lesson",Toast.LENGTH_SHORT).show();
                         dialog.dismiss();

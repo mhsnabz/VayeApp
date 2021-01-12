@@ -17,6 +17,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivity;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -77,7 +78,7 @@ public class LessonSettingService {
 
    //TODO:-add lesson functions
 
-    public void addLesson(LessonModel model , CurrentUser currentUser , Activity activity){
+    public void addLesson(LessonModel model , CurrentUser currentUser , Activity activity , TrueFalse<Boolean> callBack){
         WaitDialog.show((AppCompatActivity) activity, "Ders Ekleniyor");
         Map<String  , Object> mapFollow =  new HashMap<>();
 
@@ -119,7 +120,7 @@ public class LessonSettingService {
                                     getAllPost(currentUser, model.getLessonName(), activity, new StringArrayListInterface() {
                                         @Override
                                         public void getArrayList(ArrayList<String> list) {
-                                            addAllLessonId(list, currentUser, new TrueFalse<Boolean>() {
+                                            addAllLessonId(list,model.getLessonName(), currentUser, new TrueFalse<Boolean>() {
                                                 @Override
                                                 public void callBack(Boolean _value) {
                                                     if (_value){
@@ -128,6 +129,7 @@ public class LessonSettingService {
                                                             public void callBack(Boolean _value) {
                                                                 TipDialog.show((AppCompatActivity) activity, "Ders Eklendi", TipDialog.TYPE.SUCCESS);
                                                                 TipDialog.dismiss(1500);
+                                                                callBack.callBack(true);
                                                             }
                                                         });
                                                     }
@@ -166,11 +168,12 @@ public class LessonSettingService {
         });
 
     }
-    private void addAllLessonId(ArrayList<String> postId , CurrentUser currentUser , TrueFalse<Boolean> completion){
+    private void addAllLessonId(ArrayList<String> postId ,String lessonName, CurrentUser currentUser , TrueFalse<Boolean> completion){
         //        //user/2YZzIIAdcUfMFHnreosXZOTLZat1/lesson-post/1599800825321
         CollectionReference ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid()).collection("lesson-post");
         for (String id : postId){
             Map<String , String> idMap = new HashMap<>();
+            idMap.put("lessonName",lessonName);
             idMap.put("postId",id);
             ref.document(id).set(idMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
@@ -222,7 +225,27 @@ public class LessonSettingService {
                         @Override
                         public void callBack(Boolean _value) {
                             if (_value){
-
+                            getUserLessonPostId(currentUser, model.getLessonName(), new StringArrayListInterface() {
+                                @Override
+                                public void getArrayList(ArrayList<String> list) {
+                                    removeAllPostId(currentUser, list, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                removeNotificationGetterList(currentUser, model.getLessonName(), new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            TipDialog.show((AppCompatActivity) activity, "Ders Silindi", TipDialog.TYPE.SUCCESS);
+                                                            TipDialog.dismiss(2000);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            });
                             }
                         }
                     });
@@ -251,5 +274,67 @@ public class LessonSettingService {
         });
     }
 
+    private void getUserLessonPostId(CurrentUser currentUser , String  lessonName , StringArrayListInterface list){
+        ArrayList<String> postId = new ArrayList<>();
+        Query db = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("lesson-post").whereEqualTo("lessonName",lessonName);
+        db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        list.getArrayList(postId);
+                    }else{
+                        for (DocumentSnapshot id : task.getResult().getDocuments()){
+                            postId.add(id.getId());
+                        }
+                        list.getArrayList(postId);
+                    }
+                }
+            }
+        });
+    }
+    private void removeAllPostId(CurrentUser currentUser , ArrayList<String> list , TrueFalse<Boolean> completion){
+        CollectionReference db = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("lesson-post");
+        if (list.isEmpty()){
+            completion.callBack(true);
+        }else{
+            for (String  id : list){
+                db.document(id).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                     public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            completion.callBack(true);
+                        }
+                    }
+                });
+            }
+        }
+    }
 
+    private void removeNotificationGetterList(CurrentUser currentUser ,String  lessonName , TrueFalse<Boolean> completion)
+    {
+        //let dbNoti = Firestore.firestore().collection(currentUser.short_school)
+        //                                            .document("lesson").collection(currentUser.bolum)
+        //                                            .document(lessonName!).collection("notification_getter").
+        //                                            document(currentUser.uid)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson")
+                .collection(currentUser.getBolum())
+                .document(lessonName)
+                .collection("notification_getter")
+                .document(currentUser.getUid());
+        ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    completion.callBack(true);
+                }
+            }
+        });
+
+    }
 }
