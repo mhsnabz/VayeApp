@@ -92,6 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/driveLayout"
+        android:id="@+id/datasRec"
         android:layout_margin="2dp"
         >
 

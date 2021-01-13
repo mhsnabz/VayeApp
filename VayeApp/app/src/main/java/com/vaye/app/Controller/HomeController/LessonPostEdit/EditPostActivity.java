@@ -2,6 +2,8 @@ package com.vaye.app.Controller.HomeController.LessonPostEdit;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,6 +44,9 @@ public class EditPostActivity extends AppCompatActivity {
     RelativeLayout driveLayout;
     ImageButton driveIcon , deleteClick;
     TextView linkName;
+
+
+    RecyclerView datas;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +76,7 @@ public class EditPostActivity extends AppCompatActivity {
         rigthBarButton.setImageResource(R.drawable.post_it);
         toolbar.setTitle("");
         toolbar.setSubtitle("");
-        title.setText("Ders Ekle-Çıkar");
+        title.setText("Gönderiyi Düzenle");
 
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -95,7 +100,6 @@ public class EditPostActivity extends AppCompatActivity {
 
 
     private void setView(CurrentUser currentUser , LessonPostModel model){
-
         profileImage = (CircleImageView)findViewById(R.id.profileImage);
         name = (TextView)findViewById(R.id.name);
         username = (TextView)findViewById(R.id.username);
@@ -130,39 +134,43 @@ public class EditPostActivity extends AppCompatActivity {
         name.setText(currentUser.getName());
         username.setText(currentUser.getUsername());
         lessonName.setText(model.getLessonName());
-        text.setText(lessonName.getText());
-
+        text.setText(model.getText());
         if (model.getLink() == null || model.getLink().equals("")){
             driveLayout.setVisibility(View.GONE);
         }else{
-            if( model.getLink().equals("drive.google.com")
-                    ||  model.getLink().equals("www.drive.google.com")){
-                driveIcon.setImageResource(R.drawable.google_drive);
-                linkName.setText(DriveLinkNames.googleDrive);
-            }else if ( model.getLink().equals("onedrive.live.com" )
-                    || model.getLink().equals("www.onedrive.live.com")|| model.getLink().equals("1drv.ms")){
-                driveIcon.setImageResource(R.drawable.onedrive);
-                linkName.setText(DriveLinkNames.onedrive);
+            driveLayout.setVisibility(View.VISIBLE);
+            try {
+                if(MajorPostService.shared().getLink(model.getLink()) .equals("drive.google.com")
+                        || MajorPostService.shared().getLink(model.getLink()).equals("www.drive.google.com")){
+                    driveIcon.setImageResource(R.drawable.google_drive);
+                    linkName.setText(DriveLinkNames.googleDrive);
+                }else if ( MajorPostService.shared().getLink(model.getLink()).equals("onedrive.live.com" )
+                        || MajorPostService.shared().getLink(model.getLink()).equals("www.onedrive.live.com")|| model.getLink().equals("1drv.ms")){
+                    driveIcon.setImageResource(R.drawable.onedrive);
+                    linkName.setText(DriveLinkNames.onedrive);
 
-            }else if ( model.getLink().equals("dropbox.com")
-                    ||  model.getLink().equals("www.dropbox.com")){
-                driveIcon.setImageResource(R.drawable.dropbox);
-                linkName.setText(DriveLinkNames.dropbox);
+                }else if ( MajorPostService.shared().getLink(model.getLink()).equals("dropbox.com")
+                        ||  MajorPostService.shared().getLink(model.getLink()).equals("www.dropbox.com")){
+                    driveIcon.setImageResource(R.drawable.dropbox);
+                    linkName.setText(DriveLinkNames.dropbox);
 
-            }else if ( model.getLink().equals("icloud.com\"")
-                    ||  model.getLink().equals("www.icloud.com\"")){
-                driveIcon.setImageResource(R.drawable.icloud);
-                linkName.setText(DriveLinkNames.icloud);
+                }else if ( MajorPostService.shared().getLink(model.getLink()).equals("icloud.com")
+                        ||  MajorPostService.shared().getLink(model.getLink()).equals("www.icloud.com")){
+                    driveIcon.setImageResource(R.drawable.icloud);
+                    linkName.setText(DriveLinkNames.icloud);
 
-            }else if ( model.getLink().equals("disk.yandex.com.tr")
-                    ||  model.getLink().equals("disk.yandex.com") || model.getLink().equals("yadi.sk")){
-                driveIcon.setImageResource(R.drawable.yandex);
-                linkName.setText(DriveLinkNames.yandex);
+                }else if ( MajorPostService.shared().getLink(model.getLink()).equals("disk.yandex.com.tr")
+                        ||  MajorPostService.shared().getLink(model.getLink()).equals("disk.yandex.com") || model.getLink().equals("yadi.sk")){
+                    driveIcon.setImageResource(R.drawable.yandex);
+                    linkName.setText(DriveLinkNames.yandex);
 
-            }else if ( model.getLink().equals("mega.nz")
-                    ||  model.getLink().equals("www.mega.nz")){
-                driveIcon.setImageResource(R.drawable.mega);
-                linkName.setText(DriveLinkNames.mega);
+                }else if ( MajorPostService.shared().getLink(model.getLink()).equals("mega.nz")
+                        ||  MajorPostService.shared().getLink(model.getLink()).equals("www.mega.nz")){
+                    driveIcon.setImageResource(R.drawable.mega);
+                    linkName.setText(DriveLinkNames.mega);
+                }
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
             }
             deleteClick.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -173,6 +181,12 @@ public class EditPostActivity extends AppCompatActivity {
         }
 
     }
+
+    private void setRecylerView(CurrentUser currentUser , LessonPostModel model){
+        datas = (RecyclerView)findViewById(R.id.datasRec);
+        datas.setLayoutManager(new GridLayoutManager(this,3));
+    }
+
 
     @Override
     public void onBackPressed() {
