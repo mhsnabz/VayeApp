@@ -16,6 +16,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
@@ -24,9 +26,12 @@ import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -182,6 +187,68 @@ public class MajorPostService {
         URI uri = new URI(url);
         String domain = uri.getHost();
         return domain.startsWith("www.") ? domain.substring(4) : domain;
+    }
+
+    public void deleteImage(Activity activity ,String url , String thumb_url,CurrentUser currentUser ,LessonPostModel postModel, TrueFalse<Boolean> val){
+        WaitDialog.show((AppCompatActivity) activity, "Dosya Siliniyor");
+        FirebaseStorage ref = FirebaseStorage.getInstance();
+
+        Map<String , Object> map = new HashMap<>();
+        map.put("data",FieldValue.arrayRemove(url));
+        ref.getReferenceFromUrl(url).delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                            .document("lesson-post").collection("post").document(postModel.getPostId());
+                    reference.set(map,SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                deleteThumbUrl(activity, thumb_url, currentUser, postModel, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            val.callBack(_value);
+                                            WaitDialog.dismiss();
+                                            TipDialog.show((AppCompatActivity) activity, "Dosya Silindi", TipDialog.TYPE.SUCCESS);
+                                            TipDialog.dismiss(1500);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    private void deleteThumbUrl(Activity activity , String url ,CurrentUser currentUser , LessonPostModel postModel , TrueFalse<Boolean> val){
+        //let db = Firestore.firestore().collection(currentUser.short_school)
+        //                    .document("lesson-post").collection("post")
+        //                    .document(postId)
+        FirebaseStorage ref = FirebaseStorage.getInstance();
+        ref.getReferenceFromUrl(url).delete().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                            .document("lesson-post").collection("post").document(postModel.getPostId());
+                        Map<String , Object> map = new HashMap<>();
+                    map.put("thumbData",FieldValue.arrayRemove(url));
+                    reference.set(map,SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                val.callBack(true);
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
 }

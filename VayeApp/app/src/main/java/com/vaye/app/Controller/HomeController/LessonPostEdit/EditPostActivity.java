@@ -4,10 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -44,7 +46,7 @@ public class EditPostActivity extends AppCompatActivity {
     RelativeLayout driveLayout;
     ImageButton driveIcon , deleteClick;
     TextView linkName;
-
+    PostDataAdaptar adaptar;
 
     RecyclerView datas;
     @Override
@@ -180,11 +182,15 @@ public class EditPostActivity extends AppCompatActivity {
             });
         }
 
+        setRecylerView(currentUser , model);
     }
 
     private void setRecylerView(CurrentUser currentUser , LessonPostModel model){
         datas = (RecyclerView)findViewById(R.id.datasRec);
-        datas.setLayoutManager(new GridLayoutManager(this,3));
+        datas.setLayoutManager(new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL));
+        adaptar = new PostDataAdaptar(model.getData() ,model.getThumbData(), this , currentUser , model);
+        datas.setAdapter(adaptar);
+        adaptar.notifyDataSetChanged();
     }
 
 
