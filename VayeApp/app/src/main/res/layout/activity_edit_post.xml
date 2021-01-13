@@ -38,7 +38,7 @@
         android:drawablePadding="5dp"
         android:singleLine="false"
         android:inputType="textCapSentences|textMultiLine"
-        android:hint="..."
+        android:hint="Duyuru Yap..."
         android:text="Deneme deneme deneme"
         android:fontFamily="@font/nunito_semibold"
         android:textSize="12sp"
@@ -52,7 +52,7 @@
             android:layout_below="@id/text"></include>
     <RelativeLayout
         android:id="@+id/driveLayout"
-
+        android:visibility="gone"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -25,6 +25,8 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -174,6 +176,12 @@ public class MajorPostService {
         }else{
             completion.callBack(false);
         }
+    }
+
+    public String getLink(String url) throws URISyntaxException {
+        URI uri = new URI(url);
+        String domain = uri.getHost();
+        return domain.startsWith("www.") ? domain.substring(4) : domain;
     }
 
 }

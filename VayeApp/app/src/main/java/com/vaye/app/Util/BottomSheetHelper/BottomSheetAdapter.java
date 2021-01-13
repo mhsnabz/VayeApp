@@ -2,6 +2,7 @@ package com.vaye.app.Util.BottomSheetHelper;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
+import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
@@ -138,7 +140,13 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 @Override
                 public void onClick(View view) {
                     if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_düzenle)){
-                        Toast.makeText(context , "Gönderiyi Düzenle",Toast.LENGTH_SHORT).show();
+
+                        Intent i = new Intent(context , EditPostActivity.class);
+                        i.putExtra("currentUser",currentUser);
+                        i.putExtra("post",post);
+                        context.startActivity(i);
+                        Helper.shared().go((Activity) context);
+                        dialog.dismiss();
                     }
                     else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_sil))
                     {
