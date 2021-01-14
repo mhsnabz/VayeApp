@@ -3,18 +3,29 @@ package com.vaye.app.Util.BottomSheetHelper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.kongzue.dialog.util.DialogSettings;
+import com.kongzue.dialog.util.InputInfo;
+import com.kongzue.dialog.util.TextInfo;
+import com.kongzue.dialog.v3.CustomDialog;
+import com.kongzue.dialog.v3.InputDialog;
+import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -31,7 +42,7 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     static final int view_lesson = 0;
     static final int view_currentUser = 1;
-
+    static final int view_add_link = 2;
 
     String target;
     CurrentUser currentUser;
@@ -68,6 +79,8 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return view_lesson;
         }else if (model.getTarget().equals(BottomSheetTarget.lesson_currentUser_target)){
             return view_currentUser;
+        }else if (model.getTarget().equals(BottomSheetTarget.post_add_link_target)){
+            return view_add_link;
         }
         return super.getItemViewType(position);
     }
@@ -88,6 +101,12 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         .inflate(R.layout.action_sheet_single_item, parent, false);
 
                 return new BottomSheetLessonCurrentUserViewHolder(view);
+
+            case view_add_link:
+                View view_link = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.action_sheet_single_item, parent, false);
+
+                return new BottomSheetLessonCurrentUserViewHolder(view_link);
 
         }
 
@@ -175,6 +194,59 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             });
         }
+        else if (viewType == view_add_link){
+
+            BottomSheetLessonCurrentUserViewHolder currentUser_holder = (BottomSheetLessonCurrentUserViewHolder) holder;
+            currentUser_holder.setTitle(model.getItems().get(i));
+            currentUser_holder.setImageOne(model.getImagesHolder().get(i));
+            currentUser_holder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    CustomDialog.show((AppCompatActivity) context, R.layout.input_link_layout, new CustomDialog.OnBindView() {
+                        @Override
+                        public void onBind(final CustomDialog _dialog, View v) {
+                        Button addLink = (Button)v.findViewById(R.id.addLink);
+                        Button goDrive = (Button)v.findViewById(R.id.goDrive);
+                        MaterialEditText url = (MaterialEditText)v.findViewById(R.id.link);
+                        goDrive.setText(model.getItems().get(i)+ " git") ;
+                        ImageButton dismiss = (ImageButton)v.findViewById(R.id.dismis);
+                        dismiss.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                _dialog.doDismiss();
+                            }
+                        });
+
+                        addLink.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                            String link = url.getText().toString();
+                            if (link.isEmpty()){
+                                _dialog.doDismiss();
+                            }
+                            else{
+
+                            }
+                            }
+                        });
+
+                        goDrive.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                Intent browse = new Intent( Intent.ACTION_VIEW , Uri.parse( currentUser_holder.getLinkTarget(model.getItems().get(i)) ) );
+
+                                context.startActivity( browse );
+                            }
+                        });
+                        }
+                    });
+
+                }
+            });
+
+        }
     }
 
 
@@ -216,8 +288,23 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         void setTitle(String text){
             title.setText(text);
         }
-    }
 
+        public String getLinkTarget(String item){
+            if (item.equals(BottomSheetActionTarget.dropbox))
+                return  LinkTarget.dropbox;
+            else if (item.equals(BottomSheetActionTarget.google_drive))
+                return  LinkTarget.google_drive;
+            else if (item.equals(BottomSheetActionTarget.yandex_disk))
+                return LinkTarget.yandex;
+            else if (item.equals(BottomSheetActionTarget.iClould))
+                return LinkTarget.iClould;
+            else if (item.equals(BottomSheetActionTarget.mega))
+                return LinkTarget.mega;
+            else if (item.equals(BottomSheetActionTarget.one_drive))
+                return LinkTarget.oneDrive;
+            return  "";
+        }
+    }
 
 
 }

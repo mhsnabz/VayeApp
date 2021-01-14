@@ -250,5 +250,22 @@ public class MajorPostService {
             }
         });
     }
-
+    private void addLink(LessonPostModel post,String link , CurrentUser currentUser , Activity activity , TrueFalse<Boolean> val){
+        // let db = Firestore.firestore().collection(currentUser.short_school)
+        //                .document("lesson-post").collection("post").document(post.postId)
+        DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(post.getPostId());
+        Map<String , String> map = new HashMap<>();
+        map.put("link",link);
+        reference.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+             public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        val.callBack(true);
+                    }
+            }
+        });
+    }
 }

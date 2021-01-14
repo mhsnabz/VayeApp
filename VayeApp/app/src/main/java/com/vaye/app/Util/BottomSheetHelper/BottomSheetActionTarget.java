@@ -10,4 +10,14 @@ public interface BottomSheetActionTarget {
     String gonderiyi_sessize_al = "Gönderiyi Bildirimlerini Sessize Al";
     String gonderi_bildirimlerini_ac = "Gönderi Bildirimlerini Aç";
 
+
+
+    String google_drive = "Google Drive";
+    String one_drive = "Microsoft OneDrive";
+    String dropbox = "Dropbox";
+    String yandex_disk = "Yandex Disk";
+    String mega = "Mega.nz";
+    String iClould = "Apple iCloud";
+
+
 }

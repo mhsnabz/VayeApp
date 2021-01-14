@@ -8,7 +8,7 @@
     android:layout_marginLeft="40dp"
     android:layout_height="wrap_content">
     <ImageButton
-        android:id="@+id/allery"
+        android:id="@+id/gallery"
         android:src="@drawable/gallery_btn"
         android:background="@android:color/transparent"
 

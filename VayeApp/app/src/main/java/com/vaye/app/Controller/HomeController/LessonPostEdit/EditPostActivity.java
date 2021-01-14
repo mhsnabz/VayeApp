@@ -22,13 +22,18 @@ import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.SetLessons.StudentLessonAdapter;
 import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivity;
 import com.vaye.app.Interfaces.DriveLinkNames;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,6 +54,11 @@ public class EditPostActivity extends AppCompatActivity {
     PostDataAdaptar adaptar;
 
     RecyclerView datas;
+
+
+    //Stackview
+    ImageButton addImage, addDoc , addPdf , addLink;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,10 +118,7 @@ public class EditPostActivity extends AppCompatActivity {
         lessonName = (TextView)findViewById(R.id.lessonName);
         progressBar = (ProgressBar)findViewById(R.id.progress);
         text = (EditText)findViewById(R.id.text);
-        driveLayout = (RelativeLayout)findViewById(R.id.driveLayout);
-        driveIcon = (ImageButton)findViewById(R.id.driveIcon);
-        deleteClick = (ImageButton)findViewById(R.id.cancelButton);
-        linkName = (TextView)findViewById(R.id.linkName);
+
         String thumbImage ;
         if (currentUser.getThumb_image()!=null){
             thumbImage = currentUser.getThumb_image();
@@ -137,6 +144,94 @@ public class EditPostActivity extends AppCompatActivity {
         username.setText(currentUser.getUsername());
         lessonName.setText(model.getLessonName());
         text.setText(model.getText());
+
+
+        setRecylerView(currentUser , model);
+        setStackView();
+        detectLink(post);
+    }
+
+    private void setRecylerView(CurrentUser currentUser , LessonPostModel model){
+        datas = (RecyclerView)findViewById(R.id.datasRec);
+        datas.setLayoutManager(new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL));
+        adaptar = new PostDataAdaptar(model.getData() ,model.getThumbData(), this , currentUser , model);
+        datas.setAdapter(adaptar);
+        adaptar.notifyDataSetChanged();
+    }
+
+
+    private void setStackView(){
+        addImage = (ImageButton)findViewById(R.id.gallery);
+        addDoc = (ImageButton)findViewById(R.id.doc);
+        addPdf = (ImageButton)findViewById(R.id.pdf);
+        addLink = (ImageButton)findViewById(R.id.link);
+
+
+        addLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showLinkSheet();
+            }
+        });
+
+        addDoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+
+        addPdf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+
+        });
+
+        addImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
+
+
+    private void showLinkSheet(){
+
+
+        ArrayList<String > items = new ArrayList<>();
+        items.add(BottomSheetActionTarget.google_drive);
+        items.add(BottomSheetActionTarget.one_drive);
+        items.add(BottomSheetActionTarget.dropbox);
+        items.add(BottomSheetActionTarget.yandex_disk);
+        items.add(BottomSheetActionTarget.mega);
+        items.add(BottomSheetActionTarget.iClould);
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(R.drawable.google_drive);
+        res.add(R.drawable.onedrive);
+        res.add(R.drawable.dropbox);
+        res.add(R.drawable.yandex);
+        res.add(R.drawable.mega);
+        res.add(R.drawable.icloud);
+        BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.post_add_link_target , res);
+        Helper.shared().BottomSheetAddLink(EditPostActivity.this, BottomSheetTarget.post_add_link_target, currentUser, model, post, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+
+                detectLink(post);
+            }
+        });
+    }
+
+    private void detectLink(LessonPostModel model){
+        driveLayout = (RelativeLayout)findViewById(R.id.driveLayout);
+        driveIcon = (ImageButton)findViewById(R.id.driveIcon);
+        deleteClick = (ImageButton)findViewById(R.id.cancelButton);
+        linkName = (TextView)findViewById(R.id.linkName);
+
         if (model.getLink() == null || model.getLink().equals("")){
             driveLayout.setVisibility(View.GONE);
         }else{
@@ -181,18 +276,7 @@ public class EditPostActivity extends AppCompatActivity {
                 }
             });
         }
-
-        setRecylerView(currentUser , model);
     }
-
-    private void setRecylerView(CurrentUser currentUser , LessonPostModel model){
-        datas = (RecyclerView)findViewById(R.id.datasRec);
-        datas.setLayoutManager(new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL));
-        adaptar = new PostDataAdaptar(model.getData() ,model.getThumbData(), this , currentUser , model);
-        datas.setAdapter(adaptar);
-        adaptar.notifyDataSetChanged();
-    }
-
 
     @Override
     public void onBackPressed() {
