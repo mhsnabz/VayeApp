@@ -1,28 +1,20 @@
 package com.vaye.app.Controller.HomeController.LessonPostEdit;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -32,49 +24,41 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.esafirm.imagepicker.features.ImagePicker;
-import com.esafirm.imagepicker.features.ReturnMode;
-import com.esafirm.imagepicker.model.Image;
+
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
-import com.kaopiz.kprogresshud.KProgressHUD;
 import com.kongzue.dialog.v3.WaitDialog;
-
-
-
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.DriveLinkNames;
 import com.vaye.app.Interfaces.StringArrayListInterface;
+import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.UploadFiles;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
-import com.vaye.app.Services.MajorPostUploadService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import id.zelory.compressor.Compressor;
+import droidninja.filepicker.FilePickerBuilder;
 
 public class EditPostActivity extends AppCompatActivity {
     private static final String TAG ="EditPostActivity" ;
@@ -83,7 +67,7 @@ public class EditPostActivity extends AppCompatActivity {
     TextView title;
     ImageButton rigthBarButton;
     CurrentUser currentUser;
-
+    StorageTask<UploadTask.TaskSnapshot> uploadTask;
     CircleImageView profileImage;
     TextView name , username , lessonName;
     ProgressBar progressBar;
@@ -348,20 +332,16 @@ public class EditPostActivity extends AppCompatActivity {
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cR.getType(uri));
     }
-    @Override
-    protected void onActivityResult(int requestCode, final int resultCode, Intent data) {
-        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-            Image image = ImagePicker.getFirstImageOrNull(data);
-            ArrayList<UploadFiles> files = new ArrayList<>();
-            files.add(new UploadFiles(image.getUri() , "image"));
-            MajorPostUploadService.shared().uploadToDatebase(this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, files, new StringArrayListInterface() {
-                @Override
-                public void getArrayList(ArrayList<String> list) {
+    List<Uri> mSelected;
 
-                }
-            });
-        }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == gallery_request && resultCode == RESULT_OK) {
+
+
+            }
+
     }
     @Override
     public void onBackPressed() {
@@ -389,26 +369,8 @@ public class EditPostActivity extends AppCompatActivity {
     }
     private void pickGallery()
     {
-
-        ArrayList<Image> images = new ArrayList<>();
-      ImagePicker.create(this)
-              .language("tr")
-              .folderMode(true)
-              .toolbarFolderTitle("Resim Seç")
-              .toolbarImageTitle("Seçmek İçin Dokun")
-              .includeVideo(false)
-              .single()
-              .limit(1)
-              .showCamera(false)
-              .origin(images)
-              .exclude(images)
-              .enableLog(false)
-              .start();
-
-
+        
     }
-
-
 
 
 

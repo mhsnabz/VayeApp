@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
 import id.zelory.compressor.Compressor;
@@ -59,39 +60,37 @@ public class MajorPostUploadService {
             e.printStackTrace();
         }
     }
+    int uploadCount;
 //lesson_key : String , date : String ,currentUser : CurrentUser
 //                            , lessonName : String , type : [String] , datas : [Data]
     private void save_datas(Activity activity,String lesson_key , String date , CurrentUser currentUser , ArrayList<UploadFiles> files , StringArrayListInterface completion) throws InterruptedException {
         ArrayList<String> uploadedImageUrlsArray = new ArrayList<>();
-        int uploadCount = 0;
+        uploadCount = 0;
         int imagesCount = files.size();
         Semaphore semaphore = new Semaphore(1);
         for (UploadFiles file : files){
 
-            WaitDialog.show((AppCompatActivity) activity, "Dosyalar Yükleniyor");
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
-                    super.run();
-                    try {
-                        sleep(2000);
-                    }catch (InterruptedException ex){
-                        Log.d(TAG, "run: " + ex.getLocalizedMessage());
-                    }finally
-                    {
-                        saveDatasToDataBase(activity, lesson_key, date, currentUser, file.getType(), file.getFileUri(), uploadCount, imagesCount, new StringCompletion() {
-                            @Override
-                            public void getString(String string) throws InterruptedException {
-                                uploadedImageUrlsArray.add(string);
-                                completion.getArrayList(uploadedImageUrlsArray);
-                                WaitDialog.dismiss();
 
-                            }
-                        });
+            WaitDialog.show((AppCompatActivity) activity , imagesCount+". Dosya Yükleniyor");
+          //  semaphore.acquire();
+
+
+            saveDatasToDataBase(activity, lesson_key, date, currentUser, file.getType(), file.getFileUri(), uploadCount, imagesCount, new StringCompletion() {
+                @Override
+                public void getString(String string) throws InterruptedException {
+                    uploadCount++;
+                    uploadedImageUrlsArray.add(string);
+                    WaitDialog.show((AppCompatActivity) activity , uploadCount +".Dosya Yüklenidi");
+                    if (uploadCount == imagesCount){
+                        completion.getArrayList(uploadedImageUrlsArray);
+                   //    semaphore.release();
+
+                    }else{
+                    //   semaphore.release();
+                       WaitDialog.dismiss();
                     }
                 }
-            };
-            thread.start();
+            });
         }
     }
 //lesson_key : String ,date : String ,currentUser : CurrentUser ,
@@ -111,10 +110,11 @@ public class MajorPostUploadService {
                     .child(currentUser.getUsername())
                     .child(date)
                     .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +DataTypes.mimeType.image);
-            ref.putFile(data , metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+       uploadTask =  ref.putFile(data , metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if (task.isSuccessful()){
+
                         try {
                             completion.getString(String.valueOf(task.getResult().getMetadata().getReference().getDownloadUrl()));
                         } catch (InterruptedException e) {
@@ -126,6 +126,25 @@ public class MajorPostUploadService {
             });
         }
 
+        try {
+            com.google.android.gms.tasks.Tasks.await(uploadTask);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+
+        }
+
+            uploadTask.addOnProgressListener(activity, new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                Log.d(TAG, "onProgress: " + snapshot.getBytesTransferred());
+                Log.d(TAG, "upload count: " + uploadCount);
+                Log.d(TAG, "upload count: " + imagesCount);
+            }
+        });
+
     }
+
+
 
 }
