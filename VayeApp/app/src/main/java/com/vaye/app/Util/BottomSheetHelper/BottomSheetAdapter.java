@@ -25,6 +25,7 @@ import com.kongzue.dialog.util.InputInfo;
 import com.kongzue.dialog.util.TextInfo;
 import com.kongzue.dialog.v3.CustomDialog;
 import com.kongzue.dialog.v3.InputDialog;
+import com.kongzue.dialog.v3.TipDialog;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
@@ -36,6 +37,10 @@ import com.vaye.app.R;
 import com.vaye.app.Services.LessonSettingService;
 import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.Helper;
+
+import java.net.URISyntaxException;
+
+import io.perfmark.Link;
 
 public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
@@ -226,6 +231,92 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 _dialog.doDismiss();
                             }
                             else{
+                                try {
+                                    String linkName =  MajorPostService.shared().getLink(link);
+
+                                    if (linkName.equals(LinkNames.dropbox))
+                                    {
+                                        MajorPostService.shared().addLink(post, link, currentUser, (Activity) context, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    post.setLink(link);
+                                                    _dialog.doDismiss();
+                                                    dialog.dismiss();
+
+                                                }
+                                            }
+                                        });
+                                    }else if (linkName.equals(LinkNames.yandex) || linkName.equals(LinkNames.yandex_tr) || linkName.equals(LinkNames.yandex_sk)){
+                                        MajorPostService.shared().addLink(post, link, currentUser, (Activity) context, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    post.setLink(link);
+                                                    _dialog.doDismiss();
+                                                    dialog.dismiss();
+
+                                                }
+                                            }
+                                        });
+
+                                    }else if (linkName.equals(LinkNames.icloud)){
+                                        MajorPostService.shared().addLink(post, link, currentUser, (Activity) context, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    post.setLink(link);
+                                                    _dialog.doDismiss();
+                                                    dialog.dismiss();
+
+                                                }
+                                            }
+                                        });
+                                    }else if (linkName.equals(LinkNames.google_drive)){
+                                        MajorPostService.shared().addLink(post, link, currentUser, (Activity) context, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    post.setLink(link);
+                                                    _dialog.doDismiss();
+                                                    dialog.dismiss();
+
+                                                }
+                                            }
+                                        });
+                                    }else if (linkName.equals(LinkNames.one_drive)){
+                                        MajorPostService.shared().addLink(post, link, currentUser, (Activity) context, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    post.setLink(link);
+                                                    _dialog.doDismiss();
+                                                    dialog.dismiss();
+
+                                                }
+                                            }
+                                        });
+                                    }else if (linkName.equals(LinkNames.mega)){
+                                        MajorPostService.shared().addLink(post, link, currentUser, (Activity) context, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    post.setLink(link);
+                                                    _dialog.doDismiss();
+                                                    dialog.dismiss();
+
+                                                }
+                                            }
+                                        });
+                                    }else{
+                                        _dialog.doDismiss();
+                                        TipDialog.show((AppCompatActivity) context, "Bu Bağlantıyı Tanıyamadık" , TipDialog.TYPE.ERROR);
+                                    }
+
+
+                                } catch (URISyntaxException e) {
+                                    e.printStackTrace();
+                                }
 
                             }
                             }

@@ -352,7 +352,7 @@ public class BolumFragment extends Fragment {
             {
                 if (!lessonPostModels.isEmpty()){
                     lessonPostModels.add(new LessonPostModel("","","","","","","","","",null,null,null,null,null,null,null,0,
-                            lessonPostModels.get(lessonPostModels.size() -1).getPostTime(),unifiedNativeAd,"","ads"));
+                            lessonPostModels.get(lessonPostModels.size() -1).getPostTime(),unifiedNativeAd,"","ads",""));
                     adapter.notifyDataSetChanged();
                 }
 

@@ -1,43 +1,83 @@
 package com.vaye.app.Controller.HomeController.LessonPostEdit;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.rpc.Help;
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.features.ReturnMode;
+import com.esafirm.imagepicker.model.Image;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.kaopiz.kprogresshud.KProgressHUD;
+import com.kongzue.dialog.v3.WaitDialog;
+
+
+
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.vaye.app.Controller.HomeController.SetLessons.StudentLessonAdapter;
-import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivity;
+import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.DriveLinkNames;
+import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.UploadFiles;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
+import com.vaye.app.Services.MajorPostUploadService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 public class EditPostActivity extends AppCompatActivity {
+    private static final String TAG ="EditPostActivity" ;
     Toolbar toolbar;
     LessonPostModel post;
     TextView title;
@@ -56,6 +96,11 @@ public class EditPostActivity extends AppCompatActivity {
     RecyclerView datas;
 
 
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int gallery_request =400;
+    private static final int image_pick_request =600;
+    private static final int camera_pick_request =800;
+    String storagePermission[];
     //Stackview
     ImageButton addImage, addDoc , addPdf , addLink;
 
@@ -193,7 +238,7 @@ public class EditPostActivity extends AppCompatActivity {
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+              uploadImage();
             }
         });
     }
@@ -239,32 +284,38 @@ public class EditPostActivity extends AppCompatActivity {
             try {
                 if(MajorPostService.shared().getLink(model.getLink()) .equals("drive.google.com")
                         || MajorPostService.shared().getLink(model.getLink()).equals("www.drive.google.com")){
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(model.getLink()));
                     driveIcon.setImageResource(R.drawable.google_drive);
                     linkName.setText(DriveLinkNames.googleDrive);
                 }else if ( MajorPostService.shared().getLink(model.getLink()).equals("onedrive.live.com" )
                         || MajorPostService.shared().getLink(model.getLink()).equals("www.onedrive.live.com")|| model.getLink().equals("1drv.ms")){
                     driveIcon.setImageResource(R.drawable.onedrive);
                     linkName.setText(DriveLinkNames.onedrive);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(model.getLink()));
 
                 }else if ( MajorPostService.shared().getLink(model.getLink()).equals("dropbox.com")
                         ||  MajorPostService.shared().getLink(model.getLink()).equals("www.dropbox.com")){
                     driveIcon.setImageResource(R.drawable.dropbox);
                     linkName.setText(DriveLinkNames.dropbox);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(model.getLink()));
 
                 }else if ( MajorPostService.shared().getLink(model.getLink()).equals("icloud.com")
                         ||  MajorPostService.shared().getLink(model.getLink()).equals("www.icloud.com")){
                     driveIcon.setImageResource(R.drawable.icloud);
                     linkName.setText(DriveLinkNames.icloud);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(model.getLink()));
 
                 }else if ( MajorPostService.shared().getLink(model.getLink()).equals("disk.yandex.com.tr")
                         ||  MajorPostService.shared().getLink(model.getLink()).equals("disk.yandex.com") || model.getLink().equals("yadi.sk")){
                     driveIcon.setImageResource(R.drawable.yandex);
                     linkName.setText(DriveLinkNames.yandex);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(model.getLink()));
 
                 }else if ( MajorPostService.shared().getLink(model.getLink()).equals("mega.nz")
                         ||  MajorPostService.shared().getLink(model.getLink()).equals("www.mega.nz")){
                     driveIcon.setImageResource(R.drawable.mega);
                     linkName.setText(DriveLinkNames.mega);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(model.getLink()));
                 }
             } catch (URISyntaxException e) {
                 e.printStackTrace();
@@ -272,15 +323,93 @@ public class EditPostActivity extends AppCompatActivity {
             deleteClick.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    MajorPostService.shared().deleteLink(post, currentUser, EditPostActivity.this, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if(_value){
+                                post.setLink("");
+                                detectLink(post);
+                            }
+                        }
+                    });
                 }
             });
         }
     }
 
+    private void openFileChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+    private String getFileExtension(Uri uri) {
+        ContentResolver cR = getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+    @Override
+    protected void onActivityResult(int requestCode, final int resultCode, Intent data) {
+        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+            Image image = ImagePicker.getFirstImageOrNull(data);
+            ArrayList<UploadFiles> files = new ArrayList<>();
+            files.add(new UploadFiles(image.getUri() , "image"));
+            MajorPostUploadService.shared().uploadToDatebase(this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, files, new StringArrayListInterface() {
+                @Override
+                public void getArrayList(ArrayList<String> list) {
+
+                }
+            });
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         Helper.shared().back(EditPostActivity.this);
     }
+
+
+    //TODO-permission
+    private void uploadImage() {
+        if (!checkGalleryPermissions()){
+            requestStoragePermission();
+        }
+        else{ pickGallery();}
+    }
+    private boolean checkGalleryPermissions()
+    {
+        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+    private void requestStoragePermission()
+    {
+        ActivityCompat.requestPermissions(this,storagePermission,gallery_request);
+
+    }
+    private void pickGallery()
+    {
+
+        ArrayList<Image> images = new ArrayList<>();
+      ImagePicker.create(this)
+              .language("tr")
+              .folderMode(true)
+              .toolbarFolderTitle("Resim Seç")
+              .toolbarImageTitle("Seçmek İçin Dokun")
+              .includeVideo(false)
+              .single()
+              .limit(1)
+              .showCamera(false)
+              .origin(images)
+              .exclude(images)
+              .enableLog(false)
+              .start();
+
+
+    }
+
+
+
+
+
 }

@@ -1,6 +1,7 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,11 +21,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Interfaces.DriveLinkNames;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.R;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -250,7 +253,7 @@ public class MajorPostService {
             }
         });
     }
-    private void addLink(LessonPostModel post,String link , CurrentUser currentUser , Activity activity , TrueFalse<Boolean> val){
+    public void addLink(LessonPostModel post,String link , CurrentUser currentUser , Activity activity , TrueFalse<Boolean> val){
         // let db = Firestore.firestore().collection(currentUser.short_school)
         //                .document("lesson-post").collection("post").document(post.postId)
         DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
@@ -268,4 +271,24 @@ public class MajorPostService {
             }
         });
     }
+
+    public void deleteLink(LessonPostModel post , CurrentUser currentUser , Activity activity , TrueFalse<Boolean> val){
+        WaitDialog.show((AppCompatActivity) activity,"");
+        DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(post.getPostId());
+        Map<String , String> map = new HashMap<>();
+        map.put("link","");
+        reference.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    val.callBack(true);
+                    WaitDialog.dismiss();
+                }
+            }
+        });
+    }
+
 }

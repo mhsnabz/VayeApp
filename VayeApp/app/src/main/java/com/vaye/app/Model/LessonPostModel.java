@@ -18,6 +18,35 @@ public class LessonPostModel implements Parcelable {
     Timestamp postTime;
     UnifiedNativeAd nativeAd;
     String empty, type;
+    String lesson_key;
+
+    public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumbData, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime, UnifiedNativeAd nativeAd, String empty, String type, String lesson_key) {
+        this.lessonName = lessonName;
+        this.senderName = senderName;
+        this.text = text;
+        this.senderUid = senderUid;
+        this.postId = postId;
+        this.link = link;
+        this.id = id;
+        this.thumb_image = thumb_image;
+        this.username = username;
+        this.thumbData = thumbData;
+        this.data = data;
+        this.silent = silent;
+        this.favori = favori;
+        this.dislike = dislike;
+        this.likes = likes;
+        this.post_ID = post_ID;
+        this.comment = comment;
+        this.postTime = postTime;
+        this.nativeAd = nativeAd;
+        this.empty = empty;
+        this.type = type;
+        this.lesson_key = lesson_key;
+    }
+
+    public LessonPostModel() {
+    }
 
     protected LessonPostModel(Parcel in) {
         lessonName = in.readString();
@@ -44,6 +73,7 @@ public class LessonPostModel implements Parcelable {
         postTime = in.readParcelable(Timestamp.class.getClassLoader());
         empty = in.readString();
         type = in.readString();
+        lesson_key = in.readString();
     }
 
     public static final Creator<LessonPostModel> CREATOR = new Creator<LessonPostModel>() {
@@ -226,31 +256,12 @@ public class LessonPostModel implements Parcelable {
         this.type = type;
     }
 
-    public LessonPostModel() {
+    public String getLesson_key() {
+        return lesson_key;
     }
 
-    public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumbData, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime, UnifiedNativeAd nativeAd, String empty, String type) {
-        this.lessonName = lessonName;
-        this.senderName = senderName;
-        this.text = text;
-        this.senderUid = senderUid;
-        this.postId = postId;
-        this.link = link;
-        this.id = id;
-        this.thumb_image = thumb_image;
-        this.username = username;
-        this.thumbData = thumbData;
-        this.data = data;
-        this.silent = silent;
-        this.favori = favori;
-        this.dislike = dislike;
-        this.likes = likes;
-        this.post_ID = post_ID;
-        this.comment = comment;
-        this.postTime = postTime;
-        this.nativeAd = nativeAd;
-        this.empty = empty;
-        this.type = type;
+    public void setLesson_key(String lesson_key) {
+        this.lesson_key = lesson_key;
     }
 
     @Override
@@ -285,9 +296,6 @@ public class LessonPostModel implements Parcelable {
         parcel.writeParcelable(postTime, i);
         parcel.writeString(empty);
         parcel.writeString(type);
-    }
-
-    public static Creator<LessonPostModel> getCREATOR() {
-        return CREATOR;
+        parcel.writeString(lesson_key);
     }
 }

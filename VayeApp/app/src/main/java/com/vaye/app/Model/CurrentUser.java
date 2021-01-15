@@ -8,16 +8,14 @@ import java.util.ArrayList;
 
 public class CurrentUser implements Parcelable {
 
-    String email , name,number,priority,profileImage,thumb_image,schoolName,short_school,bolum,fakulte,uid,username,linkedin,instagram,twitter,github;
+    String email  , bolum_key , name,number,priority,profileImage,thumb_image,schoolName,short_school,bolum,fakulte,uid,username,linkedin,instagram,twitter,github;
     int totalBadge ;
     Boolean allowRequest,comment,mention,like,follow,lessonNotices;
    ArrayList<String> slientUser,friendList,slientChatUser;
 
-    public CurrentUser() {
-    }
-
-    public CurrentUser(String email, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slientUser, ArrayList<String> friendList, ArrayList<String> slientChatUser) {
+    public CurrentUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slientUser, ArrayList<String> friendList, ArrayList<String> slientChatUser) {
         this.email = email;
+        this.bolum_key = bolum_key;
         this.name = name;
         this.number = number;
         this.priority = priority;
@@ -45,8 +43,12 @@ public class CurrentUser implements Parcelable {
         this.slientChatUser = slientChatUser;
     }
 
+    public CurrentUser() {
+    }
+
     protected CurrentUser(Parcel in) {
         email = in.readString();
+        bolum_key = in.readString();
         name = in.readString();
         number = in.readString();
         priority = in.readString();
@@ -96,204 +98,212 @@ public class CurrentUser implements Parcelable {
         return email;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public String getPriority() {
-        return priority;
-    }
-
-    public String getProfileImage() {
-        return profileImage;
-    }
-
-    public String getThumb_image() {
-        return thumb_image;
-    }
-
-    public String getSchoolName() {
-        return schoolName;
-    }
-
-    public String getShort_school() {
-        return short_school;
-    }
-
-    public String getBolum() {
-        return bolum;
-    }
-
-    public String getFakulte() {
-        return fakulte;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getLinkedin() {
-        return linkedin;
-    }
-
-    public String getInstagram() {
-        return instagram;
-    }
-
-    public String getTwitter() {
-        return twitter;
-    }
-
-    public String getGithub() {
-        return github;
-    }
-
-    public int getTotalBadge() {
-        return totalBadge;
-    }
-
-    public Boolean getAllowRequest() {
-        return allowRequest;
-    }
-
-    public Boolean getComment() {
-        return comment;
-    }
-
-    public Boolean getMention() {
-        return mention;
-    }
-
-    public Boolean getLike() {
-        return like;
-    }
-
-    public Boolean getFollow() {
-        return follow;
-    }
-
-    public Boolean getLessonNotices() {
-        return lessonNotices;
-    }
-
-    public ArrayList<String> getSlientUser() {
-        return slientUser;
-    }
-
-    public ArrayList<String> getFriendList() {
-        return friendList;
-    }
-
-    public ArrayList<String> getSlientChatUser() {
-        return slientChatUser;
-    }
-
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getBolum_key() {
+        return bolum_key;
+    }
+
+    public void setBolum_key(String bolum_key) {
+        this.bolum_key = bolum_key;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getNumber() {
+        return number;
+    }
+
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public String getPriority() {
+        return priority;
     }
 
     public void setPriority(String priority) {
         this.priority = priority;
     }
 
+    public String getProfileImage() {
+        return profileImage;
+    }
+
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public String getThumb_image() {
+        return thumb_image;
     }
 
     public void setThumb_image(String thumb_image) {
         this.thumb_image = thumb_image;
     }
 
+    public String getSchoolName() {
+        return schoolName;
+    }
+
     public void setSchoolName(String schoolName) {
         this.schoolName = schoolName;
+    }
+
+    public String getShort_school() {
+        return short_school;
     }
 
     public void setShort_school(String short_school) {
         this.short_school = short_school;
     }
 
+    public String getBolum() {
+        return bolum;
+    }
+
     public void setBolum(String bolum) {
         this.bolum = bolum;
+    }
+
+    public String getFakulte() {
+        return fakulte;
     }
 
     public void setFakulte(String fakulte) {
         this.fakulte = fakulte;
     }
 
+    public String getUid() {
+        return uid;
+    }
+
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
+    public String getLinkedin() {
+        return linkedin;
+    }
+
     public void setLinkedin(String linkedin) {
         this.linkedin = linkedin;
+    }
+
+    public String getInstagram() {
+        return instagram;
     }
 
     public void setInstagram(String instagram) {
         this.instagram = instagram;
     }
 
+    public String getTwitter() {
+        return twitter;
+    }
+
     public void setTwitter(String twitter) {
         this.twitter = twitter;
+    }
+
+    public String getGithub() {
+        return github;
     }
 
     public void setGithub(String github) {
         this.github = github;
     }
 
+    public int getTotalBadge() {
+        return totalBadge;
+    }
+
     public void setTotalBadge(int totalBadge) {
         this.totalBadge = totalBadge;
+    }
+
+    public Boolean getAllowRequest() {
+        return allowRequest;
     }
 
     public void setAllowRequest(Boolean allowRequest) {
         this.allowRequest = allowRequest;
     }
 
+    public Boolean getComment() {
+        return comment;
+    }
+
     public void setComment(Boolean comment) {
         this.comment = comment;
+    }
+
+    public Boolean getMention() {
+        return mention;
     }
 
     public void setMention(Boolean mention) {
         this.mention = mention;
     }
 
+    public Boolean getLike() {
+        return like;
+    }
+
     public void setLike(Boolean like) {
         this.like = like;
+    }
+
+    public Boolean getFollow() {
+        return follow;
     }
 
     public void setFollow(Boolean follow) {
         this.follow = follow;
     }
 
+    public Boolean getLessonNotices() {
+        return lessonNotices;
+    }
+
     public void setLessonNotices(Boolean lessonNotices) {
         this.lessonNotices = lessonNotices;
+    }
+
+    public ArrayList<String> getSlientUser() {
+        return slientUser;
     }
 
     public void setSlientUser(ArrayList<String> slientUser) {
         this.slientUser = slientUser;
     }
 
+    public ArrayList<String> getFriendList() {
+        return friendList;
+    }
+
     public void setFriendList(ArrayList<String> friendList) {
         this.friendList = friendList;
+    }
+
+    public ArrayList<String> getSlientChatUser() {
+        return slientChatUser;
     }
 
     public void setSlientChatUser(ArrayList<String> slientChatUser) {
@@ -308,6 +318,7 @@ public class CurrentUser implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(email);
+        parcel.writeString(bolum_key);
         parcel.writeString(name);
         parcel.writeString(number);
         parcel.writeString(priority);
