@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -46,6 +47,7 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.UploadFiles;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
+import com.vaye.app.Services.MajorPostUploadService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
@@ -57,6 +59,7 @@ import com.vincent.filepicker.filter.entity.ImageFile;
 import com.vincent.filepicker.filter.entity.NormalFile;
 import com.vincent.filepicker.filter.entity.VideoFile;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -352,9 +355,17 @@ public class EditPostActivity extends AppCompatActivity {
         switch (requestCode){
             case Constant.REQUEST_CODE_PICK_IMAGE:
                 if (resultCode == RESULT_OK) {
+
                     ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
                     for (ImageFile file : list){
-                        Log.d(TAG, "onActivityResult: " + file.getPath());
+                        Uri fileUri =Uri.fromFile(new File(file.getPath()));
+                        MajorPostUploadService.shared().uploadSingleFile(this, post.getLesson_key(),
+                                String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, new UploadFiles(fileUri, "image"), new StringCompletion() {
+                                    @Override
+                                    public void getString(String string) {
+                                        Toast.makeText(EditPostActivity.this,string , Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     }
 
                 }

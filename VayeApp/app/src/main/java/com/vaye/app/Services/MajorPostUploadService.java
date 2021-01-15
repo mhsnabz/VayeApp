@@ -46,8 +46,7 @@ public class MajorPostUploadService {
     public static MajorPostUploadService shared() {
         return instance;
     }
-//lesson_key : String ,postDate : String ,currentUser : CurrentUser ,lessonName : String,
-// type : [String] , data : [Data] , completion : @escaping([String]) -> Void
+
     public void uploadToDatebase(Activity activity,String lesson_key , String postDate , CurrentUser currentUser , ArrayList<UploadFiles> files , StringArrayListInterface listOfUrl){
         try {
             save_datas(activity, lesson_key, postDate, currentUser, files, new StringArrayListInterface() {
@@ -60,9 +59,39 @@ public class MajorPostUploadService {
             e.printStackTrace();
         }
     }
+
+
+
+
+    public void uploadSingleFile(Activity activity,String lesson_key , String postDate , CurrentUser currentUser , UploadFiles files , StringCompletion url){
+        save_single_data(activity, lesson_key, postDate, currentUser, files, new StringCompletion() {
+            @Override
+            public void getString(String string)  {
+                save_single_data(activity, lesson_key, postDate, currentUser, files, new StringCompletion() {
+                    @Override
+                    public void getString(String string) {
+                        url.getString(string);
+                    }
+                });
+            }
+        });
+    }
+
+    private void save_single_data(Activity activity,String lesson_key , String date , CurrentUser currentUser , UploadFiles files , StringCompletion val){
+        WaitDialog.show((AppCompatActivity) activity ,"Dosya Yükleniyor");
+
+        saveDatasToDataBase(activity, lesson_key, date, currentUser, files.getType(), files.getFileUri(), 0, 1, new StringCompletion() {
+            @Override
+            public void getString(String string) {
+                val.getString(string);
+            }
+        });
+    }
+
+
+
     int uploadCount;
-//lesson_key : String , date : String ,currentUser : CurrentUser
-//                            , lessonName : String , type : [String] , datas : [Data]
+
     private void save_datas(Activity activity,String lesson_key , String date , CurrentUser currentUser , ArrayList<UploadFiles> files , StringArrayListInterface completion) throws InterruptedException {
         ArrayList<String> uploadedImageUrlsArray = new ArrayList<>();
         uploadCount = 0;
@@ -77,13 +106,13 @@ public class MajorPostUploadService {
 
             saveDatasToDataBase(activity, lesson_key, date, currentUser, file.getType(), file.getFileUri(), uploadCount, imagesCount, new StringCompletion() {
                 @Override
-                public void getString(String string) throws InterruptedException {
+                public void getString(String string) {
                     uploadCount++;
                     uploadedImageUrlsArray.add(string);
                     WaitDialog.show((AppCompatActivity) activity , uploadCount +".Dosya Yüklenidi");
                     if (uploadCount == imagesCount){
                         completion.getArrayList(uploadedImageUrlsArray);
-                   //    semaphore.release();
+                        WaitDialog.dismiss();
 
                     }else{
                     //   semaphore.release();
@@ -93,9 +122,7 @@ public class MajorPostUploadService {
             });
         }
     }
-//lesson_key : String ,date : String ,currentUser : CurrentUser ,
-// lessonName : String ,_ type : String ,_ data : Data
-// ,_ uploadCount : Int,_ imagesCount : Int, completion : @escaping(String) ->Void)
+
 
     private void saveDatasToDataBase(Activity activity ,String lesson_key , String date , CurrentUser currentUser , String type , Uri data,
     int uploadCount , int imagesCount , StringCompletion completion ){
@@ -114,25 +141,16 @@ public class MajorPostUploadService {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if (task.isSuccessful()){
-
-                        try {
-                            completion.getString(String.valueOf(task.getResult().getMetadata().getReference().getDownloadUrl()));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        completion.getString(String.valueOf(task.getResult().getMetadata().getReference().getDownloadUrl()));
                         Log.d(TAG, "onComplete: "+ task.getResult().getMetadata().getReference().getDownloadUrl());
+                        WaitDialog.dismiss();
+                        }
+
                     }
-                }
+
             });
         }
 
-        try {
-            com.google.android.gms.tasks.Tasks.await(uploadTask);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-
-        }
 
             uploadTask.addOnProgressListener(activity, new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
