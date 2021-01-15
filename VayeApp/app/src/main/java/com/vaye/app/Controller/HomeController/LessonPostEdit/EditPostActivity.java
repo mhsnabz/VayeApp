@@ -50,15 +50,22 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
+import com.vincent.filepicker.Constant;
+import com.vincent.filepicker.activity.ImagePickActivity;
+import com.vincent.filepicker.filter.entity.AudioFile;
+import com.vincent.filepicker.filter.entity.ImageFile;
+import com.vincent.filepicker.filter.entity.NormalFile;
+import com.vincent.filepicker.filter.entity.VideoFile;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.Semaphore;
+
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import droidninja.filepicker.FilePickerBuilder;
+
+import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class EditPostActivity extends AppCompatActivity {
     private static final String TAG ="EditPostActivity" ;
@@ -84,6 +91,11 @@ public class EditPostActivity extends AppCompatActivity {
     private static final int gallery_request =400;
     private static final int image_pick_request =600;
     private static final int camera_pick_request =800;
+
+    private int MAX_ATTACHMENT_COUNT = 10;
+    private ArrayList<String> photoPaths = new ArrayList<>();
+    private ArrayList<Uri> docPaths = new ArrayList<>();
+
     String storagePermission[];
     //Stackview
     ImageButton addImage, addDoc , addPdf , addLink;
@@ -337,10 +349,33 @@ public class EditPostActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == gallery_request && resultCode == RESULT_OK) {
+        switch (requestCode){
+            case Constant.REQUEST_CODE_PICK_IMAGE:
+                if (resultCode == RESULT_OK) {
+                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
+                    for (ImageFile file : list){
+                        Log.d(TAG, "onActivityResult: " + file.getPath());
+                    }
 
+                }
+                break;
+            case Constant.REQUEST_CODE_PICK_VIDEO:
+                if (resultCode == RESULT_OK) {
+                    ArrayList<VideoFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_VIDEO);
+                }
+                break;
+            case Constant.REQUEST_CODE_PICK_AUDIO:
+                if (resultCode == RESULT_OK) {
+                    ArrayList<AudioFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_AUDIO);
+                }
+                break;
+            case Constant.REQUEST_CODE_PICK_FILE:
+                if (resultCode == RESULT_OK) {
+                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+                }
+                break;
+        }
 
-            }
 
     }
     @Override
@@ -369,7 +404,11 @@ public class EditPostActivity extends AppCompatActivity {
     }
     private void pickGallery()
     {
-        
+        Intent intent1 = new Intent(this, ImagePickActivity.class);
+        intent1.putExtra(IS_NEED_CAMERA, false);
+        intent1.putExtra(Constant.MAX_NUMBER, 1);
+        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+
     }
 
 
