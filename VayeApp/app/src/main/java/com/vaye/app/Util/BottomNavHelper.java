@@ -25,12 +25,14 @@ public class BottomNavHelper
                     case R.id.home:
                         Intent i = new Intent(context , HomeActivity.class);
                         i.putExtra("currentUser",currentUser);
+
                         context.startActivity(i);
                         break;
                     case R.id.vaye:
                         Intent i1 = new Intent(context , VayeAppActivity.class);
                         i1.putExtra("currentUser",currentUser);
                         context.startActivity(i1);
+
                         break;
                     case R.id.notificaiton:
                         Intent i2 = new Intent(context , NotificationActivity.class);

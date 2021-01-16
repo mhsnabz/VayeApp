@@ -19,11 +19,13 @@ public interface DataTypes {
         String doc = ".doc";
         String thumb = ".jpg";
         String audio = ".m4a";
+        String docx = ".docx";
     }
     interface  contentType {
         String image = "image/jpeg";
         String pdf = "application/pdf";
         String doc = "application/msword";
+        String docx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         String thumb = "image/jpeg";
         String audio = "audio/m4a";
     }

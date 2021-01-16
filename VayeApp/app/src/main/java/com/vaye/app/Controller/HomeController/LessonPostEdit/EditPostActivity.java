@@ -116,7 +116,8 @@ public class EditPostActivity extends AppCompatActivity {
     String storagePermission[];
     //Stackview
     ImageButton addImage, addDoc , addPdf , addLink;
-
+    String contentType = "";
+    String mimeType = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -248,7 +249,7 @@ public class EditPostActivity extends AppCompatActivity {
         addPdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                pickPdf();
             }
 
         });
@@ -366,12 +367,12 @@ public class EditPostActivity extends AppCompatActivity {
 
                     ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
                     Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                    saveDatasToDataBase(this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, "image", file,
+                    saveDatasToDataBase(DataTypes.contentType.image,DataTypes.mimeType.image,this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, "image", file,
                             new StringCompletion() {
                                 @Override
                                 public void getString(String url) {
                                     try {
-                                        setThumbData(EditPostActivity.this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, "image", file, new StringCompletion() {
+                                        setThumbData(DataTypes.contentType.image,EditPostActivity.this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()),DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
                                             @Override
                                             public void getString(String thumb_url) {
                                                 updateImages(EditPostActivity.this, post, currentUser, url, thumb_url, new TrueFalse<Boolean>() {
@@ -406,6 +407,46 @@ public class EditPostActivity extends AppCompatActivity {
             case Constant.REQUEST_CODE_PICK_FILE:
                 if (resultCode == RESULT_OK) {
                     ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
+                    Log.d(TAG, "onActivityResult: " + list.get(0).getMimeType());
+
+                    if (list.get(0).getMimeType().equals(DataTypes.contentType.doc )){
+                        contentType = DataTypes.contentType.doc;
+                        mimeType = DataTypes.mimeType.doc;
+                    }else if(list.get(0).getMimeType().equals(DataTypes.contentType.docx)){
+                        contentType = DataTypes.contentType.docx;
+                        mimeType = DataTypes.mimeType.docx;
+                    }else if (list.get(0).getMimeType().equals(DataTypes.contentType.pdf)){
+                        contentType = DataTypes.contentType.pdf;
+                        mimeType = DataTypes.mimeType.pdf;
+                    }
+
+                    saveDatasToDataBase(contentType, mimeType, this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()),
+                            currentUser, "file", file, new StringCompletion() {
+                                @Override
+                                public void getString(String url) {
+                                    try {
+                                        setThumbData(contentType, EditPostActivity.this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), mimeType, currentUser,
+                                                "file", file, new StringCompletion() {
+                                                    @Override
+                                                    public void getString(String thumb_url) {
+                                                        updateImages(EditPostActivity.this, post, currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                WaitDialog.dismiss();
+                                                                TipDialog.show(EditPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                                                TipDialog.dismiss(1500);
+                                                                adaptar.notifyDataSetChanged();
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
                 }
                 break;
         }
@@ -458,21 +499,35 @@ public class EditPostActivity extends AppCompatActivity {
         else{ picDoc();}
     }
 
+    private void uploadPdf(){
+        if (!checkGalleryPermissions()){
+            requestStoragePermission();
+        }
+        else{ picDoc();}
+    }
+
+    private void pickPdf(){
+        Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+        intent4.putExtra(Constant.MAX_NUMBER, 1);
+        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"pdf"});
+        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+    }
+
 
     //TODO:: upload images
-    private void saveDatasToDataBase(Activity activity ,String lesson_key , String date , CurrentUser currentUser , String type , Uri data,
+    private void saveDatasToDataBase(String contentType,String mimeType,Activity activity ,String lesson_key , String date , CurrentUser currentUser , String type , Uri data,
                                      StringCompletion completion ){
         hud.show();
-        if (type.equals("image")){
+
             StorageMetadata metadata = new StorageMetadata.Builder()
-                    .setContentType("image/jpg")
+                    .setContentType(contentType)
                     .build();
             StorageReference ref = FirebaseStorage.getInstance().getReference().child(currentUser.getShort_school())
                     .child(currentUser.getBolum_key())
                     .child(lesson_key)
                     .child(currentUser.getUsername())
                     .child(date)
-                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +DataTypes.mimeType.image);
+                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +mimeType);
             uploadTask =  ref.putFile(data , metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -496,7 +551,7 @@ public class EditPostActivity extends AppCompatActivity {
                 }
 
             });
-        }
+
         uploadTask.addOnProgressListener(activity, new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
@@ -508,12 +563,13 @@ public class EditPostActivity extends AppCompatActivity {
         });
 
     }
-    private void setThumbData(Activity activity ,String lesson_key , String date , CurrentUser currentUser , String type , Uri data,
+    private void setThumbData(String contentType, Activity activity ,String lesson_key , String date ,String mimeType, CurrentUser currentUser , String type , Uri data,
                               StringCompletion completion) throws IOException {
         WaitDialog.show((AppCompatActivity) activity ,null);
         if (type == "image"){
+
             StorageMetadata metadata = new StorageMetadata.Builder()
-                    .setContentType("image/jpg")
+                    .setContentType(contentType)
                     .build();
 
             File thumb_file = new File(data.getPath());
@@ -532,7 +588,7 @@ public class EditPostActivity extends AppCompatActivity {
                     .child(lesson_key)
                     .child(currentUser.getUsername())
                     .child(date)
-                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +DataTypes.mimeType.image);
+                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +mimeType);
 
             ref.putBytes(thumb_byte, metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -549,6 +605,46 @@ public class EditPostActivity extends AppCompatActivity {
                         }
                 }
             });
+        }else {
+
+            StorageMetadata metadata = new StorageMetadata.Builder()
+                    .setContentType(DataTypes.contentType.thumb)
+                    .build();
+
+
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(currentUser.getShort_school() +"thumb")
+                    .child(currentUser.getBolum_key())
+                    .child(lesson_key)
+                    .child(currentUser.getUsername())
+                    .child(date)
+                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +DataTypes.mimeType.thumb);
+            Uri imageUri = null;
+            if (contentType.equals(DataTypes.contentType.pdf)){
+                 imageUri = Uri.parse("android.resource://"+ R.class.getPackage().getName()+"/"+R.drawable.pdf_holder);
+            }else if (contentType.equals(DataTypes.contentType.docx) || contentType.equals(DataTypes.contentType.doc)){
+                 imageUri = Uri.parse("android.resource://"+ R.class.getPackage().getName()+"/"+R.drawable.doc_holder);
+            }
+
+            if (imageUri!=null){
+                ref.putFile(imageUri , metadata) .addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()){
+                            task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(activity, new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    String thumb_url = uri.toString();
+                                    completion.getString(thumb_url);
+
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+
+
         }
 
     }
@@ -560,6 +656,7 @@ public class EditPostActivity extends AppCompatActivity {
         Map<String , Object> map = new HashMap<>();
         map.put("data", FieldValue.arrayUnion(url));
         map.put("thumbData",FieldValue.arrayUnion(thumb_url));
+        map.put("type","data");
         ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

@@ -178,7 +178,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupBottomNavBar(CurrentUser currentUser){
         BottomNavigationView navBar = (BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        navBar.setElevation(5);
         BottomNavHelper.enableNavigation(this,navBar,currentUser);
+        navBar.setElevation(4);
         Menu menu = navBar.getMenu();
         MenuItem menuItem = menu.getItem(0);
         menuItem.setChecked(true);

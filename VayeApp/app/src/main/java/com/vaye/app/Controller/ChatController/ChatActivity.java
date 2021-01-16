@@ -32,6 +32,7 @@ public class ChatActivity extends AppCompatActivity {
     }
     private void setupBottomNavBar(CurrentUser currentUser){
         BottomNavigationView navBar = (BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        navBar.setElevation(5);
         BottomNavHelper.enableNavigation(this,navBar,currentUser);
         Menu menu = navBar.getMenu();
         MenuItem menuItem = menu.getItem(3);

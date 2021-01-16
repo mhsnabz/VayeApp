@@ -15,6 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -28,6 +32,8 @@ import com.vaye.app.Services.MajorPostService;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PostDataAdaptar extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -68,6 +74,9 @@ public class PostDataAdaptar extends RecyclerView.Adapter<RecyclerView.ViewHolde
                            if (_value){
                                model.getData().remove(url.get(position));
                                model.getThumbData().remove(thumb_url.get(position));
+                               if (model.getThumbData().size() <= 0){
+                                   ((ImagesViewHolder) holder).updatePostType(currentUser , model);
+                               }
                                notifyDataSetChanged();
                            }
                        }
@@ -90,20 +99,41 @@ public class PostDataAdaptar extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
         ImageButton delete = (ImageButton)itemView.findViewById(R.id.delete);
         public void setImageView(String  file){
-            Picasso.get().load(file).centerCrop().resize(512,512).placeholder(android.R.color.darker_gray).into(imageView, new Callback() {
-                @Override
-                public void onSuccess() {
-                    progressBar.setVisibility(View.GONE);
-                }
 
-                @Override
-                public void onError(Exception e) {
-                    progressBar.setVisibility(View.GONE);
+            if (file.contains("doc") || file.contains("docx")){
+                imageView.setImageDrawable(context.getDrawable(R.drawable.doc_holder));
+                progressBar.setVisibility(View.GONE);
+            }else if (file.contains("pdf")){
+                imageView.setImageDrawable(context.getDrawable(R.drawable.pdf_holder));
+                progressBar.setVisibility(View.GONE);
+            }else {
+                Picasso.get().load(file).centerCrop().resize(512,512).placeholder(android.R.color.darker_gray).into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        progressBar.setVisibility(View.GONE);
+                    }
 
-                }
-            });
+                    @Override
+                    public void onError(Exception e) {
+                        progressBar.setVisibility(View.GONE);
+
+                    }
+                });
+            }
+
+
         }
 
+        public void updatePostType(CurrentUser currentUser , LessonPostModel postModel){
+            DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                    .document("lesson-post")
+                    .collection("post")
+                    .document(postModel.getPostId());
+            Map<String , Object> map = new HashMap<>();
+
+            map.put("type","post");
+            ref.set(map , SetOptions.merge());
+        }
 
     }
 }
