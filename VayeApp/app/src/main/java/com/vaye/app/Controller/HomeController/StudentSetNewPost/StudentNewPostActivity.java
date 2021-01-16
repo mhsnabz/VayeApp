@@ -110,7 +110,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
         rigthBarButton.setImageResource(R.drawable.post_it);
         toolbar.setTitle("");
         toolbar.setSubtitle("");
-        title.setText("Gönderiyi Düzenle");
+        title.setText(lessonName);
 
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
