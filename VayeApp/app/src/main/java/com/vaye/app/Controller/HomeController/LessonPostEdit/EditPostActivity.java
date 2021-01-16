@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,13 +28,20 @@ import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
+import com.kaopiz.kprogresshud.KProgressHUD;
+import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -59,14 +67,19 @@ import com.vincent.filepicker.filter.entity.ImageFile;
 import com.vincent.filepicker.filter.entity.NormalFile;
 import com.vincent.filepicker.filter.entity.VideoFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
@@ -89,7 +102,7 @@ public class EditPostActivity extends AppCompatActivity {
 
     RecyclerView datas;
 
-
+    KProgressHUD hud;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int gallery_request =400;
     private static final int image_pick_request =600;
@@ -121,6 +134,11 @@ public class EditPostActivity extends AppCompatActivity {
         }else {
             finish();
         }
+
+        hud = KProgressHUD.create(EditPostActivity.this)
+                .setStyle(KProgressHUD.Style.ANNULAR_DETERMINATE)
+                .setLabel("Dosya Yükleniyor")
+                .setMaxProgress(100);
     }
 
     private void setToolbar(String  lessonName)
@@ -357,16 +375,31 @@ public class EditPostActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
 
                     ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
-                    for (ImageFile file : list){
-                        Uri fileUri =Uri.fromFile(new File(file.getPath()));
-                        MajorPostUploadService.shared().uploadSingleFile(this, post.getLesson_key(),
-                                String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, new UploadFiles(fileUri, "image"), new StringCompletion() {
-                                    @Override
-                                    public void getString(String string) {
-                                        Toast.makeText(EditPostActivity.this,string , Toast.LENGTH_SHORT).show();
+                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
+                    saveDatasToDataBase(this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, "image", file,
+                            new StringCompletion() {
+                                @Override
+                                public void getString(String url) {
+                                    try {
+                                        setThumbData(EditPostActivity.this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, "image", file, new StringCompletion() {
+                                            @Override
+                                            public void getString(String thumb_url) {
+                                                updateImages(EditPostActivity.this, post, currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        WaitDialog.dismiss();
+                                                        TipDialog.show(EditPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                                        TipDialog.dismiss(1500);
+                                                        adaptar.notifyDataSetChanged();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
                                     }
-                                });
-                    }
+                                }
+                            });
 
                 }
                 break;
@@ -423,5 +456,119 @@ public class EditPostActivity extends AppCompatActivity {
     }
 
 
+
+    //TODO:: upload images
+    private void saveDatasToDataBase(Activity activity ,String lesson_key , String date , CurrentUser currentUser , String type , Uri data,
+                                     StringCompletion completion ){
+        hud.show();
+        if (type.equals("image")){
+            StorageMetadata metadata = new StorageMetadata.Builder()
+                    .setContentType("image/jpg")
+                    .build();
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(currentUser.getShort_school())
+                    .child(currentUser.getBolum_key())
+                    .child(lesson_key)
+                    .child(currentUser.getUsername())
+                    .child(date)
+                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +DataTypes.mimeType.image);
+            uploadTask =  ref.putFile(data , metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if (task.isSuccessful()){
+
+                            task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                        String  url = uri.toString();
+                                    Log.d(TAG, "onComplete: "+ url);
+                                    hud.dismiss();
+                                    WaitDialog.show((AppCompatActivity) activity , "Dosya Yükleniyor");
+                                    completion.getString(url);
+
+
+                                }
+                            });
+
+                    }
+
+                }
+
+            });
+        }
+        uploadTask.addOnProgressListener(activity, new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                hud.setProgress((int) progress);
+                Log.d(TAG, "onProgress: " + progress);
+            }
+        });
+
+    }
+    private void setThumbData(Activity activity ,String lesson_key , String date , CurrentUser currentUser , String type , Uri data,
+                              StringCompletion completion) throws IOException {
+        WaitDialog.show((AppCompatActivity) activity ,null);
+        if (type == "image"){
+            StorageMetadata metadata = new StorageMetadata.Builder()
+                    .setContentType("image/jpg")
+                    .build();
+
+            File thumb_file = new File(data.getPath());
+            Bitmap thumb_bitmap = new Compressor(this)
+                    .setMaxHeight(300)
+                    .setMaxWidth(300).setQuality(100)
+                    .compressToBitmap(thumb_file);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            final byte[] thumb_byte = baos.toByteArray();
+
+
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child(currentUser.getShort_school() +"thumb")
+                    .child(currentUser.getBolum_key())
+                    .child(lesson_key)
+                    .child(currentUser.getUsername())
+                    .child(date)
+                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +DataTypes.mimeType.image);
+
+            ref.putBytes(thumb_byte, metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()){
+                            task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(activity, new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    String thumb_url = uri.toString();
+                                    completion.getString(thumb_url);
+
+                                }
+                            });
+                        }
+                }
+            });
+        }
+
+    }
+    private void  updateImages(Activity activity , LessonPostModel postModel ,CurrentUser currentUser ,String url , String  thumb_url, TrueFalse<Boolean> callback ){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(postModel.getPostId());
+        Map<String , Object> map = new HashMap<>();
+        map.put("data", FieldValue.arrayUnion(url));
+        map.put("thumbData",FieldValue.arrayUnion(thumb_url));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    postModel.getData().add(url);
+                    postModel.getThumbData().add(thumb_url);
+                    callback.callBack(true);
+                }
+            }
+        });
+
+    }
 
 }
