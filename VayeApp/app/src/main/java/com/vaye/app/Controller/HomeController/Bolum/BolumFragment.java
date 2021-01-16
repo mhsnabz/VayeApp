@@ -1,6 +1,7 @@
 package com.vaye.app.Controller.HomeController.Bolum;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -37,12 +38,14 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
+import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
 import com.vaye.app.Util.AdsHelper.AdUnifiedListeningg;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -385,7 +388,10 @@ public class BolumFragment extends Fragment {
     }
 
     private void setNewPost(){
-        Toast.makeText(getActivity(),"New Post" , Toast.LENGTH_SHORT).show();
+        Intent i = new Intent(getActivity(),StudentChooseLessonActivity.class);
+        i.putExtra("currentUser",currentUser);
+        getActivity().startActivity(i);
+        Helper.shared().go(getActivity());
     }
     private void getPostId(CurrentUser currentUser , StringArrayListInterface result){
         postIds = new ArrayList<>();
@@ -451,4 +457,8 @@ public class BolumFragment extends Fragment {
          }
         }
     }
+
+
+
+
 }

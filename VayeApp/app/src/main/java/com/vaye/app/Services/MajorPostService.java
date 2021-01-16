@@ -291,4 +291,24 @@ public class MajorPostService {
         });
     }
 
+    public void updatePost(Activity activity,String _text ,String postId, CurrentUser currentUser , TrueFalse<Boolean> val){
+            WaitDialog.show((AppCompatActivity) activity , null);
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(postId);
+        Map<String , String> map = new HashMap<>();
+        map.put("text",_text);
+        ref.set(map,SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    val.callBack(true);
+                    WaitDialog.dismiss();
+                    TipDialog.show((AppCompatActivity) activity ,"Gönderiniz Güncellendi", TipDialog.TYPE.SUCCESS);
+                    TipDialog.dismiss(1500);
+                }
+            }
+        });
+    }
 }

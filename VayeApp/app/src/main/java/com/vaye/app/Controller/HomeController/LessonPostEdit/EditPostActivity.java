@@ -169,11 +169,32 @@ public class EditPostActivity extends AppCompatActivity {
         rigthBarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                updatePost(post);
             }
         });
     }
 
+    private void updatePost(LessonPostModel post){
+        String _text = text.getText().toString();
+        if (_text.equals(post.getText())){
+            TipDialog.show(EditPostActivity.this, "Hiç Değişiklik Yapmadınız" , TipDialog.TYPE.ERROR);
+            TipDialog.dismiss(1500);
+            return;
+        }else if (_text.isEmpty()){
+            TipDialog.show(EditPostActivity.this, "Gönderiniz Boş Olamaz" , TipDialog.TYPE.ERROR);
+            TipDialog.dismiss(1500);
+            return;
+        }else {
+            MajorPostService.shared().updatePost(EditPostActivity.this, _text, post.getPostId(), currentUser, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    post.setText(_text);
+                    finish();
+                    Helper.shared().back(EditPostActivity.this);
+                }
+            });
+        }
+    }
 
     private void setView(CurrentUser currentUser , LessonPostModel model){
         profileImage = (CircleImageView)findViewById(R.id.profileImage);
@@ -499,12 +520,7 @@ public class EditPostActivity extends AppCompatActivity {
         else{ picDoc();}
     }
 
-    private void uploadPdf(){
-        if (!checkGalleryPermissions()){
-            requestStoragePermission();
-        }
-        else{ picDoc();}
-    }
+
 
     private void pickPdf(){
         Intent intent4 = new Intent(this, NormalFilePickActivity.class);
