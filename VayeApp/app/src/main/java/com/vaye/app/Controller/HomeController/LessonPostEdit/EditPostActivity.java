@@ -62,6 +62,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
+import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.filter.entity.AudioFile;
 import com.vincent.filepicker.filter.entity.ImageFile;
 import com.vincent.filepicker.filter.entity.NormalFile;
@@ -239,7 +240,7 @@ public class EditPostActivity extends AppCompatActivity {
         addDoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                UploadDoc();
             }
         });
 
@@ -354,18 +355,7 @@ public class EditPostActivity extends AppCompatActivity {
         }
     }
 
-    private void openFileChooser() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
-    }
-    private String getFileExtension(Uri uri) {
-        ContentResolver cR = getContentResolver();
-        MimeTypeMap mime = MimeTypeMap.getSingleton();
-        return mime.getExtensionFromMimeType(cR.getType(uri));
-    }
-    List<Uri> mSelected;
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -455,6 +445,18 @@ public class EditPostActivity extends AppCompatActivity {
 
     }
 
+    private void picDoc(){
+        Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+        intent4.putExtra(Constant.MAX_NUMBER, 1);
+        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"doc", "docx"});
+        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+    }
+    private void UploadDoc() {
+        if (!checkGalleryPermissions()){
+            requestStoragePermission();
+        }
+        else{ picDoc();}
+    }
 
 
     //TODO:: upload images
