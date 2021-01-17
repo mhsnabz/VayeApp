@@ -25,10 +25,12 @@ import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NewPostDataModel;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MajorPostService {
@@ -244,6 +246,22 @@ public class MajorPostService {
             }
         });
     }
+
+
+    public void deleteFileReference(Activity activity , String url ,String thumb_url,CurrentUser currentUser , LessonPostModel postModel , TrueFalse<Boolean> val){
+        FirebaseStorage ref = FirebaseStorage.getInstance();
+        ref.getReferenceFromUrl(url).delete().addOnSuccessListener(activity, new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                ref.getReferenceFromUrl(thumb_url).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        val.callBack(true);
+                    }
+                });
+            }
+        });
+    }
     public void addLink(LessonPostModel post,String link , CurrentUser currentUser , Activity activity , TrueFalse<Boolean> val){
         // let db = Firestore.firestore().collection(currentUser.short_school)
         //                .document("lesson-post").collection("post").document(post.postId)
@@ -315,15 +333,15 @@ public class MajorPostService {
 
     public void setNewPost( String  lesson_key , String  link , CurrentUser currentUser , long postId , ArrayList<LessonFallowerUser> lessonFallowerUsers
     , String msgText , ArrayList<NewPostDataModel> datas , String lessonName , TrueFalse<Boolean> val){
-        String [] array = new String[0];
-        String [] data = new String[datas.size()];
-        String [] thumb_data = new String[datas.size()];
+
+        List<String>  data = new ArrayList<>();
+        List<String> thumb_data = new ArrayList<>();
         Map<String , Object> map = new HashMap<>();
 
         if (datas.isEmpty()){
             map.put("type","post");
-            map.put("data",data);
-            map.put("thumb_data",thumb_data);
+            map.put("data",FieldValue.arrayUnion());
+            map.put("thumb_data",FieldValue.arrayUnion());
         }else{
             map.put("type","data");
             for (int i = 0  ; i<datas.size()  ; i++){
@@ -339,16 +357,16 @@ public class MajorPostService {
         map.put("text",msgText);
         map.put("lessonName",lessonName);
         map.put("lesson_key",lesson_key);
-        map.put("likes",array);
-        map.put("favori",array);
+        map.put("likes",FieldValue.arrayUnion());
+        map.put("favori", FieldValue.arrayUnion());
         map.put("postId",String.valueOf(postId));
         map.put("senderUid",currentUser.getUid());
-        map.put("silent",array);
+        map.put("silent",FieldValue.arrayUnion());
         map.put("comment",0);
-        map.put("dislike",array);
+        map.put("dislike",FieldValue.arrayUnion());
         map.put("post_ID",postId);
         map.put("username",currentUser.getUsername());
-        map.put("thumb_imaga",currentUser.getThumb_image());
+        map.put("thumb_image",currentUser.getThumb_image());
         if (link == null || link.isEmpty()){
             map.put("link","");
         }else{
@@ -363,6 +381,7 @@ public class MajorPostService {
                     setPostForUser(lessonFallowerUsers, String.valueOf(postId), new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
+
                             val.callBack(true);
                         }
                     });
@@ -403,8 +422,7 @@ public class MajorPostService {
     private void setPostForUser(ArrayList<LessonFallowerUser> userId , String postId , TrueFalse<Boolean> val){
         Map<String  , String> map = new HashMap<>();
         map.put("postId",postId);
-        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")
-                ;
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")  ;
         for (LessonFallowerUser user : userId){
             ref.document(user.getUid())
                     .collection("lesson-post")

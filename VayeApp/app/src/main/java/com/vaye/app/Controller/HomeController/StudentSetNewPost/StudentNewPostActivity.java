@@ -46,6 +46,7 @@ import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.PostDataAdaptar;
 import com.vaye.app.Interfaces.DataTypes;
+import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -97,6 +98,8 @@ public class StudentNewPostActivity extends AppCompatActivity {
     RecyclerView datas;
     KProgressHUD hud;
     LessonModel lessonModel;
+
+
     ArrayList<LessonFallowerUser> lessonFallowerUsers;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int gallery_request =400;
@@ -114,6 +117,8 @@ public class StudentNewPostActivity extends AppCompatActivity {
     String mimeType = "";
     String postDate = String.valueOf(Calendar.getInstance().getTimeInMillis());
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
+
+    NewPostAdapter adapter ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,6 +134,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
             lessonFallowerUsers = intentIncoming.getParcelableExtra("lessonFallower");
             setToolbar(lessonModel.getLessonName());
             setView(currentUser,lessonModel.getLessonName());
+              adapter = new NewPostAdapter(dataModel,StudentNewPostActivity.this,currentUser);
 
         }else {
             finish();
@@ -174,17 +180,23 @@ public class StudentNewPostActivity extends AppCompatActivity {
                     return;
                 }else {
                     WaitDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
-                    MajorPostService.shared().setNewPost(lessonModel.getLesson_key(), link, currentUser, Calendar.getInstance().getTimeInMillis(), lessonFallowerUsers
-                            , msgText, dataModel, lessonModel.getLessonName(), new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    WaitDialog.dismiss();
-                                    TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
-                                    TipDialog.dismiss(1400);
-                                    finish();
-                                    Helper.shared().back(StudentNewPostActivity.this);
-                                }
-                            });
+                    MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
+                        @Override
+                        public void onCallback(ArrayList<LessonFallowerUser> users) {
+                            MajorPostService.shared().setNewPost(lessonModel.getLesson_key(), link, currentUser, Calendar.getInstance().getTimeInMillis(), users
+                                    , msgText, dataModel, lessonModel.getLessonName(), new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            WaitDialog.dismiss();
+                                            TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                            TipDialog.dismiss(1400);
+                                            finish();
+                                            Helper.shared().back(StudentNewPostActivity.this);
+                                        }
+                                    });
+                        }
+                    });
+
                 }
 
             }
@@ -227,7 +239,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
 
         setRecylerView(currentUser);
         setStackView();
-       // detectLink(post);
+
     }
 
 
@@ -411,6 +423,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                                                        if (dataModel.get(i).getFile() == fileUri){
                                                                             dataModel.get(i).setFileUrl(url);
                                                                             dataModel.get(i).setThumb_url(thumb_url);
+                                                                            adapter.notifyDataSetChanged();
                                                                        }
                                                                    }
                                                                    title.setText(String.valueOf(getTotalSize(StudentNewPostActivity.this , dataModel) +"mb"));
@@ -468,6 +481,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                                                     if (dataModel.get(i).getFile() == fileUri){
                                                                         dataModel.get(i).setFileUrl(url);
                                                                         dataModel.get(i).setThumb_url(thumb_url);
+                                                                        adapter.notifyDataSetChanged();
                                                                     }
                                                                 }
                                                                 title.setText(String.valueOf(getTotalSize(StudentNewPostActivity.this , dataModel) +"mb"));

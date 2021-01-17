@@ -49,17 +49,13 @@ public class ChooseLessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MajorPostService.shared().getLessonFallower(currentUser, lessonList.get(position).getLessonName(), new MajorPostFallower() {
-                    @Override
-                    public void onCallback(ArrayList<LessonFallowerUser> lessonFallowerUser) {
-                        Intent i = new Intent(context , StudentNewPostActivity.class);
-                        i.putExtra("lessonModel", lessonList.get(position));
-                        i.putExtra("currentUser",currentUser);
-                        i.putExtra("lessonFallower", lessonFallowerUser);
-                        context.startActivity(i);
-                        Helper.shared().go((Activity) context);
-                    }
-                });
+                Intent i = new Intent(context , StudentNewPostActivity.class);
+                i.putExtra("lessonModel", lessonList.get(position));
+                i.putExtra("currentUser",currentUser);
+
+                context.startActivity(i);
+                Helper.shared().go((Activity) context);
+
 
             }
         });

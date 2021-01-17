@@ -83,10 +83,10 @@ public class LessonSettingService {
         Map<String  , Object> mapFollow =  new HashMap<>();
 
         mapFollow.put("username",currentUser.getUsername());
-        mapFollow.put("name",currentUser.getUsername());
-        mapFollow.put("email",currentUser.getUsername());
-        mapFollow.put("number",currentUser.getUsername());
-        mapFollow.put("uid",currentUser.getUsername());
+        mapFollow.put("name",currentUser.getName());
+        mapFollow.put("email",currentUser.getEmail());
+        mapFollow.put("number",currentUser.getNumber());
+        mapFollow.put("uid",currentUser.getUid());
         if (currentUser.getThumb_image()!=null){
             mapFollow.put("thumb_image",currentUser.getThumb_image());
         }else {

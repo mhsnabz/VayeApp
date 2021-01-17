@@ -36,7 +36,7 @@ public class StudentChooseLessonActivity extends AppCompatActivity {
     CurrentUser currentUser;
     RecyclerView lessonList;
     ChooseLessonAdapter adapter;
-    ArrayList<LessonModel> lessons = new ArrayList<>();
+    ArrayList<LessonModel> lessons  = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +88,7 @@ public class StudentChooseLessonActivity extends AppCompatActivity {
     }
 
     private void getMyLesson(CurrentUser currentUser){
+
         WaitDialog.show(StudentChooseLessonActivity.this , "");
         //let db = Firestore.firestore().collection("user")
         //            .document(currentUser.uid).collection("lesson")

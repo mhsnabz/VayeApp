@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class LessonPostModel implements Parcelable {
     String lessonName,senderName,text,senderUid,postId,link,id,thumb_image,username;
-    ArrayList<String> thumbData,data,silent,favori,dislike,likes;
+    ArrayList<String> thumb_data,data,silent,favori,dislike,likes;
     Long post_ID;
     int comment;
     Timestamp postTime;
@@ -20,7 +20,7 @@ public class LessonPostModel implements Parcelable {
     String empty, type;
     String lesson_key;
 
-    public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumbData, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime, UnifiedNativeAd nativeAd, String empty, String type, String lesson_key) {
+    public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumb_data, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime, UnifiedNativeAd nativeAd, String empty, String type, String lesson_key) {
         this.lessonName = lessonName;
         this.senderName = senderName;
         this.text = text;
@@ -30,7 +30,7 @@ public class LessonPostModel implements Parcelable {
         this.id = id;
         this.thumb_image = thumb_image;
         this.username = username;
-        this.thumbData = thumbData;
+        this.thumb_data = thumb_data;
         this.data = data;
         this.silent = silent;
         this.favori = favori;
@@ -58,7 +58,7 @@ public class LessonPostModel implements Parcelable {
         id = in.readString();
         thumb_image = in.readString();
         username = in.readString();
-        thumbData = in.createStringArrayList();
+        thumb_data = in.createStringArrayList();
         data = in.createStringArrayList();
         silent = in.createStringArrayList();
         favori = in.createStringArrayList();
@@ -161,11 +161,11 @@ public class LessonPostModel implements Parcelable {
     }
 
     public ArrayList<String> getThumbData() {
-        return thumbData;
+        return thumb_data;
     }
 
     public void setThumbData(ArrayList<String> thumbData) {
-        this.thumbData = thumbData;
+        this.thumb_data = thumbData;
     }
 
     public ArrayList<String> getData() {
@@ -280,7 +280,7 @@ public class LessonPostModel implements Parcelable {
         parcel.writeString(id);
         parcel.writeString(thumb_image);
         parcel.writeString(username);
-        parcel.writeStringList(thumbData);
+        parcel.writeStringList(thumb_data);
         parcel.writeStringList(data);
         parcel.writeStringList(silent);
         parcel.writeStringList(favori);
