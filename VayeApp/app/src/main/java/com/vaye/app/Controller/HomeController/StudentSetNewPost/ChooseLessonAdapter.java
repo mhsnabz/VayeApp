@@ -12,9 +12,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
+import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -46,11 +49,18 @@ public class ChooseLessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(context , StudentNewPostActivity.class);
-                i.putExtra("lessonName", lessonList.get(position).getLessonName());
-                i.putExtra("currentUser",currentUser);
-                context.startActivity(i);
-                Helper.shared().go((Activity) context);
+                MajorPostService.shared().getLessonFallower(currentUser, lessonList.get(position).getLessonName(), new MajorPostFallower() {
+                    @Override
+                    public void onCallback(ArrayList<LessonFallowerUser> lessonFallowerUser) {
+                        Intent i = new Intent(context , StudentNewPostActivity.class);
+                        i.putExtra("lessonModel", lessonList.get(position));
+                        i.putExtra("currentUser",currentUser);
+                        i.putExtra("lessonFallower", lessonFallowerUser);
+                        context.startActivity(i);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+
             }
         });
     }

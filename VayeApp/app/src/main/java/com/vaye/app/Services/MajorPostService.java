@@ -1,44 +1,35 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
-import com.vaye.app.Interfaces.DriveLinkNames;
-import com.vaye.app.Interfaces.LessonPostModelCompletion;
-import com.vaye.app.Interfaces.StringArrayListInterface;
+import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonPostModel;
-import com.vaye.app.R;
+import com.vaye.app.Model.NewPostDataModel;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 public class MajorPostService {
     ArrayList<LessonPostModel> models;
@@ -311,4 +302,146 @@ public class MajorPostService {
             }
         });
     }
+
+//type : String!,lesson_key : String!
+// ,link : String?,
+// currentUser : CurrentUser,
+// postId : String ,
+// users : [LessonFallowerUser]
+// ,msgText : String,
+// datas : [String] ,
+// essonName : String ,
+// short_school : String ,
+
+    public void setNewPost( String  lesson_key , String  link , CurrentUser currentUser , long postId , ArrayList<LessonFallowerUser> lessonFallowerUsers
+    , String msgText , ArrayList<NewPostDataModel> datas , String lessonName , TrueFalse<Boolean> val){
+        String [] array = new String[0];
+        String [] data = new String[datas.size()];
+        String [] thumb_data = new String[datas.size()];
+        Map<String , Object> map = new HashMap<>();
+
+        if (datas.isEmpty()){
+            map.put("type","post");
+            map.put("data",data);
+            map.put("thumb_data",thumb_data);
+        }else{
+            map.put("type","data");
+            for (int i = 0  ; i<datas.size()  ; i++){
+                map.put("data",FieldValue.arrayUnion(datas.get(i).getFileUrl()));
+                map.put("thumb_data",FieldValue.arrayUnion(datas.get(i).getThumb_url()));
+
+            }
+
+        }
+
+        map.put("postTime",FieldValue.serverTimestamp());
+        map.put("senderName",currentUser.getName());
+        map.put("text",msgText);
+        map.put("lessonName",lessonName);
+        map.put("lesson_key",lesson_key);
+        map.put("likes",array);
+        map.put("favori",array);
+        map.put("postId",String.valueOf(postId));
+        map.put("senderUid",currentUser.getUid());
+        map.put("silent",array);
+        map.put("comment",0);
+        map.put("dislike",array);
+        map.put("post_ID",postId);
+        map.put("username",currentUser.getUsername());
+        map.put("thumb_imaga",currentUser.getThumb_image());
+        if (link == null || link.isEmpty()){
+            map.put("link","");
+        }else{
+            map.put("link",link);
+        }
+
+
+        setPostForLesson(currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+                    setPostForUser(lessonFallowerUsers, String.valueOf(postId), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            val.callBack(true);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void setPostForLesson(CurrentUser currentUser , Map<String, Object> dic , String lessonName , String  postId , TrueFalse<Boolean> val){
+        //let db = Firestore.firestore().collection(short_school).document("lesson-post")
+        //            .collection("post").document(postId)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(postId);
+        ref.set(dic,SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                   // let db = Firestore.firestore().collection(short_school).document("lesson").collection(currentUser.bolum)
+                //                    .document(lessonName).collection("lesson-post").document(postId)
+                DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                        .document("lesson")
+                        .collection(currentUser.getBolum())
+                        .document(lessonName)
+                        .collection("lesson-post")
+                        .document(postId);
+                Map<String , String > postMap = new HashMap<>();
+                postMap.put("postId",postId);
+                ref.set(postMap,SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        val.callBack(true);
+                    }
+                });
+            }
+        });
+    }
+    private void setPostForUser(ArrayList<LessonFallowerUser> userId , String postId , TrueFalse<Boolean> val){
+        Map<String  , String> map = new HashMap<>();
+        map.put("postId",postId);
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")
+                ;
+        for (LessonFallowerUser user : userId){
+            ref.document(user.getUid())
+                    .collection("lesson-post")
+                    .document(postId).set(map , SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    val.callBack(true);
+                }
+            });
+
+        }
+    }
+
+  public void getLessonFallower(CurrentUser currentUser , String lessonName , MajorPostFallower completion){
+        ArrayList<LessonFallowerUser> list = new ArrayList<>();
+//let db = Firestore.firestore().collection(sorthSchoolName)
+//               .document("lesson").collection(major).document(lessonName).collection("fallowers")
+      CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+              .document("lesson")
+              .collection(currentUser.getBolum())
+              .document(lessonName).collection("fallowers");
+      ref.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+          @Override
+          public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (queryDocumentSnapshots.isEmpty()){
+                    completion.onCallback(list);
+                }else{
+                    for (DocumentSnapshot item : queryDocumentSnapshots.getDocuments()){
+                        list.add(item.toObject(LessonFallowerUser.class));
+                    }
+                    completion.onCallback(list);
+                }
+          }
+      });
+
+  }
+
+
+
 }

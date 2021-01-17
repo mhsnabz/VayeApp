@@ -1,6 +1,9 @@
 package com.vaye.app.Model;
 
-public class LessonModel {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class LessonModel implements Parcelable {
     //   var teacherEmail : String!
     //    var teacherId : String!
     //    var teacherName : String!
@@ -18,6 +21,26 @@ public class LessonModel {
         this.teacherName = teacherName;
         this.teacherId = teacherId;
     }
+
+    protected LessonModel(Parcel in) {
+        teacherEmail = in.readString();
+        lesson_key = in.readString();
+        lessonName = in.readString();
+        teacherName = in.readString();
+        teacherId = in.readString();
+    }
+
+    public static final Creator<LessonModel> CREATOR = new Creator<LessonModel>() {
+        @Override
+        public LessonModel createFromParcel(Parcel in) {
+            return new LessonModel(in);
+        }
+
+        @Override
+        public LessonModel[] newArray(int size) {
+            return new LessonModel[size];
+        }
+    };
 
     public String getTeacherEmail() {
         return teacherEmail;
@@ -57,5 +80,19 @@ public class LessonModel {
 
     public void setTeacherId(String teacherId) {
         this.teacherId = teacherId;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(teacherEmail);
+        parcel.writeString(lesson_key);
+        parcel.writeString(lessonName);
+        parcel.writeString(teacherName);
+        parcel.writeString(teacherId);
     }
 }
