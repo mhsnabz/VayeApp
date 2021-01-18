@@ -134,7 +134,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
             lessonFallowerUsers = intentIncoming.getParcelableExtra("lessonFallower");
             setToolbar(lessonModel.getLessonName());
             setView(currentUser,lessonModel.getLessonName());
-              adapter = new NewPostAdapter(dataModel,StudentNewPostActivity.this,currentUser);
+
 
         }else {
             finish();
@@ -244,8 +244,11 @@ public class StudentNewPostActivity extends AppCompatActivity {
 
 
     private void setRecylerView(CurrentUser currentUser ){
+        adapter = new NewPostAdapter(dataModel,StudentNewPostActivity.this,currentUser);
         datas = (RecyclerView)findViewById(R.id.datasRec);
         datas.setLayoutManager(new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL));
+        datas.setAdapter(adapter);
+
 
     }
 

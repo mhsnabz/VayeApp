@@ -28,7 +28,9 @@ import com.vaye.app.Model.NewPostDataModel;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -333,9 +335,11 @@ public class MajorPostService {
 
     public void setNewPost( String  lesson_key , String  link , CurrentUser currentUser , long postId , ArrayList<LessonFallowerUser> lessonFallowerUsers
     , String msgText , ArrayList<NewPostDataModel> datas , String lessonName , TrueFalse<Boolean> val){
+        String []data;
+        String []thumb_datas;
 
-        List<String>  data = new ArrayList<>();
-        List<String> thumb_data = new ArrayList<>();
+
+
         Map<String , Object> map = new HashMap<>();
 
         if (datas.isEmpty()){
@@ -343,13 +347,18 @@ public class MajorPostService {
             map.put("data",FieldValue.arrayUnion());
             map.put("thumb_data",FieldValue.arrayUnion());
         }else{
+            data = new String[datas.size()];
+            thumb_datas = new String[datas.size()];
             map.put("type","data");
-            for (int i = 0  ; i<datas.size()  ; i++){
-                map.put("data",FieldValue.arrayUnion(datas.get(i).getFileUrl()));
-                map.put("thumb_data",FieldValue.arrayUnion(datas.get(i).getThumb_url()));
 
+            for (int i = 0 ; i < datas.size() ; i ++){
+                data[i] = datas.get(i).getFileUrl();
+                thumb_datas[i]=datas.get(i).getThumb_url();
             }
-
+            List<String> data_list = new ArrayList(Arrays.asList(data));
+            List<String> data_thumb_list = new ArrayList(Arrays.asList(thumb_datas));
+            map.put("data",data_list);
+            map.put("thumbData",data_thumb_list);
         }
 
         map.put("postTime",FieldValue.serverTimestamp());

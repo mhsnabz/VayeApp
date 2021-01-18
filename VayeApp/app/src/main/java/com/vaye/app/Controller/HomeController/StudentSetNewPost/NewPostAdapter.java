@@ -2,6 +2,7 @@ package com.vaye.app.Controller.HomeController.StudentSetNewPost;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
@@ -53,6 +55,7 @@ public class NewPostAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             NewPostViewHolder viewHolder = (NewPostViewHolder) holder;
+            viewHolder.setImageView(model.get(position).getFile() , model.get(position).getMimeType() , model.get(position).getFileUrl());
                 viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -85,28 +88,30 @@ public class NewPostAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         RoundedImageView imageView = (RoundedImageView)itemView.findViewById(R.id.imageView);
         ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
         ImageButton delete = (ImageButton)itemView.findViewById(R.id.delete);
-        public void setImageView(String  file){
+        public void setImageView(Uri file, String mimeType , String fileURl){
+            if (fileURl != null) {
+                if (mimeType.equals(".doc")| mimeType.equals(".docx")){
+                    imageView.setImageDrawable(context.getDrawable(R.drawable.doc_holder));
+                    progressBar.setVisibility(View.GONE);
+                }else if (mimeType.equals(".pdf")){
+                    imageView.setImageDrawable(context.getDrawable(R.drawable.pdf_holder));
+                    progressBar.setVisibility(View.GONE);
+                }else if(mimeType.equals(DataTypes.mimeType.image))  {
+                    Picasso.get().load(fileURl).centerCrop().resize(512,512).placeholder(android.R.color.darker_gray).into(imageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            progressBar.setVisibility(View.GONE);
+                        }
 
-            if (file.contains("doc") || file.contains("docx")){
-                imageView.setImageDrawable(context.getDrawable(R.drawable.doc_holder));
-                progressBar.setVisibility(View.GONE);
-            }else if (file.contains("pdf")){
-                imageView.setImageDrawable(context.getDrawable(R.drawable.pdf_holder));
-                progressBar.setVisibility(View.GONE);
-            }else {
-                Picasso.get().load(file).centerCrop().resize(512,512).placeholder(android.R.color.darker_gray).into(imageView, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        progressBar.setVisibility(View.GONE);
-                    }
+                        @Override
+                        public void onError(Exception e) {
+                            progressBar.setVisibility(View.GONE);
 
-                    @Override
-                    public void onError(Exception e) {
-                        progressBar.setVisibility(View.GONE);
-
-                    }
-                });
+                        }
+                    });
+                }
             }
+
 
 
         }

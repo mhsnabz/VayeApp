@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class LessonPostModel implements Parcelable {
     String lessonName,senderName,text,senderUid,postId,link,id,thumb_image,username;
-    ArrayList<String> thumb_data,data,silent,favori,dislike,likes;
+    ArrayList<String> thumbData,data,silent,favori,dislike,likes;
     Long post_ID;
     int comment;
     Timestamp postTime;
@@ -20,7 +20,10 @@ public class LessonPostModel implements Parcelable {
     String empty, type;
     String lesson_key;
 
-    public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumb_data, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime, UnifiedNativeAd nativeAd, String empty, String type, String lesson_key) {
+    public LessonPostModel() {
+    }
+
+    public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumbData, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime, UnifiedNativeAd nativeAd, String empty, String type, String lesson_key) {
         this.lessonName = lessonName;
         this.senderName = senderName;
         this.text = text;
@@ -30,7 +33,7 @@ public class LessonPostModel implements Parcelable {
         this.id = id;
         this.thumb_image = thumb_image;
         this.username = username;
-        this.thumb_data = thumb_data;
+        this.thumbData = thumbData;
         this.data = data;
         this.silent = silent;
         this.favori = favori;
@@ -45,9 +48,6 @@ public class LessonPostModel implements Parcelable {
         this.lesson_key = lesson_key;
     }
 
-    public LessonPostModel() {
-    }
-
     protected LessonPostModel(Parcel in) {
         lessonName = in.readString();
         senderName = in.readString();
@@ -58,7 +58,7 @@ public class LessonPostModel implements Parcelable {
         id = in.readString();
         thumb_image = in.readString();
         username = in.readString();
-        thumb_data = in.createStringArrayList();
+        thumbData = in.createStringArrayList();
         data = in.createStringArrayList();
         silent = in.createStringArrayList();
         favori = in.createStringArrayList();
@@ -74,6 +74,41 @@ public class LessonPostModel implements Parcelable {
         empty = in.readString();
         type = in.readString();
         lesson_key = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(lessonName);
+        dest.writeString(senderName);
+        dest.writeString(text);
+        dest.writeString(senderUid);
+        dest.writeString(postId);
+        dest.writeString(link);
+        dest.writeString(id);
+        dest.writeString(thumb_image);
+        dest.writeString(username);
+        dest.writeStringList(thumbData);
+        dest.writeStringList(data);
+        dest.writeStringList(silent);
+        dest.writeStringList(favori);
+        dest.writeStringList(dislike);
+        dest.writeStringList(likes);
+        if (post_ID == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(post_ID);
+        }
+        dest.writeInt(comment);
+        dest.writeParcelable(postTime, flags);
+        dest.writeString(empty);
+        dest.writeString(type);
+        dest.writeString(lesson_key);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<LessonPostModel> CREATOR = new Creator<LessonPostModel>() {
@@ -161,11 +196,11 @@ public class LessonPostModel implements Parcelable {
     }
 
     public ArrayList<String> getThumbData() {
-        return thumb_data;
+        return thumbData;
     }
 
     public void setThumbData(ArrayList<String> thumbData) {
-        this.thumb_data = thumbData;
+        this.thumbData = thumbData;
     }
 
     public ArrayList<String> getData() {
@@ -262,40 +297,5 @@ public class LessonPostModel implements Parcelable {
 
     public void setLesson_key(String lesson_key) {
         this.lesson_key = lesson_key;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(lessonName);
-        parcel.writeString(senderName);
-        parcel.writeString(text);
-        parcel.writeString(senderUid);
-        parcel.writeString(postId);
-        parcel.writeString(link);
-        parcel.writeString(id);
-        parcel.writeString(thumb_image);
-        parcel.writeString(username);
-        parcel.writeStringList(thumb_data);
-        parcel.writeStringList(data);
-        parcel.writeStringList(silent);
-        parcel.writeStringList(favori);
-        parcel.writeStringList(dislike);
-        parcel.writeStringList(likes);
-        if (post_ID == null) {
-            parcel.writeByte((byte) 0);
-        } else {
-            parcel.writeByte((byte) 1);
-            parcel.writeLong(post_ID);
-        }
-        parcel.writeInt(comment);
-        parcel.writeParcelable(postTime, i);
-        parcel.writeString(empty);
-        parcel.writeString(type);
-        parcel.writeString(lesson_key);
     }
 }
