@@ -335,10 +335,6 @@ public class MajorPostService {
 
     public void setNewPost( String  lesson_key , String  link , CurrentUser currentUser , long postId , ArrayList<LessonFallowerUser> lessonFallowerUsers
     , String msgText , ArrayList<NewPostDataModel> datas , String lessonName , TrueFalse<Boolean> val){
-        String []data;
-        String []thumb_datas;
-
-
 
         Map<String , Object> map = new HashMap<>();
 
@@ -347,18 +343,7 @@ public class MajorPostService {
             map.put("data",FieldValue.arrayUnion());
             map.put("thumb_data",FieldValue.arrayUnion());
         }else{
-            data = new String[datas.size()];
-            thumb_datas = new String[datas.size()];
-            map.put("type","data");
 
-            for (int i = 0 ; i < datas.size() ; i ++){
-                data[i] = datas.get(i).getFileUrl();
-                thumb_datas[i]=datas.get(i).getThumb_url();
-            }
-            List<String> data_list = new ArrayList(Arrays.asList(data));
-            List<String> data_thumb_list = new ArrayList(Arrays.asList(thumb_datas));
-            map.put("data",data_list);
-            map.put("thumbData",data_thumb_list);
         }
 
         map.put("postTime",FieldValue.serverTimestamp());
@@ -383,13 +368,15 @@ public class MajorPostService {
         }
 
 
-        setPostForLesson(currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
+        setPostForLesson(datas,currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 if (_value){
                     setPostForUser(lessonFallowerUsers, String.valueOf(postId), new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
+
+
 
                             val.callBack(true);
                         }
@@ -399,7 +386,7 @@ public class MajorPostService {
         });
     }
 
-    private void setPostForLesson(CurrentUser currentUser , Map<String, Object> dic , String lessonName , String  postId , TrueFalse<Boolean> val){
+    private void setPostForLesson(ArrayList<NewPostDataModel> datas,CurrentUser currentUser , Map<String, Object> dic , String lessonName , String  postId , TrueFalse<Boolean> val){
         //let db = Firestore.firestore().collection(short_school).document("lesson-post")
         //            .collection("post").document(postId)
         DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
@@ -419,7 +406,7 @@ public class MajorPostService {
                         .document(postId);
                 Map<String , String > postMap = new HashMap<>();
                 postMap.put("postId",postId);
-                ref.set(postMap,SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                reference.set(postMap,SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         val.callBack(true);

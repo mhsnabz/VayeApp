@@ -115,7 +115,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
     ImageButton addImage, addDoc , addPdf , addLink;
     String contentType = "";
     String mimeType = "";
-    String postDate = String.valueOf(Calendar.getInstance().getTimeInMillis());
+    long postDate = Calendar.getInstance().getTimeInMillis();
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
 
     NewPostAdapter adapter ;
@@ -183,10 +183,31 @@ public class StudentNewPostActivity extends AppCompatActivity {
                     MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
                         @Override
                         public void onCallback(ArrayList<LessonFallowerUser> users) {
-                            MajorPostService.shared().setNewPost(lessonModel.getLesson_key(), link, currentUser, Calendar.getInstance().getTimeInMillis(), users
+                            MajorPostService.shared().setNewPost(lessonModel.getLesson_key(), link, currentUser, postDate, users
                                     , msgText, dataModel, lessonModel.getLessonName(), new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
+
+
+                                            DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                                    .document("lesson-post")
+                                                    .collection("post")
+                                                    .document(String.valueOf(postDate));
+
+                                            Map<String , Object> mapObj = new HashMap<>();
+
+                                            if (!dataModel.isEmpty()){
+                                                mapObj.put("type","data");
+
+                                                for (int i = 0 ; i < dataModel.size() ; i ++){
+                                                    mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
+                                                    mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
+                                                    ref.set(mapObj,SetOptions.merge());
+
+                                                }
+
+                                            }
+
                                             WaitDialog.dismiss();
                                             TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
                                             TipDialog.dismiss(1400);
@@ -408,12 +429,12 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                 String mimeType = DataTypes.mimeType.image;
                                 String  contentType = DataTypes.contentType.image;
                                 dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
-                                saveDatasToDataBase(DataTypes.contentType.image,DataTypes.mimeType.image,this, lessonModel.getLesson_key(), postDate, currentUser, "image", file,
+                                saveDatasToDataBase(DataTypes.contentType.image,DataTypes.mimeType.image,this, lessonModel.getLesson_key(), String.valueOf(postDate), currentUser, "image", file,
                                         new StringCompletion() {
                                             @Override
                                             public void getString(String url) {
                                                 try {
-                                                    setThumbData(DataTypes.contentType.image,StudentNewPostActivity.this, lessonModel.getLesson_key(), postDate,DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
+                                                    setThumbData(DataTypes.contentType.image,StudentNewPostActivity.this, lessonModel.getLesson_key(), String.valueOf(postDate),DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
                                                         @Override
                                                         public void getString(String thumb_url) {
                                                             updateImages(StudentNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
@@ -465,12 +486,12 @@ public class StudentNewPostActivity extends AppCompatActivity {
                     }
 
                     dataModel.add(new NewPostDataModel(fileName,fileUri,null,null,mimeType,contentType));
-                    saveDatasToDataBase(contentType, mimeType, this,lessonModel.getLesson_key(),postDate,
+                    saveDatasToDataBase(contentType, mimeType, this,lessonModel.getLesson_key(), String.valueOf(postDate),
                             currentUser, "file", file, new StringCompletion() {
                                 @Override
                                 public void getString(String url) {
                                     try {
-                                        setThumbData(contentType, StudentNewPostActivity.this, lessonModel.getLesson_key(), postDate, mimeType, currentUser,
+                                        setThumbData(contentType, StudentNewPostActivity.this, lessonModel.getLesson_key(), String.valueOf(postDate), mimeType, currentUser,
                                                 "file", file, new StringCompletion() {
                                                     @Override
                                                     public void getString(String thumb_url) {
