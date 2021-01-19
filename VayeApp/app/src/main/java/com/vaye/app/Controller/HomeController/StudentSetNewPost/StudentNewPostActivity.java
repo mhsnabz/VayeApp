@@ -1,6 +1,7 @@
 package com.vaye.app.Controller.HomeController.StudentSetNewPost;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -29,8 +30,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -45,7 +49,9 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.PostDataAdaptar;
+import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
+import com.vaye.app.Interfaces.DriveLinkNames;
 import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -70,6 +76,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -98,7 +105,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
     RecyclerView datas;
     KProgressHUD hud;
     LessonModel lessonModel;
-
+    String selectedLink = "";
 
     ArrayList<LessonFallowerUser> lessonFallowerUsers;
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -189,30 +196,38 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                         public void callBack(Boolean _value) {
 
 
-                                            DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                                    .document("lesson-post")
-                                                    .collection("post")
-                                                    .document(String.valueOf(postDate));
+                                            MajorPostService.shared().moveSavedLinkOnpost(String.valueOf(postDate), currentUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    if (_value){
 
-                                            Map<String , Object> mapObj = new HashMap<>();
+                                                        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                                                .document("lesson-post")
+                                                                .collection("post")
+                                                                .document(String.valueOf(postDate));
 
-                                            if (!dataModel.isEmpty()){
-                                                mapObj.put("type","data");
+                                                        Map<String , Object> mapObj = new HashMap<>();
+                                                        if (!dataModel.isEmpty()){
+                                                            mapObj.put("type","data");
 
-                                                for (int i = 0 ; i < dataModel.size() ; i ++){
-                                                    mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
-                                                    mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
-                                                    ref.set(mapObj,SetOptions.merge());
+                                                            for (int i = 0 ; i < dataModel.size() ; i ++){
+                                                                mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
+                                                                mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
+                                                                ref.set(mapObj,SetOptions.merge());
 
+                                                            }
+
+                                                        }
+
+                                                        WaitDialog.dismiss();
+                                                        TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                                        TipDialog.dismiss(1400);
+                                                        finish();
+                                                        Helper.shared().back(StudentNewPostActivity.this);
+                                                    }
                                                 }
+                                            });
 
-                                            }
-
-                                            WaitDialog.dismiss();
-                                            TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
-                                            TipDialog.dismiss(1400);
-                                            finish();
-                                            Helper.shared().back(StudentNewPostActivity.this);
                                         }
                                     });
                         }
@@ -312,8 +327,6 @@ public class StudentNewPostActivity extends AppCompatActivity {
     }
 
     private void showLinkSheet(){
-
-
         ArrayList<String > items = new ArrayList<>();
         items.add(BottomSheetActionTarget.google_drive);
         items.add(BottomSheetActionTarget.one_drive);
@@ -328,16 +341,121 @@ public class StudentNewPostActivity extends AppCompatActivity {
         res.add(R.drawable.yandex);
         res.add(R.drawable.mega);
         res.add(R.drawable.icloud);
-        BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.post_add_link_target , res);
-      /*  Helper.shared().BottomSheetAddLink(StudentNewPostActivity.this, BottomSheetTarget.post_add_link_target, currentUser, model, post, new TrueFalse<Boolean>() {
+        BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.new_post_add_link_target , res);
+        Helper.shared().NewPostBottomSheetAddLink(StudentNewPostActivity.this, BottomSheetTarget.new_post_add_link_target, link, currentUser, model, new CompletionWithValue() {
             @Override
-            public void callBack(Boolean _value) {
+            public void completion(Boolean bool, String val) {
+                WaitDialog.show(StudentNewPostActivity.this,null);
+               getSavedTaskLink(currentUser, new StringCompletion() {
+                   @Override
+                   public void getString(String string) {
+                       if (string != null){
+                           detectLink(string);
 
-              //  detectLink(post);
+                       }
+                   }
+               });
             }
-        });*/
+        });
+      ;
     }
 
+    private void getSavedTaskLink(CurrentUser currentUser , StringCompletion url){
+        DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("saved-task")
+                .document("task");
+        reference.addSnapshotListener(StudentNewPostActivity.this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error == null){
+                    if (value.exists()){
+                        url.getString(value.getString("link"));
+                    }else{
+                        url.getString("");
+                    }
+
+                }
+            }
+        });
+    }
+
+    private void detectLink(String link){
+
+        driveLayout = (RelativeLayout)findViewById(R.id.driveLayout);
+        driveIcon = (ImageButton)findViewById(R.id.driveIcon);
+        deleteClick = (ImageButton)findViewById(R.id.cancelButton);
+        linkName = (TextView)findViewById(R.id.linkName);
+
+        if (link == null || link.equals("")){
+
+            driveLayout.setVisibility(View.GONE);
+        }else{
+            driveLayout.setVisibility(View.VISIBLE);
+            try {
+                if(MajorPostService.shared().getLink(link) .equals("drive.google.com")
+                        || MajorPostService.shared().getLink(link).equals("www.drive.google.com")){
+                    WaitDialog.dismiss();
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(link));
+                    driveIcon.setImageResource(R.drawable.google_drive);
+                    linkName.setText(DriveLinkNames.googleDrive);
+                }else if ( MajorPostService.shared().getLink(link).equals("onedrive.live.com" )
+                        || MajorPostService.shared().getLink(link).equals("www.onedrive.live.com")|| link.equals("1drv.ms")){
+                    WaitDialog.dismiss();
+                    driveIcon.setImageResource(R.drawable.onedrive);
+                    linkName.setText(DriveLinkNames.onedrive);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(link));
+
+                }else if ( MajorPostService.shared().getLink(link).equals("dropbox.com")
+                        ||  MajorPostService.shared().getLink(link).equals("www.dropbox.com")){
+                    WaitDialog.dismiss();
+                    driveIcon.setImageResource(R.drawable.dropbox);
+                    linkName.setText(DriveLinkNames.dropbox);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(link));
+
+                }else if ( MajorPostService.shared().getLink(link).equals("icloud.com")
+                        ||  MajorPostService.shared().getLink(link).equals("www.icloud.com")){
+                    WaitDialog.dismiss();
+                    driveIcon.setImageResource(R.drawable.icloud);
+                    linkName.setText(DriveLinkNames.icloud);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(link));
+
+                }else if ( MajorPostService.shared().getLink(link).equals("disk.yandex.com.tr")
+                        ||  MajorPostService.shared().getLink(link).equals("disk.yandex.com") || MajorPostService.shared().getLink(link).equals("yadi.sk")){
+                    WaitDialog.dismiss();
+                    driveIcon.setImageResource(R.drawable.yandex);
+                    linkName.setText(DriveLinkNames.yandex);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(link));
+
+                }else if ( MajorPostService.shared().getLink(link).equals("mega.nz")
+                        ||  MajorPostService.shared().getLink(link).equals("www.mega.nz")){
+                    WaitDialog.dismiss();
+                    driveIcon.setImageResource(R.drawable.mega);
+                    linkName.setText(DriveLinkNames.mega);
+                    Log.d(TAG, "detectLink: " + MajorPostService.shared().getLink(link));
+                }else{
+                    WaitDialog.dismiss();
+                }
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+            deleteClick.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    WaitDialog.show(StudentNewPostActivity.this,null);
+                   MajorPostService.shared().deleteSavedLink(currentUser, new TrueFalse<Boolean>() {
+                       @Override
+                       public void callBack(Boolean _value) {
+                           if (_value){
+                               detectLink("");
+                               WaitDialog.dismiss();
+                           }
+                       }
+                   });
+                }
+            });
+        }
+    }
     //TODO-permission
     private void uploadImage() {
         if (!checkGalleryPermissions()){
@@ -693,4 +811,14 @@ public class StudentNewPostActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        MajorPostService.shared().deleteSavedLink(currentUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                
+            }
+        });
+    }
 }

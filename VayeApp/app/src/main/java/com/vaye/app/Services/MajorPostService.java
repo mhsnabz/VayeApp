@@ -19,6 +19,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.MajorPostFallower;
+import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonFallowerUser;
@@ -184,6 +185,9 @@ public class MajorPostService {
     public String getLink(String url) throws URISyntaxException {
         URI uri = new URI(url);
         String domain = uri.getHost();
+        if (  domain == null ||domain.isEmpty()){
+            return  "";
+        }
         return domain.startsWith("www.") ? domain.substring(4) : domain;
     }
 
@@ -283,6 +287,7 @@ public class MajorPostService {
         });
     }
 
+
     public void deleteLink(LessonPostModel post , CurrentUser currentUser , Activity activity , TrueFalse<Boolean> val){
         WaitDialog.show((AppCompatActivity) activity,"");
         DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
@@ -323,15 +328,62 @@ public class MajorPostService {
         });
     }
 
-//type : String!,lesson_key : String!
-// ,link : String?,
-// currentUser : CurrentUser,
-// postId : String ,
-// users : [LessonFallowerUser]
-// ,msgText : String,
-// datas : [String] ,
-// essonName : String ,
-// short_school : String ,
+    public void setLinkOnSavedTask(CurrentUser currentUser , String link , TrueFalse<Boolean> val){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("saved-task").document("task");
+        Map<String , Object> map = new HashMap<>();
+        map.put("link",link);
+        ref.set(map , SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                val.callBack(true);
+            }
+        });
+    }
+    public void deleteSavedLink(CurrentUser currentUser , TrueFalse<Boolean> val){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("saved-task").document("task");
+        Map<String , Object> map = new HashMap<>();
+        map.put("link","");
+        ref.set(map , SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                val.callBack(true);
+            }
+        });
+    }
+
+    public void moveSavedLinkOnpost(String postId , CurrentUser currentUser , TrueFalse<Boolean> val){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("saved-task")
+                .document("task");
+                ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.getString("link")!=null && !documentSnapshot.getString("link").isEmpty())   {
+
+                        //İSTE/lesson-post/post/1610231975623
+                            DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                    .document("lesson-post")
+                                    .collection("post")
+                                    .document(postId);
+                            Map<String , String> map = new HashMap<>();
+                            map.put("link",documentSnapshot.getString("link"));
+                            reference.set(map , SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    val.callBack(true);
+                                }
+                            });
+                        }else{
+                            val.callBack(true);
+                        }
+                    }
+                });
+    }
 
     public void setNewPost( String  lesson_key , String  link , CurrentUser currentUser , long postId , ArrayList<LessonFallowerUser> lessonFallowerUsers
     , String msgText , ArrayList<NewPostDataModel> datas , String lessonName , TrueFalse<Boolean> val){

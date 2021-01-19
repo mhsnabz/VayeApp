@@ -2,6 +2,7 @@ package com.vaye.app.Controller.HomeController.LessonPostAdapter;
 
 import android.content.Context;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -14,13 +15,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.google.firebase.Timestamp;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Interfaces.DriveLinkNames;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.Helper;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -31,7 +36,7 @@ public class MajorPostViewHolder extends RecyclerView.ViewHolder{
     }
 
 
-
+    ImageButton linkButton = (ImageButton)itemView.findViewById(R.id.linkButton);
     CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
     ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
     TextView name = (TextView)itemView.findViewById(R.id.name);
@@ -328,6 +333,52 @@ public class MajorPostViewHolder extends RecyclerView.ViewHolder{
 
                 }
             });
+        }
+    }
+
+    public void setLinkButton(String link){
+        try {
+            if(MajorPostService.shared().getLink(link) .equals("drive.google.com")
+                    || MajorPostService.shared().getLink(link).equals("www.drive.google.com")){
+                WaitDialog.dismiss();
+
+                linkButton.setImageResource(R.drawable.google_drive);
+
+            }else if ( MajorPostService.shared().getLink(link).equals("onedrive.live.com" )
+                    || MajorPostService.shared().getLink(link).equals("www.onedrive.live.com")|| link.equals("1drv.ms")){
+
+                linkButton.setImageResource(R.drawable.onedrive);
+
+
+            }else if ( MajorPostService.shared().getLink(link).equals("dropbox.com")
+                    ||  MajorPostService.shared().getLink(link).equals("www.dropbox.com")){
+
+                linkButton.setImageResource(R.drawable.dropbox);
+
+
+            }else if ( MajorPostService.shared().getLink(link).equals("icloud.com")
+                    ||  MajorPostService.shared().getLink(link).equals("www.icloud.com")){
+
+                linkButton.setImageResource(R.drawable.icloud);
+
+
+            }else if ( MajorPostService.shared().getLink(link).equals("disk.yandex.com.tr")
+                    ||  MajorPostService.shared().getLink(link).equals("disk.yandex.com") || MajorPostService.shared().getLink(link).equals("yadi.sk")){
+
+                linkButton.setImageResource(R.drawable.yandex);
+
+
+            }else if ( MajorPostService.shared().getLink(link).equals("mega.nz")
+                    ||  MajorPostService.shared().getLink(link).equals("www.mega.nz")){
+
+                linkButton.setImageResource(R.drawable.mega);
+
+            }else{
+                linkButton.setVisibility(View.GONE);
+
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
     }
 }

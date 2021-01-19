@@ -48,6 +48,16 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     static final int view_lesson = 0;
     static final int view_currentUser = 1;
     static final int view_add_link = 2;
+    static final int view_add_link_on_post = 3;
+
+    public BottomSheetAdapter(String target,String link , CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog) {
+        this.target = target;
+        this.currentUser = currentUser;
+        this.context = context;
+        this.model = model;
+        this.dialog = dialog;
+        this.selectedLink = link;
+    }
 
     String target;
     CurrentUser currentUser;
@@ -55,7 +65,7 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     BottomSheetModel model;
     BottomSheetDialog dialog;
     LessonModel lessonModel;
-
+    String selectedLink;
     LessonPostModel post;
 
     public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model,BottomSheetDialog dialog, LessonPostModel post) {
@@ -86,6 +96,8 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return view_currentUser;
         }else if (model.getTarget().equals(BottomSheetTarget.post_add_link_target)){
             return view_add_link;
+        }else if (model.getTarget().equals(BottomSheetTarget.new_post_add_link_target)){
+            return  view_add_link_on_post;
         }
         return super.getItemViewType(position);
     }
@@ -112,6 +124,12 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         .inflate(R.layout.action_sheet_single_item, parent, false);
 
                 return new BottomSheetLessonCurrentUserViewHolder(view_link);
+
+            case view_add_link_on_post:
+                View new_view_link = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.action_sheet_single_item, parent, false);
+
+                return new BottomSheetLessonCurrentUserViewHolder(new_view_link);
 
         }
 
@@ -337,6 +355,130 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             });
 
+        }
+        else if (viewType == view_add_link_on_post){
+            BottomSheetLessonCurrentUserViewHolder currentUser_holder = (BottomSheetLessonCurrentUserViewHolder) holder;
+            currentUser_holder.setTitle(model.getItems().get(i));
+            currentUser_holder.setImageOne(model.getImagesHolder().get(i));
+            currentUser_holder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    CustomDialog.show((AppCompatActivity) context, R.layout.input_link_layout, new CustomDialog.OnBindView() {
+                        @Override
+                        public void onBind(final CustomDialog _dialog, View v) {
+                            Button addLink = (Button)v.findViewById(R.id.addLink);
+                            Button goDrive = (Button)v.findViewById(R.id.goDrive);
+                            MaterialEditText url = (MaterialEditText)v.findViewById(R.id.link);
+                            goDrive.setText(model.getItems().get(i)+ " git") ;
+                            ImageButton dismiss = (ImageButton)v.findViewById(R.id.dismis);
+                            dismiss.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    _dialog.doDismiss();
+                                    selectedLink = "";
+                                }
+                            });
+
+                            addLink.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    String link = url.getText().toString();
+                                    if (link.isEmpty()){
+                                        _dialog.doDismiss();
+                                        selectedLink = "";
+                                        dialog.dismiss();
+                                    }
+                                    else{
+                                        try {
+                                            String linkName =  MajorPostService.shared().getLink(link);
+                                            if (MajorPostService.shared().getLink(link).equals("")){
+                                                _dialog.doDismiss();
+                                                selectedLink = "";
+                                                dialog.dismiss();
+                                                TipDialog.show((AppCompatActivity) context, "Bu Bağlantıyı Tanıyamadık" , TipDialog.TYPE.ERROR);
+                                                TipDialog.dismiss(1500);
+                                                return;
+                                            }else if (linkName.equals(LinkNames.dropbox))
+                                            {
+                                                MajorPostService.shared().setLinkOnSavedTask(currentUser, link, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        _dialog.doDismiss();
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                            }else if (linkName.equals(LinkNames.yandex) || linkName.equals(LinkNames.yandex_tr) || linkName.equals(LinkNames.yandex_sk)){
+                                                MajorPostService.shared().setLinkOnSavedTask(currentUser, link, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        _dialog.doDismiss();
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                            }else if (linkName.equals(LinkNames.icloud)){
+                                                MajorPostService.shared().setLinkOnSavedTask(currentUser, link, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        _dialog.doDismiss();
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                            }else if (linkName.equals(LinkNames.google_drive)){
+                                                MajorPostService.shared().setLinkOnSavedTask(currentUser, link, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        _dialog.doDismiss();
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                            }else if (linkName.equals(LinkNames.one_drive)){
+                                                MajorPostService.shared().setLinkOnSavedTask(currentUser, link, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        _dialog.doDismiss();
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                            }else if (linkName.equals(LinkNames.mega)){
+                                                MajorPostService.shared().setLinkOnSavedTask(currentUser, link, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        _dialog.doDismiss();
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                            }else{
+                                                _dialog.doDismiss();
+                                                selectedLink = "";
+                                                dialog.dismiss();
+                                                TipDialog.show((AppCompatActivity) context, "Bu Bağlantıyı Tanıyamadık" , TipDialog.TYPE.ERROR);
+                                                TipDialog.dismiss(1500);
+                                            }
+
+
+                                        } catch (URISyntaxException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    }
+                                }
+                            });
+
+                            goDrive.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+
+                                    Intent browse = new Intent( Intent.ACTION_VIEW , Uri.parse( currentUser_holder.getLinkTarget(model.getItems().get(i)) ) );
+
+                                    context.startActivity( browse );
+                                }
+                            });
+                        }
+                    });
+
+                }
+            });
         }
     }
 

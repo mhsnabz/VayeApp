@@ -310,7 +310,6 @@ public class EditPostActivity extends AppCompatActivity {
             }
         });
     }
-
     private void detectLink(LessonPostModel model){
         driveLayout = (RelativeLayout)findViewById(R.id.driveLayout);
         driveIcon = (ImageButton)findViewById(R.id.driveIcon);

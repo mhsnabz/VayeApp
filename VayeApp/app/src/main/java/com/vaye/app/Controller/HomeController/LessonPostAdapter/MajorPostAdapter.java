@@ -3,6 +3,7 @@ package com.vaye.app.Controller.HomeController.LessonPostAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,6 +78,10 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
     @Override
+    public long getItemId(int position) {
+        return position;
+    }
+    @Override
     public int getItemViewType(int position) {
         LessonPostModel model = (LessonPostModel)post.get(position);
         if (model.getType()!=null&& model.getType().equals("ads")) {
@@ -96,6 +101,9 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         switch (viewType) {
             case VIEW_TYPE_LESSON_POST_DATA:
                 MajorPostViewHolder postHolder = (MajorPostViewHolder) holder;
+
+
+
                 postHolder.more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -150,7 +158,14 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 postHolder.setDislike(menuItemData.getDislike(),currentUser , context);
                 postHolder.setFav(menuItemData.getFavori(),currentUser,context);
                 postHolder.setTime(menuItemData.getPostTime());
-
+                postHolder.setLinkButton(menuItemData.getLink());
+                postHolder.linkButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(menuItemData.getLink()));
+                        context.startActivity(browserIntent);
+                    }
+                });
                 postHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -303,8 +318,14 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 itemHolder.setDislike(menuItem.getDislike(),currentUser , context);
                 itemHolder.setFav(menuItem.getFavori(),currentUser,context);
                 itemHolder.setTime(menuItem.getPostTime());
-
-
+                itemHolder.setLinkButton(menuItem.getLink());
+                itemHolder.linkButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(menuItem.getLink()));
+                    context.startActivity(browserIntent);
+                }
+            });
                 itemHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
