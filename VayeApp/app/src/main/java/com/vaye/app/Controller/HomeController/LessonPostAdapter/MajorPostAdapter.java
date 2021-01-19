@@ -305,8 +305,6 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 });
 
                 itemHolder.setCommentLbl(menuItem.getComment());
-
-
                 itemHolder.setName(menuItem.getSenderName());
                 itemHolder.setUserName(menuItem.getUsername());
                 itemHolder.setProfileImage(menuItem.getThumb_image());
