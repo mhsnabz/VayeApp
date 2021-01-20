@@ -26,6 +26,7 @@ import com.kongzue.dialog.util.TextInfo;
 import com.kongzue.dialog.v3.CustomDialog;
 import com.kongzue.dialog.v3.InputDialog;
 import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
@@ -39,6 +40,7 @@ import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.Helper;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import io.perfmark.Link;
 
@@ -49,8 +51,8 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     static final int view_currentUser = 1;
     static final int view_add_link = 2;
     static final int view_add_link_on_post = 3;
-
-    public BottomSheetAdapter(String target,String link , CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog) {
+//target ,currentUser ,activity ,model , bottomSheetDialog , lessonModel)
+    public BottomSheetAdapter(String target,String link , CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog ) {
         this.target = target;
         this.currentUser = currentUser;
         this.context = context;
@@ -67,8 +69,30 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     LessonModel lessonModel;
     String selectedLink;
     LessonPostModel post;
+    ArrayList<LessonPostModel> postModels;
+//target ,currentUser ,activity ,model , bottomSheetDialog , post,lessonPostModels
 
-    public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model,BottomSheetDialog dialog, LessonPostModel post) {
+
+    public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog, LessonPostModel post, ArrayList<LessonPostModel> postModels) {
+        this.target = target;
+        this.currentUser = currentUser;
+        this.context = context;
+        this.model = model;
+        this.dialog = dialog;
+        this.post = post;
+        this.postModels = postModels;
+    }
+
+    public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog, LessonModel lessonModel) {
+        this.target = target;
+        this.currentUser = currentUser;
+        this.context = context;
+        this.model = model;
+        this.dialog = dialog;
+        this.lessonModel = lessonModel;
+    }
+
+    public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog, LessonPostModel post) {
         this.target = target;
         this.currentUser = currentUser;
         this.context = context;
@@ -79,14 +103,17 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
 
-    public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog, LessonModel lessonModel) {
+    public BottomSheetAdapter(String target, CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog, LessonModel lessonModel, ArrayList<LessonPostModel> lessonPostModels ) {
         this.target = target;
         this.currentUser = currentUser;
         this.context = context;
         this.model = model;
         this.dialog = dialog;
         this.lessonModel = lessonModel;
+        this.postModels = lessonPostModels;
     }
+
+    
 
     @Override
     public int getItemViewType(int position) {
@@ -192,7 +219,17 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                     else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_sil))
                     {
-                        Toast.makeText(context , "Gönderiyi Sil",Toast.LENGTH_SHORT).show();
+                        MajorPostService.shared().deleteCurrentUserPost((Activity) context, currentUser, post, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    WaitDialog.dismiss();
+                                    postModels.remove(post);
+
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
 
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_sessize_al)){
                         MajorPostService.shared().setCurrentUserPostSlient((Activity) context, currentUser, post, new TrueFalse<Boolean>() {

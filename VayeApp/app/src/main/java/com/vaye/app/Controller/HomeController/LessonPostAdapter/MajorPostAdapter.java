@@ -129,7 +129,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             });
                             BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.lesson_currentUser_target,res);
 
-                            Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
+                            Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context,post, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
                                 @Override
                                 public void callBack(Boolean _value) {
                                     if (_value){
@@ -137,6 +137,8 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                     }
                                 }
                             });
+                        }else {
+                          
                         }
                     }
                 });
@@ -289,7 +291,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                             BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.lesson_currentUser_target,res);
 
-                            Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
+                            Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context,post, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
                                 @Override
                                 public void callBack(Boolean _value) {
                                     if (_value){
@@ -297,6 +299,8 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                     }
                                 }
                             });
+                        }else{
+
                         }
 
 

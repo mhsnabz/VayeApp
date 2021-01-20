@@ -27,6 +27,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetAdapter;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class Helper {
@@ -189,14 +190,14 @@ public class Helper {
         bottomSheetDialog.show();
     }
 
-   public void BottomSheet_LessonCurrenUser_Dialog(Activity activity, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
+   public void BottomSheet_LessonCurrenUser_Dialog(Activity activity, ArrayList<LessonPostModel> lessonPostModels, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
        RecyclerView recyclerView;
 
        Button cancel;
        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
        View view = LayoutInflater.from(activity.getApplicationContext())
                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
-       BottomSheetAdapter adapter = new BottomSheetAdapter(target ,currentUser ,activity ,model , bottomSheetDialog , post);
+       BottomSheetAdapter adapter = new BottomSheetAdapter(target ,currentUser ,activity ,model , bottomSheetDialog , post,lessonPostModels);
        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
        recyclerView.setAdapter(adapter);
        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
@@ -205,7 +206,7 @@ public class Helper {
        cancel.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
-               Toast.makeText(activity,"Cancel Click",Toast.LENGTH_SHORT).show();
+
                bottomSheetDialog.dismiss();
            }
        });

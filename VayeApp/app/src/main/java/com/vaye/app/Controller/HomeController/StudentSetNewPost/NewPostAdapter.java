@@ -48,7 +48,6 @@ public class NewPostAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
     {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.single_post_item, parent, false);
-
         return new NewPostViewHolder(itemView);
     }
 
@@ -59,7 +58,7 @@ public class NewPostAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MajorPostService.shared().deleteFileReference((Activity) context, model.get(position).getFileUrl(), model.get(position).getThumb_url(), currentUser, null, new TrueFalse<Boolean>() {
+                        MajorPostService.shared().deleteFileReference((Activity) context, model.get(position).getFileUrl(), model.get(position).getThumb_url(), new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
                                 for (NewPostDataModel data : model){
@@ -74,7 +73,6 @@ public class NewPostAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                 });
     }
-
     @Override
     public int getItemCount() {
         return model.size();

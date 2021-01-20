@@ -254,7 +254,7 @@ public class MajorPostService {
     }
 
 
-    public void deleteFileReference(Activity activity , String url ,String thumb_url,CurrentUser currentUser , LessonPostModel postModel , TrueFalse<Boolean> val){
+    public void deleteFileReference(Activity activity , String url ,String thumb_url , TrueFalse<Boolean> val){
         FirebaseStorage ref = FirebaseStorage.getInstance();
         ref.getReferenceFromUrl(url).delete().addOnSuccessListener(activity, new OnSuccessListener<Void>() {
             @Override
@@ -505,6 +505,41 @@ public class MajorPostService {
                 }
           }
       });
+
+  }
+
+  public void deleteCurrentUserPost(Activity activity ,CurrentUser currentUser ,LessonPostModel postModel , TrueFalse<Boolean> val){
+
+      WaitDialog.show((AppCompatActivity) activity , "Gönderi Siliniyor\n Lütfen Bekleyin..");
+      DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+              .document("lesson-post")
+              .collection("post")
+              .document(postModel.getPostId());
+        if ( postModel.getThumbData()==null || postModel.getThumbData().isEmpty() ){
+
+            ref.delete().addOnSuccessListener(activity, new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    val.callBack(true);
+                }
+            });
+        }else{
+
+            ref.delete().addOnSuccessListener(activity, new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    for (int i = 0 ; i < postModel.getThumbData().size() ; i++){
+                        deleteFileReference(activity, postModel.getData().get(i), postModel.getThumbData().get(i), new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                val.callBack(true);
+                            }
+                        });
+                    }
+                }
+            });
+
+        }
 
   }
 
