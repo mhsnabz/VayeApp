@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,11 +17,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
+import com.squareup.picasso.Picasso;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
@@ -29,6 +32,8 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Helper {
     private static final Helper instance = new Helper();
@@ -219,6 +224,70 @@ public class Helper {
        });
        bottomSheetDialog.setContentView(view);
        bottomSheetDialog.show();
+   }
+
+
+   public void BottomSheetOtherUser(Activity activity, OtherUser otherUser, ArrayList<LessonPostModel> lessonPostModels, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
+       RecyclerView recyclerView;
+       RelativeLayout headerView;
+       CircleImageView profileImage;
+       TextView username;
+       Button fallow;
+
+       Button cancel;
+       BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+       View view = LayoutInflater.from(activity.getApplicationContext())
+               .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+       BottomSheetAdapter adapter = new BottomSheetAdapter(target ,currentUser ,activity ,model , bottomSheetDialog , post,lessonPostModels);
+       recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+       headerView = (RelativeLayout)view.findViewById(R.id.header);
+       profileImage = (CircleImageView)view.findViewById(R.id.profileImage);
+       headerView.setVisibility(View.VISIBLE);
+       username = (TextView) view.findViewById(R.id.username);
+        fallow = (Button)view.findViewById(R.id.fallow);
+       username.setText( otherUser.getUsername());
+
+
+
+       recyclerView.setAdapter(adapter);
+       recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+       adapter.notifyDataSetChanged();
+       cancel = (Button)view.findViewById(R.id.dismis);
+       cancel.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+
+               bottomSheetDialog.dismiss();
+           }
+       });
+
+       bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+           @Override
+           public void onDismiss(DialogInterface dialogInterface) {
+               val.callBack(true);
+           }
+       });
+       bottomSheetDialog.setContentView(view);
+       bottomSheetDialog.show();
+
+
+       UserService.shared().checkIsFallowing(currentUser, otherUser, new TrueFalse<Boolean>() {
+           @Override
+           public void callBack(Boolean _value) {
+               if (_value){
+                   fallow.setText("Takibi Bırak");
+                   fallow.setBackgroundResource(R.drawable.button_unfollow_back);
+               }else{
+                   fallow.setBackgroundResource(R.drawable.button_fallow_back);
+                   fallow.setText("Takip Et");
+               }
+           }
+       });
+        if (otherUser.getThumb_image() != null){
+            Picasso.get().load(otherUser.getThumb_image()).placeholder(android.R.color.darker_gray).resize(128,128)
+                    .centerCrop().into(profileImage);
+        }
+
    }
 
 

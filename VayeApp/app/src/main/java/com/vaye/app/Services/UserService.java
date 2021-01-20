@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -12,6 +13,7 @@ import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.TaskUserHandler;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.Model.TaskUser;
 
 public class UserService {
@@ -74,6 +76,24 @@ public class UserService {
                 }else{
                     result.callBack(false);
                 }
+            }
+        });
+    }
+
+    public void checkIsFallowing(CurrentUser currentUser  , OtherUser otherUser , TrueFalse<Boolean> val){
+        ///user/t01RVvdauThanTbmpmmsLMgiJGx1/following/VUSU6uA0odX7vuF5giXWbOUYzni1
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("following").document(otherUser.getUid());
+        ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()){
+                        val.callBack(true);
+                    }else{
+                        val.callBack(false);
+                    }
             }
         });
     }

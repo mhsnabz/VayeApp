@@ -138,7 +138,19 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 }
                             });
                         }else {
-                          
+                            ArrayList<String > items = new ArrayList<>();
+                            items.add(BottomSheetActionTarget.bu_gonderiyi_sikayet_et);
+                            items.add(BottomSheetActionTarget.bu_dersi_sessize_al);
+                            items.add(BottomSheetActionTarget.bu_kullaniciyi_sessize_al);
+                            items.add(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak);
+                            items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
+                            ArrayList<Integer> res = new ArrayList<>();
+                            res.add(R.drawable.slient);
+                            res.add(R.drawable.trash);
+                            res.add(R.drawable.trash);
+                            res.add(R.drawable.trash);
+                            res.add(R.drawable.trash);
+                            res.add(R.drawable.trash);
                         }
                     }
                 });

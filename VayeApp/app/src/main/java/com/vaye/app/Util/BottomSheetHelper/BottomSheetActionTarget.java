@@ -11,6 +11,11 @@ public interface BottomSheetActionTarget {
     String gonderi_bildirimlerini_ac = "Gönderi Bildirimlerini Aç";
 
 
+    String bu_gonderiyi_sikayet_et = "Bu Gönderiyi Şikayet Et";
+    String  bu_dersi_sessize_al = "Bu Dersi Sessize Al";
+    String bu_kullaniciyi_sessize_al = "Bu Kullanıcıyı Sessize Al";
+    String bu_dersi_takip_etmeyi_birak = "Bu Dersi Takip Etmeyei Bırak";
+    String bu_kullaniciyi_sikayet_et = "Bu Kullanıcıyı Şikayet Et";
 
     String google_drive = "Google Drive";
     String one_drive = "Microsoft OneDrive";
@@ -18,6 +23,12 @@ public interface BottomSheetActionTarget {
     String yandex_disk = "Yandex Disk";
     String mega = "Mega.nz";
     String iClould = "Apple iCloud";
+
+
+
+
+
+
 
 
 }
