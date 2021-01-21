@@ -11,9 +11,9 @@ public class CurrentUser implements Parcelable {
     String email  , bolum_key , name,number,priority,profileImage,thumb_image,schoolName,short_school,bolum,fakulte,uid,username,linkedin,instagram,twitter,github;
     int totalBadge ;
     Boolean allowRequest,comment,mention,like,follow,lessonNotices;
-   ArrayList<String> slientUser,friendList,slientChatUser;
+   ArrayList<String> slient,friendList,slientChatUser;
 
-    public CurrentUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slientUser, ArrayList<String> friendList, ArrayList<String> slientChatUser) {
+    public CurrentUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slient, ArrayList<String> friendList, ArrayList<String> slientChatUser) {
         this.email = email;
         this.bolum_key = bolum_key;
         this.name = name;
@@ -38,7 +38,7 @@ public class CurrentUser implements Parcelable {
         this.like = like;
         this.follow = follow;
         this.lessonNotices = lessonNotices;
-        this.slientUser = slientUser;
+        this.slient = slient;
         this.friendList = friendList;
         this.slientChatUser = slientChatUser;
     }
@@ -77,7 +77,7 @@ public class CurrentUser implements Parcelable {
         follow = tmpFollow == 0 ? null : tmpFollow == 1;
         byte tmpLessonNotices = in.readByte();
         lessonNotices = tmpLessonNotices == 0 ? null : tmpLessonNotices == 1;
-        slientUser = in.createStringArrayList();
+        slient = in.createStringArrayList();
         friendList = in.createStringArrayList();
         slientChatUser = in.createStringArrayList();
     }
@@ -286,12 +286,12 @@ public class CurrentUser implements Parcelable {
         this.lessonNotices = lessonNotices;
     }
 
-    public ArrayList<String> getSlientUser() {
-        return slientUser;
+    public ArrayList<String> getSlient() {
+        return slient;
     }
 
-    public void setSlientUser(ArrayList<String> slientUser) {
-        this.slientUser = slientUser;
+    public void setSlient(ArrayList<String> slient) {
+        this.slient = slient;
     }
 
     public ArrayList<String> getFriendList() {
@@ -341,7 +341,7 @@ public class CurrentUser implements Parcelable {
         parcel.writeByte((byte) (like == null ? 0 : like ? 1 : 2));
         parcel.writeByte((byte) (follow == null ? 0 : follow ? 1 : 2));
         parcel.writeByte((byte) (lessonNotices == null ? 0 : lessonNotices ? 1 : 2));
-        parcel.writeStringList(slientUser);
+        parcel.writeStringList(slient);
         parcel.writeStringList(friendList);
         parcel.writeStringList(slientChatUser);
     }

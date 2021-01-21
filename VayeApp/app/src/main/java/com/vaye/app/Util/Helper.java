@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -227,9 +228,9 @@ public class Helper {
    }
 
 
-   public void BottomSheetOtherUser(Activity activity, OtherUser otherUser, ArrayList<LessonPostModel> lessonPostModels, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
+   public void BottomSheetOtherUser(Activity activity, OtherUser otherUser, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
        RecyclerView recyclerView;
-       RelativeLayout headerView;
+       CardView headerView;
        CircleImageView profileImage;
        TextView username;
        Button fallow;
@@ -238,9 +239,9 @@ public class Helper {
        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
        View view = LayoutInflater.from(activity.getApplicationContext())
                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
-       BottomSheetAdapter adapter = new BottomSheetAdapter(target ,currentUser ,activity ,model , bottomSheetDialog , post,lessonPostModels);
+       BottomSheetAdapter adapter = new BottomSheetAdapter(target ,currentUser ,activity ,model , bottomSheetDialog , post);
        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
-       headerView = (RelativeLayout)view.findViewById(R.id.header);
+       headerView = (CardView)view.findViewById(R.id.header);
        profileImage = (CircleImageView)view.findViewById(R.id.profileImage);
        headerView.setVisibility(View.VISIBLE);
        username = (TextView) view.findViewById(R.id.username);
@@ -256,8 +257,9 @@ public class Helper {
        cancel.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
-
+               headerView.setVisibility(View.GONE);
                bottomSheetDialog.dismiss();
+
            }
        });
 
@@ -283,7 +285,7 @@ public class Helper {
                }
            }
        });
-        if (otherUser.getThumb_image() != null){
+        if (otherUser.getThumb_image() != null && !otherUser.getThumb_image().isEmpty()){
             Picasso.get().load(otherUser.getThumb_image()).placeholder(android.R.color.darker_gray).resize(128,128)
                     .centerCrop().into(profileImage);
         }

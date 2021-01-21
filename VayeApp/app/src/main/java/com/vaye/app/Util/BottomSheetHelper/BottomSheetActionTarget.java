@@ -13,6 +13,8 @@ public interface BottomSheetActionTarget {
 
     String bu_gonderiyi_sikayet_et = "Bu Gönderiyi Şikayet Et";
     String  bu_dersi_sessize_al = "Bu Dersi Sessize Al";
+    String bu_dersi_sessizden_al = "Bu Dersin Bildirimlerini Aç";
+    String bu_kullaniciyi_sessiden_al = "Bu Kullanıcıyı Sessizden Al";
     String bu_kullaniciyi_sessize_al = "Bu Kullanıcıyı Sessize Al";
     String bu_dersi_takip_etmeyi_birak = "Bu Dersi Takip Etmeyei Bırak";
     String bu_kullaniciyi_sikayet_et = "Bu Kullanıcıyı Şikayet Et";

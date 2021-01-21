@@ -51,6 +51,7 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     static final int view_currentUser = 1;
     static final int view_add_link = 2;
     static final int view_add_link_on_post = 3;
+    static final int otheruser_options_target = 4;
 //target ,currentUser ,activity ,model , bottomSheetDialog , lessonModel)
     public BottomSheetAdapter(String target,String link , CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog ) {
         this.target = target;
@@ -125,6 +126,8 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return view_add_link;
         }else if (model.getTarget().equals(BottomSheetTarget.new_post_add_link_target)){
             return  view_add_link_on_post;
+        }else if (model.getTarget().equals(BottomSheetTarget.otheruser_options_target)){
+            return otheruser_options_target;
         }
         return super.getItemViewType(position);
     }
@@ -157,6 +160,13 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         .inflate(R.layout.action_sheet_single_item, parent, false);
 
                 return new BottomSheetLessonCurrentUserViewHolder(new_view_link);
+
+            case otheruser_options_target :
+                View otherUser_view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.action_sheet_single_item, parent, false);
+
+                return new BottomSheetLessonViewHolder(otherUser_view);
+
 
         }
 
@@ -513,6 +523,34 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             });
                         }
                     });
+
+                }
+            });
+        }
+        else if (viewType == otheruser_options_target){
+            BottomSheetLessonViewHolder otheruser_holder = (BottomSheetLessonViewHolder) holder;
+            otheruser_holder.setTitle(model.getItems().get(i));
+            otheruser_holder.setImageOne(model.getImagesHolder().get(i));
+            otheruser_holder.setImageOne(model.getImagesHolder().get(i));
+            otheruser_holder.setTitle(model.getItems().get(i));
+            otheruser_holder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_gonderiyi_sikayet_et)){
+                        Toast.makeText(context , BottomSheetActionTarget.bu_gonderiyi_sikayet_et , Toast.LENGTH_SHORT).show();
+                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_sessize_al)){
+                        Toast.makeText(context , BottomSheetActionTarget.bu_dersi_sessize_al , Toast.LENGTH_SHORT).show();
+                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_sessizden_al)){
+                        Toast.makeText(context , BottomSheetActionTarget.bu_dersi_sessizden_al , Toast.LENGTH_SHORT).show();
+                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_kullaniciyi_sessize_al)){
+                        Toast.makeText(context , BottomSheetActionTarget.bu_kullaniciyi_sessize_al , Toast.LENGTH_SHORT).show();
+                    }
+                    else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak)){
+                        Toast.makeText(context , BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak , Toast.LENGTH_SHORT).show();
+                    }
+                    else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et)){
+                        Toast.makeText(context , BottomSheetActionTarget.bu_kullaniciyi_sikayet_et , Toast.LENGTH_SHORT).show();
+                    }
 
                 }
             });

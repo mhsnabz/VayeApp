@@ -1,53 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dialog"
     android:background="@drawable/bottom_sheet_back"
     android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:id="@+id/header"
-        android:background="@color/white"
-        android:visibility="gone"
-        >
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_centerInParent="true"
-            android:layout_alignParentStart="true"
-            android:src="@android:color/darker_gray"
-            android:layout_marginLeft="12dp"
-            android:id="@+id/profileImage"
-            ></de.hdodenhof.circleimageview.CircleImageView>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/profileImage"
-            android:layout_marginLeft="8dp"
-            android:id="@+id/username"
-            android:fontFamily="@font/nunito_semibold"
-            android:textSize="12sp"
-            android:textColor="@color/black"
+    <androidx.cardview.widget.CardView
 
-            ></TextView>
-        <Button
-            android:background="@android:color/darker_gray"
-            android:layout_width="wrap_content"
-            android:layout_height="25dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="12dp"
-            android:layout_centerVertical="true"
-            android:text="yükleniyor..."
-            android:textColor="@color/white"
-            android:textSize="10dp"
-            android:textAllCaps="false"
-            android:id="@+id/fallow"
-            ></Button>
-    </RelativeLayout>
+
+        app:cardCornerRadius="5dp"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:id="@+id/header"
+        android:elevation="0dp"
+        android:visibility="visible"
+        android:layout_height="40dp">
+        <RelativeLayout
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/white"
+
+            >
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerInParent="true"
+                android:layout_alignParentStart="true"
+                android:src="@android:color/darker_gray"
+                android:layout_marginLeft="12dp"
+                android:id="@+id/profileImage"
+                ></de.hdodenhof.circleimageview.CircleImageView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/profileImage"
+                android:layout_marginLeft="8dp"
+                android:id="@+id/username"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+
+                ></TextView>
+            <Button
+                android:background="@android:color/darker_gray"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginRight="12dp"
+                android:layout_centerVertical="true"
+                android:text="yükleniyor..."
+                android:textColor="@color/white"
+                android:textSize="10dp"
+                android:textAllCaps="false"
+                android:id="@+id/fallow"
+                ></Button>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_below="@id/header"
         android:layout_width="match_parent"

@@ -19,12 +19,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.MajorPostFallower;
+import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NewPostDataModel;
+import com.vaye.app.Model.OtherUser;
 
 import java.io.File;
 import java.net.URI;
@@ -543,6 +545,47 @@ public class MajorPostService {
 
   }
 
+  public void setOtherUserOPtions(CurrentUser currentUser , OtherUser otherUser , LessonPostModel postModel , OtherUserOptionsCompletion<Boolean> completion){
+
+      DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+              .document("lesson-post")
+              .collection(currentUser.getBolum())
+              .document(postModel.getLessonName())
+              .collection("notification_getter")
+              .document(currentUser.getUid());
+      ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+          @Override
+          public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    completion.isSilent(false);
+                    if ( otherUser.getSlient().contains(currentUser.getUid())){
+                        completion.isMute(true);
+                    }else{
+                        completion.isMute(false);
+                    }
+                    WaitDialog.dismiss();
+                }else{
+                    completion.isSilent(true);
+                    if ( otherUser.getSlient().contains(currentUser.getUid())){
+                        completion.isMute(true);
+                    }else{
+                        completion.isMute(false);
+                    }
+                    WaitDialog.dismiss();
+                }
+          }
+      });
+
+
+      // if slientUser.contains(currentUser.uid){
+      //            completion(true)
+      //        }else{
+      //            completion(false)
+      //        }
+
+
+
+  }
 
 
 }

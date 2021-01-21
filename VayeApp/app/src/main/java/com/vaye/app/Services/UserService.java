@@ -1,6 +1,9 @@
 package com.vaye.app.Services;
 
+import android.app.Activity;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -9,7 +12,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.CurrentUserService;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.TaskUserHandler;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -94,6 +99,21 @@ public class UserService {
                     }else{
                         val.callBack(false);
                     }
+            }
+        });
+    }
+
+    public void getOtherUser(Activity activity, String otherUserUid , OtherUserService user){
+        WaitDialog.show((AppCompatActivity) activity, null);
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("user")
+                .document(otherUserUid);
+        ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    user.callback(documentSnapshot.toObject(OtherUser.class));
+                }
             }
         });
     }
