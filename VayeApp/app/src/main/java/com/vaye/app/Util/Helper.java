@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Adapter;
@@ -37,6 +38,7 @@ import java.util.Calendar;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Helper {
+    private static final String TAG = "Helper";
     private static final Helper instance = new Helper();
     public static Helper shared() {  return instance;}
     public void back(Activity activity){
@@ -165,7 +167,7 @@ public class Helper {
     }
     public void NewPostBottomSheetAddLink(Activity activity, String  target,String link , CurrentUser currentUser , BottomSheetModel model  , CompletionWithValue val){
         RecyclerView recyclerView;
-
+        CardView headerView;
         Button cancel;
 
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
@@ -176,6 +178,8 @@ public class Helper {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         adapter.notifyDataSetChanged();
+        headerView = (CardView)view.findViewById(R.id.header);
+        headerView.setVisibility(View.GONE);
         cancel = (Button)view.findViewById(R.id.dismis);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -198,7 +202,7 @@ public class Helper {
 
    public void BottomSheet_LessonCurrenUser_Dialog(Activity activity, ArrayList<LessonPostModel> lessonPostModels, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
        RecyclerView recyclerView;
-
+       CardView headerView;
        Button cancel;
        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
        View view = LayoutInflater.from(activity.getApplicationContext())
@@ -208,6 +212,8 @@ public class Helper {
        recyclerView.setAdapter(adapter);
        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
        adapter.notifyDataSetChanged();
+       headerView = (CardView)view.findViewById(R.id.header);
+       headerView.setVisibility(View.GONE);
        cancel = (Button)view.findViewById(R.id.dismis);
        cancel.setOnClickListener(new View.OnClickListener() {
            @Override
@@ -266,6 +272,7 @@ public class Helper {
        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
            @Override
            public void onDismiss(DialogInterface dialogInterface) {
+               headerView.setVisibility(View.GONE);
                val.callBack(true);
            }
        });
@@ -289,6 +296,36 @@ public class Helper {
             Picasso.get().load(otherUser.getThumb_image()).placeholder(android.R.color.darker_gray).resize(128,128)
                     .centerCrop().into(profileImage);
         }
+
+
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
+
+        fallow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
+
+        username.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
+
+        headerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
 
    }
 
