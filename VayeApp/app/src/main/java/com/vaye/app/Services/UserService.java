@@ -11,7 +11,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.OtherUserService;
@@ -20,6 +22,9 @@ import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.Model.TaskUser;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserService {
 
@@ -113,6 +118,247 @@ public class UserService {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
                     user.callback(documentSnapshot.toObject(OtherUser.class));
+                }
+            }
+        });
+    }
+
+    public void setUnFollow(String currentUserId , String otherUserId , TrueFalse<Boolean> completion){
+
+        //      let db = Firestore.firestore().collection("user")
+        //                .document(user.uid).collection("fallowers").document(currentUser.uid)
+        DocumentReference dbRef = FirebaseFirestore.getInstance().collection("user"
+        ).document(currentUserId).collection("fallowers")
+                .document(otherUserId);
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user"
+        ).document(otherUserId).collection("fallowers")
+                .document(currentUserId);
+        ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                   dbRef.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                       @Override
+                       public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            removeFromFirendList(currentUserId, otherUserId, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    completion.callBack(true);
+                                }
+                            });
+                        }
+                       }
+                   }) ;
+                }
+            }
+        });
+    }
+
+
+
+    public void removeFromFirendList(String currentUser , String  otherUser , TrueFalse<Boolean> completion){
+        //  let db = Firestore.firestore().collection("user")
+        //            .document(currentUserUid.uid)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser);
+        DocumentReference dbref = FirebaseFirestore.getInstance().collection("user")
+                .document(otherUser);
+        Map<String , Object> map = new HashMap<>();
+        map.put("friendList", FieldValue.arrayRemove(otherUser));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        Map<String  , Object> map1 =  new HashMap<>();
+                        map1.put("friendList",FieldValue.arrayRemove(currentUser));
+                        dbref.set(map1,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    DocumentReference reference = FirebaseFirestore.getInstance()
+                                            .collection("user")
+                                            .document(currentUser)
+                                            .collection("friend-list")
+                                            .document(otherUser);
+                                    reference.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                DocumentReference documentReference = FirebaseFirestore.getInstance().collection("user")
+                                                        .document(otherUser)
+                                                        .collection("friend-list")
+                                                        .document(currentUser);
+                                                documentReference.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()){
+                                                            removeFromMsgList(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                                @Override
+                                                                public void callBack(Boolean _value) {
+                                                                    completion.callBack(true);
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+
+                                }
+                            }
+                        });
+                    }
+            }
+        });
+    }
+    public void removeFromMsgList(String  currentUser , String  otherUser , TrueFalse<Boolean> completion){
+
+        DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser).collection("msg-list")
+                .document(otherUser);
+        reference.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    completion.callBack(true);
+                }
+            }
+        });
+    }
+
+    private void checkIsMutual(String  currentUserId , String otherUserId , TrueFalse<Boolean> completion){
+        DocumentReference db= FirebaseFirestore.getInstance().collection("user")
+                .document(otherUserId).collection("following")
+                .document(currentUserId);
+        DocumentReference dbb= FirebaseFirestore.getInstance().collection("user")
+                .document(currentUserId).collection("following")
+                .document(otherUserId);
+        db.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists())
+                    {
+                        dbb.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task1) {
+                                     if (task1.isSuccessful()){
+                                         if (task1.getResult().exists()){
+                                             completion.callBack(true);
+                                         }else{
+                                             completion.callBack(false);
+                                         }
+                                     }else{
+                                         completion.callBack(false);
+                                     }
+                            }
+                        });
+                    }else {
+                        completion.callBack(false);
+                    }
+                }
+            }
+        });
+    }
+
+    public void addAsMessegesFriend(CurrentUser currentUser , OtherUser  otherUser , TrueFalse<Boolean> completion){
+        checkIsMutual(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+                    addOnFreindArray(currentUser, otherUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void addOnFreindArray(CurrentUser currentUser , OtherUser otherUserr , TrueFalse<Boolean> completion){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(otherUserr.getUid());
+        Map<String , Object> map = new HashMap<>();
+        map.put("friendList",FieldValue.arrayUnion(currentUser));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        DocumentReference reff = FirebaseFirestore.getInstance().collection("user")
+                                .document(currentUser.getUid());
+                        Map<String , Object> map1 = new HashMap<>();
+                        map1.put("friendList",FieldValue.arrayUnion(otherUserr));
+                        reff.set(map1 , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    completion.callBack(true);
+                                }
+                            }
+                        });
+                    }
+            }
+        });
+    }
+
+    private void addOtherUserFriendList(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> completion){
+        DocumentReference db = FirebaseFirestore.getInstance()
+                .collection("user")
+                .document(currentUser.getUid())
+                .collection("friend-list")
+                .document(otherUser.getUid());
+        Map<String , Object> map = new HashMap<>();
+
+        map.put("userName",otherUser.getUsername());
+        map.put("uid",otherUser.getUid());
+        map.put("name",otherUser.getName());
+        map.put("short_school",otherUser.getShort_school());
+        map.put("thumb_image",otherUser.getThumb_image());
+        map.put("bolum",otherUser.getBolum());
+        map.put("tarih",FieldValue.serverTimestamp());
+        db.set(map ,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        addCurrenUserOnFriendList(currentUser, otherUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                completion.callBack(true);
+                            }
+                        });
+                    }
+            }
+        });
+    }
+    private void addCurrenUserOnFriendList(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> completion){
+        DocumentReference db = FirebaseFirestore.getInstance()
+                .collection("user")
+                .document(otherUser.getUid())
+                .collection("friend-list")
+                .document(currentUser.getUid());
+        Map<String , Object> map = new HashMap<>();
+        // let dic = ["userName":otherUser.username as Any ,"uid":otherUser.uid as Any,
+        // "name":otherUser.name as Any , "short_school" : otherUser.short_school as Any ,
+        // "thumb_image":otherUser.thumb_image as Any,"tarih":FieldValue.serverTimestamp(),
+        // "bolum":otherUser.bolum as Any]  as [String : Any]
+        map.put("userName",currentUser.getUsername());
+        map.put("uid",currentUser.getUid());
+        map.put("name",currentUser.getName());
+        map.put("short_school",currentUser.getShort_school());
+        map.put("thumb_image",currentUser.getThumb_image());
+        map.put("bolum",currentUser.getBolum());
+        map.put("tarih",FieldValue.serverTimestamp());
+        db.set(map ,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    completion.callBack(true);
                 }
             }
         });

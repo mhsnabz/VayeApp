@@ -547,8 +547,10 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         i.putExtra("currentUser",currentUser);
                         context.startActivity(i);
                         Helper.shared().go((Activity) context);
+                        dialog.dismiss();
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_sessize_al)){
                         Toast.makeText(context , BottomSheetActionTarget.bu_dersi_sessize_al , Toast.LENGTH_SHORT).show();
+
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_sessizden_al)){
                         Toast.makeText(context , BottomSheetActionTarget.bu_dersi_sessizden_al , Toast.LENGTH_SHORT).show();
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_kullaniciyi_sessize_al)){
@@ -559,6 +561,15 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                     else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et)){
                         Toast.makeText(context , BottomSheetActionTarget.bu_kullaniciyi_sikayet_et , Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(context , ReportActivity.class);
+                        i.putExtra("otherUser",post.getSenderUid());
+                        i.putExtra("postId",post.getPostId());
+                        i.putExtra("target", Report.ReportTarget.homePost);
+                        i.putExtra("reportType", Report.ReportType.reportUser);
+                        i.putExtra("currentUser",currentUser);
+                        context.startActivity(i);
+                        Helper.shared().go((Activity) context);
+                        dialog.dismiss();
                     }
 
                 }

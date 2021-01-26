@@ -106,7 +106,7 @@ public class ReportActivity extends AppCompatActivity {
         postIt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                setReport();
             }
         });
         if (getSupportActionBar() != null){
@@ -174,9 +174,11 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     @Override
-    public void finish() {
-        super.finish();
+    public void onBackPressed() {
+        super.onBackPressed();
         finish();
         Helper.shared().back(ReportActivity.this);
     }
+
+
 }

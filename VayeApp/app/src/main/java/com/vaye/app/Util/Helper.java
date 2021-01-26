@@ -13,12 +13,22 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -34,10 +44,13 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Helper {
+    private boolean isFallowing = false;
     private static final String TAG = "Helper";
     private static final Helper instance = new Helper();
     public static Helper shared() {  return instance;}
@@ -286,9 +299,11 @@ public class Helper {
                if (_value){
                    fallow.setText("Takibi Bırak");
                    fallow.setBackgroundResource(R.drawable.button_unfollow_back);
+                   isFallowing = _value;
                }else{
                    fallow.setBackgroundResource(R.drawable.button_fallow_back);
                    fallow.setText("Takip Et");
+                   isFallowing = _value;
                }
            }
        });
@@ -309,7 +324,52 @@ public class Helper {
         fallow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: " + "show profile");
+            if (isFallowing){
+                WaitDialog.show((AppCompatActivity) activity, null);
+                UserService.shared().setUnFollow(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        WaitDialog.dismiss();
+                        TipDialog.show((AppCompatActivity) activity , "Takip Etmeyi Bıraktınız", TipDialog.TYPE.SUCCESS);
+                        TipDialog.dismiss(1500);
+                        bottomSheetDialog.dismiss();
+                    }
+                });
+            }else {
+                WaitDialog.show((AppCompatActivity) activity, null);
+                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                        .document(otherUser.getUid())
+                        .collection("fallowers")
+                        .document(currentUser.getUid());
+                Map<String , Object> map = new HashMap<>();
+                map.put("user", FieldValue.arrayUnion(currentUser.getUid()));
+                ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                    .document(currentUser.getUid())
+                                    .collection("following")
+                                    .document(otherUser.getUid());
+                            Map<String  , Object> map1 = new HashMap<>();
+                            map1.put("user",FieldValue.arrayUnion(otherUser.getUid()));
+                            db.set(map1 , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()){
+                                    UserService.shared().addAsMessegesFriend(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            
+                                        }
+                                    });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
             }
         });
 
