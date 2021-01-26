@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="match_parent"
+    tools:context=".Controller.ReportController.ReportActivity">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="14dp"
+            android:textColor="@color/black"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title" />
+        <LinearLayout
+            android:weightSum="2"
+            android:orientation="horizontal"
+            android:layout_width="80dp"
+
+            android:layout_gravity="right"
+            android:layout_height="40dp">
+            <ImageButton
+                android:visibility="visible"
+                android:id="@+id/postIt"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:src="@drawable/post_it"
+                ></ImageButton>
+
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
+    <include layout="@layout/lesson_post_header"
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        ></include>
+
+    <EditText
+        android:layout_below="@id/header"
+
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="16dp"
+        android:maxHeight="200dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:drawablePadding="5dp"
+        android:singleLine="false"
+        android:inputType="textCapSentences|textMultiLine"
+        android:hint="Şikayetiniz nedir..."
+
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="12sp"
+        android:isScrollContainer="true"
+        android:padding="5dp"
+        android:maxLines="4" />
+</RelativeLayout>

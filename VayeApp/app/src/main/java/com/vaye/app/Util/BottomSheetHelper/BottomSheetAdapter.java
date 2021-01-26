@@ -30,6 +30,8 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
+import com.vaye.app.Controller.ReportController.ReportActivity;
+import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
@@ -537,7 +539,14 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 @Override
                 public void onClick(View view) {
                     if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_gonderiyi_sikayet_et)){
-                        Toast.makeText(context , BottomSheetActionTarget.bu_gonderiyi_sikayet_et , Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(context , ReportActivity.class);
+                        i.putExtra("otherUser",post.getSenderUid());
+                        i.putExtra("postId",post.getPostId());
+                        i.putExtra("target", Report.ReportTarget.homePost);
+                        i.putExtra("reportType", Report.ReportType.reportPost);
+                        i.putExtra("currentUser",currentUser);
+                        context.startActivity(i);
+                        Helper.shared().go((Activity) context);
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_sessize_al)){
                         Toast.makeText(context , BottomSheetActionTarget.bu_dersi_sessize_al , Toast.LENGTH_SHORT).show();
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_sessizden_al)){

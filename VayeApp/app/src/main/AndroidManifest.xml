@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity"></activity>
+        <activity android:name=".Controller.ReportController.ReportActivity"></activity>
+        <activity android:name=".Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity" />
         <activity android:name=".Controller.HomeController.StudentSetNewPost.StudentNewPostActivity" />
         <activity android:name=".Controller.HomeController.LessonPostEdit.EditPostActivity" />
         <activity android:name=".Controller.HomeController.SetLessons.StudentSetLessonActivity" />
