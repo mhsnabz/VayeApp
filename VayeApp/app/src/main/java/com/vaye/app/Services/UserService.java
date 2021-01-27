@@ -272,7 +272,14 @@ public class UserService {
                         @Override
                         public void callBack(Boolean _value) {
                             if (_value){
-
+                                addOtherUserFriendList(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        completion.callBack(true);
+                                    }
+                                });
+                            }else{
+                                completion.callBack(true);
                             }
                         }
                     });
@@ -285,7 +292,7 @@ public class UserService {
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUserr.getUid());
         Map<String , Object> map = new HashMap<>();
-        map.put("friendList",FieldValue.arrayUnion(currentUser));
+        map.put("friendList",FieldValue.arrayUnion(currentUser.getUid()));
         ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -293,7 +300,7 @@ public class UserService {
                         DocumentReference reff = FirebaseFirestore.getInstance().collection("user")
                                 .document(currentUser.getUid());
                         Map<String , Object> map1 = new HashMap<>();
-                        map1.put("friendList",FieldValue.arrayUnion(otherUserr));
+                        map1.put("friendList",FieldValue.arrayUnion(otherUserr.getUid()));
                         reff.set(map1 , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {

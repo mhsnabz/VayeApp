@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Controller.NotificationController.NotificationSetting.NotificationSettingActivity">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="14dp"
+            android:textColor="@color/black"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:id="@+id/rel1"
+
+        >
+        <TextView
+            android:id="@+id/title1"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:text="Bölüm Duyuruları"
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            ></TextView>
+        <SwitchCompat
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/title1"
+            android:id="@+id/switch1"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+
+            />
+        <TextView
+            android:id="@+id/text1"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@id/switch1"
+            android:layout_below="@id/title1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="Takip ettiğiniz derslerle alakalı yeni bir duyuru yapıldığında yada yeni bir not paylaşıldığında anlık bilidrim alırsınız"
+            android:fontFamily="@font/nunito_semibold"
+
+            ></TextView>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray"
+            android:layout_below="@id/text1"
+            android:layout_marginTop="4dp"
+            ></RelativeLayout>
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rel1"
+        android:id="@+id/rel2"
+
+        >
+        <TextView
+            android:id="@+id/title2"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:text="Yorumlar"
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            ></TextView>
+        <SwitchCompat
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/title2"
+            android:id="@+id/switch2"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+
+            />
+        <TextView
+            android:id="@+id/text2"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@id/switch2"
+            android:layout_below="@id/title2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="Biri gönderinize yorum yaptığında yada yorumunuza cevap verdiğinde anlık bildirim alırsınız"
+            android:fontFamily="@font/nunito_semibold"
+
+            ></TextView>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray"
+            android:layout_below="@id/text2"
+            android:layout_marginTop="4dp"
+            ></RelativeLayout>
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rel2"
+        android:id="@+id/rel3"
+
+        >
+        <TextView
+            android:id="@+id/title3"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:text="Beğeni"
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            ></TextView>
+        <SwitchCompat
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/title3"
+            android:id="@+id/switch3"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+
+            />
+        <TextView
+            android:id="@+id/text3"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@id/switch3"
+            android:layout_below="@id/title3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="Biri gönderinizi yada yorumunuzu beğendiğinde anlık bildirim alırsınız"
+            android:fontFamily="@font/nunito_semibold"
+
+            ></TextView>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray"
+            android:layout_below="@id/text3"
+            android:layout_marginTop="4dp"
+            ></RelativeLayout>
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rel3"
+        android:id="@+id/rel4"
+
+        >
+        <TextView
+            android:id="@+id/title4"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:text="Takip"
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            ></TextView>
+        <SwitchCompat
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/title4"
+            android:id="@+id/switch4"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+
+            />
+        <TextView
+            android:id="@+id/text4"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@id/switch4"
+            android:layout_below="@id/title4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="Biri sizi takip etmeye başladığında anlık bildirim alırsınız"
+            android:fontFamily="@font/nunito_semibold"
+
+            ></TextView>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray"
+            android:layout_below="@id/text4"
+            android:layout_marginTop="4dp"
+            ></RelativeLayout>
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rel4"
+        android:id="@+id/rel5"
+
+        >
+        <TextView
+            android:id="@+id/title5"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:text="Etiket"
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            ></TextView>
+        <SwitchCompat
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/title5"
+            android:id="@+id/switch5"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            />
+        <TextView
+            android:id="@+id/text5"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@id/switch5"
+            android:layout_below="@id/title5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="Biri bir gönderide yada yorumda sizden bahsettiğinde anlık bildirim alırsınız"
+            android:fontFamily="@font/nunito_semibold"
+
+            ></TextView>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray"
+            android:layout_below="@id/text5"
+            android:layout_marginTop="4dp"
+            ></RelativeLayout>
+
+
+    </RelativeLayout>
+</RelativeLayout>

@@ -31,12 +31,14 @@ import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetAdapter;
@@ -333,6 +335,7 @@ public class Helper {
                         TipDialog.show((AppCompatActivity) activity , "Takip Etmeyi Bıraktınız", TipDialog.TYPE.SUCCESS);
                         TipDialog.dismiss(1500);
                         bottomSheetDialog.dismiss();
+                        isFallowing = false;
                     }
                 });
             }else {
@@ -360,7 +363,17 @@ public class Helper {
                                     UserService.shared().addAsMessegesFriend(currentUser, otherUser, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
-                                            
+                                            NotificaitonService.shared().start_following_you(currentUser, otherUser, Notifications.NotificationDescription.following_you, Notifications.NotificationType.following_you, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    WaitDialog.dismiss();
+                                                    TipDialog.show((AppCompatActivity) activity , "Tekip Ediliyor", TipDialog.TYPE.SUCCESS);
+                                                    TipDialog.dismiss(1500);
+                                                    isFallowing = true;
+                                                    bottomSheetDialog.dismiss();
+                                                }
+                                            });
+
                                         }
                                     });
                                     }

@@ -34,6 +34,7 @@ import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
 import com.vaye.app.Controller.HomeController.PagerAdapter.PagerViewApadater;
 import com.vaye.app.Controller.HomeController.School.SchoolFragment;
 import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivity;
+import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
@@ -46,7 +47,7 @@ public class HomeActivity extends AppCompatActivity {
     String TAG = "HomeActivity";
     private DrawerLayout drawer;
     Toolbar toolbar;
-    Button showProflie;
+    Button showProflie ,notButton;
     CircleImageView profileIamge;
     CurrentUser currentUser;
     TextView name , username;
@@ -156,6 +157,19 @@ public class HomeActivity extends AppCompatActivity {
         Picasso.get().load(currentUser.getThumb_image()).resize(256,256).centerCrop().into(profileIamge);
 
         showProflie = (Button)headerview.findViewById(R.id.showProfile);
+        notButton = (Button)headerview.findViewById(R.id.notButton2);
+        notButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(HomeActivity.this, NotificationSettingActivity.class);
+                i.putExtra("currentUser",currentUser);
+                Helper.shared().go(HomeActivity.this);
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                }
+
+            }
+        });
         showProflie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
