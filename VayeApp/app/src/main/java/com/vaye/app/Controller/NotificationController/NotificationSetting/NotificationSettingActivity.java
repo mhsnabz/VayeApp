@@ -106,7 +106,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
 
-                        currentUser.setLessonNotices(_value);
+                       currentUser.setLessonNotices(b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -119,7 +119,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                 NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.comment, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
-                        currentUser.setLike(_value);
+                        currentUser.setComment(b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -132,7 +132,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                 NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.like, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
-                        currentUser.setComment(_value);
+                        currentUser.setLike(b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -145,7 +145,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                 NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.follow, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
-                        currentUser.setFollow(_value);
+                        currentUser.setFollow(b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -158,7 +158,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                 NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.mention, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
-                        currentUser.setMention(_value);
+                        currentUser.setMention(b);
                         WaitDialog.dismiss();
                     }
                 });

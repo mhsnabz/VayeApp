@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.NotificationController.NotificationSetting.NotificationSettingActivity"></activity>
+        <activity android:name=".Controller.HomeController.SettingController.SettingActivity"></activity>
+        <activity android:name=".Controller.NotificationController.NotificationSetting.NotificationSettingActivity" />
         <activity android:name=".Controller.ReportController.ReportActivity" />
         <activity android:name=".Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity" />
         <activity android:name=".Controller.HomeController.StudentSetNewPost.StudentNewPostActivity" />

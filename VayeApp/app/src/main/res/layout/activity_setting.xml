@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Controller.HomeController.SettingController.SettingActivity">
+    <include layout="@layout/costum_toolbar" android:id="@+id/toolbar"></include>
+    <ScrollView
+        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <RelativeLayout
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rel1"
+                >
+                <TextView
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/title1"
+                    android:text="Güvenlik Ayarları"
+                    android:fontFamily="@font/nunito_semibold"
+                    android:textSize="10sp"
+
+                    ></TextView>
+                <LinearLayout
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title1"
+                    android:id="@+id/lin1"
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/mail_setting"
+                        >
+
+                    </ImageButton>
+                    <TextView
+
+                        android:layout_marginLeft="12sp"
+
+                        android:textSize="12sp"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/nunito_sans_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/lin1"
+                    android:id="@+id/lin2"
+
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/password_setting"
+                        >
+
+                    </ImageButton>
+
+                    <TextView
+                        android:onClick="eMailSetting"
+                        android:clickable="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="12sp"
+                        android:fontFamily="@font/nunito_semibold"
+                        android:text="Şifre Ayaları"
+                        android:textColor="@color/black"
+                        android:textSize="12sp"></TextView>
+                </LinearLayout>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rel2"
+                android:layout_below="@id/rel1"
+                >
+                <TextView
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/title2"
+                    android:text="Yasal"
+                    android:fontFamily="@font/nunito_semibold"
+                    android:textSize="10sp"
+
+                    ></TextView>
+                <LinearLayout
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title2"
+                    android:id="@+id/lin3"
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/lisanslar"
+                        >
+
+                    </ImageButton>
+                    <TextView
+                        android:onClick="lisanslar"
+                        android:clickable="true"
+                        android:layout_marginLeft="12sp"
+                        android:text="Lisanslar"
+                        android:textSize="12sp"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/nunito_sans_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/lin3"
+                    android:id="@+id/lin4"
+
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/hizmet_kosullari"
+                        >
+
+                    </ImageButton>
+                    <TextView
+                        android:onClick="hizmetKosullari"
+                        android:clickable="true"
+                        android:layout_marginLeft="12sp"
+                        android:text="Hizmet Koşulları"
+                        android:textSize="12sp"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/nunito_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+                <LinearLayout
+
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/lin4"
+                    android:id="@+id/lin5"
+
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/gizlilik"
+                        >
+
+                    </ImageButton>
+                    <TextView
+                        android:onClick="gizlilikPolitikasi"
+                        android:clickable="true"
+                        android:layout_marginLeft="12sp"
+                        android:text="Gizlilik Politikası"
+                        android:textSize="12sp"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/nunito_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rel3"
+                android:layout_below="@id/rel2"
+                >
+                <TextView
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/title3"
+                    android:text="Bize Ulaş"
+                    android:fontFamily="@font/nunito_semibold"
+                    android:textSize="10sp"
+
+                    ></TextView>
+                <LinearLayout
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title3"
+                    android:id="@+id/lin6"
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/report"
+                        >
+
+                    </ImageButton>
+                    <TextView
+                        android:onClick="report"
+                        android:clickable="true"
+                        android:layout_marginLeft="12sp"
+                        android:text="Sorun Bildir"
+                        android:textSize="12sp"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/nunito_sans_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/lin6"
+                    android:id="@+id/lin7"
+
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/star"
+                        >
+
+                    </ImageButton>
+                    <TextView
+                        android:onClick="rateUs"
+                        android:clickable="true"
+                        android:layout_marginLeft="12sp"
+                        android:text="Bizi Değerlendir"
+                        android:textSize="12sp"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/nunito_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+                <LinearLayout
+
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/lin7"
+                    android:id="@+id/lin8"
+
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/letter"
+                        >
+
+                    </ImageButton>
+                    <TextView
+                        android:onClick="contackMail"
+                        android:clickable="true"
+                        android:layout_marginLeft="12sp"
+
+                        android:textSize="12sp"
+                        android:textColor="@color/linkColor"
+                        android:fontFamily="@font/nunito_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rel4"
+                android:layout_below="@id/rel3"
+                >
+                <TextView
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/title4"
+                    android:text="Bizi Takip Edin"
+                    android:fontFamily="@font/nunito_semibold"
+                    android:textSize="10sp"
+
+                    ></TextView>
+                <LinearLayout
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title4"
+                    android:id="@+id/lin9"
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/insta"
+                        >
+
+                    </ImageButton>
+                    <TextView
+                        android:onClick="instaClick"
+                        android:clickable="true"
+                        android:layout_marginLeft="12sp"
+                        android:text="Sorun Bildir"
+                        android:textSize="12sp"
+                        android:textColor="@color/linkColor"
+                        android:fontFamily="@font/nunito_sans_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginBottom="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/lin9"
+                    android:id="@+id/lin10"
+
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/twitter"
+                        >
+
+                    </ImageButton>
+                    <TextView
+                        android:onClick="twitterClick"
+                        android:clickable="true"
+                        android:layout_marginLeft="12sp"
+                        android:text="Bizi Değerlendir"
+                        android:textSize="12sp"
+                        android:textColor="@color/linkColor"
+                        android:fontFamily="@font/nunito_semibold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        ></TextView>
+                </LinearLayout>
+
+            </RelativeLayout>
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_below="@id/rel4"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/logo"
+                ></ImageView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/versiyon"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/logo"
+                android:text="Version : 1.0.1"
+                android:layout_marginTop="4dp"
+                android:textSize="10sp"
+                android:fontFamily="@font/nunito_semibold"
+                ></TextView>
+        </RelativeLayout>
+
+
+    </ScrollView>
+</RelativeLayout>
