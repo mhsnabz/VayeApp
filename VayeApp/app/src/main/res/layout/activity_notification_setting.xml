@@ -47,7 +47,7 @@
             android:textColor="@color/black"
             android:textStyle="bold"
             ></TextView>
-        <SwitchCompat
+        <Switch
             android:layout_alignParentEnd="true"
             android:layout_below="@id/title1"
             android:id="@+id/switch1"
@@ -99,7 +99,7 @@
             android:textColor="@color/black"
             android:textStyle="bold"
             ></TextView>
-        <SwitchCompat
+        <Switch
             android:layout_alignParentEnd="true"
             android:layout_below="@id/title2"
             android:id="@+id/switch2"
@@ -151,7 +151,7 @@
             android:textColor="@color/black"
             android:textStyle="bold"
             ></TextView>
-        <SwitchCompat
+        <Switch
             android:layout_alignParentEnd="true"
             android:layout_below="@id/title3"
             android:id="@+id/switch3"
@@ -203,7 +203,7 @@
             android:textColor="@color/black"
             android:textStyle="bold"
             ></TextView>
-        <SwitchCompat
+        <Switch
             android:layout_alignParentEnd="true"
             android:layout_below="@id/title4"
             android:id="@+id/switch4"
@@ -255,7 +255,7 @@
             android:textColor="@color/black"
             android:textStyle="bold"
             ></TextView>
-        <SwitchCompat
+        <Switch
             android:layout_alignParentEnd="true"
             android:layout_below="@id/title5"
             android:id="@+id/switch5"

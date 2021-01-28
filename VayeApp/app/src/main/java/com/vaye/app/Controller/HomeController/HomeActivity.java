@@ -163,6 +163,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent i = new Intent(HomeActivity.this, NotificationSettingActivity.class);
                 i.putExtra("currentUser",currentUser);
+                startActivity(i);
                 Helper.shared().go(HomeActivity.this);
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
                     drawer.closeDrawer(GravityCompat.START);

@@ -43,6 +43,13 @@ public interface Notifications {
         String  notice_mention_comment = "notice_mention_comment";
     }
 
+    interface LocalNotifications{
+        String like = "like";
+        String follow = "follow";
+        String mention = "mention";
+        String lessonNotices = "lessonNotices";
+        String comment = "comment";
+    }
 
 
 

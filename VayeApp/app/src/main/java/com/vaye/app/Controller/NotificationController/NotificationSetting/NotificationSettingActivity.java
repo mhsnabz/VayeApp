@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,16 +13,20 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
+import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Util.Helper;
 
 public class NotificationSettingActivity extends AppCompatActivity {
     CurrentUser currentUser;
     TextView toolbarTitle;
     Toolbar toolbar;
-    SwitchCompat switch1,switch2,switch3,switch4,switch5;
+    Switch switch1,switch2,switch3,switch4,switch5;
     String TAG = "NotificationSettingActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +37,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             setToolbar();
+            configureUI(currentUser);
         }
     }
 
@@ -43,6 +49,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
 
         toolbar.setTitle("");
         toolbar.setSubtitle("");
+        toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
         toolbarTitle.setText("Anlık Bildirim Ayarları");
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -59,11 +66,11 @@ public class NotificationSettingActivity extends AppCompatActivity {
     }
 
     private void configureUI(CurrentUser currentUser){
-        switch1 = (SwitchCompat)findViewById(R.id.switch1);
-        switch2 = (SwitchCompat)findViewById(R.id.switch2);
-        switch3 = (SwitchCompat)findViewById(R.id.switch3);
-        switch4 = (SwitchCompat)findViewById(R.id.switch4);
-        switch5 = (SwitchCompat)findViewById(R.id.switch5);
+        switch1 = (Switch)findViewById(R.id.switch1);
+        switch2 = (Switch)findViewById(R.id.switch2);
+        switch3 = (Switch)findViewById(R.id.switch3);
+        switch4 = (Switch)findViewById(R.id.switch4);
+        switch5 = (Switch)findViewById(R.id.switch5);
 
         if (currentUser.getLessonNotices()){
             switch1.setChecked(true);
@@ -95,6 +102,66 @@ public class NotificationSettingActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Log.d(TAG, "onCheckedChanged: "+ b);
+                NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.lessonNotices, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+
+                        currentUser.setLessonNotices(_value);
+                        WaitDialog.dismiss();
+                    }
+                });
+            }
+        });
+        switch2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                Log.d(TAG, "onCheckedChanged: "+ b);
+                NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.comment, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        currentUser.setLike(_value);
+                        WaitDialog.dismiss();
+                    }
+                });
+            }
+        });
+        switch3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                Log.d(TAG, "onCheckedChanged: "+ b);
+                NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.like, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        currentUser.setComment(_value);
+                        WaitDialog.dismiss();
+                    }
+                });
+            }
+        });
+        switch4.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                Log.d(TAG, "onCheckedChanged: "+ b);
+                NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.follow, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        currentUser.setFollow(_value);
+                        WaitDialog.dismiss();
+                    }
+                });
+            }
+        });
+        switch5.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                Log.d(TAG, "onCheckedChanged: "+ b);
+                NotificaitonService.shared().setLocalNotification(NotificationSettingActivity.this, b, currentUser, Notifications.LocalNotifications.mention, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        currentUser.setMention(_value);
+                        WaitDialog.dismiss();
+                    }
+                });
             }
         });
 

@@ -1,12 +1,14 @@
 package com.vaye.app.Services;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
@@ -52,4 +54,30 @@ public class NotificaitonService {
             }
         });
     }
+
+
+
+    //TODO:: local notifications setting
+
+    public void setLocalNotification(AppCompatActivity activity , Boolean isEnable,CurrentUser currentUser , String topic , TrueFalse<Boolean> val){
+
+        WaitDialog.show(activity , null);
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid());
+
+        Map<String , Object> map = new HashMap<>();
+        map.put(topic , isEnable);
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    val.callBack(isEnable);
+                }else{
+                    val.callBack(isEnable);
+                }
+            }
+        });
+
+    }
+
 }
