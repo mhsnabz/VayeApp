@@ -96,24 +96,26 @@ public class StudentChooseLessonActivity extends AppCompatActivity {
                 .document(currentUser.getUid())
                 .collection("lesson");
 
-        ref.get().addOnSuccessListener(StudentChooseLessonActivity.this, new OnSuccessListener<QuerySnapshot>() {
+        ref.get().addOnCompleteListener(StudentChooseLessonActivity.this, new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                    if (queryDocumentSnapshots.isEmpty()){
-                        WaitDialog.dismiss();
-                        TipDialog.show(StudentChooseLessonActivity.this , "Hiç Ders Takip Etmiyorsonuz", TipDialog.TYPE.ERROR);
-                        TipDialog.dismiss(1500);
-                    }else {
-                        for (DocumentSnapshot item : queryDocumentSnapshots.getDocuments()){
-                            lessons.add(item.toObject(LessonModel.class));
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (task.getResult().isEmpty()){
+                            WaitDialog.dismiss();
+                            TipDialog.show(StudentChooseLessonActivity.this , "Hiç Ders Takip Etmiyorsunuz", TipDialog.TYPE.ERROR);
+                            TipDialog.dismiss(1500);
+                        }else{
+                            for (DocumentSnapshot doc : task.getResult().getDocuments()){
+                                lessons.add(doc.toObject(LessonModel.class));
+                                adapter.notifyDataSetChanged();
+                            }
                             adapter.notifyDataSetChanged();
+                            WaitDialog.dismiss();
                         }
-
-
-                        WaitDialog.dismiss();
                     }
             }
         });
+
 
     }
 

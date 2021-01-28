@@ -164,6 +164,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent i =  new Intent(HomeActivity.this , SettingActivity.class);
+                i.putExtra("currentUser",currentUser);
                 startActivity(i);
                 Helper.shared().go(HomeActivity.this);
                 if (drawer.isDrawerOpen(GravityCompat.START)) {

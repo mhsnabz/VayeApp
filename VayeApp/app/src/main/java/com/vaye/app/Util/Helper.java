@@ -208,6 +208,7 @@ public class Helper {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
                 val.completion(true , link);
+                WaitDialog.dismiss();
 
             }
         });

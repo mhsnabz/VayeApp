@@ -3,22 +3,44 @@ package com.vaye.app.Controller.HomeController.SettingController;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
+import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
 
 public class SettingActivity extends AppCompatActivity {
     TextView toolbarTitle;
     Toolbar toolbar;
+    CurrentUser currentUser;
+    TextView emailAdress,contackUs,insta,twit;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
-        setToolbar();
+        Bundle extras = getIntent().getExtras();
+        Intent intentIncoming = getIntent();
+        if (extras != null){
+            currentUser = intentIncoming.getParcelableExtra("currentUser");
+            setToolbar();
+            configureUI(currentUser);
+
+        }
+
+    }
+    private void configureUI(CurrentUser currentUser){
+        emailAdress = (TextView)findViewById(R.id.emailAdress);
+        emailAdress.setText(currentUser.getEmail());
+        contackUs = (TextView)findViewById(R.id.contackUs);
+        contackUs.setText("destek@vaye.app");
+        insta = (TextView)findViewById(R.id.insta);
+        twit = (TextView)findViewById(R.id.twit);
+        twit.setText("@vaye.app");
+        insta.setText("@vaye.app");
     }
     private void setToolbar() {
         toolbar = findViewById(R.id.toolbar);

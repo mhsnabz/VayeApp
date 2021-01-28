@@ -352,6 +352,8 @@ public class StudentNewPostActivity extends AppCompatActivity {
                        if (string != null){
                            detectLink(string);
 
+                       }else{
+                           WaitDialog.dismiss();
                        }
                    }
                });
