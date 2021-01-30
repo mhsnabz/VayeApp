@@ -191,14 +191,14 @@
             android:layout_height="match_parent"
 
             >
+
             <ImageButton
+                android:id="@+id/dislike"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:id="@+id/dislike"
                 android:background="@android:color/transparent"
-                android:src="@drawable/dislike"
                 android:scaleType="fitXY"
-                ></ImageButton>
+                android:src="@drawable/dislike"></ImageButton>
             <TextView
                 android:id="@+id/dislikeCount"
                 android:layout_width="wrap_content"

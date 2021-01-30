@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:background="@color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Controller.HomeController.SinglePost.CommentActivity">
+<include layout="@layout/costum_toolbar" android:id="@+id/toolbar"></include>
+    <LinearLayout
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:id="@+id/toolbarStack"
+        android:layout_below="@id/toolbar"
+
+        android:layout_marginLeft="25dp"
+        android:weightSum="4"
+        >
+        <RelativeLayout
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageButton
+
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/like"
+                android:background="@android:color/transparent"
+                android:src="@drawable/like"
+                android:scaleType="fitXY"
+                ></ImageButton>
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/like"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+
+            <ImageButton
+                android:id="@+id/dislike"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                android:src="@drawable/dislike"></ImageButton>
+            <TextView
+                android:id="@+id/dislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/dislike"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageButton
+
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/comment"
+                android:background="@android:color/transparent"
+                android:src="@drawable/chat"
+                android:scaleType="fitXY"
+                ></ImageButton>
+            <TextView
+                android:id="@+id/commentCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/comment"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageButton
+
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/fav"
+                android:background="@android:color/transparent"
+                android:src="@drawable/star_selected"
+                android:scaleType="fitXY"
+                ></ImageButton>
+        </RelativeLayout>
+
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbarStack"
+        android:layout_marginLeft="25dp"
+        android:text="17 Şubat 21 12:34"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/nunito_semibold"
+        ></TextView>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/inputbar"
+        android:layout_below="@id/time"
+
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:id="@+id/nestedScroolView"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    >
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:layout_width="match_parent"
+                        android:id="@+id/majorPost"
+                        android:nestedScrollingEnabled="true"
+                        android:layout_height="match_parent">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+                    <ProgressBar
+
+                        android:id="@+id/progress"
+                        android:theme="@style/progressBarBlue"
+                        android:layout_width="match_parent"
+                        android:layout_height="25dp"
+
+                        ></ProgressBar>
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+        </RelativeLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <include layout="@layout/input_bar_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        android:id="@+id/inputbar"
+        ></include>
+</RelativeLayout>

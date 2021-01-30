@@ -25,6 +25,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
+import com.vaye.app.Controller.HomeController.SinglePost.CommentActivity;
 import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -110,7 +111,14 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         switch (viewType) {
             case VIEW_TYPE_LESSON_POST_DATA:
                 MajorPostViewHolder postHolder = (MajorPostViewHolder) holder;
-
+                postHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent i = new Intent(context , CommentActivity.class);
+                        context.startActivity(i);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
 
 
                 postHolder.more.setOnClickListener(new View.OnClickListener() {
@@ -335,6 +343,14 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 MajorPostViewHolder itemHolder = (MajorPostViewHolder) holder;
                 LessonPostModel menuItem = post.get(i);
 
+                itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(context , CommentActivity.class);
+                    context.startActivity(i);
+                    Helper.shared().go((Activity) context);
+                }
+            });
 
                 itemHolder.more.setOnClickListener(new View.OnClickListener() {
                     @Override

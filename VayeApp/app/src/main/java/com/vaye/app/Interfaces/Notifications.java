@@ -23,7 +23,7 @@ public interface Notifications {
         String  notice_mention_comment = "Bir Yorumda Sizden Bahsetti";
     }
     interface  NotificationType{
-        String  like_home = "like_home";
+        String  like_home = "like";
         String  comment_home = "comment_home";
         String  reply_comment = "reply_comment";
         String  comment_like = "comment_like";

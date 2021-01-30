@@ -19,6 +19,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.MajorPostFallower;
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -63,12 +64,14 @@ public class MajorPostService {
             mapDisike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
             ref.update(mapLike);
             ref.update(mapDisike);
+            NotificaitonService.shared().setPost_CommentLike(post , currentUser , Notifications.NotificationDescription.like_home,Notifications.NotificationType.like_home);
         }
         else{
             post.getLikes().remove(currentUser.getUid());
             result.callBack(true);
             mapLike.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
             ref.update(mapLike);
+            NotificaitonService.shared().remove_Like_Post_Comment_Notification(post,currentUser, Notifications.NotificationType.like_home);
 
         }
     }
