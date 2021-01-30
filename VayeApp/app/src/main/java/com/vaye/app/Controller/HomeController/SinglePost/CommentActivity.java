@@ -7,11 +7,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -44,6 +47,8 @@ public class CommentActivity extends AppCompatActivity {
     ProgressBar progressBar;
     SwipeRefreshLayout swipeRefreshLayout;
     ArrayList<CommentModel> comments = new ArrayList<>();
+    CommentAdapter adapter ;
+    RecyclerView commentList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,10 +68,24 @@ public class CommentActivity extends AppCompatActivity {
                     getComment(currentUser , postModel);
                 }
             });
-            getComment(currentUser , postModel);
+
+
+
+            configureUI(currentUser , postModel);
+
         }else {
             finish();
         }
+    }
+
+    private void configureUI(CurrentUser currentUser , LessonPostModel postModel)
+    {
+        commentList = (RecyclerView)findViewById(R.id.commentList);
+        adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this);
+        commentList.setLayoutManager(new LinearLayoutManager(CommentActivity.this));
+        commentList.setAdapter(adapter);
+        getComment(currentUser , postModel);
+
     }
 
     private void getComment(CurrentUser currentUser, LessonPostModel post) {
@@ -86,11 +105,21 @@ public class CommentActivity extends AppCompatActivity {
                             if (item.getType().equals(DocumentChange.Type.ADDED))
                             {
                                 comments.add(item.getDocument().toObject(CommentModel.class));
+                                if (adapter!=null){
+                                    adapter.notifyDataSetChanged();
+                                }
+
                             }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
                                comments.remove(item.getDocument().toObject(CommentModel.class));
+                                if (adapter!=null){
+                                    adapter.notifyDataSetChanged();
+                                }
                             }else if (item.getType().equals(DocumentChange.Type.MODIFIED)){
                               int index =  comments.indexOf(item.getDocument().get("commentId"));
                               comments.remove(index);
+                                if (adapter!=null){
+                                    adapter.notifyDataSetChanged();
+                                }
                             }
                         }
                     }
