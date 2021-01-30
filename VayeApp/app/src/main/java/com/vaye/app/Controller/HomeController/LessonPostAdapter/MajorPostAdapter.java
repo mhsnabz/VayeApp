@@ -114,8 +114,10 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent i = new Intent(context , CommentActivity.class);
-                        context.startActivity(i);
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("post",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });
@@ -346,8 +348,10 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(context , CommentActivity.class);
-                    context.startActivity(i);
+                    Intent intent = new Intent(context , CommentActivity.class);
+                    intent.putExtra("post",post.get(i));
+                    intent.putExtra("currentUser",currentUser);
+                    context.startActivity(intent);
                     Helper.shared().go((Activity) context);
                 }
             });

@@ -28,7 +28,7 @@
 
             >
             <ImageButton
-
+                android:onClick="like"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:id="@+id/like"
@@ -57,6 +57,7 @@
             >
 
             <ImageButton
+                android:onClick="disLike"
                 android:id="@+id/dislike"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -111,7 +112,7 @@
 
             >
             <ImageButton
-
+                android:onClick="addFav"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:id="@+id/fav"
@@ -134,6 +135,7 @@
         android:fontFamily="@font/nunito_semibold"
         ></TextView>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeAndRefresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/inputbar"
