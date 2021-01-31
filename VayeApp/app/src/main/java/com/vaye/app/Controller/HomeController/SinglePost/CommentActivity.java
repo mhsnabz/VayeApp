@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,11 +57,14 @@ public class CommentActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView title;
     Boolean isLoadMore = true;
-
+    DocumentSnapshot lastPage,firstPage;
     SwipeRefreshLayout swipeRefreshLayout;
     ArrayList<CommentModel> comments = new ArrayList<>();
     CommentAdapter adapter ;
     RecyclerView commentList;
+
+    LinearLayoutManager mLayoutManager = new LinearLayoutManager(CommentActivity.this);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,15 +88,7 @@ public class CommentActivity extends AppCompatActivity {
                     getComment(currentUser , postModel);
                 }
             });
-
-
-
             configureUI(currentUser , postModel);
-
-
-
-
-
         }else {
             finish();
         }
@@ -100,15 +96,14 @@ public class CommentActivity extends AppCompatActivity {
 
     private void configureUI(CurrentUser currentUser , LessonPostModel postModel)
     {
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(CommentActivity.this);
-        mLayoutManager.setReverseLayout(false);
-       // mLayoutManager.setStackFromEnd(true);
+
         commentList = (RecyclerView)findViewById(R.id.commentList);
         ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0 , ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
+
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
@@ -123,6 +118,10 @@ public class CommentActivity extends AppCompatActivity {
                 }
             }
 
+            @Override
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                return super.getMovementFlags(recyclerView, viewHolder);
+            }
 
             @Override
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
@@ -141,6 +140,9 @@ public class CommentActivity extends AppCompatActivity {
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        mLayoutManager.setReverseLayout(false);
+
+
         itemTouchHelper.attachToRecyclerView(commentList);
         adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this);
         commentList.setLayoutManager(mLayoutManager);
@@ -154,7 +156,7 @@ public class CommentActivity extends AppCompatActivity {
         Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("lesson-post")
                 .collection("post")
-                .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("postId", Query.Direction.DESCENDING);
+                .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("postId", Query.Direction.ASCENDING);
 
         db.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
             @Override
@@ -167,8 +169,9 @@ public class CommentActivity extends AppCompatActivity {
                             {
                                 comments.add(item.getDocument().toObject(CommentModel.class));
                                 if (adapter!=null){
+
+                                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
                                     adapter.notifyDataSetChanged();
-                                    commentList.scrollToPosition(comments.size() - 1);
                                 }
 
 
@@ -186,9 +189,55 @@ public class CommentActivity extends AppCompatActivity {
                                 }
                             }
                         }
+                        lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
                     }
             }
         });
+
+        if (lastPage != null){
+            Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                    .document("lesson-post")
+                    .collection("post")
+                    .document(post.getPostId()).collection("comment").limitToLast(1).startAfter(lastPage
+                    ).orderBy("postId", Query.Direction.ASCENDING);
+            dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value.isEmpty()) {
+
+                    }else{
+                        for (DocumentChange item : value.getDocumentChanges()){
+                            if (item.getType().equals(DocumentChange.Type.ADDED))
+                            {
+                                comments.add(item.getDocument().toObject(CommentModel.class));
+                                if (adapter!=null){
+                                 
+                                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                    adapter.notifyDataSetChanged();
+                                }
+
+
+                            }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
+                                comments.remove(item.getDocument().toObject(CommentModel.class));
+                                if (adapter!=null){
+                                    adapter.notifyDataSetChanged();
+
+                                }
+                            }else if (item.getType().equals(DocumentChange.Type.MODIFIED)){
+                                int index =  comments.indexOf(item.getDocument().get("commentId"));
+                                comments.remove(index);
+                                if (adapter!=null){
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+                        }
+                        lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
+                    }
+                }
+            });
+        }
     }
 
 

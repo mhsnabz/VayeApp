@@ -142,31 +142,19 @@
         android:layout_below="@id/time"
 
         >
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <androidx.core.widget.NestedScrollView
-                android:layout_width="match_parent"
-                android:id="@+id/nestedScroolView"
-                android:layout_height="match_parent">
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    >
+
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:layout_width="match_parent"
                         android:id="@+id/commentList"
                         android:nestedScrollingEnabled="true"
-                        android:layout_height="match_parent">
+                        android:layout_height="wrap_content">
 
                     </androidx.recyclerview.widget.RecyclerView>
 
-                </LinearLayout>
 
-            </androidx.core.widget.NestedScrollView>
 
-        </RelativeLayout>
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <include layout="@layout/input_bar_view"
         android:layout_width="match_parent"
