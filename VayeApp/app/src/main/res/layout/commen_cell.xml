@@ -116,6 +116,7 @@
             android:text="0"
             android:fontFamily="@font/nunito_semibold"
             android:textStyle="bold"
+            android:textSize="8sp"
             ></TextView>
         <TextView
             android:id="@+id/likeTextButton"
@@ -125,6 +126,7 @@
             android:text="Beğeni"
             android:fontFamily="@font/nunito_semibold"
             android:textStyle="bold"
+            android:textSize="8sp"
             ></TextView>
         <TextView
             android:id="@+id/replyTextButton"
@@ -134,6 +136,7 @@
             android:fontFamily="@font/nunito_semibold"
             android:textStyle="bold"
             android:text="Yanıtla"
+            android:textSize="8sp"
             ></TextView>
 
     </LinearLayout>

@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Adapter;
@@ -12,7 +13,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -36,6 +41,13 @@ import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+
+import static androidx.recyclerview.widget.ItemTouchHelper.DOWN;
+import static androidx.recyclerview.widget.ItemTouchHelper.END;
+import static androidx.recyclerview.widget.ItemTouchHelper.START;
+import static androidx.recyclerview.widget.ItemTouchHelper.UP;
+
 public class CommentActivity extends AppCompatActivity {
     ImageButton sendMsg;
     EditText msgText;
@@ -44,7 +56,7 @@ public class CommentActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView title;
     Boolean isLoadMore = true;
-    ProgressBar progressBar;
+
     SwipeRefreshLayout swipeRefreshLayout;
     ArrayList<CommentModel> comments = new ArrayList<>();
     CommentAdapter adapter ;
@@ -53,11 +65,15 @@ public class CommentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
+
+
+
+
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
             swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeAndRefresh);
-            progressBar = (ProgressBar)findViewById(R.id.progress);
+
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             postModel = intentIncoming.getParcelableExtra("post");
             setToolbar();
@@ -73,6 +89,10 @@ public class CommentActivity extends AppCompatActivity {
 
             configureUI(currentUser , postModel);
 
+
+
+
+
         }else {
             finish();
         }
@@ -80,9 +100,50 @@ public class CommentActivity extends AppCompatActivity {
 
     private void configureUI(CurrentUser currentUser , LessonPostModel postModel)
     {
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(CommentActivity.this);
+        mLayoutManager.setReverseLayout(false);
+       // mLayoutManager.setStackFromEnd(true);
         commentList = (RecyclerView)findViewById(R.id.commentList);
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0 , ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                switch (direction){
+                    case ItemTouchHelper.RIGHT:
+                        Toast.makeText(CommentActivity.this ,"Cevapla",Toast.LENGTH_SHORT).show();
+                        break;
+                    case ItemTouchHelper.LEFT:
+                        Toast.makeText(CommentActivity.this ,"Sil",Toast.LENGTH_SHORT).show();
+                        break;
+                    default:break;
+                }
+            }
+
+
+            @Override
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
+                new RecyclerViewSwipeDecorator.Builder(CommentActivity.this ,c ,recyclerView , viewHolder , dX,dX,actionState,isCurrentlyActive)
+                        .addSwipeLeftBackgroundColor(ContextCompat.getColor(CommentActivity.this , R.color.red))
+                        .addSwipeLeftActionIcon(R.drawable.delete_white)
+                        .setSwipeLeftLabelColor(ContextCompat.getColor(CommentActivity.this,R.color.white))
+                        .setSwipeRightLabelColor(ContextCompat.getColor(CommentActivity.this,R.color.white))
+                        .addSwipeLeftLabel("Sil")
+                        .addSwipeRightActionIcon(R.drawable.reply)
+                        .addSwipeRightBackgroundColor(ContextCompat.getColor(CommentActivity.this,R.color.mainColor))
+                        .addSwipeRightLabel("Cevapla")
+                        .create().decorate();
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(commentList);
         adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this);
-        commentList.setLayoutManager(new LinearLayoutManager(CommentActivity.this));
+        commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
         getComment(currentUser , postModel);
 
@@ -98,7 +159,7 @@ public class CommentActivity extends AppCompatActivity {
         db.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if (!value.isEmpty()) {
+                    if (value.isEmpty()) {
 
                     }else{
                         for (DocumentChange item : value.getDocumentChanges()){
@@ -107,12 +168,15 @@ public class CommentActivity extends AppCompatActivity {
                                 comments.add(item.getDocument().toObject(CommentModel.class));
                                 if (adapter!=null){
                                     adapter.notifyDataSetChanged();
+                                    commentList.scrollToPosition(comments.size() - 1);
                                 }
+
 
                             }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
                                comments.remove(item.getDocument().toObject(CommentModel.class));
                                 if (adapter!=null){
                                     adapter.notifyDataSetChanged();
+
                                 }
                             }else if (item.getType().equals(DocumentChange.Type.MODIFIED)){
                               int index =  comments.indexOf(item.getDocument().get("commentId"));

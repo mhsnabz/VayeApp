@@ -161,14 +161,7 @@
                         android:layout_height="match_parent">
 
                     </androidx.recyclerview.widget.RecyclerView>
-                    <ProgressBar
 
-                        android:id="@+id/progress"
-                        android:theme="@style/progressBarBlue"
-                        android:layout_width="match_parent"
-                        android:layout_height="25dp"
-
-                        ></ProgressBar>
                 </LinearLayout>
 
             </androidx.core.widget.NestedScrollView>

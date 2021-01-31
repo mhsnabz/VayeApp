@@ -55,6 +55,7 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         viewHolder.setName(model.getSenderName(),model.getUsername());
         viewHolder.setProfileImage(model.getSenderImage());
         viewHolder.setMsgText(model.getComment());
+        viewHolder.setTime(model.getTime());
 
     }
 
@@ -108,6 +109,8 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 progressBar.setVisibility(View.GONE);
                             }
                         });
+            }else{
+                progressBar.setVisibility(View.GONE);
             }
         }
 
