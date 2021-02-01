@@ -110,6 +110,7 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
                         });
             }else{
+
                 progressBar.setVisibility(View.GONE);
             }
         }

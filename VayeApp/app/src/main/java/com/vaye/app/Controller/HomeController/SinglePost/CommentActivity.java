@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Adapter;
@@ -43,6 +44,8 @@ import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -54,12 +57,14 @@ import static androidx.recyclerview.widget.ItemTouchHelper.UP;
 public class CommentActivity extends AppCompatActivity {
     ImageButton sendMsg;
     EditText msgText;
+    String TAG = "CommentActivity";
     CurrentUser currentUser;
     LessonPostModel postModel;
     Toolbar toolbar;
     TextView title;
     Boolean isLoadMore = true;
-    DocumentSnapshot lastPage,firstPage;
+    DocumentSnapshot lastPage;
+            String  firstPage;
     SwipeRefreshLayout swipeRefreshLayout;
     ArrayList<CommentModel> comments = new ArrayList<>();
     CommentAdapter adapter ;
@@ -87,7 +92,7 @@ public class CommentActivity extends AppCompatActivity {
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    getComment(currentUser , postModel);
+                    loadMoreComment(postModel);
                 }
             });
             configureUI(currentUser , postModel);
@@ -190,7 +195,7 @@ public class CommentActivity extends AppCompatActivity {
         Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("lesson-post")
                 .collection("post")
-                .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("postId", Query.Direction.ASCENDING);
+                .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
 
         db.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
             @Override
@@ -202,28 +207,59 @@ public class CommentActivity extends AppCompatActivity {
                             if (item.getType().equals(DocumentChange.Type.ADDED))
                             {
                                 comments.add(item.getDocument().toObject(CommentModel.class));
+
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
                                 if (adapter!=null){
 
                                     commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
                                     adapter.notifyDataSetChanged();
                                 }
-
+                                firstPage = comments.get(0).getCommentId();
 
                             }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
                                comments.remove(item.getDocument().toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+
                                 if (adapter!=null){
                                     adapter.notifyDataSetChanged();
 
                                 }
+                                firstPage = comments.get(0).getCommentId();
                             }else if (item.getType().equals(DocumentChange.Type.MODIFIED)){
                               int index =  comments.indexOf(item.getDocument().get("commentId"));
-                              comments.remove(index);
+
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                comments.remove(index);
                                 if (adapter!=null){
                                     adapter.notifyDataSetChanged();
                                 }
+                                firstPage = comments.get(0).getCommentId();
                             }
                         }
                         lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
+                        Log.d(TAG, "onEvent: LastPage" + lastPage.getId());
 
                     }
             }
@@ -234,7 +270,7 @@ public class CommentActivity extends AppCompatActivity {
                     .document("lesson-post")
                     .collection("post")
                     .document(post.getPostId()).collection("comment").limitToLast(1).startAfter(lastPage
-                    ).orderBy("postId", Query.Direction.ASCENDING);
+                    ).orderBy("commentId", Query.Direction.ASCENDING);
             dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -245,6 +281,15 @@ public class CommentActivity extends AppCompatActivity {
                             if (item.getType().equals(DocumentChange.Type.ADDED))
                             {
                                 comments.add(item.getDocument().toObject(CommentModel.class));
+
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
                                 if (adapter!=null){
 
                                     commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
@@ -254,6 +299,14 @@ public class CommentActivity extends AppCompatActivity {
 
                             }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
                                 comments.remove(item.getDocument().toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
                                 if (adapter!=null){
                                     adapter.notifyDataSetChanged();
 
@@ -261,12 +314,20 @@ public class CommentActivity extends AppCompatActivity {
                             }else if (item.getType().equals(DocumentChange.Type.MODIFIED)){
                                 int index =  comments.indexOf(item.getDocument().get("commentId"));
                                 comments.remove(index);
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
                                 if (adapter!=null){
                                     adapter.notifyDataSetChanged();
                                 }
                             }
                         }
-                        lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
 
                     }
                 }
@@ -274,6 +335,46 @@ public class CommentActivity extends AppCompatActivity {
         }
     }
 
+    private void loadMoreComment(LessonPostModel post){
+
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                    .document("lesson-post")
+                    .collection("post")
+                    .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
+                    .limitToLast(10);
+            dbNext.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    }
+                }
+            });
+        }
+
+
+    }
 
 
 

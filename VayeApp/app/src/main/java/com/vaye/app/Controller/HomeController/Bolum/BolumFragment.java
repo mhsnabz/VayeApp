@@ -221,6 +221,7 @@ public class BolumFragment extends Fragment {
                                             }else {
                                                 isLoadMore = false;
                                                 deletePostId(currentUser , item.getId());
+                                                deletePostId(currentUser , item.getId());
                                             }
                                         }
                                     }).addOnFailureListener(getActivity(), new OnFailureListener() {
