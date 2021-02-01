@@ -166,18 +166,8 @@
             android:layout_marginLeft="4dp"
 
             android:fontFamily="@font/nunito_semibold"
-            android:textSize="12sp"
+            android:textSize="10sp"
             ></TextView>
-        <TextView
-            android:id="@+id/replyText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/replyCount"
-            android:layout_marginLeft="4dp"
 
-            android:fontFamily="@font/nunito_semibold"
-            android:textSize="12sp"
-            ></TextView>
     </RelativeLayout>
 </RelativeLayout>

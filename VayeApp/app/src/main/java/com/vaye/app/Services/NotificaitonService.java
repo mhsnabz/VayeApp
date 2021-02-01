@@ -1,5 +1,7 @@
 package com.vaye.app.Services;
 
+import android.app.Activity;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,7 +16,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.TrueFalse;
+import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.OtherUser;
@@ -152,6 +156,69 @@ public class NotificaitonService {
         });
     }
 
+
+    public void removeCommentLikeNotification(LessonPostModel post , CurrentUser currentUser , String type){
+        Query db = FirebaseFirestore
+                .getInstance().collection("user")
+                .document(post.getSenderUid())
+                .collection("notification")
+                .whereEqualTo("postId",post.getPostId())
+                .whereEqualTo("senderUid",currentUser.getUid())
+                .whereEqualTo("type", type);
+        db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        return;
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            DocumentReference ref = FirebaseFirestore.getInstance()
+                                    .collection("user")
+                                    .document(post.getSenderUid())
+                                    .collection("notification")
+                                    .document(item.getId());
+                            ref.delete();
+                        }
+                    }
+                }
+            }
+        });
+    }
+    public void setCommentLikeNotification(Activity activity, CommentModel commentModel,LessonPostModel post  , CurrentUser currentUser , String text , String type){
+        if (commentModel.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+
+            if (currentUser.getSlient().contains(commentModel.getSenderUid())){
+                return;
+            }else{
+                String notificationId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                DocumentReference ref = FirebaseFirestore
+                        .getInstance()
+                        .collection("user")
+                        .document(commentModel.getSenderUid())
+                        .collection("notification")
+                        .document(notificationId);
+                Map<String , Object> map = new HashMap<>();
+                map.put("type",type);
+                map.put("text",text);
+                map.put("senderUid",currentUser.getUid());
+                map.put("time", FieldValue.serverTimestamp());
+                map.put("senderImage",currentUser.getThumb_image());
+                map.put("not_id",notificationId);
+                map.put("isRead",false);
+                map.put("username",currentUser.getUsername());
+                map.put("postId",post.getPostId());
+                map.put("senderName",currentUser.getName());
+                map.put("lessonName",post.getLessonName());
+                ref.set(map , SetOptions.merge());
+            }
+
+
+
+        }
+    }
 
 
 }

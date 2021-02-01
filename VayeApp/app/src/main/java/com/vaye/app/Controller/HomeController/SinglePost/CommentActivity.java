@@ -160,7 +160,7 @@ public class CommentActivity extends AppCompatActivity {
 
 
         itemTouchHelper.attachToRecyclerView(commentList);
-        adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this);
+        adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this , postModel);
         commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
         getComment(currentUser , postModel);
@@ -205,79 +205,38 @@ public class CommentActivity extends AppCompatActivity {
                 .document("lesson-post")
                 .collection("post")
                 .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
-
-        db.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if (value.isEmpty()) {
+    db.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
+        @Override
+        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            if (task.isSuccessful()){
+                if (task.getResult().isEmpty()){
                     loadMoreButton.setVisibility(View.GONE);
-                    }else{
-                        for (DocumentChange item : value.getDocumentChanges()){
-                            if (item.getType().equals(DocumentChange.Type.ADDED))
-                            {
-                                comments.add(item.getDocument().toObject(CommentModel.class));
+                }else{
+                    for (DocumentChange item : task.getResult().getDocumentChanges()){
+                        comments.add(item.getDocument().toObject(CommentModel.class));
 
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
+                        Collections.sort(comments, new Comparator<CommentModel>(){
+                            public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
-
-                                    }
-
-                                });
-                                if (adapter!=null){
-
-                                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                                    adapter.notifyDataSetChanged();
-                                }
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
-
-                            }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
-                               comments.remove(item.getDocument().toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
-
-                                        return obj1.getTime().compareTo(obj2.getTime());
-
-                                    }
-
-                                });
-
-                                if (adapter!=null){
-                                    adapter.notifyDataSetChanged();
-
-                                }
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
-
-                            }else if (item.getType().equals(DocumentChange.Type.MODIFIED)){
-                              int index =  comments.indexOf(item.getDocument().get("commentId"));
-
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
-
-                                        return obj1.getTime().compareTo(obj2.getTime());
-
-                                    }
-
-                                });
-                                comments.remove(index);
-                                if (adapter!=null){
-                                    adapter.notifyDataSetChanged();
-                                }
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
+                                return obj1.getTime().compareTo(obj2.getTime());
 
                             }
+
+                        });
+                        if (adapter!=null){
+
+                            commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                            adapter.notifyDataSetChanged();
                         }
-                        lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
-
-                        Log.d(TAG, "onEvent: LastPage" + lastPage.getId());
-
+                        firstPage = comments.get(0).getCommentId();
+                        loadMoreButton.setVisibility(View.VISIBLE);
                     }
+                    lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
+                }
             }
-        });
+        }
+    });
+
 
         if (lastPage != null){
             Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
@@ -396,10 +355,6 @@ public class CommentActivity extends AppCompatActivity {
 
 
     }
-
-
-
-
     private void setToolbar() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -420,16 +375,6 @@ public class CommentActivity extends AppCompatActivity {
             }
         });
     }
-
-    public void like(View view) {
-    }
-
-    public void disLike(View view) {
-    }
-
-    public void addFav(View view) {
-    }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();

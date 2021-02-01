@@ -1,5 +1,6 @@
 package com.vaye.app.Controller.HomeController.SinglePost;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -18,9 +19,12 @@ import com.google.firebase.firestore.ServerTimestamp;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.CommentService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -31,11 +35,13 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
     ArrayList<CommentModel> comments;
     CurrentUser currentUser;
     Context context;
+    LessonPostModel postModel;
 
-    public CommentAdapter(ArrayList<CommentModel> comments, CurrentUser currentUser, Context context) {
+    public CommentAdapter(ArrayList<CommentModel> comments, CurrentUser currentUser, Context context, LessonPostModel postModel) {
         this.comments = comments;
         this.currentUser = currentUser;
         this.context = context;
+        this.postModel = postModel;
     }
 
     @NonNull
@@ -56,7 +62,27 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         viewHolder.setProfileImage(model.getSenderImage());
         viewHolder.setMsgText(model.getComment());
         viewHolder.setTime(model.getTime());
-
+        viewHolder.setLikeCount(String.valueOf(model.getLikes().size()));
+        viewHolder.setReplyCount(model.getReplies().size());
+        viewHolder.likeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            viewHolder.like_dislike_click(model, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        viewHolder.setLikeBtn(model.getLikes());
+                        notifyDataSetChanged();
+                        CommentService.shared().setCommentLike((Activity) context, currentUser , model , postModel);
+                    }else{
+                        viewHolder.setLikeBtn(model.getLikes());
+                        notifyDataSetChanged();
+                        CommentService.shared().removeCommentLike(currentUser,model,postModel);
+                    }
+                }
+            });
+            }
+        });
     }
 
     @Override
@@ -64,6 +90,21 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return comments.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+
+    @Override
+    public void setHasStableIds(boolean hasStableIds) {
+        super.setHasStableIds(hasStableIds);
+    }
 
     class CommentViewHolder extends RecyclerView.ViewHolder{
 
@@ -78,8 +119,7 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         TextView likeCount = (TextView)itemView.findViewById(R.id.likeCount);
         TextView likeTextButton = (TextView)itemView.findViewById(R.id.likeTextButton);
         TextView replyTextBtn = (TextView)itemView.findViewById(R.id.replyTextButton);
-        TextView replyCount = (TextView)itemView.findViewById(R.id.replyCount);
-        TextView replyText = (TextView)itemView.findViewById(R.id.replyText);
+        TextView replyCountText = (TextView)itemView.findViewById(R.id.replyCount);
         ImageButton likeBtn = (ImageButton)itemView.findViewById(R.id.likeBtn);
         TextView msgText = (TextView)itemView.findViewById(R.id.msgText);
         RelativeLayout relLayReply = (RelativeLayout)itemView.findViewById(R.id.relLayReply);
@@ -112,6 +152,35 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }else{
 
                 progressBar.setVisibility(View.GONE);
+            }
+        }
+        public void setLikeCount(String count){
+            likeCount.setText(count);
+        }
+        public void setReplyCount(int replyCount){
+            if (replyCount > 0){
+                relLayReply.setVisibility(View.VISIBLE);
+
+                replyCountText.setText(String.valueOf(replyCount) +" yanıtı gör");
+            }
+        }
+        public void setLikeBtn(ArrayList<String> likes){
+            if (likes.contains(currentUser.getUid())) {
+                likeBtn.setImageResource(R.drawable.like);
+            }else{
+                likeBtn.setImageResource(R.drawable.like_unselected);
+            }
+        }
+
+        public void like_dislike_click(CommentModel model , TrueFalse<Boolean> val){
+            if (model.getLikes().contains(currentUser.getUid())){
+                model.getLikes().remove(currentUser.getUid());
+                val.callBack(false);
+                //like
+            }else {
+                //remove like
+                model.getLikes().add(currentUser.getUid());
+                val.callBack(true);
             }
         }
 

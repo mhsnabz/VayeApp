@@ -123,6 +123,21 @@ public class UserService {
         });
     }
 
+    public void getOtherUserById(String otherUserUid , OtherUserService user){
+
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("user")
+                .document(otherUserUid);
+        ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    user.callback(documentSnapshot.toObject(OtherUser.class));
+                }
+            }
+        });
+    }
+
     public void setUnFollow(String currentUserId , String otherUserId , TrueFalse<Boolean> completion){
 
         //      let db = Firestore.firestore().collection("user")
