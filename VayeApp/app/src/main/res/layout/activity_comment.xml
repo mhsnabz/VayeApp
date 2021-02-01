@@ -8,153 +8,36 @@
     android:layout_height="match_parent"
     tools:context=".Controller.HomeController.SinglePost.CommentActivity">
 <include layout="@layout/costum_toolbar" android:id="@+id/toolbar"></include>
-    <LinearLayout
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:id="@+id/toolbarStack"
-        android:layout_below="@id/toolbar"
-
-        android:layout_marginLeft="25dp"
-        android:weightSum="4"
-        >
-        <RelativeLayout
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
-            >
-            <ImageButton
-                android:onClick="like"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:id="@+id/like"
-                android:background="@android:color/transparent"
-                android:src="@drawable/like"
-                android:scaleType="fitXY"
-                ></ImageButton>
-            <TextView
-                android:id="@+id/likeCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/like"
-                android:text="0"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="4dp"
-                android:fontFamily="@font/nunito_semibold"
-                android:textSize="12sp"
-                android:textColor="@color/black"
-                ></TextView>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
-            >
-
-            <ImageButton
-                android:onClick="disLike"
-                android:id="@+id/dislike"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:background="@android:color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/dislike"></ImageButton>
-            <TextView
-                android:id="@+id/dislikeCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/dislike"
-                android:text="0"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="4dp"
-                android:fontFamily="@font/nunito_semibold"
-                android:textSize="12sp"
-                android:textColor="@color/black"
-                ></TextView>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
-            >
-            <ImageButton
-
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:id="@+id/comment"
-                android:background="@android:color/transparent"
-                android:src="@drawable/chat"
-                android:scaleType="fitXY"
-                ></ImageButton>
-            <TextView
-                android:id="@+id/commentCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/comment"
-                android:text="0"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="4dp"
-                android:fontFamily="@font/nunito_semibold"
-                android:textSize="12sp"
-                android:textColor="@color/black"
-                ></TextView>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
-            >
-            <ImageButton
-                android:onClick="addFav"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:id="@+id/fav"
-                android:background="@android:color/transparent"
-                android:src="@drawable/star_selected"
-                android:scaleType="fitXY"
-                ></ImageButton>
-        </RelativeLayout>
 
 
-    </LinearLayout>
-    <TextView
-        android:id="@+id/time"
+    <Button
+
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/toolbarStack"
-        android:layout_marginLeft="25dp"
-        android:text="17 Şubat 21 12:34"
-        android:layout_marginTop="8dp"
+        android:layout_height="15dp"
+        android:id="@+id/loadMoreButton"
+        android:layout_below="@id/toolbar"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/load_more_back"
+        android:text="  Önceki Yorumları Yükle  "
+        android:textAllCaps="false"
+        android:textSize="10sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/white"
         android:fontFamily="@font/nunito_semibold"
-        ></TextView>
+        ></Button>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeAndRefresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/inputbar"
-        android:layout_below="@id/time"
-
-        >
-
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:layout_width="match_parent"
-                        android:id="@+id/commentList"
-                        android:nestedScrollingEnabled="true"
-                        android:layout_height="wrap_content">
-
-                    </androidx.recyclerview.widget.RecyclerView>
-
-
-
-
+        android:layout_below="@id/loadMoreButton">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:id="@+id/commentList"
+            android:nestedScrollingEnabled="true"
+            android:layout_height="wrap_content">
+        </androidx.recyclerview.widget.RecyclerView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <include layout="@layout/input_bar_view"
         android:layout_width="match_parent"

@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Adapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -71,7 +72,7 @@ public class CommentActivity extends AppCompatActivity {
     RecyclerView commentList;
     Boolean scrollingToBottom = false;
     LinearLayoutManager mLayoutManager = new LinearLayoutManager(CommentActivity.this);
-
+    Button loadMoreButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +80,8 @@ public class CommentActivity extends AppCompatActivity {
 
 
 
-
+        loadMoreButton = (Button)findViewById(R.id.loadMoreButton);
+        loadMoreButton.setVisibility(View.GONE);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
@@ -96,6 +98,13 @@ public class CommentActivity extends AppCompatActivity {
                 }
             });
             configureUI(currentUser , postModel);
+        loadMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                swipeRefreshLayout.setRefreshing(true);
+                loadMoreComment(postModel);
+            }
+        });
         }else {
             finish();
         }
@@ -201,7 +210,7 @@ public class CommentActivity extends AppCompatActivity {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                     if (value.isEmpty()) {
-
+                    loadMoreButton.setVisibility(View.GONE);
                     }else{
                         for (DocumentChange item : value.getDocumentChanges()){
                             if (item.getType().equals(DocumentChange.Type.ADDED))
@@ -222,6 +231,7 @@ public class CommentActivity extends AppCompatActivity {
                                     adapter.notifyDataSetChanged();
                                 }
                                 firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
 
                             }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
                                comments.remove(item.getDocument().toObject(CommentModel.class));
@@ -239,6 +249,8 @@ public class CommentActivity extends AppCompatActivity {
 
                                 }
                                 firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+
                             }else if (item.getType().equals(DocumentChange.Type.MODIFIED)){
                               int index =  comments.indexOf(item.getDocument().get("commentId"));
 
@@ -255,6 +267,8 @@ public class CommentActivity extends AppCompatActivity {
                                     adapter.notifyDataSetChanged();
                                 }
                                 firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+
                             }
                         }
                         lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
@@ -332,6 +346,9 @@ public class CommentActivity extends AppCompatActivity {
                     }
                 }
             });
+        }else{
+            loadMoreButton.setVisibility(View.GONE);
+
         }
     }
 
@@ -339,13 +356,15 @@ public class CommentActivity extends AppCompatActivity {
 
         if (lastPage == null){
             swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
+
             return;
         }else{
             Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                     .document("lesson-post")
                     .collection("post")
                     .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
-                    .limitToLast(10);
+                    .limitToLast(5);
             dbNext.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -364,9 +383,11 @@ public class CommentActivity extends AppCompatActivity {
                                 adapter.notifyDataSetChanged();
                                 swipeRefreshLayout.setRefreshing(false);
                                 firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
                             }
                         }else{
                             swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
                         }
                     }
                 }
@@ -414,4 +435,6 @@ public class CommentActivity extends AppCompatActivity {
         super.onBackPressed();
         Helper.shared().back(CommentActivity.this);
     }
+
+
 }
