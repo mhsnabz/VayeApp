@@ -38,13 +38,16 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.CommentService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -105,9 +108,40 @@ public class CommentActivity extends AppCompatActivity {
                 loadMoreComment(postModel);
             }
         });
+
+
+            sendMsg = (ImageButton)findViewById(R.id.send);
+            msgText = (EditText)findViewById(R.id.msgText);
+            sendMsg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sendMsg();
+                }
+            });
         }else {
             finish();
         }
+    }
+
+
+    private void sendMsg(){
+
+        String commentId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        String text = msgText.getText().toString();
+        msgText.setText("");
+        if (text.isEmpty()){
+            return;
+        }else{
+            CommentService.shared().sendNewComment(currentUser, text, postModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                    }
+                }
+            });
+        }
+
     }
 
     private void configureUI(CurrentUser currentUser , LessonPostModel postModel)
@@ -201,49 +235,10 @@ public class CommentActivity extends AppCompatActivity {
     }
     private void getComment(CurrentUser currentUser, LessonPostModel post) {
 
-        Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
-                .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
-    db.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
-        @Override
-        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-            if (task.isSuccessful()){
-                if (task.getResult().isEmpty()){
-                    loadMoreButton.setVisibility(View.GONE);
-                }else{
-                    for (DocumentChange item : task.getResult().getDocumentChanges()){
-                        comments.add(item.getDocument().toObject(CommentModel.class));
-
-                        Collections.sort(comments, new Comparator<CommentModel>(){
-                            public int compare(CommentModel obj1, CommentModel obj2) {
-
-                                return obj1.getTime().compareTo(obj2.getTime());
-
-                            }
-
-                        });
-                        if (adapter!=null){
-
-                            commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                            adapter.notifyDataSetChanged();
-                        }
-                        firstPage = comments.get(0).getCommentId();
-                        loadMoreButton.setVisibility(View.VISIBLE);
-                    }
-                    lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
-                }
-            }
-        }
-    });
-
-
-        if (lastPage != null){
             Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                     .document("lesson-post")
                     .collection("post")
-                    .document(post.getPostId()).collection("comment").limitToLast(1).startAfter(lastPage
-                    ).orderBy("commentId", Query.Direction.ASCENDING);
+                    .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
             dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -258,57 +253,26 @@ public class CommentActivity extends AppCompatActivity {
                                 Collections.sort(comments, new Comparator<CommentModel>(){
                                     public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
+                                        return obj1.getCommentId().compareTo(obj2.getCommentId());
 
                                     }
 
                                 });
                                 if (adapter!=null){
 
-                                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                 //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
                                     adapter.notifyDataSetChanged();
                                 }
-
-
-                            }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
-                                comments.remove(item.getDocument().toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
-
-                                        return obj1.getTime().compareTo(obj2.getTime());
-
-                                    }
-
-                                });
-                                if (adapter!=null){
-                                    adapter.notifyDataSetChanged();
-
-                                }
-                            }else if (item.getType().equals(DocumentChange.Type.MODIFIED)){
-                                int index =  comments.indexOf(item.getDocument().get("commentId"));
-                                comments.remove(index);
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
-
-                                        return obj1.getTime().compareTo(obj2.getTime());
-
-                                    }
-
-                                });
-                                if (adapter!=null){
-                                    adapter.notifyDataSetChanged();
-                                }
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
                             }
                         }
-
+                        lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
 
                     }
                 }
             });
-        }else{
-            loadMoreButton.setVisibility(View.GONE);
 
-        }
     }
 
     private void loadMoreComment(LessonPostModel post){
@@ -331,7 +295,7 @@ public class CommentActivity extends AppCompatActivity {
                         if (!task.getResult().isEmpty()){
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
                                 comments.add(item.toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
+                               Collections.sort(comments, new Comparator<CommentModel>(){
                                     public int compare(CommentModel obj1, CommentModel obj2) {
 
                                         return obj1.getTime().compareTo(obj2.getTime());

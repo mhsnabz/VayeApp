@@ -21,7 +21,7 @@
             >
             <ImageButton
                 android:src="@drawable/send"
-                android:onClick="sendMsg"
+
                 android:scaleType="fitXY"
                 android:id="@+id/send"
                 android:layout_centerVertical="true"

@@ -7,7 +7,7 @@ import com.google.firebase.Timestamp;
 
 import java.util.ArrayList;
 
-public class CommentModel implements Parcelable {
+public class CommentModel implements Parcelable  {
 
     String senderName , senderUid , username ,comment , senderImage , postId,targetComment,commentId;
     Timestamp time;
@@ -163,4 +163,6 @@ public class CommentModel implements Parcelable {
         parcel.writeStringList(likes);
         parcel.writeStringList(replies);
     }
+
+
 }

@@ -42,6 +42,8 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.currentUser = currentUser;
         this.context = context;
         this.postModel = postModel;
+        setHasStableIds(true);
+
     }
 
     @NonNull
@@ -57,11 +59,13 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         CommentViewHolder viewHolder =(CommentViewHolder) holder;
         CommentModel model = comments.get(position);
+
         viewHolder.setMsgText(model.getComment());
         viewHolder.setName(model.getSenderName(),model.getUsername());
         viewHolder.setProfileImage(model.getSenderImage());
         viewHolder.setMsgText(model.getComment());
         viewHolder.setTime(model.getTime());
+        viewHolder.setLikeBtn(model.getLikes());
         viewHolder.setLikeCount(String.valueOf(model.getLikes().size()));
         viewHolder.setReplyCount(model.getReplies().size());
         viewHolder.likeBtn.setOnClickListener(new View.OnClickListener() {
@@ -150,7 +154,7 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
                         });
             }else{
-
+                profileImage.setImageResource(android.R.color.darker_gray);
                 progressBar.setVisibility(View.GONE);
             }
         }
