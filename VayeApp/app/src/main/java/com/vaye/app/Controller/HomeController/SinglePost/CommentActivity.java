@@ -45,6 +45,8 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
 import com.vaye.app.Util.Helper;
+import com.vaye.app.Util.SwipeController;
+import com.vaye.app.Util.SwipeControllerActions;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,6 +61,8 @@ import static androidx.recyclerview.widget.ItemTouchHelper.START;
 import static androidx.recyclerview.widget.ItemTouchHelper.UP;
 
 public class CommentActivity extends AppCompatActivity {
+
+    SwipeController swipeController = null;
     ImageButton sendMsg;
     EditText msgText;
     String TAG = "CommentActivity";
@@ -74,7 +78,7 @@ public class CommentActivity extends AppCompatActivity {
     CommentAdapter adapter ;
     RecyclerView commentList;
     Boolean scrollingToBottom = false;
-    LinearLayoutManager mLayoutManager = new LinearLayoutManager(CommentActivity.this);
+    LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
     Button loadMoreButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,7 +152,8 @@ public class CommentActivity extends AppCompatActivity {
     {
 
         commentList = (RecyclerView)findViewById(R.id.commentList);
-        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0 , ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
+      /*  ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0 , ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -188,15 +193,40 @@ public class CommentActivity extends AppCompatActivity {
                         .create().decorate();
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
-        };
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        };*/
+
         mLayoutManager.setReverseLayout(false);
 
 
-        itemTouchHelper.attachToRecyclerView(commentList);
+
         adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this , postModel);
         commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
+
+
+        swipeController = new SwipeController(new SwipeControllerActions() {
+            @Override
+            public void onLeftClicked(int position) {
+                super.onLeftClicked(position);
+                Toast.makeText(CommentActivity.this, "Sil",Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void onRightClicked(int position) {
+                super.onRightClicked(position);
+                Toast.makeText(CommentActivity.this, "Cevapla",Toast.LENGTH_SHORT);
+
+            }
+        });
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(commentList);
+        commentList.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
+            }
+        });
+
         getComment(currentUser , postModel);
 
         final View contentView = commentList;
