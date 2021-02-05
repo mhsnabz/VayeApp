@@ -72,7 +72,7 @@ public class CommentActivity extends AppCompatActivity {
     TextView title;
     Boolean isLoadMore = true;
     DocumentSnapshot lastPage;
-            String  firstPage;
+    String  firstPage;
     SwipeRefreshLayout swipeRefreshLayout;
     ArrayList<CommentModel> comments = new ArrayList<>();
     CommentAdapter adapter ;
@@ -257,7 +257,7 @@ public class CommentActivity extends AppCompatActivity {
         });
 
     }
-    private static void scrollRecyclerViewToBottom(RecyclerView recyclerView) {
+    private  void scrollRecyclerViewToBottom(RecyclerView recyclerView) {
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         if (adapter != null && adapter.getItemCount() > 0) {
             recyclerView.scrollToPosition(adapter.getItemCount() - 1);
