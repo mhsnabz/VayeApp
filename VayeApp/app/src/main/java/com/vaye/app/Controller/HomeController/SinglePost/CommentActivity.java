@@ -31,13 +31,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
+import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
@@ -52,6 +55,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -152,70 +157,56 @@ public class CommentActivity extends AppCompatActivity {
     {
 
         commentList = (RecyclerView)findViewById(R.id.commentList);
-
-      /*  ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0 , ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                switch (direction){
-                    case ItemTouchHelper.RIGHT:
-                        Toast.makeText(CommentActivity.this ,"Cevapla",Toast.LENGTH_SHORT).show();
-                        break;
-                    case ItemTouchHelper.LEFT:
-                        Toast.makeText(CommentActivity.this ,"Sil",Toast.LENGTH_SHORT).show();
-                        break;
-                    default:break;
-                }
-            }
-
-            @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                return super.getMovementFlags(recyclerView, viewHolder);
-            }
-
-            @Override
-            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-
-                new RecyclerViewSwipeDecorator.Builder(CommentActivity.this ,c ,recyclerView , viewHolder , dX,dX,actionState,isCurrentlyActive)
-                        .addSwipeLeftBackgroundColor(ContextCompat.getColor(CommentActivity.this , R.color.red))
-                        .addSwipeLeftActionIcon(R.drawable.delete_white)
-                        .setSwipeLeftLabelColor(ContextCompat.getColor(CommentActivity.this,R.color.white))
-                        .setSwipeRightLabelColor(ContextCompat.getColor(CommentActivity.this,R.color.white))
-                        .addSwipeLeftLabel("Sil")
-                        .addSwipeRightActionIcon(R.drawable.reply)
-                        .addSwipeRightBackgroundColor(ContextCompat.getColor(CommentActivity.this,R.color.mainColor))
-                        .addSwipeRightLabel("Cevapla")
-                        .create().decorate();
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-        };*/
-
         mLayoutManager.setReverseLayout(false);
-
-
-
         adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this , postModel);
         commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
 
 
-        swipeController = new SwipeController(new SwipeControllerActions() {
+        swipeController = new SwipeController(currentUser.getUid() , comments ,new SwipeControllerActions() {
             @Override
             public void onLeftClicked(int position) {
                 super.onLeftClicked(position);
-                Toast.makeText(CommentActivity.this, "Sil",Toast.LENGTH_SHORT);
+                //reply
+                Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
+                i.putExtra("comment",comments.get(position));
+                i.putExtra("currentUser",currentUser);
+                i.putExtra("post",postModel);
+                startActivity(i);
+                Helper.shared().go(CommentActivity.this);
             }
 
             @Override
             public void onRightClicked(int position) {
                 super.onRightClicked(position);
-                Toast.makeText(CommentActivity.this, "Cevapla",Toast.LENGTH_SHORT);
+                //Delete
 
+                deleteComment(comments.get(position).getCommentId() , postModel.getPostId());
+                comments.remove(position);
+                adapter.notifyItemRemoved(position);
+                CommentService.shared().getTotalCommentCount(currentUser, postModel.getPostId(), new CallBackCount() {
+                    @Override
+                    public void callBackCount(long count) {
+                        if (count > 0 ){
+                            postModel.setComment((int) count);
+                            DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                    .document("lesson-post")
+                                    .collection("post")
+                                    .document(postModel.getPostId());
+                            Map<String , Object> map1 = new HashMap<>();
+                            map1.put("comment",count);
+                            db.set(map1 , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()){
+
+
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             }
         });
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
@@ -369,6 +360,21 @@ public class CommentActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void deleteComment(String commentID  ,String postId  ){
+        //  let db = Firestore.firestore().collection(currentUser.short_school).document("lesson-post")
+        //            .collection("post").document(postID).collection("comment").document(commentID)
+        //        db.delete()
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(postId)
+                .collection("comment")
+                .document(commentID);
+        ref.delete();
+    }
+
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();

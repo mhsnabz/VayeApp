@@ -11,7 +11,10 @@ import android.view.View;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.vaye.app.Model.CommentModel;
 import com.vaye.app.R;
+
+import java.util.ArrayList;
 
 import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE;
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
@@ -26,7 +29,8 @@ public class SwipeController extends ItemTouchHelper.Callback {
     private boolean swipeBack = false;
 
     private ButtonsState buttonShowedState = ButtonsState.GONE;
-
+    private String currentUserUid;
+    ArrayList<CommentModel> list;
     private RectF buttonInstance = null;
 
     private RecyclerView.ViewHolder currentItemViewHolder = null;
@@ -35,13 +39,20 @@ public class SwipeController extends ItemTouchHelper.Callback {
 
     private static final float buttonWidth = 300;
 
-    public SwipeController(SwipeControllerActions buttonsActions) {
+    public SwipeController(String currentUserUid ,ArrayList<CommentModel> list, SwipeControllerActions buttonsActions) {
         this.buttonsActions = buttonsActions;
+        this.currentUserUid = currentUserUid;
+        this.list = list;
     }
 
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        return makeMovementFlags(0, LEFT | RIGHT);
+        if (list.get(viewHolder.getAdapterPosition()).getSenderUid().equals(currentUserUid)){
+            return makeMovementFlags(0, LEFT | RIGHT);
+        }else{
+            return makeMovementFlags(0, RIGHT );
+        }
+
     }
 
     @Override
@@ -67,8 +78,10 @@ public class SwipeController extends ItemTouchHelper.Callback {
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         if (actionState == ACTION_STATE_SWIPE) {
             if (buttonShowedState != ButtonsState.GONE) {
-                if (buttonShowedState == ButtonsState.LEFT_VISIBLE) dX = Math.max(dX, buttonWidth);
-                if (buttonShowedState == ButtonsState.RIGHT_VISIBLE) dX = Math.min(dX, -buttonWidth);
+
+                    if (buttonShowedState == ButtonsState.LEFT_VISIBLE) dX = Math.max(dX, buttonWidth);
+                    if (buttonShowedState == ButtonsState.RIGHT_VISIBLE) dX = Math.min(dX, -buttonWidth);
+
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
             else {
@@ -88,13 +101,16 @@ public class SwipeController extends ItemTouchHelper.Callback {
             public boolean onTouch(View v, MotionEvent event) {
                 swipeBack = event.getAction() == MotionEvent.ACTION_CANCEL || event.getAction() == MotionEvent.ACTION_UP;
                 if (swipeBack) {
-                    if (dX < -buttonWidth) buttonShowedState = ButtonsState.RIGHT_VISIBLE;
-                    else if (dX > buttonWidth) buttonShowedState  = ButtonsState.LEFT_VISIBLE;
 
-                    if (buttonShowedState != ButtonsState.GONE) {
-                        setTouchDownListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                        setItemsClickable(recyclerView, false);
-                    }
+                        if (dX < -buttonWidth) buttonShowedState = ButtonsState.RIGHT_VISIBLE;
+                        else if (dX > buttonWidth) buttonShowedState  = ButtonsState.LEFT_VISIBLE;
+
+                        if (buttonShowedState != ButtonsState.GONE) {
+                            setTouchDownListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                            setItemsClickable(recyclerView, false);
+                        }
+
+
                 }
                 return false;
             }
@@ -167,6 +183,8 @@ public class SwipeController extends ItemTouchHelper.Callback {
         p.setColor(Color.RED);
         c.drawRoundRect(rightButton, corners, corners, p);
         drawText("Sil", c, rightButton, p);
+
+
 
         buttonInstance = null;
         if (buttonShowedState == ButtonsState.LEFT_VISIBLE) {

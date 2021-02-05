@@ -28,6 +28,8 @@ public class ReplyActivity extends AppCompatActivity {
     SwipeController swipeController = null;
     ImageButton sendMsg;
     EditText msgText;
+    TextView text;
+    CommentModel comment;
     String TAG = "CommentActivity";
     CurrentUser currentUser;
     LessonPostModel postModel;
@@ -56,6 +58,7 @@ public class ReplyActivity extends AppCompatActivity {
 
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             postModel = intentIncoming.getParcelableExtra("post");
+            comment = intentIncoming.getParcelableExtra("comment");
             setToolbar();
 
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -64,7 +67,7 @@ public class ReplyActivity extends AppCompatActivity {
                     loadMoreComment(postModel);
                 }
             });
-            configureUI(currentUser , postModel);
+            configureUI(comment,currentUser , postModel);
             loadMoreButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -75,7 +78,7 @@ public class ReplyActivity extends AppCompatActivity {
 
 
             sendMsg = (ImageButton)findViewById(R.id.send);
-            msgText = (EditText)findViewById(R.id.msgText);
+           // msgText = (EditText)findViewById(R.id.text);
             sendMsg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -87,11 +90,15 @@ public class ReplyActivity extends AppCompatActivity {
         }
     }
 
+
     private void loadMoreComment(LessonPostModel postModel) {
     }
 
-    private void configureUI(CurrentUser currentUser , LessonPostModel postModel)
+    private void configureUI(CommentModel comment ,CurrentUser currentUser , LessonPostModel postModel)
     {
+        text = ( TextView)findViewById(R.id.text);
+        text.setText(comment.getComment());
+
         commentList = (RecyclerView)findViewById(R.id.commentList);
     }
     private void sendMsg() {

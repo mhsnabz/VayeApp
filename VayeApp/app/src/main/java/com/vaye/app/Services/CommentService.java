@@ -120,7 +120,7 @@ public class CommentService {
             }
         });
     }
-    private void getTotalCommentCount(CurrentUser currentUser , String postId , CallBackCount count){
+    public void getTotalCommentCount(CurrentUser currentUser , String postId , CallBackCount count){
       //       let db = Firestore.firestore().collection(currentUser.short_school)
         //            .document("lesson-post").collection("post").document(postId).collection("comment")
         CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
