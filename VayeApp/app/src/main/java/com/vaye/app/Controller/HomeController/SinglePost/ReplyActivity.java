@@ -1,28 +1,59 @@
 package com.vaye.app.Controller.HomeController.SinglePost;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.CommentService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
+import com.vaye.app.Util.SwipeControllerActions;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ReplyActivity extends AppCompatActivity {
     SwipeController swipeController = null;
@@ -38,7 +69,11 @@ public class ReplyActivity extends AppCompatActivity {
     Boolean isLoadMore = true;
     DocumentSnapshot lastPage;
     String  firstPage;
+    ImageButton likeBtn;
+    CircleImageView profileImage;
+    ProgressBar progressBar;
     SwipeRefreshLayout swipeRefreshLayout;
+    TextView name , username ,time;
     ArrayList<CommentModel> comments = new ArrayList<>();
     CommentAdapter adapter ;
     RecyclerView commentList;
@@ -51,6 +86,7 @@ public class ReplyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reply);
         loadMoreButton = (Button)findViewById(R.id.loadMoreButton);
         loadMoreButton.setVisibility(View.GONE);
+
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
@@ -78,7 +114,7 @@ public class ReplyActivity extends AppCompatActivity {
 
 
             sendMsg = (ImageButton)findViewById(R.id.send);
-           // msgText = (EditText)findViewById(R.id.text);
+            msgText = (EditText)findViewById(R.id.msgText);
             sendMsg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -91,6 +127,52 @@ public class ReplyActivity extends AppCompatActivity {
     }
 
 
+    private void getComment(CurrentUser currentUser){
+        Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post").document(comment.getPostId())
+                .collection("comment-replied")
+                .document("comment")
+                .collection(comment.getCommentId()).limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
+        dbNext.addSnapshotListener(ReplyActivity.this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()) {
+
+                }else{
+                    for (DocumentChange item : value.getDocumentChanges()){
+                        if (item.getType().equals(DocumentChange.Type.ADDED))
+                        {
+                            comments.add(item.getDocument().toObject(CommentModel.class));
+
+                            Collections.sort(comments, new Comparator<CommentModel>(){
+                                public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
+
+                                }
+
+                            });
+                            if (adapter!=null){
+
+                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                adapter.notifyDataSetChanged();
+                            }
+                            firstPage = comments.get(0).getCommentId();
+                            if (comments.size() < 9){
+                                loadMoreButton.setVisibility(View.GONE);
+                            }else{
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+
+                        }
+                    }
+                    lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
+                }
+            }
+        });
+    }
     private void loadMoreComment(LessonPostModel postModel) {
     }
 
@@ -98,10 +180,138 @@ public class ReplyActivity extends AppCompatActivity {
     {
         text = ( TextView)findViewById(R.id.text);
         text.setText(comment.getComment());
+        name = (TextView)findViewById(R.id.name);
+        username = (TextView)findViewById(R.id.username);
+        time = (TextView)findViewById(R.id.time);
+        likeBtn = (ImageButton)findViewById(R.id.likeBtn);
 
+        time.setText(Html.fromHtml("&#8226;")+ Helper.shared().setTimeAgo(comment.getTime()));
+        name.setText(comment.getSenderName());
+        username.setText(comment.getUsername());
+
+        if (comment.getLikes().contains(currentUser.getUid())){
+            likeBtn.setImageResource(R.drawable.like);
+        }else{
+            likeBtn.setImageResource(R.drawable.like_unselected);
+        }
+        profileImage = (CircleImageView)findViewById(R.id.profileImage);
+        progressBar = (ProgressBar)findViewById(R.id.progress);
+        if (comment.getSenderImage()!=null && !comment.getSenderImage().isEmpty()){
+            Picasso.get().load(comment.getSenderUid())
+                    .centerCrop()
+                    .resize(128,128)
+                    .placeholder(android.R.color.darker_gray)
+                    .into(profileImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            progressBar.setVisibility(View.GONE);
+
+                        }
+                    });
+        }else{
+            progressBar.setVisibility(View.GONE);
+
+        }
         commentList = (RecyclerView)findViewById(R.id.commentList);
+        mLayoutManager.setReverseLayout(false);
+        adapter = new CommentAdapter(comments,currentUser ,ReplyActivity.this , postModel);
+        commentList.setLayoutManager(mLayoutManager);
+        commentList.setAdapter(adapter);
+
+
+        swipeController = new SwipeController(currentUser.getUid() , comments ,new SwipeControllerActions() {
+            @Override
+            public void onLeftClicked(int position) {
+                super.onLeftClicked(position);
+
+            }
+
+            @Override
+            public void onRightClicked(int position) {
+                super.onRightClicked(position);
+                //Delete
+
+               deleteComment(comment , comments.get(position).getCommentId(),currentUser);
+                comments.remove(position);
+                adapter.notifyItemRemoved(position);
+
+            }
+        });
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(commentList);
+        commentList.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
+            }
+        });
+
+        getComment(currentUser);
+
+        final View contentView = commentList;
+        contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+                Rect r = new Rect();
+                contentView.getWindowVisibleDisplayFrame(r);
+                int screenHeight = contentView.getRootView().getHeight();
+
+                // r.bottom is the position above soft keypad or device button.
+                // if keypad is shown, the r.bottom is smaller than that before.
+                int keypadHeight = screenHeight - r.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
+                    // keyboard is opened
+                    if (!scrollingToBottom) {
+                        scrollingToBottom = true;
+                        scrollRecyclerViewToBottom(commentList);
+                    }
+                }
+                else {
+                    // keyboard is closed
+                    scrollingToBottom = false;
+                }
+            }
+        });
+
     }
+
+    private void deleteComment(CommentModel comment,String  commentID, CurrentUser currentUser) {
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(comment.getPostId())
+                .collection("comment-replied")
+                .document("comment")
+                .collection(comment.getCommentId())
+                .document(commentID);
+        ref.delete();
+    }
+
     private void sendMsg() {
+        String commentId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        String text = msgText.getText().toString();
+        msgText.setText("");
+        if (text.isEmpty()){
+            return;
+        }else{
+            CommentService.shared().setRepliedComment(currentUser, comment.getCommentId(), commentId, text, postModel.getPostId(), new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+
+                }
+            });
+        }
+
+
+
     }
     private  void scrollRecyclerViewToBottom(RecyclerView recyclerView) {
         RecyclerView.Adapter adapter = recyclerView.getAdapter();

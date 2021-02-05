@@ -19,6 +19,7 @@ import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -120,6 +121,30 @@ public class CommentService {
             }
         });
     }
+
+    public void getTotalRepliedCount(CurrentUser currentUser  ,String repliedCommentId,  String postId , CallBackCount count){
+        ///İSTE/lesson-post/post/1610997978137/comment-replied/comment/1612028213709/
+        CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(repliedCommentId)
+                .collection("comment-replied");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        count.callBackCount(0);
+                    }else{
+                        count.callBackCount(task.getResult().getDocuments().size());
+                    }
+                }else{
+                    count.callBackCount(0);
+                }
+            }
+        });
+    }
+
     public void getTotalCommentCount(CurrentUser currentUser , String postId , CallBackCount count){
       //       let db = Firestore.firestore().collection(currentUser.short_school)
         //            .document("lesson-post").collection("post").document(postId).collection("comment")
@@ -142,5 +167,54 @@ public class CommentService {
                 }
             }
         });
+    }
+//currentUser : CurrentUser , targetCommentId : String , commentId : String,commentText : String, postId : String , completion : @escaping(Bool) ->Void
+    public void setRepliedComment(CurrentUser currentUser , String  targetComment ,String commentId, String  commentText , String  postId , TrueFalse<Boolean> completion){
+       //
+        //        let db = Firestore.firestore().collection(currentUser.short_school)
+        //            .document("lesson-post").collection("post").document(postId).collection("comment-replied")
+        //            .document("comment").collection(targetCommentId).document(commentId)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(postId)
+                .collection("comment-replied")
+                .document("comment")
+                .collection(targetComment)
+                .document(commentId);
+
+        Map<String , Object> map = new HashMap<>();
+        map.put("senderName",currentUser.getName());
+        map.put("senderUid",currentUser.getUid());
+        map.put("username",currentUser.getUsername());
+        map.put("time",FieldValue.serverTimestamp());
+        map.put("comment",commentText);
+        map.put("commentId",commentId);
+        map.put("postId",postId);
+        map.put("likes", FieldValue.arrayUnion());
+        map.put("replies",FieldValue.arrayUnion());
+        map.put("senderImage",currentUser.getThumb_image());
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    setRepliedCommentId(targetComment , commentId , currentUser ,postId);
+                }
+            }
+        });
+    }
+    //targetCommentID : String , commentId : String, currentUser : CurrentUser , postId : String ,completion :
+    private void setRepliedCommentId(String targetCommentId , String commentID , CurrentUser currentUser , String postID){
+        //  let db = Firestore.firestore().collection(currentUser.short_school)
+        //            .document("lesson-post").collection("post").document(postId).collection("comment").document(targetCommentID)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(postID)
+                .collection("comment")
+                .document(targetCommentId);
+        Map<String , Object> map = new HashMap<>();
+        map.put("replies",FieldValue.arrayUnion(commentID));
+        ref.set(map , SetOptions.merge());
     }
 }

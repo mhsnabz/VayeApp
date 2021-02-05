@@ -166,7 +166,7 @@ public class SwipeController extends ItemTouchHelper.Callback {
         }
     }
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint({"ResourceAsColor", "Range"})
     private void drawButtons(Canvas c, RecyclerView.ViewHolder viewHolder) {
         float buttonWidthWithoutPadding = buttonWidth - 20;
         float corners = 16;
@@ -175,7 +175,7 @@ public class SwipeController extends ItemTouchHelper.Callback {
         Paint p = new Paint();
 
         RectF leftButton = new RectF(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + buttonWidthWithoutPadding, itemView.getBottom());
-        p.setColor(R.color.mainColor);
+        p.setColor(Color.parseColor("#528FE9"));
         c.drawRoundRect(leftButton, corners, corners, p);
         drawText("Cevapla", c, leftButton, p);
 
