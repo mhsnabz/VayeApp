@@ -173,7 +173,47 @@ public class ReplyActivity extends AppCompatActivity {
             }
         });
     }
-    private void loadMoreComment(LessonPostModel postModel) {
+    private void loadMoreComment(LessonPostModel post) {
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
+
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                    .document("lesson-post")
+                    .collection("post").document(comment.getPostId())
+                    .collection("comment-replied")
+                    .document("comment")
+                    .collection(comment.getCommentId()).orderBy("commentId").endBefore(firstPage).limitToLast(5);
+            dbNext.get().addOnCompleteListener(ReplyActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     private void configureUI(CommentModel comment ,CurrentUser currentUser , LessonPostModel postModel)
@@ -302,10 +342,13 @@ public class ReplyActivity extends AppCompatActivity {
         if (text.isEmpty()){
             return;
         }else{
+
             CommentService.shared().setRepliedComment(currentUser, comment.getCommentId(), commentId, text, postModel.getPostId(), new TrueFalse<Boolean>() {
                 @Override
                 public void callBack(Boolean _value) {
 
+                    comment.getReplies().add(commentId);
+                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
                 }
             });
         }
