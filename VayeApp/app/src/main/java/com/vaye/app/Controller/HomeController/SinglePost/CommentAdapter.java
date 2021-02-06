@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
+import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
@@ -125,7 +126,7 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         TextView replyTextBtn = (TextView)itemView.findViewById(R.id.replyTextButton);
         TextView replyCountText = (TextView)itemView.findViewById(R.id.replyCount);
         ImageButton likeBtn = (ImageButton)itemView.findViewById(R.id.likeBtn);
-        TextView msgText = (TextView)itemView.findViewById(R.id.msgText);
+        SocialTextView msgText = (SocialTextView)itemView.findViewById(R.id.msgText);
         RelativeLayout relLayReply = (RelativeLayout)itemView.findViewById(R.id.relLayReply);
 
 

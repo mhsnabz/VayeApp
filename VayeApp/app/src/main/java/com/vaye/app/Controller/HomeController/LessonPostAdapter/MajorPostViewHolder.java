@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.google.firebase.Timestamp;
+import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Callback;
@@ -43,7 +44,7 @@ public class MajorPostViewHolder extends RecyclerView.ViewHolder{
     TextView userName = (TextView)itemView.findViewById(R.id.username);
     ImageButton more = (ImageButton)itemView.findViewById(R.id.setting);
     TextView lessonName = (TextView)itemView.findViewById(R.id.lessonName);
-    TextView text  = (TextView)itemView.findViewById(R.id.text);
+    SocialTextView text  = (SocialTextView)itemView.findViewById(R.id.text);
     ImageButton like = (ImageButton)itemView.findViewById(R.id.like);
     TextView likeLbl = (TextView)itemView.findViewById(R.id.likeCount);
 

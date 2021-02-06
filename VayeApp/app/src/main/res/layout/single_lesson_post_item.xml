@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
    <RelativeLayout
        android:layout_marginTop="4dp"
        android:layout_marginLeft="10dp"
@@ -92,18 +92,23 @@
            android:src="@drawable/post_option"></ImageButton>
    </RelativeLayout>
 
-    <TextView
+    <com.hendraanggrian.appcompat.widget.SocialTextView
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/header"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="8dp"
+        android:autoLink="all"
 
+        app:socialFlags="hyperlink|mention"
+
+        app:hyperlinkColor="@color/linkColor"
+        app:mentionColor="@color/mainColor"
         android:fontFamily="@font/nunito_semibold"
         android:textColor="@color/black"
         android:textSize="13sp"
-        ></TextView>
+        ></com.hendraanggrian.appcompat.widget.SocialTextView>
     <ImageButton
         android:layout_width="40dp"
         android:layout_height="40dp"

@@ -29,7 +29,7 @@
             android:layout_marginLeft="4dp"
             ></ImageButton>
 
-        <TextView
+        <com.hendraanggrian.appcompat.widget.SocialTextView
             android:id="@+id/text"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="-8dp"
@@ -39,11 +39,16 @@
             android:layout_below="@id/profileLay"
             android:layout_toEndOf="@id/profileLay"
             android:layout_toStartOf="@id/likeBtn"
-            android:fontFamily="@font/nunito_sans_semibold"
-
+            android:fontFamily="@font/nunito_semibold"
             android:textColor="@color/black"
             android:layout_marginBottom="8dp"
-            ></TextView>
+            android:autoLink="all"
+
+            app:socialFlags="hyperlink|mention"
+
+            app:hyperlinkColor="@color/linkColor"
+            app:mentionColor="@color/mainColor"
+            ></com.hendraanggrian.appcompat.widget.SocialTextView>
         <LinearLayout
 
             android:orientation="horizontal"

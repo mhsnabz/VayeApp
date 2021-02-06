@@ -4,11 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -21,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -32,10 +35,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
+
+import com.hendraanggrian.appcompat.widget.SocialTextView;
+import com.hendraanggrian.appcompat.widget.SocialView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.vaye.app.Interfaces.CallBackCount;
+
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
@@ -45,6 +50,8 @@ import com.vaye.app.Services.CommentService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
 import com.vaye.app.Util.SwipeControllerActions;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,7 +66,7 @@ public class ReplyActivity extends AppCompatActivity {
     SwipeController swipeController = null;
     ImageButton sendMsg;
     EditText msgText;
-    TextView text;
+    SocialTextView text;
     CommentModel comment;
     String TAG = "CommentActivity";
     CurrentUser currentUser;
@@ -86,7 +93,13 @@ public class ReplyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reply);
         loadMoreButton = (Button)findViewById(R.id.loadMoreButton);
         loadMoreButton.setVisibility(View.GONE);
-
+        text = (SocialTextView)findViewById(R.id.text);
+        text.setOnMentionClickListener(new SocialView.OnClickListener() {
+            @Override
+            public void onClick(@NonNull SocialView view, @NonNull CharSequence textt) {
+                Toast.makeText(ReplyActivity.this,textt,Toast.LENGTH_LONG).show();
+            }
+        });
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
@@ -216,10 +229,12 @@ public class ReplyActivity extends AppCompatActivity {
         }
     }
 
-    private void configureUI(CommentModel comment ,CurrentUser currentUser , LessonPostModel postModel)
+    @SuppressLint("ResourceAsColor")
+    private void configureUI(CommentModel comment , CurrentUser currentUser , LessonPostModel postModel)
     {
-        text = ( TextView)findViewById(R.id.text);
+
         text.setText(comment.getComment());
+
         name = (TextView)findViewById(R.id.name);
         username = (TextView)findViewById(R.id.username);
         time = (TextView)findViewById(R.id.time);
