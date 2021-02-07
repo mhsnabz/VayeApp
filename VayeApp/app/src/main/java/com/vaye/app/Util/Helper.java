@@ -401,7 +401,18 @@ public class Helper {
         });
 
    }
-
+    public ArrayList<String> getMentionedUser(String text){
+        ArrayList<String> user = new ArrayList<>();
+        String[] words = text.split("[ \\.]");
+        for (int i = 0; i < words.length; i++) {
+            if (words[i].length() > 0
+                    && words[i].charAt(0) == '@') {
+                System.out.println(words[i]);
+                user.add(words[i]);
+            }
+        }
+        return  user;
+    }
 
 
 }

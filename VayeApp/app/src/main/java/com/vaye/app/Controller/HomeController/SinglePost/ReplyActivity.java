@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -41,12 +42,14 @@ import com.hendraanggrian.appcompat.widget.SocialView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
+import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
 import com.vaye.app.Util.SwipeControllerActions;
@@ -59,6 +62,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -138,6 +143,8 @@ public class ReplyActivity extends AppCompatActivity {
             finish();
         }
     }
+
+
 
 
     private void getComment(CurrentUser currentUser){
@@ -234,7 +241,9 @@ public class ReplyActivity extends AppCompatActivity {
     {
 
         text.setText(comment.getComment());
-
+        for (String item : Helper.shared().getMentionedUser(comment.getComment())){
+            Log.d(TAG, "configureUI: "+ item);
+        }
         name = (TextView)findViewById(R.id.name);
         username = (TextView)findViewById(R.id.username);
         time = (TextView)findViewById(R.id.time);
@@ -361,9 +370,15 @@ public class ReplyActivity extends AppCompatActivity {
             CommentService.shared().setRepliedComment(currentUser, comment.getCommentId(), commentId, text, postModel.getPostId(), new TrueFalse<Boolean>() {
                 @Override
                 public void callBack(Boolean _value) {
+                    if (_value){
+                        comment.getReplies().add(commentId);
+                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                        NotificaitonService.shared().sendCommentNotification(postModel ,comment, currentUser , text , Notifications.NotificationType.reply_comment);
+                        for (String item : Helper.shared().getMentionedUser(text)){
+                            NotificaitonService.shared().sendRepliedCommentByMention(ReplyActivity.this ,  item , Notifications.NotificationType.comment_mention,currentUser , text ,postModel);
+                        }
+                    }
 
-                    comment.getReplies().add(commentId);
-                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
                 }
             });
         }

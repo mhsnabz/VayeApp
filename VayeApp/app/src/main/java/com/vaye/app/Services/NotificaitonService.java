@@ -221,5 +221,72 @@ public class NotificaitonService {
     }
 
 
+    public void sendCommentNotification(LessonPostModel post ,CommentModel comment, CurrentUser currentUser , String text , String type){
+        if (comment.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }
+        else{
+            if (!post.getSilent().contains(post.getSenderUid())){
+                String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                DocumentReference ref = FirebaseFirestore.getInstance()
+                        .collection("user")
+                        .document(comment.getSenderUid())
+                        .collection("notification").document(notificaitonId);
+                Map<String , Object> map = new HashMap<>();
+
+                map.put("type",type);
+                map.put("text",text);
+                map.put("senderUid",currentUser.getUid());
+                map.put("time",FieldValue.serverTimestamp());
+                map.put("senderImage",currentUser.getThumb_image());
+                map.put("not_id",notificaitonId);
+                map.put("isRead",false);
+                map.put("username",currentUser.getUsername());
+                map.put("postId",post.getPostId());
+                map.put("senderName",currentUser.getName());
+                map.put("lessonName",post.getLessonName());
+                ref.set(map , SetOptions.merge());
+
+            }
+        }
+    }
+
+    public void sendRepliedCommentByMention(Activity activity,String username,String type, CurrentUser currentUser , String text , LessonPostModel post){
+        UserService.shared().getUserByMention(activity, username, new OtherUserService() {
+            @Override
+            public void callback(OtherUser user) {
+                if (currentUser.getUsername().equals(user.getUsername())){
+                    return;
+                }
+
+                else{
+                    if (!post.getSilent().contains(post.getSenderUid())){
+                        if (!currentUser.getSlient().contains(user.getUid())){
+                            String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                            DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                    .document(user.getUid())
+                                    .collection("notification")
+                                    .document(notificaitonId);
+                            Map<String , Object> map = new HashMap<>();
+
+                            map.put("type",type);
+                            map.put("text",text);
+                            map.put("senderUid",currentUser.getUid());
+                            map.put("time",FieldValue.serverTimestamp());
+                            map.put("senderImage",currentUser.getThumb_image());
+                            map.put("not_id",notificaitonId);
+                            map.put("isRead",false);
+                            map.put("username",currentUser.getUsername());
+                            map.put("postId",post.getPostId());
+                            map.put("senderName",currentUser.getName());
+                            map.put("lessonName",post.getLessonName());
+                            ref.set(map , SetOptions.merge());
+                        }
+                    }
+                }
+            }
+        });
+    }
+
 
 }

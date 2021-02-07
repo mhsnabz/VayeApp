@@ -14,14 +14,18 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.rpc.Help;
+import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.OtherUserService;
+import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TaskUserHandler;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.Model.TaskUser;
+import com.vaye.app.Util.Helper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +57,41 @@ public class UserService {
         });
 
     }
-
+    public void getUserByMention(Activity activity,String username , OtherUserService otherUser){
+        getUidByMention(activity, username, new StringCompletion() {
+            @Override
+            public void getString(String string) {
+                getOtherUserWihtoutProgres(activity, string, new OtherUserService() {
+                    @Override
+                    public void callback(OtherUser user) {
+                        otherUser.callback(user);
+                    }
+                });
+            }
+        });
+    }
+    private void getUidByMention(Activity activity, String username , StringCompletion uid){
+        WaitDialog.show((AppCompatActivity) activity, null);
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("username")
+                .document(username);
+        ref.get().addOnCompleteListener(activity, new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        if (!task.getResult().getString("uid").isEmpty()){
+                            uid.getString(task.getResult().getString("uid"));
+                            WaitDialog.dismiss();
+                        }
+                    }else{
+                        WaitDialog.dismiss();
+                        TipDialog.show((AppCompatActivity) activity, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                        TipDialog.dismiss(1000);
+                    }
+                }
+            }
+        });
+    }
 
     public void getTaskUser(String uid , TaskUserHandler result){
         DocumentReference ref = FirebaseFirestore.getInstance().collection("task-user")
@@ -107,7 +145,20 @@ public class UserService {
             }
         });
     }
-
+    public void getOtherUserWihtoutProgres(Activity activity, String otherUserUid , OtherUserService user){
+        WaitDialog.show((AppCompatActivity) activity, null);
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("user")
+                .document(otherUserUid);
+        ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    user.callback(documentSnapshot.toObject(OtherUser.class));
+                }
+            }
+        });
+    }
     public void getOtherUser(Activity activity, String otherUserUid , OtherUserService user){
         WaitDialog.show((AppCompatActivity) activity, null);
         DocumentReference ref = FirebaseFirestore.getInstance()
