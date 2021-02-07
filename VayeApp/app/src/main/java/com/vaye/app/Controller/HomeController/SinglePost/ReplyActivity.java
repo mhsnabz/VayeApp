@@ -292,7 +292,7 @@ public class ReplyActivity extends AppCompatActivity {
             @Override
             public void onLeftClicked(int position) {
                 super.onLeftClicked(position);
-
+                msgText.append(" " + comments.get(position).getUsername() + " ");
             }
 
             @Override

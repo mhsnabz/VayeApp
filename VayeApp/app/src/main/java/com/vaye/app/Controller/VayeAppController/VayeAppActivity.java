@@ -1,6 +1,7 @@
 package com.vaye.app.Controller.VayeAppController;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -21,6 +23,8 @@ import com.vaye.app.Util.BottomNavHelper;
 public class VayeAppActivity extends AppCompatActivity {
     CurrentUser currentUser;
     String TAG = "VayeAppActivity";
+    Toolbar toolbar;
+    TextView title;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +52,13 @@ public class VayeAppActivity extends AppCompatActivity {
         menuItem.setChecked(true);
         overridePendingTransition(0, 0);
 
+        toolbar = findViewById(R.id.toolbar);
+        title = toolbar.findViewById(R.id.toolbar_title);
 
+        setSupportActionBar(toolbar);
+
+        toolbar.setTitle("");
+        toolbar.setSubtitle("");
+        title.setText("Takip Ettiklerin");
     }
 }
