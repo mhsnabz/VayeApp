@@ -20,6 +20,10 @@ import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.School.SchoolFragment;
 import com.vaye.app.Controller.HomeController.SinglePost.ReplyActivity;
+import com.vaye.app.Controller.VayeAppController.BuySell.BuySellFragment;
+import com.vaye.app.Controller.VayeAppController.Camping.CampingFragment;
+import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
+import com.vaye.app.Controller.VayeAppController.FoodMe.FoodMeFragment;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.BottomNavHelper;
@@ -30,11 +34,9 @@ public class VayeAppActivity extends AppCompatActivity {
     String TAG = "VayeAppActivity";
     Toolbar toolbar;
     TextView title;
-
     ImageButton followers , foodme , camping , buySell;
     RelativeLayout followesLine , foodmeLine , campingLine , buySellLine;
     ViewPager mainViewPager;
-
     VayeAppPager pagerViewAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +54,26 @@ public class VayeAppActivity extends AppCompatActivity {
 
             confiureUI();
 
+
+            FollowersFragment fragobj = new FollowersFragment();
+            fragobj.setArguments(bundle);
+
+            CampingFragment campingFragment = new CampingFragment();
+            campingFragment.setArguments(bundle);
+
+            FoodMeFragment FoodMeFragment = new FoodMeFragment();
+            FoodMeFragment.setArguments(bundle);
+
+            BuySellFragment BuySellFragment = new BuySellFragment();
+            BuySellFragment.setArguments(bundle);
+
+
+
+
         }
 
 
     }
-
     private void confiureUI() {
         followers = (ImageButton)findViewById(R.id.followers);
         foodme = (ImageButton)findViewById(R.id.foodMe);
@@ -119,7 +136,6 @@ public class VayeAppActivity extends AppCompatActivity {
             }
         });
     }
-
     private void setupBottomNavBar(CurrentUser currentUser){
         BottomNavigationView navBar = (BottomNavigationView)findViewById(R.id.bottom_nav_bar);
         navBar.setElevation(5);
@@ -142,8 +158,6 @@ public class VayeAppActivity extends AppCompatActivity {
         }
 
     }
-
-
     private void changeTabs(int postion){
         if (postion == 0){
 

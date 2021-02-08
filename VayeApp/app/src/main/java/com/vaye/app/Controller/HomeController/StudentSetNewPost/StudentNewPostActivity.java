@@ -53,6 +53,7 @@ import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.DriveLinkNames;
 import com.vaye.app.Interfaces.MajorPostFallower;
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -61,6 +62,7 @@ import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.MajorPostNS;
 import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
@@ -187,6 +189,8 @@ public class StudentNewPostActivity extends AppCompatActivity {
                     return;
                 }else {
                     WaitDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
+                    MajorPostNS.shared().sendNewPostNotification(currentUser,String.valueOf(Calendar.getInstance().getTimeInMillis()),lessonName,msgText, Notifications.NotificationType.home_new_post,String.valueOf(postDate));
+
                     MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
                         @Override
                         public void onCallback(ArrayList<LessonFallowerUser> users) {
@@ -194,7 +198,6 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                     , msgText, dataModel, lessonModel.getLessonName(), new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
-
 
                                             MajorPostService.shared().moveSavedLinkOnpost(String.valueOf(postDate), currentUser, new TrueFalse<Boolean>() {
                                                 @Override
