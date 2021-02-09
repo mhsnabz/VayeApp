@@ -527,8 +527,6 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         });
                     }
                 });
-
-
                 break;
 
 

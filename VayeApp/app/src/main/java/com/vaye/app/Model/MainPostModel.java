@@ -13,16 +13,16 @@ public class MainPostModel implements Parcelable {
 
     String senderName,text,senderUid,link,locationName,postId,empty,value,postType,id,username,thumb_image,type;
     int comment;
-    long postID;
     Timestamp postTime;
     ArrayList<String> likes,dislike,data,thumbData,silent;
     GeoPoint geoPoint;
     UnifiedNativeAd nativeAd;
 
+
     public MainPostModel() {
     }
 
-    public MainPostModel(String senderName, String text, String senderUid, String link, String locationName, String postId, String empty, String value, String postType, String id, String username, String thumb_image, String type, int comment, long postID, Timestamp postTime, ArrayList<String> likes, ArrayList<String> dislike, ArrayList<String> data, ArrayList<String> thumbData, ArrayList<String> silent, GeoPoint geoPoint, UnifiedNativeAd nativeAd) {
+    public MainPostModel(String senderName, String text, String senderUid, String link, String locationName, String postId, String empty, String value, String postType, String id, String username, String thumb_image, String type, int comment, Timestamp postTime, ArrayList<String> likes, ArrayList<String> dislike, ArrayList<String> data, ArrayList<String> thumbData, ArrayList<String> silent, GeoPoint geoPoint, UnifiedNativeAd nativeAd) {
         this.senderName = senderName;
         this.text = text;
         this.senderUid = senderUid;
@@ -37,7 +37,7 @@ public class MainPostModel implements Parcelable {
         this.thumb_image = thumb_image;
         this.type = type;
         this.comment = comment;
-        this.postID = postID;
+
         this.postTime = postTime;
         this.likes = likes;
         this.dislike = dislike;
@@ -70,7 +70,7 @@ public class MainPostModel implements Parcelable {
         username = in.readString();
         thumb_image = in.readString();
         comment = in.readInt();
-        postID = in.readLong();
+
         postTime = in.readParcelable(Timestamp.class.getClassLoader());
         likes = in.createStringArrayList();
         dislike = in.createStringArrayList();
@@ -195,13 +195,7 @@ public class MainPostModel implements Parcelable {
         this.comment = comment;
     }
 
-    public long getPostID() {
-        return postID;
-    }
 
-    public void setPostID(long postID) {
-        this.postID = postID;
-    }
 
     public Timestamp getPostTime() {
         return postTime;
@@ -287,7 +281,7 @@ public class MainPostModel implements Parcelable {
         parcel.writeString(username);
         parcel.writeString(thumb_image);
         parcel.writeInt(comment);
-        parcel.writeLong(postID);
+
         parcel.writeParcelable(postTime, i);
         parcel.writeStringList(likes);
         parcel.writeStringList(dislike);

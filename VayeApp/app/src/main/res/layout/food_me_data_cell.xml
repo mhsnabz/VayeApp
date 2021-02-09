@@ -1,6 +1,263 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/header"
+        >
+        <RelativeLayout
+            android:id="@+id/profileLay"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignParentTop="true"
+
+            >
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/profileImage"
+                android:src="@android:color/darker_gray"
+                ></de.hdodenhof.circleimageview.CircleImageView>
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_centerInParent="true"
+                android:layout_width="20dp"
+                android:layout_height="20dp">
+
+            </ProgressBar>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_centerVertical="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/profileLay"
+            android:layout_marginLeft="4dp"
+
+            >
+            <TextView
+
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/nunito_semibold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/name"
+                ></TextView>
+            <TextView
+                android:layout_marginLeft="4dp"
+                android:textSize="12sp"
+                android:fontFamily="@font/nunito_semibold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/name"
+                android:id="@+id/username"
+
+                ></TextView>
+            <TextView
+                android:layout_marginLeft="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/time"
+
+                android:textSize="12sp"
+                android:layout_toEndOf="@id/username"
+                android:fontFamily="@font/nunito_semibold"
+                ></TextView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/lessonName"
+                android:layout_below="@id/name"
+
+                android:textSize="10sp"
+                android:fontFamily="@font/nunito_semibold"
+                ></TextView>
+        </RelativeLayout>
+
+        <ImageButton
+            android:id="@+id/setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/post_option"></ImageButton>
+    </RelativeLayout>
+
+    <com.hendraanggrian.appcompat.widget.SocialTextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="8dp"
+        android:autoLink="all"
+
+        app:socialFlags="hyperlink|mention"
+
+        app:hyperlinkColor="@color/linkColor"
+        app:mentionColor="@color/mainColor"
+        android:fontFamily="@font/nunito_semibold"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        ></com.hendraanggrian.appcompat.widget.SocialTextView>
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12dp"
+        android:background="@android:color/transparent"
+        android:id="@+id/linkButton"
+        ></ImageButton>
+    <include layout="@layout/one_image" android:id="@+id/one_image"
+        android:layout_below="@id/text"
+        android:layout_height="200dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignStart="@id/text"
+        android:visibility="gone"
+        android:layout_width="match_parent"></include>
+    <include layout="@layout/two_image" android:id="@+id/two_image"
+        android:layout_below="@id/text"
+        android:layout_height="200dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignStart="@id/text"
+        android:visibility="gone"
+        android:layout_width="match_parent"></include>
+    <include layout="@layout/there_image" android:id="@+id/there_image"
+        android:layout_below="@id/text"
+        android:layout_height="200dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignStart="@id/text"
+        android:visibility="gone"
+        android:layout_width="match_parent"></include>
+    <include layout="@layout/four_image" android:id="@+id/four_image"
+        android:layout_below="@id/text"
+        android:layout_height="200dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignStart="@id/text"
+        android:visibility="gone"
+        android:layout_width="match_parent"></include>
+    <LinearLayout
+        android:layout_marginRight="25dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:id="@+id/toolbarStack"
+        android:layout_below="@id/text"
+        android:layout_alignStart="@id/text"
+        android:layout_marginTop="220dp"
+        android:layout_marginLeft="4dp"
+        android:weightSum="3"
+        >
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageButton
+
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/like"
+                android:background="@android:color/transparent"
+                android:src="@drawable/like"
+                android:scaleType="fitXY"
+                ></ImageButton>
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/like"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+
+            <ImageButton
+                android:id="@+id/dislike"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                android:src="@drawable/dislike"></ImageButton>
+            <TextView
+                android:id="@+id/dislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/dislike"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageButton
+
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/comment"
+                android:background="@android:color/transparent"
+                android:src="@drawable/chat"
+                android:scaleType="fitXY"
+                ></ImageButton>
+            <TextView
+                android:id="@+id/commentCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/comment"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+
+
+
+
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="1.5dp"
+        android:layout_below="@id/toolbarStack"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:background="@color/ligthGray"
+        android:layout_marginTop="6dp"
+        ></RelativeLayout>
+</RelativeLayout>

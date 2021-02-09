@@ -112,6 +112,112 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
         android:background="@android:color/transparent"
-        
+        android:id="@+id/locationButton"
         ></ImageButton>
+    <LinearLayout
+        android:layout_marginRight="25dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:id="@+id/toolbarStack"
+        android:layout_below="@id/text"
+        android:layout_alignStart="@id/text"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="4dp"
+        android:weightSum="3"
+        >
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageButton
+
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/like"
+                android:background="@android:color/transparent"
+                android:src="@drawable/like"
+                android:scaleType="fitXY"
+                ></ImageButton>
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/like"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageButton
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/dislike"
+                android:background="@android:color/transparent"
+                android:src="@drawable/dislike"
+                android:scaleType="fitXY"
+                ></ImageButton>
+            <TextView
+                android:id="@+id/dislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/dislike"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageButton
+
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/comment"
+                android:background="@android:color/transparent"
+                android:src="@drawable/chat"
+                android:scaleType="fitXY"
+                ></ImageButton>
+            <TextView
+                android:id="@+id/commentCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/comment"
+                android:text="0"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                ></TextView>
+        </RelativeLayout>
+
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="1.5dp"
+        android:layout_below="@id/toolbarStack"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:background="@color/ligthGray"
+        android:layout_marginTop="6dp"
+        ></RelativeLayout>
 </RelativeLayout>
