@@ -35,6 +35,7 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.FoodMeService;
 import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
@@ -127,22 +128,44 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 itemHolder.setDislike(menuItem.getDislike(),currentUser , context);
 
                 itemHolder.setTime(menuItem.getPostTime());
-                itemHolder.setLocationButton(menuItem.getGeoPoint());
-
-                itemHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
+               itemHolder.setLocationButton(menuItem.getGeoPoint());
+                itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
 
+                    }
+                });
+                itemHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                       FoodMeService.shared().setLike(menuItem, currentUser, new TrueFalse<Boolean>() {
+                           @Override
+                           public void callBack(Boolean _value) {
+                               itemHolder.setLike(menuItem.getLikes(),currentUser ,context);
+                               notifyDataSetChanged();
+                           }
+                       });
                     }
                 });
 
                 itemHolder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                    FoodMeService.shared().setDislike(currentUser, menuItem, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            itemHolder.setDislike(menuItem.getDislike(),currentUser,context);
+                            notifyDataSetChanged();
+                        }
+                    });
                     }
                 });
+            itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
+                }
+            });
                 break;
 
             case VIEW_TYPE_FOODME_POST_DATA:
@@ -174,18 +197,35 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 postHolder.setTime(menuItemData.getPostTime());
                 postHolder.setLocationButton(menuItemData.getGeoPoint());
-
-                postHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
+                postHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
 
+                    }
+                });
+                postHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        FoodMeService.shared().setLike(menuItemData, currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                postHolder.setLike(menuItemData.getLikes(),currentUser,context);
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 });
 
                 postHolder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        FoodMeService.shared().setDislike(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                postHolder.setDislike(menuItemData.getDislike(),currentUser,context);
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 });
 

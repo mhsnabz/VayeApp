@@ -154,8 +154,10 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "setUserProile: " + currentUser.getThumb_image());
         name.setText(currentUser.getName());
         username.setText(currentUser.getUsername());
+        if (!currentUser.getThumb_image().isEmpty() && currentUser.getThumb_image()!=null){
+            Picasso.get().load(currentUser.getThumb_image()).resize(256,256).centerCrop().into(profileIamge);
 
-        Picasso.get().load(currentUser.getThumb_image()).resize(256,256).centerCrop().into(profileIamge);
+        }
 
         showProflie = (Button)headerview.findViewById(R.id.showProfile);
         notButton = (Button)headerview.findViewById(R.id.notButton2);

@@ -174,7 +174,13 @@ public class FoodMeViewHolder extends RecyclerView.ViewHolder {
     public void setTime(Timestamp _time){
         time.setText(Html.fromHtml("&#8226;")+ Helper.shared().setTimeAgo(_time));
     }
-
+    public void setLocationButton(GeoPoint location){
+        if (location!=null){
+            locationButton.setVisibility(View.VISIBLE);
+        }else{
+            locationButton.setVisibility(View.GONE);
+        }
+    }
     public void setImages(ArrayList<String> thumbImages )
     {
         if (thumbImages.size() == 1){
@@ -325,13 +331,7 @@ public class FoodMeViewHolder extends RecyclerView.ViewHolder {
 
 
     }
-    public void setLocationButton(GeoPoint location){
-        if (location!=null){
-            locationButton.setVisibility(View.VISIBLE);
-        }else{
-            locationButton.setVisibility(View.GONE);
-        }
-    }
+
 
 
 }

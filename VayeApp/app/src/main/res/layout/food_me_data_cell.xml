@@ -117,7 +117,7 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="12dp"
         android:background="@android:color/transparent"
-        android:id="@+id/linkButton"
+        android:id="@+id/locationButton"
         ></ImageButton>
     <include layout="@layout/one_image" android:id="@+id/one_image"
         android:layout_below="@id/text"

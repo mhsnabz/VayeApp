@@ -6,7 +6,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -14,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.protobuf.StringValue;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserService;
@@ -21,6 +24,7 @@ import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 
 import java.util.Calendar;
@@ -288,5 +292,62 @@ public class NotificaitonService {
         });
     }
 
+
+
+    //MARK:- main post notifications
+
+    public void send_mainpost_like_notification(MainPostModel post , CurrentUser currentUser , String  text
+    ,String type){
+        if (post.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+            if (!post.getSilent().contains(post.getSenderUid())){
+                String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                        .document(post.getSenderUid())
+                        .collection("notification")
+                        .document(notificaitonId);
+                Map<String , Object> map  = new HashMap<>();
+                map.put("type",type);
+                map.put("text",text);
+                map.put("senderUid",currentUser.getUid());
+                map.put("time",FieldValue.serverTimestamp());
+                map.put("senderImage",currentUser.getThumb_image());
+                map.put("not_id",notificaitonId);
+                map.put("isRead",false);
+                map.put("username",currentUser.getUsername());
+                map.put("postId",post.getPostId());
+                map.put("senderName",currentUser.getName());
+                ref.set(map , SetOptions.merge());
+            }
+        }
+    }
+
+    public void remove_foodme_like_notification(MainPostModel post , CurrentUser currentUser){
+        Query ref = FirebaseFirestore
+                .getInstance().collection("user")
+                .document(post.getSenderUid())
+                .collection("notification")
+                .whereEqualTo("postId",post.getPostId()).whereEqualTo("senderUid",currentUser.getUid())
+                .whereEqualTo("type", Notifications.NotificationType.like_food_me);
+        ref.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (queryDocumentSnapshots.isEmpty()){
+                    return;
+                }else{
+                   if (queryDocumentSnapshots!=null){
+                       for (DocumentSnapshot item : queryDocumentSnapshots.getDocuments()){
+                           DocumentReference db  =FirebaseFirestore
+                                   .getInstance().collection("user")
+                                   .document(post.getSenderUid())
+                                   .collection("notification").document(item.getId());
+                           db.delete();
+                       }
+                   }
+                }
+            }
+        });
+    }
 
 }

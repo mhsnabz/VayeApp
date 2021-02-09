@@ -111,6 +111,8 @@
         android:layout_below="@id/header"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
+        android:src="@drawable/orange_location"
+        android:visibility="gone"
         android:background="@android:color/transparent"
         android:id="@+id/locationButton"
         ></ImageButton>
