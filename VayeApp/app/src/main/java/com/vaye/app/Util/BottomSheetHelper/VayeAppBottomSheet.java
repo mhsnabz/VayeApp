@@ -102,6 +102,7 @@ public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 public void callBack(Boolean _value) {
                                     dialog.dismiss();
                                     allPost.remove(post);
+
                                     WaitDialog.dismiss();
                                 }
                             });

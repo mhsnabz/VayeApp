@@ -347,6 +347,7 @@ public class Helper {
            @Override
            public void onDismiss(DialogInterface dialogInterface) {
                headerView.setVisibility(View.GONE);
+
                callback.callBack(true);
            }
        });

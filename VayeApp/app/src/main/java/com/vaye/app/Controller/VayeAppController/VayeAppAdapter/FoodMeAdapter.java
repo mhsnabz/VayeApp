@@ -175,7 +175,9 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         Helper.shared().VayeAppCurrentUserBottomSheetLauncher(post,(Activity) context, currentUser, menuItem, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
-
+                                if (_value){
+                                    notifyDataSetChanged();
+                                }
                             }
                         });
                     }else{
@@ -185,7 +187,9 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                 Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
                                     @Override
                                     public void callBack(Boolean _value) {
-
+                                        if (_value){
+                                            notifyDataSetChanged();
+                                        }
                                     }
                                 });
                                 WaitDialog.dismiss();
@@ -305,7 +309,9 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             Helper.shared().VayeAppCurrentUserBottomSheetLauncher(post,(Activity) context, currentUser, menuItemData, new TrueFalse<Boolean>() {
                                 @Override
                                 public void callBack(Boolean _value) {
-
+                                    if (_value){
+                                        notifyDataSetChanged();
+                                    }
                                 }
                             });
                         }else{
@@ -315,7 +321,9 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                     Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
-
+                                            if (_value){
+                                                notifyDataSetChanged();
+                                            }
                                         }
                                     });
                                     WaitDialog.dismiss();
