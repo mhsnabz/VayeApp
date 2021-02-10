@@ -28,6 +28,8 @@ import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
@@ -39,6 +41,7 @@ import com.vaye.app.Controller.NotificationController.NotificationSetting.Notifi
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
+import com.vaye.app.SplashScreen.SplashScreen;
 import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.Helper;
 
@@ -48,7 +51,7 @@ public class HomeActivity extends AppCompatActivity {
     String TAG = "HomeActivity";
     private DrawerLayout drawer;
     Toolbar toolbar;
-    Button showProflie ,notButton, settingButton;
+    Button showProflie ,notButton, settingButton,exit;
     CircleImageView profileIamge;
     CurrentUser currentUser;
     TextView name , username;
@@ -160,6 +163,19 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         showProflie = (Button)headerview.findViewById(R.id.showProfile);
+        exit = (Button)headerview.findViewById(R.id.exit2);
+        exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WaitDialog.show(HomeActivity.this,null);
+                FirebaseAuth.getInstance().signOut();
+                Intent i = new Intent(HomeActivity.this , SplashScreen.class);
+                startActivity(i);
+                WaitDialog.dismiss();
+                finish();
+
+            }
+        });
         notButton = (Button)headerview.findViewById(R.id.notButton2);
         settingButton = (Button)headerview.findViewById(R.id.settin2);
         settingButton.setOnClickListener(new View.OnClickListener() {

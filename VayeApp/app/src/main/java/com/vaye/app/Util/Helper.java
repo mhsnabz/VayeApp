@@ -30,6 +30,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -39,6 +40,8 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.FollowService;
+import com.vaye.app.Services.FoodMeService;
 import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
@@ -251,6 +254,158 @@ public class Helper {
        bottomSheetDialog.show();
    }
 
+    public void BottomSheetOtherUser(Activity activity, OtherUser otherUser, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
+        RecyclerView recyclerView;
+        CardView headerView;
+        CircleImageView profileImage;
+        TextView username;
+        Button fallow;
+
+        Button cancel;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+        BottomSheetAdapter adapter = new BottomSheetAdapter(target ,currentUser ,activity ,model , bottomSheetDialog , post);
+        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+        headerView = (CardView)view.findViewById(R.id.header);
+        profileImage = (CircleImageView)view.findViewById(R.id.profileImage);
+        headerView.setVisibility(View.VISIBLE);
+        username = (TextView) view.findViewById(R.id.username);
+        fallow = (Button)view.findViewById(R.id.fallow);
+        username.setText( otherUser.getUsername());
+
+
+
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        adapter.notifyDataSetChanged();
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                headerView.setVisibility(View.GONE);
+                bottomSheetDialog.dismiss();
+
+            }
+        });
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                headerView.setVisibility(View.GONE);
+                val.callBack(true);
+            }
+        });
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+
+
+        UserService.shared().checkIsFallowing(currentUser, otherUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+                    fallow.setText("Takibi Bırak");
+                    fallow.setBackgroundResource(R.drawable.button_unfollow_back);
+                    isFallowing = _value;
+                }else{
+                    fallow.setBackgroundResource(R.drawable.button_fallow_back);
+                    fallow.setText("Takip Et");
+                    isFallowing = _value;
+                }
+            }
+        });
+        if (otherUser.getThumb_image() != null && !otherUser.getThumb_image().isEmpty()){
+            Picasso.get().load(otherUser.getThumb_image()).placeholder(android.R.color.darker_gray).resize(128,128)
+                    .centerCrop().into(profileImage);
+        }
+
+
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
+
+        fallow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isFallowing){
+                    WaitDialog.show((AppCompatActivity) activity, null);
+                    UserService.shared().setUnFollow(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            WaitDialog.dismiss();
+                            TipDialog.show((AppCompatActivity) activity , "Takip Etmeyi Bıraktınız", TipDialog.TYPE.SUCCESS);
+                            TipDialog.dismiss(1500);
+                            bottomSheetDialog.dismiss();
+                            isFallowing = false;
+                        }
+                    });
+                }else {
+                    WaitDialog.show((AppCompatActivity) activity, null);
+                    DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                            .document(otherUser.getUid())
+                            .collection("fallowers")
+                            .document(currentUser.getUid());
+                    Map<String , Object> map = new HashMap<>();
+                    map.put("user", FieldValue.arrayUnion(currentUser.getUid()));
+                    ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                        .document(currentUser.getUid())
+                                        .collection("following")
+                                        .document(otherUser.getUid());
+                                Map<String  , Object> map1 = new HashMap<>();
+                                map1.put("user",FieldValue.arrayUnion(otherUser.getUid()));
+                                db.set(map1 , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()){
+                                            UserService.shared().addAsMessegesFriend(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    NotificaitonService.shared().start_following_you(currentUser, otherUser, Notifications.NotificationDescription.following_you, Notifications.NotificationType.following_you, new TrueFalse<Boolean>() {
+                                                        @Override
+                                                        public void callBack(Boolean _value) {
+                                                            WaitDialog.dismiss();
+                                                            TipDialog.show((AppCompatActivity) activity , "Tekip Ediliyor", TipDialog.TYPE.SUCCESS);
+                                                            TipDialog.dismiss(1500);
+                                                            isFallowing = true;
+                                                            bottomSheetDialog.dismiss();
+                                                        }
+                                                    });
+
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        username.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
+
+        headerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
+
+    }
 
 
    public void VayeAppCurrentUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
@@ -371,54 +526,6 @@ public class Helper {
                    .centerCrop().into(profileImage);
        }
 
-   }
-
-   public void BottomSheetOtherUser(Activity activity, OtherUser otherUser, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
-       RecyclerView recyclerView;
-       CardView headerView;
-       CircleImageView profileImage;
-       TextView username;
-       Button fallow;
-
-       Button cancel;
-       BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
-       View view = LayoutInflater.from(activity.getApplicationContext())
-               .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
-       BottomSheetAdapter adapter = new BottomSheetAdapter(target ,currentUser ,activity ,model , bottomSheetDialog , post);
-       recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
-       headerView = (CardView)view.findViewById(R.id.header);
-       profileImage = (CircleImageView)view.findViewById(R.id.profileImage);
-       headerView.setVisibility(View.VISIBLE);
-       username = (TextView) view.findViewById(R.id.username);
-        fallow = (Button)view.findViewById(R.id.fallow);
-       username.setText( otherUser.getUsername());
-
-
-
-       recyclerView.setAdapter(adapter);
-       recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-       adapter.notifyDataSetChanged();
-       cancel = (Button)view.findViewById(R.id.dismis);
-       cancel.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View view) {
-               headerView.setVisibility(View.GONE);
-               bottomSheetDialog.dismiss();
-
-           }
-       });
-
-       bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-           @Override
-           public void onDismiss(DialogInterface dialogInterface) {
-               headerView.setVisibility(View.GONE);
-               val.callBack(true);
-           }
-       });
-       bottomSheetDialog.setContentView(view);
-       bottomSheetDialog.show();
-
-
        UserService.shared().checkIsFallowing(currentUser, otherUser, new TrueFalse<Boolean>() {
            @Override
            public void callBack(Boolean _value) {
@@ -433,98 +540,38 @@ public class Helper {
                }
            }
        });
-        if (otherUser.getThumb_image() != null && !otherUser.getThumb_image().isEmpty()){
-            Picasso.get().load(otherUser.getThumb_image()).placeholder(android.R.color.darker_gray).resize(128,128)
-                    .centerCrop().into(profileImage);
-        }
 
+       fallow.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               if (isFallowing){
+                   //takibi bırak
+               }else{
+                   WaitDialog.show((AppCompatActivity)activity , "Lütfen Bekleyin");
+                   FollowService.shared().followUser(otherUser, currentUser, new TrueFalse<Boolean>() {
+                       @Override
+                       public void callBack(Boolean _value) {
+                           if (_value){
+                               WaitDialog.dismiss();
+                               TipDialog.show((AppCompatActivity) activity , "Takip Ediliyor", TipDialog.TYPE.SUCCESS);
+                               TipDialog.dismiss(1000);
+                               bottomSheetDialog.dismiss();
+                               isFallowing = true;
+                           }else{
+                               WaitDialog.dismiss();
+                               TipDialog.show((AppCompatActivity) activity , "Sorun Oluştu Lütfen Tekrar Deneyin", TipDialog.TYPE.WARNING);
+                               TipDialog.dismiss(1000);
+                               bottomSheetDialog.dismiss();
+                           }
+                       }
+                   });
+               }
+           }
+       });
 
-        profileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Log.d(TAG, "onClick: " + "show profile");
-            }
-        });
-
-        fallow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            if (isFallowing){
-                WaitDialog.show((AppCompatActivity) activity, null);
-                UserService.shared().setUnFollow(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
-                    @Override
-                    public void callBack(Boolean _value) {
-                        WaitDialog.dismiss();
-                        TipDialog.show((AppCompatActivity) activity , "Takip Etmeyi Bıraktınız", TipDialog.TYPE.SUCCESS);
-                        TipDialog.dismiss(1500);
-                        bottomSheetDialog.dismiss();
-                        isFallowing = false;
-                    }
-                });
-            }else {
-                WaitDialog.show((AppCompatActivity) activity, null);
-                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
-                        .document(otherUser.getUid())
-                        .collection("fallowers")
-                        .document(currentUser.getUid());
-                Map<String , Object> map = new HashMap<>();
-                map.put("user", FieldValue.arrayUnion(currentUser.getUid()));
-                ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                    .document(currentUser.getUid())
-                                    .collection("following")
-                                    .document(otherUser.getUid());
-                            Map<String  , Object> map1 = new HashMap<>();
-                            map1.put("user",FieldValue.arrayUnion(otherUser.getUid()));
-                            db.set(map1 , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
-                                    UserService.shared().addAsMessegesFriend(currentUser, otherUser, new TrueFalse<Boolean>() {
-                                        @Override
-                                        public void callBack(Boolean _value) {
-                                            NotificaitonService.shared().start_following_you(currentUser, otherUser, Notifications.NotificationDescription.following_you, Notifications.NotificationType.following_you, new TrueFalse<Boolean>() {
-                                                @Override
-                                                public void callBack(Boolean _value) {
-                                                    WaitDialog.dismiss();
-                                                    TipDialog.show((AppCompatActivity) activity , "Tekip Ediliyor", TipDialog.TYPE.SUCCESS);
-                                                    TipDialog.dismiss(1500);
-                                                    isFallowing = true;
-                                                    bottomSheetDialog.dismiss();
-                                                }
-                                            });
-
-                                        }
-                                    });
-                                    }
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-            }
-        });
-
-        username.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "onClick: " + "show profile");
-            }
-        });
-
-        headerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "onClick: " + "show profile");
-            }
-        });
 
    }
+
     public ArrayList<String> getMentionedUser(String text){
         ArrayList<String> user = new ArrayList<>();
         String[] words = text.split("[ \\.]");

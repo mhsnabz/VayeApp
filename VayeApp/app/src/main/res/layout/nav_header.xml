@@ -246,7 +246,7 @@
                 android:textAllCaps="false"
                 android:fontFamily="@font/nunito_semibold"
                 android:textAlignment="textStart"
-                android:id="@+id/exi2"
+                android:id="@+id/exit2"
                 ></Button>
         </RelativeLayout>
     </RelativeLayout>
