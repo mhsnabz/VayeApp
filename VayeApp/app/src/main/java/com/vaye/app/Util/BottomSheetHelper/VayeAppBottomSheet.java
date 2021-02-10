@@ -4,15 +4,22 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.VayeAppPostService;
+
+import java.util.ArrayList;
 
 public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     static final int current_user_options= 0;
@@ -23,27 +30,30 @@ public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHo
     BottomSheetDialog dialog;
     OtherUser otherUser;
     Context context;
+    ArrayList<MainPostModel> allPost;
     /***
     * other user consctrtuctor
     * */
-    public VayeAppBottomSheet(MainPostModel post, CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context) {
+    public VayeAppBottomSheet(ArrayList<MainPostModel> allPost,MainPostModel post, CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context) {
         this.post = post;
         this.currentUser = currentUser;
         this.model = model;
         this.dialog = dialog;
         this.otherUser = otherUser;
         this.context = context;
+        this.allPost = allPost;
     }
 
     /**
      * current user consctructur
      * */
-    public VayeAppBottomSheet(MainPostModel post, CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, Context context) {
+    public VayeAppBottomSheet(ArrayList<MainPostModel> allPost,MainPostModel post, CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, Context context) {
         this.post = post;
         this.currentUser = currentUser;
         this.model = model;
         this.dialog = dialog;
         this.context = context;
+        this.allPost = allPost;
     }
     @Override
     public int getItemViewType(int position) {
@@ -78,9 +88,35 @@ public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHo
         int viewType = getItemViewType(i);
         switch (viewType){
             case current_user_options:
+
                 VayeAppBottomSheetLauncherViewHolder VH_currentuser = (VayeAppBottomSheetLauncherViewHolder) holder;
                 VH_currentuser.setImageOne(model.getImagesHolder().get(i));
                 VH_currentuser.setTitle(model.getItems().get(i));
+                VH_currentuser.title.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderiyi_sil)){
+                            WaitDialog.show((AppCompatActivity) context,"Gönderi Siliniyor");
+                            VayeAppPostService.shared().deletePost(post, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    dialog.dismiss();
+                                    allPost.remove(post);
+                                    WaitDialog.dismiss();
+                                }
+                            });
+                        }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderiyi_düzenle)){
+
+                            Toast.makeText(context,BottomSheetActionTarget.gonderiyi_düzenle,Toast.LENGTH_SHORT).show();
+
+                        }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderiyi_sessize_al)){
+                            Toast.makeText(context,BottomSheetActionTarget.gonderiyi_sessize_al,Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                });
+
+
                 break;
             case other_user_options:
                 VayeAppBottomSheetLauncherViewHolder VH_otherUser = (VayeAppBottomSheetLauncherViewHolder) holder;

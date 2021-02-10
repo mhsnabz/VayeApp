@@ -172,7 +172,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 @Override
                 public void onClick(View view) {
                     if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                        Helper.shared().VayeAppCurrentUserBottomSheetLauncher((Activity) context, currentUser, menuItem, new TrueFalse<Boolean>() {
+                        Helper.shared().VayeAppCurrentUserBottomSheetLauncher(post,(Activity) context, currentUser, menuItem, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
 
@@ -182,7 +182,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
                             @Override
                             public void callback(OtherUser user) {
-                                Helper.shared().VayeAppOtherUserBottomSheetLauncher((Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
+                                Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
                                     @Override
                                     public void callBack(Boolean _value) {
 
@@ -302,7 +302,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     @Override
                     public void onClick(View view) {
                         if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Helper.shared().VayeAppCurrentUserBottomSheetLauncher((Activity) context, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                            Helper.shared().VayeAppCurrentUserBottomSheetLauncher(post,(Activity) context, currentUser, menuItemData, new TrueFalse<Boolean>() {
                                 @Override
                                 public void callBack(Boolean _value) {
 
@@ -312,7 +312,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher((Activity) context, user, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
 

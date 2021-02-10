@@ -253,7 +253,7 @@ public class Helper {
 
 
 
-   public void VayeAppCurrentUserBottomSheetLauncher(Activity activity , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
+   public void VayeAppCurrentUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
        RecyclerView recyclerView;
        CardView headerView;
        Button cancel;
@@ -272,7 +272,7 @@ public class Helper {
 
 
        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.vaye_app_current_user_launcher,res);
-       VayeAppBottomSheet adapter = new VayeAppBottomSheet(post,currentUser,model,bottomSheetDialog,activity);
+       VayeAppBottomSheet adapter = new VayeAppBottomSheet(allPost,post,currentUser,model,bottomSheetDialog,activity);
        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
        recyclerView.setAdapter(adapter);
        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
@@ -298,7 +298,7 @@ public class Helper {
        bottomSheetDialog.show();
    }
 
-   public void VayeAppOtherUserBottomSheetLauncher(Activity activity , OtherUser otherUser , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
+   public void VayeAppOtherUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , OtherUser otherUser , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
        RecyclerView recyclerView;
        CardView headerView;
        CircleImageView profileImage;
@@ -320,7 +320,7 @@ public class Helper {
        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
        View view = LayoutInflater.from(activity.getApplicationContext())
                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
-       VayeAppBottomSheet adapter = new VayeAppBottomSheet(post , currentUser ,model,bottomSheetDialog,otherUser,activity);
+       VayeAppBottomSheet adapter = new VayeAppBottomSheet(allPost,post , currentUser ,model,bottomSheetDialog,otherUser,activity);
        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
        headerView = (CardView)view.findViewById(R.id.header);
        profileImage = (CircleImageView)view.findViewById(R.id.profileImage);
