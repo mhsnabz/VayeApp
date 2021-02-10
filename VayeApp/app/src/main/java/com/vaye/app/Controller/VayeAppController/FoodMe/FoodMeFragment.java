@@ -89,7 +89,35 @@ public class FoodMeFragment extends Fragment {
 
             }
         });
+
         getPost(currentUser);
+        scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if ( isLoadMore &&  (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())){
+
+                    progressBar.setVisibility(View.VISIBLE);
+                    //loadMoreItem(currentUser);
+                    isLoadMore = false;
+                    Log.d(TAG, "onScrollChange: "+"load more item");
+                    if (!post.isEmpty()){
+                        for (int i = 0 ; i < post.size() ; i++){
+                            if (post.get(i).getType().equals("ads"))
+                                totalAdsCount ++;
+                        }
+
+                        if ((post.size() - totalAdsCount) % 5 == 0){
+                            // if (!lessonPostModels.get(lessonPostModels.size() -1).getType().equals("ads"))
+                            getAds();
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                    }
+
+
+                }
+            }
+        });
         return rootView;
     }
 
@@ -158,6 +186,7 @@ public class FoodMeFragment extends Fragment {
                     }
             }
         });
+        getAds();
     }
     private void getAds(){
         AdLoader.Builder builder = new AdLoader.Builder(getActivity(),getResources().getString(R.string.unit_id));
