@@ -6,4 +6,7 @@ public interface BottomSheetTarget {
     String post_add_link_target = "post_add_link_target";
     String new_post_add_link_target = "new_post_add_link_target";
     String otheruser_options_target = "otheruser_options_target";
+
+    String vaye_app_other_user_launcher= "vaye_app_other_user_launcher";
+    String vaye_app_current_user_launcher = "vaye_app_current_user_launcher";
 }

@@ -37,8 +37,6 @@ public class NotificaitonService {
     public static NotificaitonService shared() {
         return instance;
     }
-
-
     public void start_following_you(CurrentUser currentUser , OtherUser otherUser , String  text , String type , TrueFalse<Boolean> completion){
         String  notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         DocumentReference reference = FirebaseFirestore.getInstance()
@@ -68,11 +66,7 @@ public class NotificaitonService {
             }
         });
     }
-
-
-
     //TODO:: local notifications setting
-
     public void setLocalNotification(AppCompatActivity activity , Boolean isEnable,CurrentUser currentUser , String topic , TrueFalse<Boolean> val){
 
         WaitDialog.show(activity , null);
@@ -93,12 +87,7 @@ public class NotificaitonService {
         });
 
     }
-
-
-
     //TODO:: home post notifications
-
-
     public void setPost_CommentLike(LessonPostModel post , CurrentUser currentUser , String text , String type ){
         if (post.getSenderUid().equals(currentUser.getUid())){
             return;
@@ -124,8 +113,6 @@ public class NotificaitonService {
                 map.put("senderName",currentUser.getName());
                 map.put("lessonName",post.getLessonName());
                 ref.set(map , SetOptions.merge());
-
-
             }else{
                 return;
             }

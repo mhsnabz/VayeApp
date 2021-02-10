@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -166,6 +167,33 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 }
             });
+
+            itemHolder.itemView.findViewById(R.id.setting).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (menuItem.getSenderUid().equals(currentUser.getUid())){
+                        Helper.shared().VayeAppCurrentUserBottomSheetLauncher((Activity) context, currentUser, menuItem, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+
+                            }
+                        });
+                    }else{
+                        UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                            @Override
+                            public void callback(OtherUser user) {
+                                Helper.shared().VayeAppOtherUserBottomSheetLauncher((Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+
+                                    }
+                                });
+                                WaitDialog.dismiss();
+                            }
+                        });
+                    }
+                }
+            });
                 break;
 
             case VIEW_TYPE_FOODME_POST_DATA:
@@ -267,6 +295,33 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                         context.startActivity(i);
                         Helper.shared().go((Activity) context);
+                    }
+                });
+
+                postHolder.itemView.findViewById(R.id.setting).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (menuItemData.getSenderUid().equals(currentUser.getUid())){
+                            Helper.shared().VayeAppCurrentUserBottomSheetLauncher((Activity) context, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+
+                                }
+                            });
+                        }else{
+                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                @Override
+                                public void callback(OtherUser user) {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher((Activity) context, user, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+
+                                        }
+                                    });
+                                    WaitDialog.dismiss();
+                                }
+                            });
+                        }
                     }
                 });
                 break;
