@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Controller.VayeAppController.CommentController.MainPostCommentActivity">
+    <include layout="@layout/costum_toolbar" android:id="@+id/toolbar"></include>
+
+
+    <Button
+
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:id="@+id/loadMoreButton"
+        android:layout_below="@id/toolbar"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/load_more_back"
+        android:text="  Önceki Yorumları Yükle  "
+        android:textAllCaps="false"
+        android:textSize="10sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/nunito_semibold"
+        ></Button>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeAndRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/inputbar"
+        android:layout_below="@id/loadMoreButton">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:id="@+id/commentList"
+            android:nestedScrollingEnabled="true"
+            android:layout_height="wrap_content">
+        </androidx.recyclerview.widget.RecyclerView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <include layout="@layout/input_bar_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        android:id="@+id/inputbar"
+        ></include>
+</RelativeLayout>

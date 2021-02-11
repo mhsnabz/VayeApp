@@ -113,8 +113,6 @@ public class FoodMeFragment extends Fragment {
                         }
 
                     }
-
-
                 }
             }
         });
@@ -198,14 +196,12 @@ public class FoodMeFragment extends Fragment {
                 getAds();
         }
     }
-
     private void deletePostId(String postId){
         DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("main-post")
                 .collection("food-me").document(postId);
         db.delete();
     }
-
     private void getAllPost(CurrentUser currentUser) {
 
         Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
@@ -300,6 +296,9 @@ public class FoodMeFragment extends Fragment {
 
         adLoader.loadAd(new  AdRequest.Builder().build());
     }
+
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();

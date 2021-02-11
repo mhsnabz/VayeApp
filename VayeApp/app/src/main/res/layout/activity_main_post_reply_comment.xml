@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Controller.VayeAppController.CommentController.MainPostReplyCommentActivity">
+    <include layout="@layout/costum_toolbar" android:id="@+id/toolbar"></include>
+    <RelativeLayout
+        android:id="@+id/haderView"
+        android:background="@color/white"
+        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        >
+        <ImageButton
+
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/like_unselected"
+            android:scaleType="fitXY"
+            android:id="@+id/likeBtn"
+            android:layout_marginLeft="4dp"
+            ></ImageButton>
+
+        <com.hendraanggrian.appcompat.widget.SocialTextView
+            android:id="@+id/text"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="-8dp"
+            android:layout_width="match_parent"
+            android:maxHeight="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/profileLay"
+            android:layout_toEndOf="@id/profileLay"
+            android:layout_toStartOf="@id/likeBtn"
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="8dp"
+            android:autoLink="all"
+
+            app:socialFlags="hyperlink|mention"
+
+            app:hyperlinkColor="@color/linkColor"
+            app:mentionColor="@color/mainColor"
+            ></com.hendraanggrian.appcompat.widget.SocialTextView>
+        <LinearLayout
+
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@id/profileLay"
+            android:layout_marginLeft="6dp"
+
+            android:layout_toStartOf="@id/likeBtn"
+            android:layout_marginTop="10dp"
+            android:id="@+id/nameLinLay"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/name"
+                android:textColor="@color/black"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+
+                >
+
+            </TextView>
+            <TextView
+                android:layout_marginLeft="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/username"
+
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+
+                >
+
+            </TextView>
+            <TextView
+                android:layout_marginLeft="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/time"
+                android:textColor="@android:color/darker_gray"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="12sp"
+                ></TextView>
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="4dp"
+            android:id="@+id/profileLay"
+            >
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@android:color/darker_gray"
+                android:id="@+id/profileImage"
+                ></de.hdodenhof.circleimageview.CircleImageView>
+            <ProgressBar
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_centerInParent="true"
+                android:id="@+id/progress"
+                ></ProgressBar>
+        </RelativeLayout>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@id/haderView"
+        android:layout_marginTop="1dp"
+        android:background="@color/gray"
+        ></RelativeLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:id="@+id/loadMoreButton"
+        android:layout_below="@id/line"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/load_more_back"
+        android:text="  Önceki Yorumları Yükle  "
+        android:textAllCaps="false"
+        android:textSize="10sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/nunito_semibold"
+        ></Button>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+
+        android:id="@+id/swipeAndRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/inputbar"
+        android:layout_below="@id/loadMoreButton">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:id="@+id/commentList"
+            android:nestedScrollingEnabled="true"
+            android:layout_height="wrap_content">
+        </androidx.recyclerview.widget.RecyclerView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <include layout="@layout/input_bar_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        android:id="@+id/inputbar"
+        ></include>
+</RelativeLayout>

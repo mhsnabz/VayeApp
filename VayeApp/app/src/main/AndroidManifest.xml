@@ -21,7 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.HomeController.SinglePost.ReplyActivity"></activity>
+        <activity android:name=".Controller.VayeAppController.CommentController.MainPostReplyCommentActivity"></activity>
+        <activity android:name=".Controller.VayeAppController.CommentController.MainPostCommentActivity" />
+        <activity android:name=".Controller.HomeController.SinglePost.ReplyActivity" />
         <activity android:name=".Controller.HomeController.SinglePost.CommentActivity" />
         <activity android:name=".Controller.HomeController.SettingController.SettingActivity" />
         <activity android:name=".Controller.NotificationController.NotificationSetting.NotificationSettingActivity" />

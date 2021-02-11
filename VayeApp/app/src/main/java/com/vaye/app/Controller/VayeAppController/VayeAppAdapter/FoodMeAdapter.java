@@ -19,15 +19,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdViewHolder;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
-import com.vaye.app.Controller.HomeController.SinglePost.CommentActivity;
+import com.vaye.app.Controller.VayeAppController.CommentController.MainPostCommentActivity;
 import com.vaye.app.Controller.VayeAppController.FoodMe.FoodMeViewHolder;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -37,11 +34,9 @@ import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.FoodMeService;
-import com.vaye.app.Services.MajorPostService;
+
 import com.vaye.app.Services.UserService;
-import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
-import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
-import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
+
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -109,7 +104,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
+                        Intent intent = new Intent(context , MainPostCommentActivity.class);
                         intent.putExtra("post",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
@@ -202,31 +197,19 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             case VIEW_TYPE_FOODME_POST_DATA:
                 FoodMeViewHolder postHolder = (FoodMeViewHolder) holder;
-                postHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-                    }
-                });
-
-
 
 
                 MainPostModel menuItemData = post.get(i);
-
                 postHolder.setCommentLbl(menuItemData.getComment());
-
                 postHolder.setImages(menuItemData.getThumbData());
                 postHolder.setName(menuItemData.getSenderName());
                 postHolder.setUserName(menuItemData.getUsername());
                 postHolder.setProfileImage(menuItemData.getThumb_image());
-
                 postHolder.setText(menuItemData.getText());
                 postHolder.setDislikeLbl(menuItemData.getDislike());
                 postHolder.setLikeLbl(menuItemData.getLikes());
                 postHolder.setLike(menuItemData.getLikes(),currentUser , context);
                 postHolder.setDislike(menuItemData.getDislike(),currentUser , context);
-
                 postHolder.setTime(menuItemData.getPostTime());
                 postHolder.setLocationButton(menuItemData.getGeoPoint());
                 postHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
@@ -235,6 +218,17 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                     }
                 });
+                postHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , MainPostCommentActivity.class);
+                        intent.putExtra("post",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+
                 postHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

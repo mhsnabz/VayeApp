@@ -111,7 +111,7 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         super.setHasStableIds(hasStableIds);
     }
 
-    class CommentViewHolder extends RecyclerView.ViewHolder{
+    public class CommentViewHolder extends RecyclerView.ViewHolder{
 
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
