@@ -97,7 +97,7 @@ public class FoodMeFragment extends Fragment {
                 if ( isLoadMore &&  (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())){
 
                     progressBar.setVisibility(View.VISIBLE);
-                    //loadMoreItem(currentUser);
+                    loadMoreItem(currentUser);
                     isLoadMore = false;
                     Log.d(TAG, "onScrollChange: "+"load more item");
                     if (!post.isEmpty()){
@@ -118,7 +118,71 @@ public class FoodMeFragment extends Fragment {
                 }
             }
         });
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getPost(currentUser);
+            }
+        });
+
         return rootView;
+    }
+
+    private void loadMoreItem(CurrentUser currentUser) {
+        if (lastPage!=null){
+
+            Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                    .document("main-post")
+                    .collection("food-me")
+                    .limit(5)
+                    .orderBy("postId",Query.Direction.DESCENDING).startAfter(lastPage);
+            db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    if (!queryDocumentSnapshots.isEmpty()){
+                        for (DocumentSnapshot item : queryDocumentSnapshots.getDocuments()){
+                            if (item.exists()){
+                                DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post").document("post").collection("post")
+                                        .document(item.getId());
+                                ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()){
+                                            post.add(documentSnapshot.toObject(MainPostModel.class));
+                                            Collections.sort(post, new Comparator<MainPostModel>(){
+                                                public int compare(MainPostModel obj1, MainPostModel obj2) {
+
+                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
+
+                                                }
+
+                                            });
+                                            adapter.notifyDataSetChanged();
+                                            swipeRefreshLayout.setRefreshing(false);
+                                            progressBar.setVisibility(View.GONE);
+                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                            isLoadMore = true;
+                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                        }else{
+                                            deletePostId(item.getId());
+                                        }
+                                    }
+                                }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                    }
+                                });
+                            }else{
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        }
+                    }else{
+                        progressBar.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
     }
 
     private void getPost(CurrentUser currentUser){
@@ -133,6 +197,13 @@ public class FoodMeFragment extends Fragment {
             if ((post.size() - totalAdsCount) % 5 == 0)
                 getAds();
         }
+    }
+
+    private void deletePostId(String postId){
+        DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("main-post")
+                .collection("food-me").document(postId);
+        db.delete();
     }
 
     private void getAllPost(CurrentUser currentUser) {
