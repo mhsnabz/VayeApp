@@ -140,7 +140,7 @@ public class ReportActivity extends AppCompatActivity {
                     public void callBack(Boolean _value) {
                         if (_value){
                             WaitDialog.dismiss();
-                            TipDialog.show(ReportActivity.this,"Geri Bildiriminiz İçin Teşekküer Ederiz", TipDialog.TYPE.SUCCESS);
+                            TipDialog.show(ReportActivity.this,"Geri Bildiriminiz İçin Teşekkür Ederiz", TipDialog.TYPE.SUCCESS);
                             TipDialog.dismiss(1500);
                             finish();
                             Helper.shared().back(ReportActivity.this);
@@ -152,7 +152,7 @@ public class ReportActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
                         WaitDialog.dismiss();
-                        TipDialog.show(ReportActivity.this,"Geri Bildiriminiz İçin Teşekküer Ederiz", TipDialog.TYPE.SUCCESS);
+                        TipDialog.show(ReportActivity.this,"Geri Bildiriminiz İçin Teşekkür Ederiz", TipDialog.TYPE.SUCCESS);
                         TipDialog.dismiss(1500);
                         finish();
                         Helper.shared().back(ReportActivity.this);
@@ -163,7 +163,7 @@ public class ReportActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
                         WaitDialog.dismiss();
-                        TipDialog.show(ReportActivity.this,"Geri Bildiriminiz İçin Teşekküer Ederiz", TipDialog.TYPE.SUCCESS);
+                        TipDialog.show(ReportActivity.this,"Geri Bildiriminiz İçin Teşekkür Ederiz", TipDialog.TYPE.SUCCESS);
                         TipDialog.dismiss(1500);
                         finish();
                         Helper.shared().back(ReportActivity.this);

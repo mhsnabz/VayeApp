@@ -15,6 +15,7 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.OtherUser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,5 +66,37 @@ public class MainPostService {
     }
 
 
+    public void setUserSlient(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+        //        let db = Firestore.firestore().collection("user").document(otherUserUid)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(otherUser.getUid());
+        Map<String , Object> map = new HashMap<>();
+        map.put("slient",FieldValue.arrayUnion(currentUser.getUid()));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
 
+                    callback.callBack(true);
+                }
+            }
+        });
+
+    }
+
+    public void setUserNotSlient(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(otherUser.getUid());
+        Map<String , Object> map = new HashMap<>();
+        map.put("slient",FieldValue.arrayRemove(currentUser.getUid()));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+
+                    callback.callBack(true);
+                }
+            }
+        });
+    }
 }

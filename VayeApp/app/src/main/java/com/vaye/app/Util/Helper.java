@@ -472,14 +472,26 @@ public class Helper {
        Button fallow;
        Button cancel;
          ArrayList<String > items = new ArrayList<>();
-            items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
+
            items.add(BottomSheetActionTarget.bu_gonderiyi_sikayet_et);
-           items.add(BottomSheetActionTarget.bu_kullaniciyi_sessize_al);
+           if (otherUser.getSlient().contains(currentUser.getUid())){
+               items.add(BottomSheetActionTarget.bu_kullaniciyi_sessiden_al);
+           }else{
+               items.add(BottomSheetActionTarget.bu_kullaniciyi_sessize_al);
+           }
+
            items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
            ArrayList<Integer> res = new ArrayList<>();
-           res.add(R.drawable.slient);
+
            res.add(R.drawable.black_color_report);
+       if (otherUser.getSlient().contains(currentUser.getUid())){
+           Log.d(TAG, "VayeAppOtherUserBottomSheetLauncher: "+otherUser.getSlient());
+           res.add(R.drawable.make_not_mute);
+       }else{
+           Log.d(TAG, "VayeAppOtherUserBottomSheetLauncher: "+otherUser.getSlient());
            res.add(R.drawable.make_mute);
+       }
+
            res.add(R.drawable.red_report);
 
        BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.vaye_app_other_user_launcher,res);
