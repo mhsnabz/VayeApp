@@ -418,12 +418,23 @@ public class Helper {
        ArrayList<String > items = new ArrayList<>();
        items.add(BottomSheetActionTarget.gonderiyi_düzenle);
        items.add(BottomSheetActionTarget.gonderiyi_sil);
-       items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
+       if (post.getSilent().contains(currentUser.getUid())){
+           items.add(BottomSheetActionTarget.gonderi_bildirimlerini_ac);
+       }else{
+           items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
+       }
+
 
        ArrayList<Integer> res = new ArrayList<>();
        res.add(R.drawable.edit);
        res.add(R.drawable.trash);
-       res.add(R.drawable.slient);
+       if (post.getSilent().contains(currentUser.getUid())){
+           res.add(R.drawable.slient_selected);
+       }else{
+
+           res.add(R.drawable.slient);
+       }
+
 
 
        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.vaye_app_current_user_launcher,res);

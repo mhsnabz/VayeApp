@@ -1,5 +1,6 @@
 package com.vaye.app.Util.BottomSheetHelper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.MainPostService;
 import com.vaye.app.Services.VayeAppPostService;
 
 import java.util.ArrayList;
@@ -102,7 +104,6 @@ public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 public void callBack(Boolean _value) {
                                     dialog.dismiss();
                                     allPost.remove(post);
-
                                     WaitDialog.dismiss();
                                 }
                             });
@@ -111,8 +112,22 @@ public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHo
                             Toast.makeText(context,BottomSheetActionTarget.gonderiyi_düzenle,Toast.LENGTH_SHORT).show();
 
                         }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderiyi_sessize_al)){
-                            Toast.makeText(context,BottomSheetActionTarget.gonderiyi_sessize_al,Toast.LENGTH_SHORT).show();
+                            MainPostService.shared().SetPostSlient((Activity) context, post, currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    dialog.dismiss();
 
+                                }
+                            });
+
+                        }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderi_bildirimlerini_ac)){
+                            MainPostService.shared().RemoveSlientFromPost((Activity) context, post, currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    dialog.dismiss();
+
+                                }
+                            });
                         }
                     }
                 });
