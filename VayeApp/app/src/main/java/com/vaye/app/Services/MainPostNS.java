@@ -76,19 +76,22 @@ public class MainPostNS {
         UserService.shared().getOthUserIdByMention(username, new StringCompletion() {
             @Override
             public void getString(String otherUserUid) {
-                if (otherUserUid.equals(currentUser.getUid())){
-                    return;
-                }else{
-                   if (!post.getSilent().contains(post.getSenderUid())) {
-                       if (!currentUser.getSlient().contains(otherUserUid)){
-                           String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-                           DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
-                                   .document(otherUserUid).collection("notification")
-                                   .document(notificaitonId);
-                           ref.set(map(currentUser , notificaitonId , post.getPostId() , text , type) , SetOptions.merge());
-                       }
-                   }
+                if (otherUserUid!=null){
+                    if (otherUserUid.equals(currentUser.getUid())){
+                        return;
+                    }else{
+                        if (!post.getSilent().contains(post.getSenderUid())) {
+                            if (!currentUser.getSlient().contains(otherUserUid)){
+                                String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                        .document(otherUserUid).collection("notification")
+                                        .document(notificaitonId);
+                                ref.set(map(currentUser , notificaitonId , post.getPostId() , text , type) , SetOptions.merge());
+                            }
+                        }
+                    }
                 }
+
             }
         });
     }

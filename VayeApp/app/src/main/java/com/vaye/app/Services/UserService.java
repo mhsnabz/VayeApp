@@ -18,6 +18,7 @@ import com.google.rpc.Help;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.CurrentUserService;
+import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TaskUserHandler;
@@ -67,6 +68,8 @@ public class UserService {
             if (task.isSuccessful()){
                 if (task.getResult().exists()){
                     uid.getString(task.getResult().getString("uid"));
+                }else{
+                    uid.getString(null);
                 }
             }
             }
@@ -107,6 +110,7 @@ public class UserService {
             }
         });
     }
+
 
     public void getTaskUser(String uid , TaskUserHandler result){
         DocumentReference ref = FirebaseFirestore.getInstance().collection("task-user")
@@ -184,10 +188,17 @@ public class UserService {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()){
                     user.callback(documentSnapshot.toObject(OtherUser.class));
+                }else{
+                    WaitDialog.dismiss();
+
+                    TipDialog.show((AppCompatActivity) activity, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                    TipDialog.dismiss(1000);
+                    user.callback(null);
                 }
             }
         });
     }
+
 
     public void getOtherUserById(String otherUserUid , OtherUserService user){
 

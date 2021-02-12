@@ -2,23 +2,38 @@ package com.vaye.app.Controller.VayeAppController.CommentController;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.auth.User;
+import com.google.rpc.Help;
+import com.hendraanggrian.appcompat.widget.SocialView;
+import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.SinglePost.CommentAdapter;
+import com.vaye.app.Controller.Profile.CurrentUserProfile;
+import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.OtherUserService;
+import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
 import com.vaye.app.Services.MainPostService;
+import com.vaye.app.Services.UserService;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 
@@ -57,6 +72,45 @@ public class MainPostCommentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         viewHolder.setLikeBtn(currentUser,model.getLikes());
         viewHolder.setLikeCount(String.valueOf(model.getLikes().size()));
         viewHolder.setReplyCount(model.getReplies().size());
+        viewHolder.msgText.setOnMentionClickListener(new SocialView.OnClickListener() {
+            @Override
+            public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
+
+                String _username = "@"+username.toString();
+                if (_username.equals(currentUser.getUsername())){
+                    Intent i = new Intent(context , CurrentUserProfile.class);
+                    i.putExtra("currentUser",currentUser);
+                    context.startActivity(i);
+                    Helper.shared().go((Activity) context);
+                }else{
+                    UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                        @Override
+                        public void getString(String otherUserId) {
+                            if (otherUserId!=null){
+                                UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        if (user!=null){
+                                            WaitDialog.dismiss();
+                                            Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                            i.putExtra("currentUser",currentUser);
+                                            i.putExtra("otherUser",user);
+                                            context.startActivity(i);
+                                            Helper.shared().go((Activity) context);
+                                        }
+                                    }
+                                });
+                            }else{
+                                TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                TipDialog.dismiss(1000);
+                            }
+
+                        }
+                    });
+
+                }
+            }
+        });
         viewHolder.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
