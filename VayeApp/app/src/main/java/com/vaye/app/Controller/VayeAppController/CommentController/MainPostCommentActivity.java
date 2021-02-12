@@ -36,16 +36,21 @@ import com.vaye.app.Controller.HomeController.SinglePost.CommentActivity;
 import com.vaye.app.Controller.HomeController.SinglePost.CommentAdapter;
 import com.vaye.app.Controller.HomeController.SinglePost.ReplyActivity;
 import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.MainPostNS;
+import com.vaye.app.Services.MainPostService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
 import com.vaye.app.Util.SwipeControllerActions;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -288,7 +293,30 @@ public class MainPostCommentActivity extends AppCompatActivity {
         }
     }
     private void sendMsg() {
+        String msg =  msgText.getText().toString();
+        String commentId = String.valueOf(Calendar.getInstance().getTimeInMillis());
 
+        if (msg.isEmpty()){
+            msgText.setError("Gönderiniz Boş Olamaz");
+            msgText.requestFocus();
+        }else{
+            msgText.setText("");
+            MainPostService.shared().setNewComment(currentUser, msg, commentId, postModel.getPostId(), new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        MainPostNS.shared().setNewCommentNotification(postModel,currentUser , Notifications.NotificationType.comment_home, Notifications.NotificationDescription.comment_home);
+                            if (Helper.shared().getMentionedUser(msg).size() > 0 ){
+
+                                for (String item : Helper.shared().getMentionedUser(msg)){
+                                   MainPostNS.shared(). setMentionedCommentNotificaiton(item , currentUser , postModel , Notifications.NotificationType.comment_mention , Notifications.NotificationDescription.comment_mention);
+                                }
+                            }
+
+                    }
+                }
+            });
+        }
     }
 
     private void deleteComment(MainPostModel postModel, String commentId , CallBackCount count){

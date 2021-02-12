@@ -57,6 +57,21 @@ public class UserService {
         });
 
     }
+    public void getOthUserIdByMention(String username , StringCompletion uid){
+        ///username/@mhsnabz
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("username")
+                .document(username);
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            if (task.isSuccessful()){
+                if (task.getResult().exists()){
+                    uid.getString(task.getResult().getString("uid"));
+                }
+            }
+            }
+        });
+    }
     public void getUserByMention(Activity activity,String username , OtherUserService otherUser){
         getUidByMention(activity, username, new StringCompletion() {
             @Override

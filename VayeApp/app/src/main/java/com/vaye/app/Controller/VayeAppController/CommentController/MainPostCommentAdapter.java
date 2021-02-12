@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vaye.app.Controller.HomeController.SinglePost.CommentAdapter;
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
@@ -17,6 +18,7 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
+import com.vaye.app.Services.MainPostService;
 
 import java.util.ArrayList;
 
@@ -58,7 +60,8 @@ public class MainPostCommentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         viewHolder.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                viewHolder.like_dislike_click(currentUser, model, new TrueFalse<Boolean>() {
+
+                MainPostService.shared().setCommentLike(model, Notifications.NotificationType.comment_like, Notifications.NotificationDescription.comment_like, postModel, currentUser, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
                         if (_value){
@@ -70,7 +73,6 @@ public class MainPostCommentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         }
                     }
                 });
-
             }
         });
     }
