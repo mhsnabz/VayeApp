@@ -206,7 +206,7 @@ public class MainPostService {
         map.put("senderUid",currentUser.getUid());
         map.put("username",currentUser.getUsername());
         map.put("time",FieldValue.serverTimestamp());
-        map.put("comment",currentUser.getName());
+        map.put("comment",commentText);
         map.put("commentId",commentId);
         map.put("postId",postId);
         map.put("likes",FieldValue.arrayUnion());
@@ -226,7 +226,7 @@ public class MainPostService {
                                 .document(postId);
                         Map<String , Object> map1 = new HashMap<>();
                         map1.put("comment", count);
-                        commentCountRef.set(map , SetOptions.merge());
+                        commentCountRef.set(map1 , SetOptions.merge());
                     }
                 });
                 }
