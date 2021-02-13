@@ -129,6 +129,56 @@ public class MainPostCommentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 });
             }
         });
+        viewHolder.name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (model.getSenderUid().equals(currentUser.getUid())){
+                    Intent i = new Intent(context , CurrentUserProfile.class);
+                    i.putExtra("currentUser",currentUser);
+                    context.startActivity(i);
+                    Helper.shared().go((Activity) context);
+                }else{
+                    UserService.shared().getOtherUser((Activity) context, model.getSenderUid(), new OtherUserService() {
+                        @Override
+                        public void callback(OtherUser user) {
+                            if (user!=null){
+                                Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                i.putExtra("otherUser",user);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        viewHolder.profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (model.getSenderUid().equals(currentUser.getUid())){
+                    Intent i = new Intent(context , CurrentUserProfile.class);
+                    i.putExtra("currentUser",currentUser);
+                    context.startActivity(i);
+                    Helper.shared().go((Activity) context);
+                }else{
+                    UserService.shared().getOtherUser((Activity) context, model.getSenderUid(), new OtherUserService() {
+                        @Override
+                        public void callback(OtherUser user) {
+                            if (user!=null){
+                                Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                i.putExtra("otherUser",user);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
+                        }
+                    });
+                }
+
+            }
+        });
     }
 
     @Override

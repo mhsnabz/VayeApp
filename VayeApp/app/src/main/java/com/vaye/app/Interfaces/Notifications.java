@@ -21,6 +21,7 @@ public interface Notifications {
         String  notices_new_comment = "Gönderinize Yorum Yaptı";
         String  notices_replied_comment_like = "Yorumunuzu Beğendi";
         String  notice_mention_comment = "Bir Yorumda Sizden Bahsetti";
+        String home_new_mentions_post = "Bir Gönderide Sizden Bahsetti";
     }
     interface  NotificationType{
         String  like_home = "like";
@@ -30,6 +31,7 @@ public interface Notifications {
         String  comment_mention = "comment_mention";
         String  following_you = "following_you";
         String  home_new_post = "home_new_post";
+        String home_new_mentions_post = "home_new_mentions_post";
         String  new_ad = "new_ad";
         String  like_sell_buy = "like_sell_buy";
         String  new_food_me = "new_food_me";
