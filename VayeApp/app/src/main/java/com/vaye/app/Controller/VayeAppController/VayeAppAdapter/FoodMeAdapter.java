@@ -172,7 +172,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                            });
 
                        }
-                   
+
                    }
                });
                 itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
