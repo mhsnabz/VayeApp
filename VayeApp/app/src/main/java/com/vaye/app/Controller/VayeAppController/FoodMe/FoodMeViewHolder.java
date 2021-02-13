@@ -38,7 +38,7 @@ public class FoodMeViewHolder extends RecyclerView.ViewHolder {
     TextView userName = (TextView)itemView.findViewById(R.id.username);
     ImageButton more = (ImageButton)itemView.findViewById(R.id.setting);
     TextView lessonName = (TextView)itemView.findViewById(R.id.lessonName);
-    SocialTextView text  = (SocialTextView)itemView.findViewById(R.id.text);
+    public SocialTextView text  = (SocialTextView)itemView.findViewById(R.id.text);
     ImageButton like = (ImageButton)itemView.findViewById(R.id.like);
     TextView likeLbl = (TextView)itemView.findViewById(R.id.likeCount);
 

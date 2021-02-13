@@ -115,7 +115,6 @@ public class MajorPostNS {
     }
 
     private void checkUserFollowingLesson(String username,String lessonName , CurrentUser currentUser , TrueFalse<Boolean> callback){
-///İSTE/lesson/Bilgisayar Mühendisliği/Bilgisayar Programlama/fallowers/@mhsnabz
         CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document(currentUser.getBolum()).collection(lessonName).document("fallowers").collection(username);
         ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

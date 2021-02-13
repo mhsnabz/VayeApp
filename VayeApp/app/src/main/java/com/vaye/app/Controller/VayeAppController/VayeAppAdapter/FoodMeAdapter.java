@@ -14,20 +14,26 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 
+import com.hendraanggrian.appcompat.widget.SocialView;
+import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdViewHolder;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
+import com.vaye.app.Controller.Profile.CurrentUserProfile;
+import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.CommentController.MainPostCommentActivity;
 import com.vaye.app.Controller.VayeAppController.FoodMe.FoodMeViewHolder;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserService;
+import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
@@ -129,6 +135,46 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 itemHolder.setTime(menuItem.getPostTime());
                itemHolder.setLocationButton(menuItem.getGeoPoint());
+               itemHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
+                   @Override
+                   public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
+
+                       String _username = "@"+username.toString();
+                       if (_username.equals(currentUser.getUsername())){
+                           Intent i = new Intent(context , CurrentUserProfile.class);
+                           i.putExtra("currentUser",currentUser);
+                           context.startActivity(i);
+                           Helper.shared().go((Activity) context);
+                       }else{
+                           UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                               @Override
+                               public void getString(String otherUserId) {
+                                   if (otherUserId!=null){
+                                       UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                           @Override
+                                           public void callback(OtherUser user) {
+                                               if (user!=null){
+                                                   WaitDialog.dismiss();
+                                                   Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                   i.putExtra("currentUser",currentUser);
+                                                   i.putExtra("otherUser",user);
+                                                   context.startActivity(i);
+                                                   Helper.shared().go((Activity) context);
+                                               }
+                                           }
+                                       });
+                                   }else{
+                                       TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                       TipDialog.dismiss(1000);
+                                   }
+
+                               }
+                           });
+
+                       }
+                   
+                   }
+               });
                 itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -217,6 +263,52 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.setDislike(menuItemData.getDislike(),currentUser , context);
                 postHolder.setTime(menuItemData.getPostTime());
                 postHolder.setLocationButton(menuItemData.getGeoPoint());
+                postHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
+
+                        String _username = "@"+username.toString();
+                        if (_username.equals(currentUser.getUsername())){
+                            Intent i = new Intent(context , CurrentUserProfile.class);
+                            i.putExtra("currentUser",currentUser);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity) context);
+                        }else{
+                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                                @Override
+                                public void getString(String otherUserId) {
+                                    if (otherUserId!=null){
+                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                            @Override
+                                            public void callback(OtherUser user) {
+                                                if (user!=null){
+                                                    WaitDialog.dismiss();
+                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    i.putExtra("otherUser",user);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                }
+                                            }
+                                        });
+                                    }else{
+                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                        TipDialog.dismiss(1000);
+                                    }
+
+                                }
+                            });
+
+                        }
+                    }
+
+                });
+                postHolder.itemView.findViewById(R.id.text).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                });
                 postHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
