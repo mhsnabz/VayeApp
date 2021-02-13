@@ -3,9 +3,7 @@ package com.vaye.app.Controller.VayeAppController.VayeAppAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -20,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
-
 import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
@@ -29,6 +26,7 @@ import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdV
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
+import com.vaye.app.Controller.VayeAppController.BuySell.BuySellViewHolder;
 import com.vaye.app.Controller.VayeAppController.CommentController.MainPostCommentActivity;
 import com.vaye.app.Controller.VayeAppController.FoodMe.FoodMeViewHolder;
 import com.vaye.app.Interfaces.Notifications;
@@ -36,51 +34,45 @@ import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
-import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
-import com.vaye.app.Services.FoodMeService;
-
-import com.vaye.app.Services.MainPostNS;
 import com.vaye.app.Services.MainPostService;
-import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Services.UserService;
-
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 
-public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    ArrayList<MainPostModel> post;
-    Context context;
-    CurrentUser currentUser;
+public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_FOODME_POST = 1;
     private static final int VIEW_TYPE_FOODME_POST_DATA  = 2;
     private static final int VIEW_TYPE_ADS  = 3;
     private static final int VIEW_TYPE_EMPTY  = 4;
+    ArrayList<MainPostModel> post;
+    Context context;
+    CurrentUser currentUser;
 
-    public FoodMeAdapter(ArrayList<MainPostModel> post, Context context, CurrentUser currentUser) {
+    public BuySellAdapter(ArrayList<MainPostModel> post, Context context, CurrentUser currentUser) {
         this.post = post;
         this.context = context;
         this.currentUser = currentUser;
     }
 
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         if (viewType == VIEW_TYPE_FOODME_POST){
             View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.food_me_cell, parent, false);
+                    .inflate(R.layout.buy_sell_cell, parent, false);
 
-            return new FoodMeViewHolder(itemView);
+            return new BuySellViewHolder(itemView);
         }
         else if (viewType == VIEW_TYPE_FOODME_POST_DATA){
             View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.food_me_data_cell, parent, false);
+                    .inflate(R.layout.buy_sell_data_cell, parent, false);
 
-            return new FoodMeViewHolder(itemView);
+            return new BuySellViewHolder(itemView);
 
         }else if (viewType == VIEW_TYPE_ADS){
             UnifiedNativeAdView view = (UnifiedNativeAdView) LayoutInflater.from(parent.getContext())
@@ -91,7 +83,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.empty_lesson_post, parent, false);
 
-            return new MajorPostViewHolder(itemView);
+            return new BuySellViewHolder(itemView);
 
         }
     }
@@ -101,16 +93,12 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
         int viewType = getItemViewType(i);
         switch (viewType) {
             case VIEW_TYPE_ADS:
-                UnifiedNativeAd nativeAd = (UnifiedNativeAd) post.get(i).getNativeAd();
-                populateNativeAdView(nativeAd, ((UnifiedNativeAdViewHolder) holder).getAdView());
                 break;
-
             case VIEW_TYPE_EMPTY:
                 break;
             case VIEW_TYPE_FOODME_POST:
-                FoodMeViewHolder itemHolder = (FoodMeViewHolder) holder;
+                BuySellViewHolder itemHolder = (BuySellViewHolder) holder;
                 MainPostModel menuItem = post.get(i);
-
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -134,7 +122,8 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 itemHolder.setDislike(menuItem.getDislike(),currentUser , context);
 
                 itemHolder.setTime(menuItem.getPostTime());
-               itemHolder.setLocationButton(menuItem.getGeoPoint());
+                itemHolder.setLocationButton(menuItem.getGeoPoint());
+
                 itemHolder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -175,52 +164,54 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                     i.putExtra("currentUser",currentUser);
                                     context.startActivity(i);
                                     Helper.shared().go((Activity) context);
+                                    WaitDialog.dismiss();
                                 }
                             });
                         }
 
                     }
                 });
-               itemHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
-                   @Override
-                   public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
 
-                       String _username = "@"+username.toString();
-                       if (_username.equals(currentUser.getUsername())){
-                           Intent i = new Intent(context , CurrentUserProfile.class);
-                           i.putExtra("currentUser",currentUser);
-                           context.startActivity(i);
-                           Helper.shared().go((Activity) context);
-                       }else{
-                           UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
-                               @Override
-                               public void getString(String otherUserId) {
-                                   if (otherUserId!=null){
-                                       UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                           @Override
-                                           public void callback(OtherUser user) {
-                                               if (user!=null){
-                                                   WaitDialog.dismiss();
-                                                   Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                   i.putExtra("currentUser",currentUser);
-                                                   i.putExtra("otherUser",user);
-                                                   context.startActivity(i);
-                                                   Helper.shared().go((Activity) context);
-                                               }
-                                           }
-                                       });
-                                   }else{
-                                       TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
-                                       TipDialog.dismiss(1000);
-                                   }
+                itemHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
 
-                               }
-                           });
+                        String _username = "@"+username.toString();
+                        if (_username.equals(currentUser.getUsername())){
+                            Intent i = new Intent(context , CurrentUserProfile.class);
+                            i.putExtra("currentUser",currentUser);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity) context);
+                        }else{
+                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                                @Override
+                                public void getString(String otherUserId) {
+                                    if (otherUserId!=null){
+                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                            @Override
+                                            public void callback(OtherUser user) {
+                                                if (user!=null){
+                                                    WaitDialog.dismiss();
+                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    i.putExtra("otherUser",user);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                }
+                                            }
+                                        });
+                                    }else{
+                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                        TipDialog.dismiss(1000);
+                                    }
 
-                       }
+                                }
+                            });
 
-                   }
-               });
+                        }
+
+                    }
+                });
                 itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -253,50 +244,49 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         });
                     }
                 });
-            itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
-                }
-            });
-
-            itemHolder.itemView.findViewById(R.id.setting).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                        Helper.shared().VayeAppCurrentUserBottomSheetLauncher(post,(Activity) context, currentUser, menuItem, new TrueFalse<Boolean>() {
-                            @Override
-                            public void callBack(Boolean _value) {
-                                if (_value){
-                                    notifyDataSetChanged();
-                                }
-                            }
-                        });
-                    }else{
-                        UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                            @Override
-                            public void callback(OtherUser user) {
-                                Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
-                                    @Override
-                                    public void callBack(Boolean _value) {
-                                        if (_value){
-                                            notifyDataSetChanged();
-                                        }
-                                    }
-                                });
-                                WaitDialog.dismiss();
-                            }
-                        });
                     }
-                }
-            });
+                });
+
+                itemHolder.itemView.findViewById(R.id.setting).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (menuItem.getSenderUid().equals(currentUser.getUid())){
+                            Helper.shared().VayeAppCurrentUserBottomSheetLauncher(post,(Activity) context, currentUser, menuItem, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }else{
+                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                @Override
+                                public void callback(OtherUser user) {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
+                                    WaitDialog.dismiss();
+                                }
+                            });
+                        }
+                    }
+                });
+                itemHolder.setValue(menuItem.getValue());
                 break;
-
             case VIEW_TYPE_FOODME_POST_DATA:
-                FoodMeViewHolder postHolder = (FoodMeViewHolder) holder;
-
-
+                BuySellViewHolder postHolder = (BuySellViewHolder) holder;
                 MainPostModel menuItemData = post.get(i);
+                postHolder.setValue(menuItemData.getValue());
                 postHolder.setCommentLbl(menuItemData.getComment());
                 postHolder.setImages(menuItemData.getThumbData());
                 postHolder.setName(menuItemData.getSenderName());
@@ -308,7 +298,6 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.setLike(menuItemData.getLikes(),currentUser , context);
                 postHolder.setDislike(menuItemData.getDislike(),currentUser , context);
                 postHolder.setTime(menuItemData.getPostTime());
-                postHolder.setLocationButton(menuItemData.getGeoPoint());
                 postHolder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -326,6 +315,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                     i.putExtra("currentUser",currentUser);
                                     context.startActivity(i);
                                     Helper.shared().go((Activity) context);
+                                    WaitDialog.dismiss();
                                 }
                             });
                         }
@@ -355,6 +345,7 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                     }
                 });
+                postHolder.setLocationButton(menuItemData.getGeoPoint());
                 postHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {

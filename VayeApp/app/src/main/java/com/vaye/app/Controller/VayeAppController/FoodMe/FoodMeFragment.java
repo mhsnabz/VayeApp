@@ -44,8 +44,6 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class FoodMeFragment extends Fragment {
-
-
     String TAG = "FoodMeFragment";
     View rootView;
     CurrentUser currentUser;
@@ -61,15 +59,12 @@ public class FoodMeFragment extends Fragment {
     ProgressBar progressBar ;
     NestedScrollView scrollView;
     int totalAdsCount = 0;
-
     AdLoader adLoader;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: " + "onCreate");
-
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -109,7 +104,6 @@ public class FoodMeFragment extends Fragment {
                         }
 
                         if ((post.size() - totalAdsCount) % 5 == 0){
-                            // if (!lessonPostModels.get(lessonPostModels.size() -1).getType().equals("ads"))
                             getAds();
                             progressBar.setVisibility(View.GONE);
                         }
@@ -298,9 +292,6 @@ public class FoodMeFragment extends Fragment {
 
         adLoader.loadAd(new  AdRequest.Builder().build());
     }
-
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
