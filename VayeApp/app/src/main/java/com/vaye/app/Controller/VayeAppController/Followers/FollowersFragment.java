@@ -17,8 +17,11 @@ import com.google.android.gms.ads.AdLoader;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
+import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.BuySellAdapter;
+import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.FollowersAdapter;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.R;
 
 import java.util.ArrayList;
@@ -31,17 +34,16 @@ public class FollowersFragment extends Fragment {
     CurrentUser currentUser;
     FloatingActionButton newPost;
     RecyclerView postList;
-    ArrayList<LessonPostModel> lessonPostModels;
+    ArrayList<MainPostModel> post;
     ArrayList<String> postIds;
     DocumentSnapshot lastPage;
-    MajorPostAdapter adapter;
+    FollowersAdapter adapter;
     SwipeRefreshLayout swipeRefreshLayout;
     int currentItems, totalItems, scrollOutItems;
     Boolean isLoadMore = true;
     ProgressBar progressBar ;
     NestedScrollView scrollView;
     int totalAdsCount = 0;
-    LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
     AdLoader adLoader;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,7 @@ public class FollowersFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_followers, container, false);
+        rootView = inflater.inflate(R.layout.fragment_followers, container, false);
+        return rootView;
     }
 }

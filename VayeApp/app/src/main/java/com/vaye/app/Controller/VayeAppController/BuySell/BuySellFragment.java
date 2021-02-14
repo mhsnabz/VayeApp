@@ -258,7 +258,7 @@ public class BuySellFragment extends Fragment {
             public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd)
             {
                 if (!post.isEmpty()){
-                    post.add(new MainPostModel("","","","",null,"","","","","",""
+                    post.add(new MainPostModel("","","","",null,"","","","ads","",""
                             ,"","ads",0,post.get(post.size() -1).getPostTime(),null,null,null,null,null,null,unifiedNativeAd));
 
                     adapter.notifyDataSetChanged();
