@@ -21,8 +21,6 @@ public class FollowService {
 
 
     public void followUser(OtherUser otherUser, CurrentUser currentUser, TrueFalse<Boolean> callback){
-        // let db = Firestore.firestore().collection("user")
-        //                .document(otherUser.uid).collection("fallowers").document(currentUser.uid)
         DocumentReference followUser = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid()).collection("fallowers")
                 .document(currentUser.getUid());
@@ -68,10 +66,7 @@ public class FollowService {
     }
 
     private void checkIsMutual(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
-        //let db = Firestore.firestore().collection("user")
-        //            .document(otherUserUid.uid).collection("following").document(currentUserUid)
-        //        let dbb = Firestore.firestore().collection("user")
-        //            .document(currentUserUid).collection("following").document(otherUserUid.uid)
+
         DocumentReference db = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid()).collection("following").document(currentUser.getUid());
         DocumentReference dbb = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid()).collection("following").document(otherUser.getUid());
@@ -98,8 +93,7 @@ public class FollowService {
     }
 
     private void addOnFriendArray(CurrentUser  currentUser,  OtherUser otherUser , TrueFalse<Boolean> callback){
-        //  let dbc = Firestore.firestore().collection("user")
-        //            .document(otherUser.uid)
+
         DocumentReference dbc = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid());
         Map<String , Object> map = new HashMap<>();
