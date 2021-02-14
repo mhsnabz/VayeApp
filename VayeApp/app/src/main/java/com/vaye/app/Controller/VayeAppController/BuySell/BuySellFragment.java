@@ -70,7 +70,7 @@ public class BuySellFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_buy_sell, container, false);
-        rootView = inflater.inflate(R.layout.fragment_food_me, container, false);
+
         newPost = (FloatingActionButton)rootView.findViewById(R.id.newPostButton);
         postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
         postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));

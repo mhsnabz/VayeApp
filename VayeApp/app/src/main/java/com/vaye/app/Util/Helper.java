@@ -568,7 +568,24 @@ public class Helper {
            @Override
            public void onClick(View view) {
                if (isFallowing){
-                   //takibi bırak
+                    WaitDialog.show((AppCompatActivity) activity , "Lütfen Bekleyin");
+                    FollowService.shared().unFollowUser(otherUser, currentUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity) activity , "Takip Etmeyi Bıraktınız", TipDialog.TYPE.SUCCESS);
+                                TipDialog.dismiss(1000);
+                                bottomSheetDialog.dismiss();
+                                isFallowing = false;
+                            }else{
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity) activity , "Sorun Oluştu Lütfen Tekrar Deneyin", TipDialog.TYPE.WARNING);
+                                TipDialog.dismiss(1000);
+                                bottomSheetDialog.dismiss();
+                            }
+                        }
+                    });
                }else{
                    WaitDialog.show((AppCompatActivity)activity , "Lütfen Bekleyin");
                    FollowService.shared().followUser(otherUser, currentUser, new TrueFalse<Boolean>() {
