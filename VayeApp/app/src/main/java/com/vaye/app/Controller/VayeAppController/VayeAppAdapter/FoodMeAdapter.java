@@ -235,6 +235,8 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             public void callBack(Boolean _value) {
                                 itemHolder.setLike(menuItem.getLikes(),currentUser ,context);
                                 notifyDataSetChanged();
+
+
                             }
                         });
 

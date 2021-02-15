@@ -73,6 +73,7 @@ public class MainPostCommentActivity extends AppCompatActivity {
     MainPostCommentAdapter adapter ;
     RecyclerView commentList;
     Boolean scrollingToBottom = false;
+    
     LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
     Button loadMoreButton;
     @Override
