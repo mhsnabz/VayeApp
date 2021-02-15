@@ -1,9 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Controller.Profile.OtherUserProfileActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" @mhsnabz"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="14dp"
+            android:textColor="@color/black"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title" />
+
+    </androidx.appcompat.widget.Toolbar>
+    <com.google.android.material.appbar.CollapsingToolbarLayout
+        android:layout_below="@id/toolbar"
+        android:id="@+id/htab_collapse_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        app:contentScrim="?attr/colorPrimary"
+        app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+        app:titleEnabled="false">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            >
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/heade"
+                >
+            <RelativeLayout
+                android:layout_margin="8dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:id="@+id/profileImageLayout"
+                >
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:src="@color/gray"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/profileImage"
+                    ></de.hdodenhof.circleimageview.CircleImageView>
+
+            </RelativeLayout>
+
+            <Button
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:text="Profilini Düzenle"
+                android:textSize="12sp"
+                android:background="@drawable/button_fallow_back"
+                android:textColor="@color/white"
+                android:fontFamily="@font/nunito_semibold"
+                android:textAllCaps="false"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:layout_marginRight="12dp"
+
+                ></Button>
+            </RelativeLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/heade"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="14sp"
+                android:text="Mahsun Abuzeyitoğlu"
+                android:id="@+id/name"
+                android:textStyle="bold"
+                ></TextView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_below="@id/name"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="11sp"
+
+                android:text="İskenderun Teknik Üniversitesi"
+                android:id="@+id/school"
+                ></TextView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_below="@id/school"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textSize="11sp"
+
+                android:text="Bilgisayar Mühendisliği"
+                android:id="@+id/bolum"
+                ></TextView>
+
+        </RelativeLayout>
+
+
+
+        <com.google.android.material.tabs.TabLayout
+
+            android:id="@+id/htab_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom"
+            app:tabIndicatorColor="@android:color/white"
+            app:tabSelectedTextColor="@android:color/white"
+            app:tabTextColor="@color/white"/>
+
+    </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/htab_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+
+
+</RelativeLayout>
