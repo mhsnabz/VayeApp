@@ -1,4 +1,4 @@
-package com.vaye.app.Controller.Profile.ProfileFragments;
+package com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -70,7 +70,6 @@ public class SchoolFragment extends Fragment {
     ProgressBar progressBar ;
     NestedScrollView scrollView;
     int totalAdsCount = 0;
-    LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
     AdLoader adLoader;
     public SchoolFragment(int color, OtherUser otherUser) {
         this.color = color;
@@ -94,13 +93,13 @@ public class SchoolFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_school2, container, false);
 
         postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
-        postList.setLayoutManager(layoutManager);
+        postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         postList.setHasFixedSize(true);
         scrollView = (NestedScrollView)rootView.findViewById(R.id.nestedScroolView);
         progressBar = (ProgressBar)rootView.findViewById(R.id.progress);
-        OtherUserProfileActivity activity = (OtherUserProfileActivity) getActivity();
+        //OtherUserProfileActivity activity = (OtherUserProfileActivity) getActivity();
         MobileAds.initialize(getActivity(),getResources().getString(R.string.unit_id));
-        currentUser = activity.getIntent().getParcelableExtra("currentUser");
+        //currentUser = activity.getIntent().getParcelableExtra("currentUser");
         swipeRefreshLayout=(SwipeRefreshLayout)rootView.findViewById(R.id.swipeAndRefresh);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

@@ -1,4 +1,4 @@
-package com.vaye.app.Controller.Profile.ProfileFragments;
+package com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -97,15 +97,17 @@ public class MajorPostFragment extends Fragment {
         postList.setHasFixedSize(true);
         scrollView = (NestedScrollView)rootView.findViewById(R.id.nestedScroolView);
         progressBar = (ProgressBar)rootView.findViewById(R.id.progress);
-        OtherUserProfileActivity activity = (OtherUserProfileActivity) getActivity();
+
         MobileAds.initialize(getActivity(),getResources().getString(R.string.unit_id));
-        currentUser = activity.getIntent().getParcelableExtra("currentUser");
+
         swipeRefreshLayout=(SwipeRefreshLayout)rootView.findViewById(R.id.swipeAndRefresh);
-        Log.d(TAG, "onCreateView: " + otherUser.getUsername());
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+
                 getPost(currentUser);
+
             }
         });
 
@@ -253,7 +255,7 @@ public class MajorPostFragment extends Fragment {
     private void getAllPost(CurrentUser currentUser){
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
-                .collection("lesson-post")
+                .collection("my-post")
                 .limit(5)
                 .orderBy("postId" , Query.Direction.DESCENDING);
 

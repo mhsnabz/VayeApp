@@ -1,4 +1,4 @@
-package com.vaye.app.Controller.Profile.ProfileFragments;
+package com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment;
 
 import android.os.Bundle;
 

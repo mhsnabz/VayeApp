@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:id="@+id/swipeAndRefresh"
-    tools:context=".Controller.Profile.ProfileFragments.MajorPostFragment">
+    tools:context=".Controller.Profile.ProfileFragments.CurrentUserFragment.MajorPostFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

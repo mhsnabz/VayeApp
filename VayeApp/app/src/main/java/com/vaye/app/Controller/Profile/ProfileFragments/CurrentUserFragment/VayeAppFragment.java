@@ -1,4 +1,4 @@
-package com.vaye.app.Controller.Profile.ProfileFragments;
+package com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment;
 
 import android.os.Bundle;
 
@@ -40,9 +40,7 @@ public class VayeAppFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        if (currentUser==null){
-            Log.d(TAG, "onCreateView: " + "current user is nil");
-        }
+      
 
         return inflater.inflate(R.layout.fragment_vaye_app, container, false);
     }

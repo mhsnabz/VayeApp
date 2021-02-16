@@ -17,14 +17,13 @@ import android.widget.TextView;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.firestore.auth.User;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.vaye.app.Controller.Profile.ProfileFragments.MajorPostFragment;
-import com.vaye.app.Controller.Profile.ProfileFragments.SchoolFragment;
-import com.vaye.app.Controller.Profile.ProfileFragments.VayeAppFragment;
+import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.MajorPostFragment;
+import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.SchoolFragment;
+import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.VayeAppFragment;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
@@ -59,11 +58,16 @@ public class OtherUserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_other_user_profile);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
-        currentUser = intentIncoming.getParcelableExtra("currentUser");
-        otherUser = intentIncoming.getParcelableExtra("otherUser");
-        
-        setToolbar(otherUser);
-        setView(currentUser,otherUser);
+        if (extras==null){
+            finish();
+        }else{
+            currentUser = intentIncoming.getParcelableExtra("currentUser");
+            otherUser = intentIncoming.getParcelableExtra("otherUser");
+
+            setToolbar(otherUser);
+            setView(currentUser,otherUser);
+        }
+
     }
 
     private void setView(CurrentUser currentUser , OtherUser otherUser) {

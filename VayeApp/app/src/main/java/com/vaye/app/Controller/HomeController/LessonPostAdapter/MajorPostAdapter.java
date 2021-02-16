@@ -53,6 +53,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     ArrayList<LessonPostModel> post;
     CurrentUser currentUser;
     Context context;
+
     private static final int VIEW_TYPE_LESSON_POST = 1;
     private static final int VIEW_TYPE_LESSON_POST_DATA  = 2;
     private static final int VIEW_TYPE_ADS  = 3;
