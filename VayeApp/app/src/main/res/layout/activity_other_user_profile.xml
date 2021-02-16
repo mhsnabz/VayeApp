@@ -43,21 +43,28 @@
                         android:layout_height="60dp"
                         android:id="@+id/profileImageLayout"
                         >
+
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:src="@color/gray"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:id="@+id/profileImage"
                             ></de.hdodenhof.circleimageview.CircleImageView>
-
+                        <ProgressBar
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:id="@+id/progress"
+                            android:layout_centerInParent="true"
+                            ></ProgressBar>
                     </RelativeLayout>
 
                     <Button
+                        android:id="@+id/followButton"
                         android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="30dp"
                         android:layout_alignParentEnd="true"
-                        android:text="Profilini Düzenle"
+                        android:text="Yükleniyor..."
                         android:textSize="12sp"
                         android:background="@drawable/button_fallow_back"
                         android:textColor="@color/white"
