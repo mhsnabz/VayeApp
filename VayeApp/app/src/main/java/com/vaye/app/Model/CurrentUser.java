@@ -13,7 +13,7 @@ public class CurrentUser implements Parcelable {
     Boolean allowRequest,comment,mention,like,follow,lessonNotices;
    ArrayList<String> slient,friendList,slientChatUser;
 
-    public CurrentUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slient, ArrayList<String> friendList, ArrayList<String> slientChatUser) {
+    public CurrentUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slient, ArrayList<String> friendList, ArrayList<String> slientChatUser ) {
         this.email = email;
         this.bolum_key = bolum_key;
         this.name = name;
@@ -41,6 +41,7 @@ public class CurrentUser implements Parcelable {
         this.slient = slient;
         this.friendList = friendList;
         this.slientChatUser = slientChatUser;
+
     }
 
     public CurrentUser() {
@@ -93,6 +94,8 @@ public class CurrentUser implements Parcelable {
             return new CurrentUser[size];
         }
     };
+
+
 
     public String getEmail() {
         return email;

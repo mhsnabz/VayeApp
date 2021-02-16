@@ -23,9 +23,11 @@ import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.FavF
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.MajorPostFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.SchoolFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.VayeAppFragment;
+import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.FollowService;
 import com.vaye.app.Util.Helper;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -60,6 +62,7 @@ public class CurrentUserProfile extends AppCompatActivity {
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             setToolbar(currentUser);
             setView(currentUser);
+
         }
 
 
@@ -75,6 +78,26 @@ public class CurrentUserProfile extends AppCompatActivity {
     }
 
     private void setView(CurrentUser currentUser ) {
+
+        followerCount = (TextView)findViewById(R.id.followerCount);
+        followingCount = (TextView)findViewById(R.id.followingCount);
+        followerLbl = (TextView)findViewById(R.id.followerLbl);
+        followingLbl = (TextView)findViewById(R.id.followingLbl);
+
+        FollowService.shared().getCurrentUserFollowersCount(currentUser, new CallBackCount() {
+            @Override
+            public void callBackCount(long count) {
+                followerCount.setText(String.valueOf(count));
+            }
+        });
+        FollowService.shared().getCurrentUserFollowingCount(currentUser, new CallBackCount() {
+            @Override
+            public void callBackCount(long count) {
+                followingCount.setText(String.valueOf(count));
+            }
+        });
+
+
         profileImage = (CircleImageView)findViewById(R.id.profileImage);
         progressBar = (ProgressBar)findViewById(R.id.progress);
         name = (TextView)findViewById(R.id.name);

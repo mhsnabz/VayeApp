@@ -39,6 +39,7 @@ public class OtherUser implements Parcelable {
         this.slient = slient;
         this.friendList = friendList;
         this.slientChatUser = slientChatUser;
+
     }
 
     public OtherUser() {
@@ -91,6 +92,8 @@ public class OtherUser implements Parcelable {
             return new OtherUser[size];
         }
     };
+
+
 
     public String getEmail() {
         return email;

@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -12,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
@@ -38,11 +40,13 @@ public class FollowService {
                 DocumentReference followingUser = FirebaseFirestore.getInstance().collection("user")
                         .document(currentUser.getUid()).collection("following")
                         .document(otherUser.getUid());
+
                 Map<String,Object> map1 = new HashMap<>();
                 map1.put("user",otherUser.getUid());
                 followingUser.set(map1 , SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+
                         checkIsMutual(currentUser, otherUser, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
@@ -268,4 +272,114 @@ public class FollowService {
             }
         });
     }
+
+    public void getCurrentUserFollowersCount(CurrentUser currentUser , CallBackCount count) {
+        //  let db = Firestore.firestore().collection("user")
+        //            .document(currentUser.uid).collection("fallowers")
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid()).collection("fallowers");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments() != null){
+                        if (task.getResult().isEmpty()){
+                            count.callBackCount(0);
+
+                        }else{
+                            count.callBackCount(task.getResult().getDocuments().size());
+
+                        }
+                    }else{
+                        count.callBackCount(0);
+                    }
+
+                }else{
+                    count.callBackCount(0);
+
+                }
+            }
+        });
+    }
+
+    public void getCurrentUserFollowingCount(CurrentUser currentUser , CallBackCount count){
+
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid()).collection("following");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments() != null){
+                        if (task.getResult().isEmpty()){
+                            count.callBackCount(0);
+
+                        }else{
+                            count.callBackCount(task.getResult().getDocuments().size());
+
+                        }
+                    }else{
+                        count.callBackCount(0);
+                    }
+                }else{
+                    count.callBackCount(0);
+
+                }
+            }
+        });
+    }
+    public void getOthertUserFollowingCount(OtherUser otherUser , CallBackCount count){
+
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user").document(otherUser.getUid()).collection("following");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments() != null){
+                        if (task.getResult().isEmpty()){
+                            count.callBackCount(0);
+
+                        }else{
+                            count.callBackCount(task.getResult().getDocuments().size());
+
+                        }
+                    }else{
+                        count.callBackCount(0);
+                    }
+                }else{
+                    count.callBackCount(0);
+
+                }
+            }
+        });
+    }
+
+    public void getOtherUserUserFollowersCount(OtherUser otherUser , CallBackCount count) {
+        //  let db = Firestore.firestore().collection("user")
+        //            .document(currentUser.uid).collection("fallowers")
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(otherUser.getUid()).collection("fallowers");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments() != null){
+                        if (task.getResult().isEmpty()){
+                            count.callBackCount(0);
+
+                        }else{
+                            count.callBackCount(task.getResult().getDocuments().size());
+
+                        }
+                    }else{
+                        count.callBackCount(0);
+                    }
+                }else{
+                    count.callBackCount(0);
+
+                }
+            }
+        });
+    }
+
+
 }
