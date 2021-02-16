@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -59,11 +60,26 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int VIEW_TYPE_FOODME_POST_DATA  = 2;
     private static final int VIEW_TYPE_ADS  = 3;
     private static final int VIEW_TYPE_EMPTY  = 4;
-
+    Boolean istanceOfCurrentUserProfile = false;
+    Boolean istanceOfOtherUserProfile = false;
     public FoodMeAdapter(ArrayList<MainPostModel> post, Context context, CurrentUser currentUser) {
         this.post = post;
         this.context = context;
         this.currentUser = currentUser;
+        if (context instanceof CurrentUserProfile){
+            Log.d("FollowersAdapter", "FollowersAdapter: " + "instanceof CurrentUserProfile");
+            istanceOfCurrentUserProfile = true;
+        }else{
+
+            Log.d("FollowersAdapter", "FollowersAdapter: " + "not instanceof CurrentUserProfile");
+            istanceOfCurrentUserProfile = false;
+        }
+
+        if (context instanceof  OtherUserProfileActivity){
+            istanceOfOtherUserProfile= true;
+        }else{
+            istanceOfOtherUserProfile = false;
+        }
     }
 
     @NonNull
@@ -139,22 +155,28 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     @Override
                     public void onClick(View view) {
                         if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }
+
                         }
                     }
                 });
@@ -162,21 +184,27 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     @Override
                     public void onClick(View view) {
                         if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                    }
+                                });
+                            }
+
                         }
 
                     }
@@ -187,28 +215,35 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                        String _username = "@"+username.toString();
                        if (_username.equals(currentUser.getUsername())){
-                           Intent i = new Intent(context , CurrentUserProfile.class);
-                           i.putExtra("currentUser",currentUser);
-                           context.startActivity(i);
-                           Helper.shared().go((Activity) context);
+                           if (!istanceOfCurrentUserProfile){
+
+                               Intent i = new Intent(context , CurrentUserProfile.class);
+                               i.putExtra("currentUser",currentUser);
+                               context.startActivity(i);
+                               Helper.shared().go((Activity) context);
+                           }
+
                        }else{
                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
                                @Override
                                public void getString(String otherUserId) {
                                    if (otherUserId!=null){
-                                       UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                           @Override
-                                           public void callback(OtherUser user) {
-                                               if (user!=null){
-                                                   WaitDialog.dismiss();
-                                                   Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                   i.putExtra("currentUser",currentUser);
-                                                   i.putExtra("otherUser",user);
-                                                   context.startActivity(i);
-                                                   Helper.shared().go((Activity) context);
+                                       if (!istanceOfOtherUserProfile){
+                                           UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                               @Override
+                                               public void callback(OtherUser user) {
+                                                   if (user!=null){
+                                                       WaitDialog.dismiss();
+                                                       Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                       i.putExtra("currentUser",currentUser);
+                                                       i.putExtra("otherUser",user);
+                                                       context.startActivity(i);
+                                                       Helper.shared().go((Activity) context);
+                                                   }
                                                }
-                                           }
-                                       });
+                                           });
+                                       }
+
                                    }else{
                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
                                        TipDialog.dismiss(1000);
@@ -315,21 +350,27 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     @Override
                     public void onClick(View view) {
                         if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                    }
+                                });
+                            }
+
                         }
                     }
                 });
@@ -337,22 +378,28 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     @Override
                     public void onClick(View view) {
                         if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }
+
                         }
 
                     }
@@ -363,28 +410,34 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                         String _username = "@"+username.toString();
                         if (_username.equals(currentUser.getUsername())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
+
                         }else{
                             UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
                                 @Override
                                 public void getString(String otherUserId) {
                                     if (otherUserId!=null){
-                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                            @Override
-                                            public void callback(OtherUser user) {
-                                                if (user!=null){
-                                                    WaitDialog.dismiss();
-                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                    i.putExtra("currentUser",currentUser);
-                                                    i.putExtra("otherUser",user);
-                                                    context.startActivity(i);
-                                                    Helper.shared().go((Activity) context);
+                                        if (!istanceOfOtherUserProfile){
+                                            UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    if (user!=null){
+                                                        WaitDialog.dismiss();
+                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                        i.putExtra("currentUser",currentUser);
+                                                        i.putExtra("otherUser",user);
+                                                        context.startActivity(i);
+                                                        Helper.shared().go((Activity) context);
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
+
                                     }else{
                                         TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
                                         TipDialog.dismiss(1000);
