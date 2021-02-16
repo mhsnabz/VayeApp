@@ -42,6 +42,7 @@ import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
 
@@ -57,6 +58,7 @@ public class SchoolFragment extends Fragment {
     String TAG = "SchoolFragment";
     int color;
     CurrentUser currentUser;
+    OtherUser otherUser;
     RecyclerView postList;
     ArrayList<LessonPostModel> lessonPostModels;
     ArrayList<String> postIds;
@@ -70,9 +72,15 @@ public class SchoolFragment extends Fragment {
     int totalAdsCount = 0;
     LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
     AdLoader adLoader;
-    public SchoolFragment(int color) {
+    public SchoolFragment(int color, OtherUser otherUser) {
         this.color = color;
+        this.otherUser = otherUser;
     }
+    public SchoolFragment(int color, CurrentUser currentUser) {
+        this.color = color;
+        this.currentUser = currentUser;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -142,18 +142,30 @@ public class OtherUserProfileActivity extends AppCompatActivity {
         if (currentUser.getShort_school().equals(otherUser.getShort_school())){
             if (currentUser.getBolum().equals(otherUser.getBolum())){
                adapter = new ProfileViewPager(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+                String initials = "";
+                for (String s : otherUser.getBolum().split(" ")) {
+                    initials+=s.charAt(0);
+                }
                 adapter.addFrag(new MajorPostFragment(
-                        ContextCompat.getColor(this, R.color.mainColor)), "BM");
+                        ContextCompat.getColor(this, R.color.mainColor),otherUser), initials);
                 adapter.addFrag(new SchoolFragment(
-                        ContextCompat.getColor(this, R.color.red)), "İSTE");
+                        ContextCompat.getColor(this, R.color.red),otherUser), otherUser.getShort_school());
                 adapter.addFrag(new VayeAppFragment(
-                        ContextCompat.getColor(this, R.color.black)), "Vaye.app");
+                        ContextCompat.getColor(this, R.color.black),otherUser), "Vaye.app");
                 viewPager.setAdapter(adapter);
             }else {
-                //iste , vaye.app
+                adapter = new ProfileViewPager(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+                adapter.addFrag(new SchoolFragment(
+                        ContextCompat.getColor(this, R.color.red),otherUser), otherUser.getShort_school());
+                adapter.addFrag(new VayeAppFragment(
+                        ContextCompat.getColor(this, R.color.black),otherUser), "Vaye.app");
+                viewPager.setAdapter(adapter);
             }
         }else{
-            //vayeApp
+            adapter = new ProfileViewPager(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+            adapter.addFrag(new VayeAppFragment(
+                    ContextCompat.getColor(this, R.color.black),otherUser), "Vaye.app");
+            viewPager.setAdapter(adapter);
         }
 
 
@@ -251,5 +263,8 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                 Helper.shared().back(OtherUserProfileActivity.this);
             }
         });
+    }
+
+    public void sendMsg(View view) {
     }
 }

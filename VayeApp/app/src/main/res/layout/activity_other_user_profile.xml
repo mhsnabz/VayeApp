@@ -57,13 +57,24 @@
                             android:layout_centerInParent="true"
                             ></ProgressBar>
                     </RelativeLayout>
-
+                    <ImageButton
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:id="@+id/sendMsg"
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@id/profileImageLayout"
+                        android:layout_marginLeft="20dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/send_msg"
+                        android:onClick="sendMsg"
+                        ></ImageButton>
                     <Button
                         android:id="@+id/followButton"
                         android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="30dp"
-                        android:layout_alignParentEnd="true"
+                        android:layout_toEndOf="@id/sendMsg"
+                        android:layout_marginLeft="20dp"
                         android:text="Yükleniyor..."
                         android:textSize="12sp"
                         android:background="@drawable/button_fallow_back"
