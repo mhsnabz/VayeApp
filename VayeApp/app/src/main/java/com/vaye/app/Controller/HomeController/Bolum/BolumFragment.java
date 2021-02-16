@@ -69,7 +69,6 @@ public class BolumFragment extends Fragment {
     ProgressBar progressBar ;
     NestedScrollView scrollView;
         int totalAdsCount = 0;
-    LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
     AdLoader adLoader;
     public BolumFragment() {
 
@@ -91,7 +90,7 @@ public class BolumFragment extends Fragment {
             rootView = inflater.inflate(R.layout.fragment_bolum, container, false);
             newPost = (FloatingActionButton)rootView.findViewById(R.id.newPostButton);
             postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
-            postList.setLayoutManager(layoutManager);
+            postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
             postList.setHasFixedSize(true);
             scrollView = (NestedScrollView)rootView.findViewById(R.id.nestedScroolView);
             progressBar = (ProgressBar)rootView.findViewById(R.id.progress);
