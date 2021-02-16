@@ -3,6 +3,7 @@ package com.vaye.app.Controller.VayeAppController.VayeAppAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,11 +50,27 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     ArrayList<MainPostModel> post;
     Context context;
     CurrentUser currentUser;
-
+    Boolean istanceOfCurrentUserProfile = false;
+    Boolean istanceOfOtherUserProfile = false;
     public FollowersAdapter(ArrayList<MainPostModel> post, Context context, CurrentUser currentUser) {
         this.post = post;
         this.context = context;
         this.currentUser = currentUser;
+        if (context instanceof CurrentUserProfile){
+            Log.d("FollowersAdapter", "FollowersAdapter: " + "instanceof CurrentUserProfile");
+            istanceOfCurrentUserProfile = true;
+        }else{
+
+            Log.d("FollowersAdapter", "FollowersAdapter: " + "not instanceof CurrentUserProfile");
+            istanceOfCurrentUserProfile = false;
+        }
+
+        if (context instanceof  OtherUserProfileActivity){
+            istanceOfOtherUserProfile= true;
+        }else{
+            istanceOfOtherUserProfile = false;
+        }
+
     }
     ///FOOD ME İNİT
     private static final int FOODME = 1;
@@ -171,46 +188,77 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 caping_post_holder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
-                        }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
+
+                            Log.d("context context", "onClick: " + "true");
+                            if (menuItem.getSenderUid().equals(currentUser.getUid())){
+                                if (!istanceOfCurrentUserProfile){
+                                    Intent i = new Intent(context , CurrentUserProfile.class);
                                     i.putExtra("currentUser",currentUser);
                                     context.startActivity(i);
                                     Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
+                                }else{
+                                    return;
                                 }
-                            });
+
+                            }else{
+                                if (!istanceOfOtherUserProfile){
+                                    UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                        @Override
+                                        public void callback(OtherUser user) {
+                                            Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                            i.putExtra("otherUser",user);
+                                            i.putExtra("currentUser",currentUser);
+                                            context.startActivity(i);
+                                            Helper.shared().go((Activity) context);
+                                            WaitDialog.dismiss();
+                                        }
+                                    });
+                                }else{
+                                    return;
+                                }
+
+                            }
+
+
+
                         }
-                    }
+
                 });
                 caping_post_holder.itemView.findViewById(R.id.name).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
+
                         if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
+
+
 
                     }
                 });
@@ -220,35 +268,42 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         String _username = "@"+username.toString();
                         if (_username.equals(currentUser.getUsername())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
-                        }else{
-                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
-                                @Override
-                                public void getString(String otherUserId) {
-                                    if (otherUserId!=null){
-                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                            @Override
-                                            public void callback(OtherUser user) {
-                                                if (user!=null){
-                                                    WaitDialog.dismiss();
-                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                    i.putExtra("currentUser",currentUser);
-                                                    i.putExtra("otherUser",user);
-                                                    context.startActivity(i);
-                                                    Helper.shared().go((Activity) context);
-                                                }
-                                            }
-                                        });
-                                    }else{
-                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
 
-                                }
-                            });
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                                    @Override
+                                    public void getString(String otherUserId) {
+                                        if (otherUserId!=null){
+
+                                            UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    if (user!=null){
+                                                        WaitDialog.dismiss();
+                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                        i.putExtra("currentUser",currentUser);
+                                                        i.putExtra("otherUser",user);
+                                                        context.startActivity(i);
+                                                        Helper.shared().go((Activity) context);
+                                                    }
+                                                }
+                                            });
+                                        }else{
+                                            TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                            TipDialog.dismiss(1000);
+                                        }
+
+                                    }
+                                });
+                            }
+
 
                         }
 
@@ -337,45 +392,70 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 camping_post_data_holder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
+
                         if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
+
+
                     }
                 });
                 camping_post_data_holder.itemView.findViewById(R.id.name).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
 
                     }
@@ -386,35 +466,41 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         String _username = "@"+username.toString();
                         if (_username.equals(currentUser.getUsername())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
-                        }else{
-                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
-                                @Override
-                                public void getString(String otherUserId) {
-                                    if (otherUserId!=null){
-                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                            @Override
-                                            public void callback(OtherUser user) {
-                                                if (user!=null){
-                                                    WaitDialog.dismiss();
-                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                    i.putExtra("currentUser",currentUser);
-                                                    i.putExtra("otherUser",user);
-                                                    context.startActivity(i);
-                                                    Helper.shared().go((Activity) context);
-                                                }
-                                            }
-                                        });
-                                    }else{
-                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
 
-                                }
-                            });
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                                    @Override
+                                    public void getString(String otherUserId) {
+                                        if (otherUserId!=null){
+                                            UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    if (user!=null){
+                                                        WaitDialog.dismiss();
+                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                        i.putExtra("currentUser",currentUser);
+                                                        i.putExtra("otherUser",user);
+                                                        context.startActivity(i);
+                                                        Helper.shared().go((Activity) context);
+                                                    }
+                                                }
+                                            });
+                                        }else{
+                                            TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                            TipDialog.dismiss(1000);
+                                        }
+
+                                    }
+                                });
+                            }
+
 
                         }
                     }
@@ -562,45 +648,70 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 foodme_post_data_holder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
+
+
                         if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
                     }
                 });
                 foodme_post_data_holder.itemView.findViewById(R.id.name).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
                         if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
 
                     }
@@ -611,35 +722,41 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         String _username = "@"+username.toString();
                         if (_username.equals(currentUser.getUsername())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
-                        }else{
-                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
-                                @Override
-                                public void getString(String otherUserId) {
-                                    if (otherUserId!=null){
-                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                            @Override
-                                            public void callback(OtherUser user) {
-                                                if (user!=null){
-                                                    WaitDialog.dismiss();
-                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                    i.putExtra("currentUser",currentUser);
-                                                    i.putExtra("otherUser",user);
-                                                    context.startActivity(i);
-                                                    Helper.shared().go((Activity) context);
-                                                }
-                                            }
-                                        });
-                                    }else{
-                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
 
-                                }
-                            });
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                                    @Override
+                                    public void getString(String otherUserId) {
+                                        if (otherUserId!=null){
+                                            UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    if (user!=null){
+                                                        WaitDialog.dismiss();
+                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                        i.putExtra("currentUser",currentUser);
+                                                        i.putExtra("otherUser",user);
+                                                        context.startActivity(i);
+                                                        Helper.shared().go((Activity) context);
+                                                    }
+                                                }
+                                            });
+                                        }else{
+                                            TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                            TipDialog.dismiss(1000);
+                                        }
+
+                                    }
+                                });
+                            }
+
 
                         }
                     }
@@ -801,22 +918,32 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     @Override
                     public void onClick(View view) {
                         if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
                     }
                 });
@@ -824,21 +951,32 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     @Override
                     public void onClick(View view) {
                         if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
 
                     }
@@ -849,35 +987,41 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         String _username = "@"+username.toString();
                         if (_username.equals(currentUser.getUsername())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
-                        }else{
-                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
-                                @Override
-                                public void getString(String otherUserId) {
-                                    if (otherUserId!=null){
-                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                            @Override
-                                            public void callback(OtherUser user) {
-                                                if (user!=null){
-                                                    WaitDialog.dismiss();
-                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                    i.putExtra("currentUser",currentUser);
-                                                    i.putExtra("otherUser",user);
-                                                    context.startActivity(i);
-                                                    Helper.shared().go((Activity) context);
-                                                }
-                                            }
-                                        });
-                                    }else{
-                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
 
-                                }
-                            });
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                                    @Override
+                                    public void getString(String otherUserId) {
+                                        if (otherUserId!=null){
+                                            UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    if (user!=null){
+                                                        WaitDialog.dismiss();
+                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                        i.putExtra("currentUser",currentUser);
+                                                        i.putExtra("otherUser",user);
+                                                        context.startActivity(i);
+                                                        Helper.shared().go((Activity) context);
+                                                    }
+                                                }
+                                            });
+                                        }else{
+                                            TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                            TipDialog.dismiss(1000);
+                                        }
+
+                                    }
+                                });
+                            }
+
 
                         }
 
@@ -985,22 +1129,32 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     @Override
                     public void onClick(View view) {
                         if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
                     }
                 });
@@ -1008,22 +1162,32 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     @Override
                     public void onClick(View view) {
                         if (menuItem.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
 
                     }
@@ -1035,35 +1199,41 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         String _username = "@"+username.toString();
                         if (_username.equals(currentUser.getUsername())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
-                        }else{
-                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
-                                @Override
-                                public void getString(String otherUserId) {
-                                    if (otherUserId!=null){
-                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                            @Override
-                                            public void callback(OtherUser user) {
-                                                if (user!=null){
-                                                    WaitDialog.dismiss();
-                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                    i.putExtra("currentUser",currentUser);
-                                                    i.putExtra("otherUser",user);
-                                                    context.startActivity(i);
-                                                    Helper.shared().go((Activity) context);
-                                                }
-                                            }
-                                        });
-                                    }else{
-                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
 
-                                }
-                            });
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                                    @Override
+                                    public void getString(String otherUserId) {
+                                        if (otherUserId!=null){
+                                            UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    if (user!=null){
+                                                        WaitDialog.dismiss();
+                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                        i.putExtra("currentUser",currentUser);
+                                                        i.putExtra("otherUser",user);
+                                                        context.startActivity(i);
+                                                        Helper.shared().go((Activity) context);
+                                                    }
+                                                }
+                                            });
+                                        }else{
+                                            TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                            TipDialog.dismiss(1000);
+                                        }
+
+                                    }
+                                });
+                            }
+
 
                         }
 
@@ -1158,48 +1328,69 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 buy_sell_post_data_holder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
                         if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
                         }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
                         }
                     }
                 });
                 buy_sell_post_data_holder.itemView.findViewById(R.id.name).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (menuItemData.getSenderUid().equals(currentUser.getUid())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
-                        }else{
-                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
-                                @Override
-                                public void callback(OtherUser user) {
-                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                    i.putExtra("otherUser",user);
-                                    i.putExtra("currentUser",currentUser);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity) context);
-                                    WaitDialog.dismiss();
-                                }
-                            });
-                        }
 
+                        if (menuItemData.getSenderUid().equals(currentUser.getUid())){
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }else{
+                                return;
+                            }
+
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+                            }else{
+                                return;
+                            }
+
+                        }
                     }
                 });
                 buy_sell_post_data_holder.setLocationButton(menuItemData.getGeoPoint());
@@ -1209,35 +1400,41 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         String _username = "@"+username.toString();
                         if (_username.equals(currentUser.getUsername())){
-                            Intent i = new Intent(context , CurrentUserProfile.class);
-                            i.putExtra("currentUser",currentUser);
-                            context.startActivity(i);
-                            Helper.shared().go((Activity) context);
-                        }else{
-                            UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
-                                @Override
-                                public void getString(String otherUserId) {
-                                    if (otherUserId!=null){
-                                        UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
-                                            @Override
-                                            public void callback(OtherUser user) {
-                                                if (user!=null){
-                                                    WaitDialog.dismiss();
-                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                    i.putExtra("currentUser",currentUser);
-                                                    i.putExtra("otherUser",user);
-                                                    context.startActivity(i);
-                                                    Helper.shared().go((Activity) context);
-                                                }
-                                            }
-                                        });
-                                    }else{
-                                        TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity) context);
+                            }
 
-                                }
-                            });
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
+                                    @Override
+                                    public void getString(String otherUserId) {
+                                        if (otherUserId!=null){
+                                            UserService.shared().getOtherUser((Activity) context, otherUserId, new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    if (user!=null){
+                                                        WaitDialog.dismiss();
+                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                        i.putExtra("currentUser",currentUser);
+                                                        i.putExtra("otherUser",user);
+                                                        context.startActivity(i);
+                                                        Helper.shared().go((Activity) context);
+                                                    }
+                                                }
+                                            });
+                                        }else{
+                                            TipDialog.show((AppCompatActivity) context, "Böyle Bir Kullanıcı Bulunmuyor", TipDialog.TYPE.ERROR);
+                                            TipDialog.dismiss(1000);
+                                        }
+
+                                    }
+                                });
+
+                            }
 
                         }
                     }
