@@ -1,5 +1,6 @@
 package com.vaye.app.Controller.HomeController.School;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -32,6 +33,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.rpc.Help;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Controller.HomeController.SchoolPostAdapter.SchoolPostAdapter;
@@ -39,6 +41,7 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -318,6 +321,10 @@ public class SchoolFragment extends Fragment {
     }
 
     private void setNewPost() {
+        Intent i = new Intent(getContext(), ChooseClupActivity.class);
+        i.putExtra("currentUser",currentUser);
+        getContext().startActivity(i);
+        Helper.shared().go(getActivity());
 
     }
     private void getAds(){
