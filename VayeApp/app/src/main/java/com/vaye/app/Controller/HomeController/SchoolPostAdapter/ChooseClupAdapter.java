@@ -26,9 +26,11 @@ public class ChooseClupAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHo
     Context context;
     CurrentUser currentUser;
 
-    public void setList(ArrayList<String> clupName) {
+    public void setClupName(ArrayList<String> clupName) {
         this.clupName = clupName;
     }
+
+
     public ChooseClupAdapter(ArrayList<String> clupName, Context context, CurrentUser currentUser) {
         this.clupName = clupName;
         this.context = context;

@@ -1,9 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".Controller.HomeController.School.NewSchoolPostActivity">
+    <include layout="@layout/toolbar_layout"
+        android:layout_alignParentTop="true"
+        android:id="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        ></include>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/lesson_post_header"
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        ></include>
+    <EditText
+        android:layout_below="@id/header"
+
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="16dp"
+        android:maxHeight="200dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:drawablePadding="5dp"
+        android:singleLine="false"
+        android:inputType="textCapSentences|textMultiLine"
+        android:hint="Yeni Bir Duyuru Yap..."
+
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="12sp"
+        android:isScrollContainer="true"
+        android:padding="5dp"
+        android:maxLines="4" />
+    <LinearLayout
+        android:layout_below="@id/text"
+        android:layout_marginTop="8dp"
+        android:id="@+id/stackBarLayout"
+        android:layout_weight="20"
+        android:orientation="horizontal"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:id="@+id/gallery"
+            android:src="@drawable/gallery_btn"
+            android:background="@android:color/transparent"
+
+            android:layout_weight="20"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            ></ImageButton>
+
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@id/stackBarLayout"
+    android:id="@+id/datasRec"
+    android:layout_margin="2dp"
+    >
+
+</androidx.recyclerview.widget.RecyclerView>
+
+</RelativeLayout>

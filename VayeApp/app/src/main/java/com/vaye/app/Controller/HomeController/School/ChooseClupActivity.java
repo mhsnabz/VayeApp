@@ -29,6 +29,7 @@ import com.vaye.app.R;
 import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Util.Helper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ChooseClupActivity extends AppCompatActivity {
@@ -94,12 +95,9 @@ public class ChooseClupActivity extends AppCompatActivity {
         inflater.inflate(R.menu.search_bar_menu, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
         searchView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         searchView.setQueryHint("Kulüp Adı Giriniz");
-        searchView.setInputType(InputType.TYPE_CLASS_TEXT);
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+        ArrayList<String> hastag = SchoolPostService.shared().getHastah(currentUser.getShort_school());
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -110,12 +108,12 @@ public class ChooseClupActivity extends AppCompatActivity {
                 Log.d("TAG", "onQueryTextChange: " + newText);
 
                 ArrayList<String> filtred = new ArrayList<>();
-                for (String item : SchoolPostService.shared().getHastah(currentUser.getShort_school())){
+                for (String item : hastag ){
                     if (item.toLowerCase().contains(newText.toLowerCase())){
                         filtred.add(item);
                     }
                 }
-                adapter.setList(filtred);
+                adapter.setClupName(filtred);
                 adapter.notifyDataSetChanged();
 
                 return true;
