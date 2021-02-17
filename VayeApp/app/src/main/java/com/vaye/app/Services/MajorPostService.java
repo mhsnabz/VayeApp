@@ -30,6 +30,7 @@ import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.OtherUser;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Array;
@@ -259,7 +260,7 @@ public class MajorPostService {
     }
 
 
-    public void deleteFileReference(Activity activity , String url ,String thumb_url , TrueFalse<Boolean> val){
+    public void deleteFileReference(Activity activity , String url ,String thumb_url ,CurrentUser currentUser,  TrueFalse<Boolean> val){
         FirebaseStorage ref = FirebaseStorage.getInstance();
         ref.getReferenceFromUrl(url).delete().addOnSuccessListener(activity, new OnSuccessListener<Void>() {
             @Override
@@ -267,7 +268,22 @@ public class MajorPostService {
                 ref.getReferenceFromUrl(thumb_url).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        val.callBack(true);
+                            ///user/VUSU6uA0odX7vuF5giXWbOUYzni1/saved-task/task
+                        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                .document(currentUser.getUid()).collection("saved-task").document("task");
+                        Map<String , Object> map = new HashMap<>();
+                        map.put("data",FieldValue.arrayRemove(url));
+                        map.put("thumbData", FieldValue.arrayRemove(thumb_url));
+                        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    val.callBack(true);
+                                }
+                            }
+                        });
+
+
                     }
                 });
             }
@@ -534,7 +550,7 @@ public class MajorPostService {
                 @Override
                 public void onSuccess(Void aVoid) {
                     for (int i = 0 ; i < postModel.getThumbData().size() ; i++){
-                        deleteFileReference(activity, postModel.getData().get(i), postModel.getThumbData().get(i), new TrueFalse<Boolean>() {
+                        deleteFileReference(activity, postModel.getData().get(i), postModel.getThumbData().get(i),currentUser, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
                                 val.callBack(true);

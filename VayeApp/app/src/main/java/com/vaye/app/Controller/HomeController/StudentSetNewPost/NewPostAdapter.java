@@ -58,7 +58,7 @@ public class NewPostAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MajorPostService.shared().deleteFileReference((Activity) context, model.get(position).getFileUrl(), model.get(position).getThumb_url(), new TrueFalse<Boolean>() {
+                        MajorPostService.shared().deleteFileReference((Activity) context, model.get(position).getFileUrl(), model.get(position).getThumb_url(), currentUser,new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
                                 for (NewPostDataModel data : model){
