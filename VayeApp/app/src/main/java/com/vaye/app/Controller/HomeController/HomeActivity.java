@@ -35,12 +35,14 @@ import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
 import com.vaye.app.Controller.HomeController.PagerAdapter.PagerViewApadater;
 import com.vaye.app.Controller.HomeController.School.SchoolFragment;
+import com.vaye.app.Controller.HomeController.School.SchoolPostNotificationActivity;
 import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivity;
 import com.vaye.app.Controller.HomeController.SettingController.SettingActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.SplashScreen.SplashScreen;
 import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.Helper;
@@ -142,7 +144,10 @@ public class HomeActivity extends AppCompatActivity {
         notificationSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent i = new Intent(HomeActivity.this , SchoolPostNotificationActivity.class);
+                i.putExtra("currentUser",currentUser);
+                startActivity(i);
+                Helper.shared().go(HomeActivity.this);
             }
         });
         setSupportActionBar(toolbar);

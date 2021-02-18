@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Switch
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/switch1"
+        android:trackTint="@drawable/newtrack"
+        android:thumbTint="@drawable/newthumb"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
+
+        />
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/switch1"
+        android:orientation="vertical"
+        android:layout_marginRight="12dp">
+        <TextView
+            android:layout_weight="1"
+            android:layout_marginLeft="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginRight="12dp"
+            android:layout_centerVertical="true"
+            android:id="@+id/clupName"
+            android:text="Atatürkçü Düşünce Derneği"
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            ></TextView>
+        <TextView
+            android:layout_weight="1"
+            android:layout_marginLeft="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginRight="12dp"
+            android:layout_centerVertical="true"
+            android:id="@+id/followerCount"
+            android:text="1 Takiçi"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="10sp"
+            ></TextView>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0.4dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/gray"
+        ></RelativeLayout>
+</RelativeLayout>

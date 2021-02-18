@@ -1,9 +1,14 @@
 package com.vaye.app.Services;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 
 import java.util.ArrayList;
@@ -58,8 +63,42 @@ public class SchoolPostService {
                     .document("clup").collection("name").document(name);
             Map<String , Object> map = new HashMap<>();
             map.put("followers", FieldValue.arrayUnion());
+            map.put("name",name);
             reference.set(map , SetOptions.merge());
         }
 
+    }
+
+    public void followClup(CurrentUser currentUser,String name , TrueFalse<Boolean> callback){
+        DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("clup").collection("name").document(name);
+        Map<String,Object> map = new HashMap<>();
+        map.put("followers", FieldValue.arrayUnion(currentUser.getUid()));
+        reference.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(true);
+                }else{
+                    callback.callBack(false);
+                }
+            }
+        });
+    }
+    public void unFollowClup(CurrentUser currentUser,String name , TrueFalse<Boolean> callback){
+        DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("clup").collection("name").document(name);
+        Map<String,Object> map = new HashMap<>();
+        map.put("followers", FieldValue.arrayRemove(currentUser.getUid()));
+        reference.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(true);
+                }else{
+                    callback.callBack(false);
+                }
+            }
+        });
     }
 }

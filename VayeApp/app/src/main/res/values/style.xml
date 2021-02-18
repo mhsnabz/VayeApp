@@ -15,4 +15,5 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:fontFamily">@font/nunito_semibold</item>
     </style>
+
 </resources>
