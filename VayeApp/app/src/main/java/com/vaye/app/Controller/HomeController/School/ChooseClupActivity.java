@@ -19,6 +19,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.vaye.app.Controller.HomeController.SchoolPostAdapter.ChooseClupAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.ChooseLessonAdapter;
@@ -50,6 +51,7 @@ public class ChooseClupActivity extends AppCompatActivity {
             setToolbar("Kulüp Seçiniz");
             setView(currentUser);
 
+
         }else{
             finish();
         }
@@ -67,9 +69,9 @@ public class ChooseClupActivity extends AppCompatActivity {
     private void setToolbar(String  titleText)
     {
         toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        title = toolbar.findViewById(R.id.toolbar_title);
 
+        title = toolbar.findViewById(R.id.toolbar_title);
+        setSupportActionBar(toolbar);
         toolbar.setTitle("");
         toolbar.setSubtitle("");
         title.setText(titleText);
@@ -97,6 +99,15 @@ public class ChooseClupActivity extends AppCompatActivity {
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         searchView.setQueryHint("Kulüp Adı Giriniz");
+
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                title.setVisibility(View.GONE);
+
+            }
+        });
+
         ArrayList<String> hastag = SchoolPostService.shared().getHastah(currentUser.getShort_school());
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

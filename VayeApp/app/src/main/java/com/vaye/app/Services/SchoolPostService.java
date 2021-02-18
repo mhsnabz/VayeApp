@@ -1,6 +1,14 @@
 package com.vaye.app.Services;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.vaye.app.Model.CurrentUser;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SchoolPostService {
     private static final SchoolPostService instance = new SchoolPostService();
@@ -8,7 +16,7 @@ public class SchoolPostService {
         return instance;
     }
 
-    String iste_hastag[] = {"Atatürkçü Düşünce Öğrenci Topluluğu","Bağımlılıkla Mücadele Öğrenci Topluluğu","Bilim Kadınları Öğrenci Topluluğu",
+   public String iste_hastag[] = {"Atatürkçü Düşünce Öğrenci Topluluğu","Bağımlılıkla Mücadele Öğrenci Topluluğu","Bilim Kadınları Öğrenci Topluluğu",
             "Bilim Ve Çocuk Öğrenci Topluluğu","Bilimsel Araştırmalar Öğrenci Topluluğu","Bireysel Sporlar Öğrenci Topluluğu"
             ,"Bisiklet Öğrenci Topluluğu","Çevre Öğrenci Topluluğu","Doğa Sporları Öğrenci Topluluğu","Edebiyat Öğrenci Topluluğu",
             "Ekonomi Öğrenci Topluluğu","Fotoğrafçılık Öğrenci Topluluğu","Gezi Öğrenci Topluluğu","Gönüllü Genç Sağlık Liderleri Öğrenci Topluluğu",
@@ -41,5 +49,17 @@ public class SchoolPostService {
 
     interface  short_school{
         String İSTE = "İSTE";
+    }
+
+
+    public void setClupNames(CurrentUser currentUser , String[] list){
+        for ( String name :list){
+            DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                    .document("clup").collection("name").document(name);
+            Map<String , Object> map = new HashMap<>();
+            map.put("followers", FieldValue.arrayUnion());
+            reference.set(map , SetOptions.merge());
+        }
+
     }
 }

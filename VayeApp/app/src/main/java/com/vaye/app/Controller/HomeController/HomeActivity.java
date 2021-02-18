@@ -139,7 +139,12 @@ public class HomeActivity extends AppCompatActivity {
         title = toolbar.findViewById(R.id.toolbar_title);
         addLesson = (ImageButton)toolbar.findViewById(R.id.addLesson);
         notificationSetting = (ImageButton)toolbar.findViewById(R.id.notificationSetting);
+        notificationSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+            }
+        });
         setSupportActionBar(toolbar);
 
         toolbar.setTitle("");

@@ -149,7 +149,13 @@ public class NewSchoolPostActivity extends AppCompatActivity {
         rigthBarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                String  msgText = text.getText().toString();
+                if (msgText.isEmpty()){
+                    TipDialog.show(NewSchoolPostActivity.this , "Gönderiniz Boş Olamaz", TipDialog.TYPE.ERROR);
+                    return;
+                }else {
+                    WaitDialog.show(NewSchoolPostActivity.this , "Gönderiniz Paylaşılıyor...");
+                }
             }
         });
     }
@@ -311,11 +317,7 @@ public class NewSchoolPostActivity extends AppCompatActivity {
                 break;
         }
     }
-    // let storageRef  = Storage.storage().reference().child(currentUser.short_school)
-    //                .child("clup").child(clupName)
-    //                .child(currentUser.username)
-    //                .child(date)
-    //                .child(dataName + DataTypes.image.mimeType)
+
     //TODO:: upload images
     private void saveDatasToDataBase(String contentType, String mimeType, Activity activity , String clup_name , String date , CurrentUser currentUser , String type , Uri data,
                                      StringCompletion completion ){
