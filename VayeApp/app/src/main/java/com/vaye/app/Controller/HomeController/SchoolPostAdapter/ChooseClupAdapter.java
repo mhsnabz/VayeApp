@@ -3,20 +3,25 @@ package com.vaye.app.Controller.HomeController.SchoolPostAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.School.NewSchoolPostActivity;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.ChooseLessonAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
+import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -53,12 +58,22 @@ public class ChooseClupAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(context , NewSchoolPostActivity.class);
-                i.putExtra("clupName", clupName.get(position));
-                i.putExtra("currentUser",currentUser);
 
-                context.startActivity(i);
-                Helper.shared().go((Activity) context);
+
+                SchoolPostService.shared().getFollowers(currentUser, clupName.get(position), new StringArrayListInterface() {
+                    @Override
+                    public void getArrayList(ArrayList<String> list) {
+                          Intent i = new Intent(context , NewSchoolPostActivity.class);
+                    i.putExtra("clupName", clupName.get(position));
+                    i.putExtra("followers",list);
+                    i.putExtra("currentUser",currentUser);
+
+                    context.startActivity(i);
+                    Helper.shared().go((Activity) context);
+                    }
+                });
+
+
 
 
             }

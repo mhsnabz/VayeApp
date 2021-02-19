@@ -5,11 +5,14 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.NewPostDataModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,6 +100,75 @@ public class SchoolPostService {
                     callback.callBack(true);
                 }else{
                     callback.callBack(false);
+                }
+            }
+        });
+    }
+
+    public void getFollowers(CurrentUser currentUser , String  name , StringArrayListInterface list){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("clup").collection("name").document(name);
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            if (task.isSuccessful()){
+                if (task.getResult().exists()){
+                    list.getArrayList((ArrayList<String>) task.getResult().get("followers"));
+                }
+            }
+            }
+        });
+    }
+
+    public void setNewNotice(CurrentUser currentUser , String clupName , String msgText , long postId , ArrayList<NewPostDataModel> datas , TrueFalse<Boolean> callback ){
+
+        Map<String , Object> map = new HashMap<>();
+        if (datas.isEmpty()){
+            map.put("type","post");
+            map.put("data",FieldValue.arrayUnion());
+            map.put("thumb_data",FieldValue.arrayUnion());
+        }else{
+            map.put("type","data");
+        }
+        map.put("postTime", FieldValue.serverTimestamp());
+        map.put("senderName", currentUser.getName());
+        map.put("text", msgText);
+        map.put("likes", FieldValue.arrayUnion());
+        map.put("comment", 0);
+        map.put("clupName",  clupName);
+        map.put("senderUid", currentUser.getUid());
+        map.put("postId", String.valueOf(postId));
+        map.put("post_ID", postId);
+        map.put("username", currentUser.getUsername());
+        map.put("thumb_image", currentUser.getThumb_image());
+        map.put("silent", FieldValue.arrayUnion());
+        map.put("postType", "notice");
+        setPostForCurrentUser(String.valueOf(postId),currentUser);
+        setNotice(map, currentUser, String.valueOf(postId), new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value)
+                callback.callBack(true);
+            }
+        });
+    }
+    private void setPostForCurrentUser(String postId , CurrentUser currentUser){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid()).collection(currentUser.getShort_school()).document(postId);
+        Map<String , Object> map = new HashMap<>();
+        map.put("postId",postId);
+        ref.set(map , SetOptions.merge());
+    }
+
+    private void setNotice(Map<String , Object> map , CurrentUser currentUser , String postId , TrueFalse<Boolean> callback){
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices").collection("post").document(postId);
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(true);
                 }
             }
         });

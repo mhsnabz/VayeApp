@@ -53,6 +53,7 @@ import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Util.Helper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
@@ -97,6 +98,7 @@ public class NewSchoolPostActivity extends AppCompatActivity {
     private static final int gallery_request =400;
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
     NewPostAdapter adapter ;
+    ArrayList<String> followers = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,9 +111,9 @@ public class NewSchoolPostActivity extends AppCompatActivity {
             currentUser = intentIncoming.getParcelableExtra("currentUser");
 
             clupName = intentIncoming.getStringExtra("clupName");
-
+            followers = intentIncoming.getStringArrayListExtra("followers");
             setToolbar(clupName);
-           setView(currentUser,clupName);
+             setView(currentUser,clupName);
 
 
         }else {
@@ -149,12 +151,41 @@ public class NewSchoolPostActivity extends AppCompatActivity {
         rigthBarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                WaitDialog.show(NewSchoolPostActivity.this,"Gönderiniz Paykaşılıyor");
                 String  msgText = text.getText().toString();
                 if (msgText.isEmpty()){
+                    WaitDialog.dismiss();
                     TipDialog.show(NewSchoolPostActivity.this , "Gönderiniz Boş Olamaz", TipDialog.TYPE.ERROR);
+                    TipDialog.dismiss(1000);
                     return;
                 }else {
-                    WaitDialog.show(NewSchoolPostActivity.this , "Gönderiniz Paylaşılıyor...");
+                    SchoolPostService.shared().setNewNotice(currentUser, clupName, msgText, postDate, dataModel, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                        .document("notices").collection("post").document(String.valueOf(postDate));
+                                Map<String , Object> mapObj = new HashMap<>();
+                                if (!dataModel.isEmpty()){
+                                    mapObj.put("type","data");
+
+                                    for (int i = 0 ; i < dataModel.size() ; i ++){
+                                        mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
+                                        mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
+                                        ref.set(mapObj,SetOptions.merge());
+
+                                    }
+
+                                }
+
+                                WaitDialog.dismiss();
+                                TipDialog.show(NewSchoolPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                TipDialog.dismiss(1000);
+                                finish();
+                                Helper.shared().back(NewSchoolPostActivity.this);
+                            }
+                        }
+                    });
                 }
             }
         });
