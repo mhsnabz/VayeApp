@@ -35,6 +35,7 @@ import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
+import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
@@ -112,7 +113,31 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 itemHolder.more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                    if (menuItem.getSenderUid().equals(currentUser.getUid())){
+                        Helper.shared().SchoolPostCurrentUserBottomSheetLauncher(post, (Activity) context, currentUser, menuItem, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    notifyDataSetChanged();
+                                }
+                            }
+                        });
+                    }else{
+                        UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                            @Override
+                            public void callback(OtherUser user) {
+                                Helper.shared().SchoolPostOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            notifyDataSetChanged();
+                                        }
+                                    }
+                                });
+                                WaitDialog.dismiss();
+                            }
+                        });
+                    }
 
 
                     }
@@ -134,19 +159,32 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 itemHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        SchoolPostService.shared().setLike(currentUser, menuItem, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                itemHolder.setLike(menuItem.getLikes(),currentUser,context);
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 });
 
                 itemHolder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        SchoolPostService.shared().setDislike(currentUser, menuItem, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                itemHolder.setDislike(menuItem.getDislike(),currentUser,context);
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 });
 
                 break;
             case VIEW_TYPE_SCHOOL_POST_DATA:
+                NoticesMainModel menuItemData = post.get(i);
                 SchoolPostViewHolder postHolder = (SchoolPostViewHolder) holder;
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -159,12 +197,36 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 postHolder.more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        if (menuItemData.getSenderUid().equals(currentUser.getUid())){
+                            Helper.shared().SchoolPostCurrentUserBottomSheetLauncher(post, (Activity) context, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }else{
+                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                @Override
+                                public void callback(OtherUser user) {
+                                    Helper.shared().SchoolPostOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
+                                    WaitDialog.dismiss();
+                                }
+                            });
+                        }
                     }
                 });
 
 
-                NoticesMainModel menuItemData = post.get(i);
+
 
                 postHolder.setCommentLbl(menuItemData.getComment());
 
@@ -184,14 +246,26 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 postHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        SchoolPostService.shared().setLike(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                postHolder.setLike(menuItemData.getLikes(),currentUser,context);
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 });
 
                 postHolder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        SchoolPostService.shared().setDislike(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                postHolder.setDislike(menuItemData.getDislike(),currentUser , context);
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 });
 

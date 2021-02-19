@@ -9,10 +9,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NewPostDataModel;
+import com.vaye.app.Model.NoticesMainModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -173,5 +176,56 @@ public class SchoolPostService {
                 }
             }
         });
+    }
+
+    public void setLike(CurrentUser currentUser , NoticesMainModel post , TrueFalse<Boolean> result){
+        ///İSTE/notices/post/1613514956598
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices")
+                .collection("post")
+                .document(post.getPostId());
+        Map<String , Object> mapLike = new HashMap<>();
+        Map<String , Object> mapDisike = new HashMap<>();
+        if (!post.getLikes().contains(currentUser.getUid())){
+            post.getLikes().add(currentUser.getUid());
+            post.getDislike().remove(currentUser.getUid());
+            result.callBack(true);
+            mapLike.put("likes",FieldValue.arrayUnion(currentUser.getUid()));
+            mapDisike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
+            ref.update(mapLike);
+            ref.update(mapDisike);
+            SchoolPostNS.shared().sendLikeNotification(post,currentUser, Notifications.NotificationType.notices_post_like, Notifications.NotificationDescription.notices_post_like);
+        }
+        else{
+            post.getLikes().remove(currentUser.getUid());
+            result.callBack(true);
+            mapLike.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
+            ref.update(mapLike);
+
+        }
+    }
+
+
+    public void setDislike(CurrentUser currentUser , NoticesMainModel post , TrueFalse<Boolean> result){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices")
+                .collection("post")
+                .document(post.getPostId());
+        Map<String , Object> mapLike = new HashMap<>();
+
+
+        if (!post.getDislike().contains(currentUser.getUid())){
+            post.getLikes().remove(currentUser.getUid());
+            post.getDislike().add(currentUser.getUid());
+            result.callBack(true);
+            mapLike.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
+            mapLike.put("dislike",FieldValue.arrayUnion(currentUser.getUid()));
+            ref.update(mapLike);
+        }else{
+            post.getDislike().remove(currentUser.getUid());
+            result.callBack(true);
+            mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
+            ref.update(mapLike);
+        }
     }
 }

@@ -164,6 +164,7 @@ public class NewSchoolPostActivity extends AppCompatActivity {
 
                     SchoolPostNS.shared().setNewNoticesNotification(followers , currentUser , clupName , String.valueOf(Calendar.getInstance().getTimeInMillis()),String.valueOf(postDate), Notifications.NotificationDescription.notices_new_post, Notifications.NotificationType.notices_new_post);
                     for (String item : Helper.shared().getMentionedUser(msgText)){
+                        Log.d("SchoolPostNS", "onClick: " + item);
                         SchoolPostNS.shared().setMentionedNotification(item , currentUser ,String.valueOf(postDate), Notifications.NotificationType.home_new_mentions_post, Notifications.NotificationDescription.home_new_mentions_post,clupName);
                     }
                     SchoolPostService.shared().setNewNotice(currentUser, clupName, msgText, postDate, dataModel, new TrueFalse<Boolean>() {

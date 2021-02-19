@@ -69,26 +69,28 @@ public class ReportActivity extends AppCompatActivity {
         progressBar = (ProgressBar)findViewById(R.id.progress);
         text = (EditText)findViewById(R.id.text);
 
-        String thumbImage ;
-        if (currentUser.getThumb_image()!=null){
-            thumbImage = currentUser.getThumb_image();
+
+        if (currentUser.getThumb_image()!=null && !currentUser.getThumb_image().isEmpty()){
+            Picasso.get().load(currentUser.getThumb_image()).placeholder(android.R.color.darker_gray)
+                    .centerCrop().resize(256,256)
+                    .into(profileImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            progressBar.setVisibility(View.GONE);
+
+                        }
+                    });
         }else{
-            thumbImage = "";
+            profileImage.setImageResource(android.R.color.darker_gray);
+            progressBar.setVisibility(View.GONE);
         }
-        Picasso.get().load(thumbImage).placeholder(android.R.color.darker_gray)
-                .centerCrop().resize(256,256)
-                .into(profileImage, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        progressBar.setVisibility(View.GONE);
-                    }
 
-                    @Override
-                    public void onError(Exception e) {
-                        progressBar.setVisibility(View.GONE);
 
-                    }
-                });
 
         name.setText(currentUser.getName());
         username.setText(currentUser.getUsername());

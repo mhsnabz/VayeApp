@@ -38,6 +38,7 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.FollowService;
@@ -48,6 +49,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetAdapter;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
+import com.vaye.app.Util.BottomSheetHelper.SchoolPostBottomSheetAdapter;
 import com.vaye.app.Util.BottomSheetHelper.VayeAppBottomSheet;
 
 import java.util.ArrayList;
@@ -407,6 +409,203 @@ public class Helper {
 
     }
 
+    public void SchoolPostCurrentUserBottomSheetLauncher(ArrayList<NoticesMainModel> allPost, Activity activity , CurrentUser currentUser , NoticesMainModel post , TrueFalse<Boolean> callback){
+        RecyclerView recyclerView;
+        CardView headerView;
+        Button cancel;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+        ArrayList<String > items = new ArrayList<>();
+        items.add(BottomSheetActionTarget.gonderiyi_düzenle);
+        items.add(BottomSheetActionTarget.gonderiyi_sil);
+        if (post.getSilent().contains(currentUser.getUid())){
+            items.add(BottomSheetActionTarget.gonderi_bildirimlerini_ac);
+        }else{
+            items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
+        }
+
+
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(R.drawable.edit);
+        res.add(R.drawable.trash);
+        if (post.getSilent().contains(currentUser.getUid())){
+            res.add(R.drawable.slient_selected);
+        }else{
+
+            res.add(R.drawable.slient);
+        }
+        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.school_app_current_user_launcher,res);
+        SchoolPostBottomSheetAdapter adapter = new SchoolPostBottomSheetAdapter(allPost,post,currentUser,model,bottomSheetDialog,activity);
+        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        adapter.notifyDataSetChanged();
+        headerView = (CardView)view.findViewById(R.id.header);
+        headerView.setVisibility(View.GONE);
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                callback.callBack(true);
+            }
+        });
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
+
+    public void SchoolPostOtherUserBottomSheetLauncher(ArrayList<NoticesMainModel> allPost,Activity activity , OtherUser otherUser , CurrentUser currentUser , NoticesMainModel post , TrueFalse<Boolean> callback){
+        RecyclerView recyclerView;
+        CardView headerView;
+        CircleImageView profileImage;
+        TextView username;
+        Button fallow;
+        Button cancel;
+        ArrayList<String > items = new ArrayList<>();
+
+        items.add(BottomSheetActionTarget.bu_gonderiyi_sikayet_et);
+        if (otherUser.getSlient().contains(currentUser.getUid())){
+            items.add(BottomSheetActionTarget.bu_kullaniciyi_sessiden_al);
+        }else{
+            items.add(BottomSheetActionTarget.bu_kullaniciyi_sessize_al);
+        }
+
+        items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
+        ArrayList<Integer> res = new ArrayList<>();
+
+        res.add(R.drawable.black_color_report);
+        if (otherUser.getSlient().contains(currentUser.getUid())){
+            Log.d(TAG, "VayeAppOtherUserBottomSheetLauncher: "+otherUser.getSlient());
+            res.add(R.drawable.make_not_mute);
+        }else{
+            Log.d(TAG, "VayeAppOtherUserBottomSheetLauncher: "+otherUser.getSlient());
+            res.add(R.drawable.make_mute);
+        }
+
+        res.add(R.drawable.red_report);
+        BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.school_app_other_user_launcher,res);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+        SchoolPostBottomSheetAdapter adapter = new SchoolPostBottomSheetAdapter(allPost,post , currentUser ,model,bottomSheetDialog,otherUser,activity);
+        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+        headerView = (CardView)view.findViewById(R.id.header);
+        profileImage = (CircleImageView)view.findViewById(R.id.profileImage);
+        headerView.setVisibility(View.VISIBLE);
+        username = (TextView) view.findViewById(R.id.username);
+        fallow = (Button)view.findViewById(R.id.fallow);
+        username.setText( otherUser.getUsername());
+
+
+
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        adapter.notifyDataSetChanged();
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                headerView.setVisibility(View.GONE);
+                bottomSheetDialog.dismiss();
+
+            }
+        });
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                headerView.setVisibility(View.GONE);
+
+                callback.callBack(true);
+            }
+        });
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+        username.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
+
+        headerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: " + "show profile");
+            }
+        });
+        if (otherUser.getThumb_image() != null && !otherUser.getThumb_image().isEmpty()){
+            Picasso.get().load(otherUser.getThumb_image()).placeholder(android.R.color.darker_gray).resize(128,128)
+                    .centerCrop().into(profileImage);
+        }
+
+        UserService.shared().checkIsFallowing(currentUser, otherUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+                    fallow.setText("Takibi Bırak");
+                    fallow.setBackgroundResource(R.drawable.button_unfollow_back);
+                    isFallowing = _value;
+                }else{
+                    fallow.setBackgroundResource(R.drawable.button_fallow_back);
+                    fallow.setText("Takip Et");
+                    isFallowing = _value;
+                }
+            }
+        });
+
+        fallow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isFallowing){
+                    WaitDialog.show((AppCompatActivity) activity , "Lütfen Bekleyin");
+                    FollowService.shared().unFollowUser(otherUser, currentUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity) activity , "Takip Etmeyi Bıraktınız", TipDialog.TYPE.SUCCESS);
+                                TipDialog.dismiss(1000);
+                                bottomSheetDialog.dismiss();
+                                isFallowing = false;
+                            }else{
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity) activity , "Sorun Oluştu Lütfen Tekrar Deneyin", TipDialog.TYPE.WARNING);
+                                TipDialog.dismiss(1000);
+                                bottomSheetDialog.dismiss();
+                            }
+                        }
+                    });
+                }else{
+                    WaitDialog.show((AppCompatActivity)activity , "Lütfen Bekleyin");
+                    FollowService.shared().followUser(otherUser, currentUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity) activity , "Takip Ediliyor", TipDialog.TYPE.SUCCESS);
+                                TipDialog.dismiss(1000);
+                                bottomSheetDialog.dismiss();
+                                isFallowing = true;
+                            }else{
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity) activity , "Sorun Oluştu Lütfen Tekrar Deneyin", TipDialog.TYPE.WARNING);
+                                TipDialog.dismiss(1000);
+                                bottomSheetDialog.dismiss();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
 
    public void VayeAppCurrentUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
        RecyclerView recyclerView;
