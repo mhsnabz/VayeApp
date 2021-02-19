@@ -143,6 +143,7 @@ public class SchoolPostService {
         map.put("thumb_image", currentUser.getThumb_image());
         map.put("silent", FieldValue.arrayUnion());
         map.put("postType", "notice");
+        map.put("dislike",FieldValue.arrayUnion());
         setPostForCurrentUser(String.valueOf(postId),currentUser);
         setNotice(map, currentUser, String.valueOf(postId), new TrueFalse<Boolean>() {
             @Override

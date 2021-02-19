@@ -17,6 +17,7 @@ public interface Notifications {
         String  new_camping = "Yeni Bir Kamp Gönderisi Paylaştı";
         String  like_camping = "Gönderini Beğendi";
         String  notices_comment_like = "Yorumunuzu Beğendi";
+        String notices_new_post = "Yeni Bir Gönderi Paylaştı";
         String  notices_post_like = "Gönderinizi Beğendi";
         String  notices_new_comment = "Gönderinize Yorum Yaptı";
         String  notices_replied_comment_like = "Yorumunuzu Beğendi";
@@ -43,6 +44,7 @@ public interface Notifications {
         String  notices_new_comment = "notices_new_comment";
         String  notices_replied_comment_like = "notices_replied_comment_like";
         String  notice_mention_comment = "notice_mention_comment";
+        String notices_new_post  = "notices_new_post";
     }
 
     interface LocalNotifications{

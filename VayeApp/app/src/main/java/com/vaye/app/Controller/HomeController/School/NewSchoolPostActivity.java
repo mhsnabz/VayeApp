@@ -46,6 +46,7 @@ import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.NewPostAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
 import com.vaye.app.Interfaces.DataTypes;
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -53,6 +54,7 @@ import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.SchoolPostNS;
 import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Util.Helper;
 import com.vincent.filepicker.Constant;
@@ -151,7 +153,7 @@ public class NewSchoolPostActivity extends AppCompatActivity {
         rigthBarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                WaitDialog.show(NewSchoolPostActivity.this,"Gönderiniz Paykaşılıyor");
+                WaitDialog.show(NewSchoolPostActivity.this,"Gönderiniz Paylaşılıyor");
                 String  msgText = text.getText().toString();
                 if (msgText.isEmpty()){
                     WaitDialog.dismiss();
@@ -159,6 +161,11 @@ public class NewSchoolPostActivity extends AppCompatActivity {
                     TipDialog.dismiss(1000);
                     return;
                 }else {
+
+                    SchoolPostNS.shared().setNewNoticesNotification(followers , currentUser , clupName , String.valueOf(Calendar.getInstance().getTimeInMillis()),String.valueOf(postDate), Notifications.NotificationDescription.notices_new_post, Notifications.NotificationType.notices_new_post);
+                    for (String item : Helper.shared().getMentionedUser(msgText)){
+                        SchoolPostNS.shared().setMentionedNotification(item , currentUser ,String.valueOf(postDate), Notifications.NotificationType.home_new_mentions_post, Notifications.NotificationDescription.home_new_mentions_post,clupName);
+                    }
                     SchoolPostService.shared().setNewNotice(currentUser, clupName, msgText, postDate, dataModel, new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
@@ -199,25 +206,26 @@ public class NewSchoolPostActivity extends AppCompatActivity {
         text = (EditText)findViewById(R.id.text);
 
         String thumbImage ;
-        if (currentUser.getThumb_image()!=null){
-            thumbImage = currentUser.getThumb_image();
+        if (currentUser.getThumb_image()!=null && !currentUser.getThumb_image().isEmpty()){
+            Picasso.get().load(currentUser.getThumb_image()).placeholder(android.R.color.darker_gray)
+                    .centerCrop().resize(256,256)
+                    .into(profileImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            progressBar.setVisibility(View.GONE);
+
+                        }
+                    });
         }else{
-            thumbImage = "";
+            profileImage.setImageResource(android.R.color.darker_gray);
+           progressBar.setVisibility(View.GONE);
         }
-        Picasso.get().load(thumbImage).placeholder(android.R.color.darker_gray)
-                .centerCrop().resize(256,256)
-                .into(profileImage, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        progressBar.setVisibility(View.GONE);
-                    }
 
-                    @Override
-                    public void onError(Exception e) {
-                        progressBar.setVisibility(View.GONE);
-
-                    }
-                });
 
         name.setText(currentUser.getName());
         username.setText(currentUser.getUsername());
