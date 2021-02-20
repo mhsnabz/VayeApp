@@ -1,19 +1,27 @@
 package com.vaye.app.Services;
 
+import android.app.Activity;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.NoticesMainModel;
 
@@ -228,4 +236,69 @@ public class SchoolPostService {
             ref.update(mapLike);
         }
     }
+
+    public void deletePost(CurrentUser currentUser,NoticesMainModel post , TrueFalse<Boolean> callback){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices")
+                .collection("post")
+                .document(post.getPostId());
+        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                //deleteAllComment(post);
+                if (post.getData().size()<=0){
+                    callback.callBack(true);
+                }else{
+                    for (String url : post.getData()){
+                        StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(url);
+                        ref.delete();
+                    }
+                    for (String thumbUrl : post.getThumbData()){
+                        StorageReference reference = FirebaseStorage.getInstance().getReferenceFromUrl(thumbUrl);
+                        reference.delete();
+                    }
+
+                    callback.callBack(true);
+                }
+
+            }
+        });
+    }
+
+    public void SetPostSlient(Activity activity, NoticesMainModel postModel , CurrentUser currentUser , TrueFalse<Boolean> callback){
+        WaitDialog.show((AppCompatActivity) activity ,null);
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices").collection("post").document(postModel.getPostId());
+        Map<String , Object> map = new HashMap<>();
+        map.put("silent", FieldValue.arrayUnion(currentUser.getUid()));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    postModel.getSilent().add(currentUser.getUid());
+                    callback.callBack(true);
+                    WaitDialog.dismiss();
+                }
+            }
+        });
+    }
+    public void RemoveSlientFromPost(Activity activity, NoticesMainModel postModel , CurrentUser currentUser, TrueFalse<Boolean> callback){
+        WaitDialog.show((AppCompatActivity) activity ,null);
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices").collection("post").document(postModel.getPostId());
+        Map<String , Object> map = new HashMap<>();
+        map.put("silent", FieldValue.arrayRemove(currentUser.getUid()));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    postModel.getSilent().remove(currentUser.getUid());
+                    callback.callBack(true);
+                    WaitDialog.dismiss();
+                }
+            }
+        });
+    }
+
 }

@@ -23,6 +23,7 @@ import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MainPostService;
+import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Services.VayeAppPostService;
 import com.vaye.app.Util.Helper;
 
@@ -97,15 +98,38 @@ public class SchoolPostBottomSheetAdapter extends RecyclerView.Adapter<RecyclerV
                     public void onClick(View view) {
                         if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderiyi_sil)){
 
+                            SchoolPostService.shared().deletePost(currentUser, post, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        dialog.dismiss();
+                                        allPost.remove(post);
+                                        WaitDialog.dismiss();
+                                    }
+                                }
+                            });
+
                         }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderiyi_düzenle)){
 
-                            Toast.makeText(context,BottomSheetActionTarget.gonderiyi_düzenle,Toast.LENGTH_SHORT).show();
+
 
                         }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderiyi_sessize_al)){
+                            SchoolPostService.shared().SetPostSlient((Activity) context, post, currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    dialog.dismiss();
 
+                                }
+                            });
 
                         }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.gonderi_bildirimlerini_ac)){
+                            SchoolPostService.shared().RemoveSlientFromPost((Activity) context, post, currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    dialog.dismiss();
 
+                                }
+                            });
                         }
                     }
                 });
