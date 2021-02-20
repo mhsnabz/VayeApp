@@ -29,18 +29,18 @@ public class MainPostCommentViewHolder extends RecyclerView.ViewHolder{
     public MainPostCommentViewHolder(@NonNull View itemView) {
         super(itemView);
     }
-    CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
-    ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
-    TextView name = (TextView)itemView.findViewById(R.id.name);
-    TextView username = (TextView)itemView.findViewById(R.id.username);
-    TextView time = (TextView)itemView.findViewById(R.id.time);
-    TextView likeCount = (TextView)itemView.findViewById(R.id.likeCount);
-    TextView likeTextButton = (TextView)itemView.findViewById(R.id.likeTextButton);
-    TextView replyTextBtn = (TextView)itemView.findViewById(R.id.replyTextButton);
-    TextView replyCountText = (TextView)itemView.findViewById(R.id.replyCount);
-    ImageButton likeBtn = (ImageButton)itemView.findViewById(R.id.likeBtn);
-    SocialTextView msgText = (SocialTextView)itemView.findViewById(R.id.msgText);
-    RelativeLayout relLayReply = (RelativeLayout)itemView.findViewById(R.id.relLayReply);
+    public CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
+    public ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
+    public TextView name = (TextView)itemView.findViewById(R.id.name);
+    public TextView username = (TextView)itemView.findViewById(R.id.username);
+    public TextView time = (TextView)itemView.findViewById(R.id.time);
+    public TextView likeCount = (TextView)itemView.findViewById(R.id.likeCount);
+    public TextView likeTextButton = (TextView)itemView.findViewById(R.id.likeTextButton);
+    public TextView replyTextBtn = (TextView)itemView.findViewById(R.id.replyTextButton);
+    public  TextView replyCountText = (TextView)itemView.findViewById(R.id.replyCount);
+    public ImageButton likeBtn = (ImageButton)itemView.findViewById(R.id.likeBtn);
+    public SocialTextView msgText = (SocialTextView)itemView.findViewById(R.id.msgText);
+    public RelativeLayout relLayReply = (RelativeLayout)itemView.findViewById(R.id.relLayReply);
 
 
     public void setName(String _name , String _username){
