@@ -3,6 +3,7 @@ package com.vaye.app.Util.BottomSheetHelper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,6 +103,7 @@ public class SchoolPostBottomSheetAdapter extends RecyclerView.Adapter<RecyclerV
                                 @Override
                                 public void callBack(Boolean _value) {
                                     if (_value){
+                                        Log.d("deleteAllComment", "callBack: " + post.getPostId());
                                         SchoolPostService.shared().deleteAllComment(post.getPostId());
                                         dialog.dismiss();
                                         allPost.remove(post);

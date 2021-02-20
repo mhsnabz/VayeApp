@@ -315,44 +315,47 @@ public class NewSchoolPostActivity extends AppCompatActivity {
         switch (requestCode){
             case Constant.REQUEST_CODE_PICK_IMAGE:
                 if (getTotalSize(NewSchoolPostActivity.this , dataModel) < 15){
-                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
-                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                    String fileName = list.get(0).getName();
-                    Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
-                    String mimeType = DataTypes.mimeType.image;
-                    String  contentType = DataTypes.contentType.image;
-                    dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
-                    saveDatasToDataBase(DataTypes.contentType.image, DataTypes.mimeType.image, this, clupName, String.valueOf(postDate), currentUser, "image", file, new StringCompletion() {
-                        @Override
-                        public void getString(String url) {
-                            try{
-                                setThumbData(DataTypes.contentType.image, NewSchoolPostActivity.this, clupName, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
-                                    @Override
-                                    public void getString(String thumb_url) {
-                                        updateImages(NewSchoolPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
-                                            @Override
-                                            public void callBack(Boolean _value) {
-                                                WaitDialog.dismiss();
-                                                TipDialog.show(NewSchoolPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
-                                                TipDialog.dismiss(1500);
-                                                for (int i = 0 ; i< dataModel.size() ; i++){
-                                                    if (dataModel.get(i).getFile() == fileUri){
-                                                        dataModel.get(i).setFileUrl(url);
-                                                        dataModel.get(i).setThumb_url(thumb_url);
-                                                        adapter.notifyDataSetChanged();
+                    if (data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE) != null){
+                        ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
+                        Uri file = Uri.fromFile(new File(list.get(0).getPath()));
+                        String fileName = list.get(0).getName();
+                        Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
+                        String mimeType = DataTypes.mimeType.image;
+                        String  contentType = DataTypes.contentType.image;
+                        dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
+                        saveDatasToDataBase(DataTypes.contentType.image, DataTypes.mimeType.image, this, clupName, String.valueOf(postDate), currentUser, "image", file, new StringCompletion() {
+                            @Override
+                            public void getString(String url) {
+                                try{
+                                    setThumbData(DataTypes.contentType.image, NewSchoolPostActivity.this, clupName, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
+                                        @Override
+                                        public void getString(String thumb_url) {
+                                            updateImages(NewSchoolPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    WaitDialog.dismiss();
+                                                    TipDialog.show(NewSchoolPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                                    TipDialog.dismiss(1500);
+                                                    for (int i = 0 ; i< dataModel.size() ; i++){
+                                                        if (dataModel.get(i).getFile() == fileUri){
+                                                            dataModel.get(i).setFileUrl(url);
+                                                            dataModel.get(i).setThumb_url(thumb_url);
+                                                            adapter.notifyDataSetChanged();
+                                                        }
                                                     }
+                                                    title.setText(String.valueOf(getTotalSize(NewSchoolPostActivity.this , dataModel) +"mb"));
+
                                                 }
-                                                title.setText(String.valueOf(getTotalSize(NewSchoolPostActivity.this , dataModel) +"mb"));
+                                            });
+                                        }
+                                    });
+                                }catch (Exception ex){
 
-                                            }
-                                        });
-                                    }
-                                });
-                            }catch (Exception ex){
-
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
+
                 }
                 break;
         }

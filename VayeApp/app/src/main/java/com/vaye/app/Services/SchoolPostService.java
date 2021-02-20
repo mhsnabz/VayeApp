@@ -271,16 +271,21 @@ public class SchoolPostService {
         });
     }
     public void deleteAllComment(String postID){
-        DocumentReference ref = FirebaseFirestore.getInstance().collection("comment").document(postID);
-        ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+        ///comment/1613861865647/comment
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("comment").document(postID).collection("comment");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
-                    Log.d("deleteAllComment", "onComplete: " + "comment deleted");
-                }else{
-                    Log.d("deleteAllComment", "onComplete: " + "comment not deleted");
+                    if (!task.getResult().isEmpty()){
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            DocumentReference ref = FirebaseFirestore.getInstance().collection("comment").document(postID).collection("comment").document(item.getId());
+                            ref.delete();
+                        }
+                    }
                 }
             }
+
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
