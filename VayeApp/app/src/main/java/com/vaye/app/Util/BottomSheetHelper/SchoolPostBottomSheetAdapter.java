@@ -102,6 +102,7 @@ public class SchoolPostBottomSheetAdapter extends RecyclerView.Adapter<RecyclerV
                                 @Override
                                 public void callBack(Boolean _value) {
                                     if (_value){
+                                        SchoolPostService.shared().deleteAllComment(post.getPostId());
                                         dialog.dismiss();
                                         allPost.remove(post);
                                         WaitDialog.dismiss();

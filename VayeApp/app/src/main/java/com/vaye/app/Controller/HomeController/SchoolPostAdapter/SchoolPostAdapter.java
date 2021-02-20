@@ -30,6 +30,7 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdViewHolder;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
+import com.vaye.app.Controller.HomeController.School.SchoolPostComment.SchoolPostCommentActivity;
 import com.vaye.app.Controller.HomeController.SinglePost.CommentActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
@@ -221,6 +222,19 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
                 itemHolder.setTime(menuItem.getPostTime());
 
+                itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //  currentUser = intentIncoming.getParcelableExtra("currentUser");
+                        //            postModel = intentIncoming.getParcelableExtra("post");
+                        Intent i = new Intent(context , SchoolPostCommentActivity.class);
+                        i.putExtra("currentUser",currentUser);
+                        i.putExtra("post",menuItem);
+                        context.startActivity(i);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+
                 itemHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -316,7 +330,13 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        //  currentUser = intentIncoming.getParcelableExtra("currentUser");
+                        //            postModel = intentIncoming.getParcelableExtra("post");
+                        Intent i = new Intent(context , SchoolPostCommentActivity.class);
+                        i.putExtra("currentUser",currentUser);
+                        i.putExtra("post",menuItemData);
+                        context.startActivity(i);
+                        Helper.shared().go((Activity) context);
                     }
                 });
                 postHolder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {

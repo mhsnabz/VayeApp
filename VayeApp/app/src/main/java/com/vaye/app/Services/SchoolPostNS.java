@@ -104,4 +104,43 @@ public class SchoolPostNS {
         map.put("lessonName",clupName);
         return map;
     }
+
+    public void setNewCommentNotification(NoticesMainModel postModel ,  CurrentUser currentUser , String type , String  text , String clupName
+    ){
+        if (postModel.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+            if (!postModel.getSilent().contains(currentUser.getUid())){
+                String notificationId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                        .document(postModel.getSenderUid()).collection("notification")
+                        .document(notificationId);
+                ref.set(map(currentUser,notificationId , postModel.getPostId(),text , type,clupName) , SetOptions.merge());
+            }
+        }
+    }
+
+    public void setMentionedCommentNotificaiton(String username , CurrentUser currentUser,NoticesMainModel post , String type , String text , String clupName){
+        UserService.shared().getOthUserIdByMention(username, new StringCompletion() {
+            @Override
+            public void getString(String otherUserUid) {
+                if (otherUserUid!=null){
+                    if (otherUserUid.equals(currentUser.getUid())){
+                        return;
+                    }else{
+                        if (!post.getSilent().contains(post.getSenderUid())) {
+                            if (!currentUser.getSlient().contains(otherUserUid)){
+                                String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                        .document(otherUserUid).collection("notification")
+                                        .document(notificaitonId);
+                                ref.set(map(currentUser , notificaitonId , post.getPostId() , text , type , clupName) , SetOptions.merge());
+                            }
+                        }
+                    }
+                }
+
+            }
+        });
+    }
 }

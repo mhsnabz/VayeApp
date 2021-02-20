@@ -1,21 +1,27 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -245,7 +251,7 @@ public class SchoolPostService {
         ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                //deleteAllComment(post);
+
                 if (post.getData().size()<=0){
                     callback.callBack(true);
                 }else{
@@ -264,7 +270,24 @@ public class SchoolPostService {
             }
         });
     }
-
+    public void deleteAllComment(String postID){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("comment").document(postID);
+        ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Log.d("deleteAllComment", "onComplete: " + "comment deleted");
+                }else{
+                    Log.d("deleteAllComment", "onComplete: " + "comment not deleted");
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("deleteAllComment", "onComplete: " + e.getLocalizedMessage());
+            }
+        });
+    }
     public void SetPostSlient(Activity activity, NoticesMainModel postModel , CurrentUser currentUser , TrueFalse<Boolean> callback){
         WaitDialog.show((AppCompatActivity) activity ,null);
 
@@ -301,4 +324,59 @@ public class SchoolPostService {
         });
     }
 
+    public void setNewComment(CurrentUser currentUser , String commentText , String commentId , String postId , TrueFalse<Boolean> callback){
+        DocumentReference ref  = FirebaseFirestore.getInstance()
+                .collection("comment")
+                .document(postId).collection("comment").document(commentId);
+
+        Map<String , Object> map = new HashMap<>();
+        map.put("senderName",currentUser.getName());
+        map.put("senderUid",currentUser.getUid());
+        map.put("username",currentUser.getUsername());
+        map.put("time",FieldValue.serverTimestamp());
+        map.put("comment",commentText);
+        map.put("commentId",commentId);
+        map.put("postId",postId);
+        map.put("likes",FieldValue.arrayUnion());
+        map.put("replies",FieldValue.arrayUnion());
+        map.put("senderImage",currentUser.getThumb_image());
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(true);
+                    getTotalCommentCount(postId, new CallBackCount() {
+                        @Override
+                        public void callBackCount(long count) {
+                            DocumentReference commentCountRef  = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                    .document("notices")
+                                    .collection("post")
+                                    .document(postId);
+                            Map<String , Object> map1 = new HashMap<>();
+                            map1.put("comment", count);
+                            commentCountRef.set(map1 , SetOptions.merge());
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void getTotalCommentCount(String postId , CallBackCount count){
+        CollectionReference ref  = FirebaseFirestore.getInstance()
+                .collection("comment")
+                .document(postId).collection("comment");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        count.callBackCount(0);
+                    }else{
+                        count.callBackCount(task.getResult().getDocuments().size());
+                    }
+                }
+            }
+        });
+    }
 }

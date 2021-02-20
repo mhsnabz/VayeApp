@@ -1,5 +1,7 @@
 package com.vaye.app.Controller.HomeController.School.SchoolPostComment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -18,24 +20,41 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Controller.VayeAppController.CommentController.MainPostCommentActivity;
 import com.vaye.app.Controller.VayeAppController.CommentController.MainPostCommentAdapter;
 import com.vaye.app.Controller.VayeAppController.CommentController.MainPostReplyCommentActivity;
 import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.MainPostNS;
+import com.vaye.app.Services.MainPostService;
+import com.vaye.app.Services.SchoolPostNS;
+import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
 import com.vaye.app.Util.SwipeControllerActions;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -104,7 +123,30 @@ public class SchoolPostCommentActivity extends AppCompatActivity {
     }
 
     private void sendMsg() {
+        String msg =  msgText.getText().toString();
+        String commentId = String.valueOf(Calendar.getInstance().getTimeInMillis());
 
+        if (msg.isEmpty()){
+            msgText.setError("Gönderiniz Boş Olamaz");
+            msgText.requestFocus();
+        }else{
+            msgText.setText("");
+            SchoolPostService.shared().setNewComment(currentUser, msg, commentId, postModel.getPostId(), new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        SchoolPostNS.shared().setNewCommentNotification(postModel,currentUser , Notifications.NotificationType.comment_home, Notifications.NotificationDescription.comment_home,postModel.getClupName());
+                        if (Helper.shared().getMentionedUser(msg).size() > 0 ){
+
+                            for (String item : Helper.shared().getMentionedUser(msg)){
+                                SchoolPostNS.shared(). setMentionedCommentNotificaiton(item , currentUser , postModel , Notifications.NotificationType.comment_mention , Notifications.NotificationDescription.comment_mention,postModel.getClupName());
+                            }
+                        }
+
+                    }
+                }
+            });
+        }
     }
 
     private void configureUI(CurrentUser currentUser, NoticesMainModel postModel) {
@@ -188,22 +230,154 @@ public class SchoolPostCommentActivity extends AppCompatActivity {
 
     }
 
-    private void deleteComment(NoticesMainModel postModel, String commentId, CallBackCount count) {
+
+
+    private void getComment(CurrentUser currentUser, NoticesMainModel post) {
+        Query dbNext = FirebaseFirestore.getInstance()
+                .collection("comment")
+                .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
+
+        dbNext.addSnapshotListener(SchoolPostCommentActivity.this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()) {
+
+                }else{
+                    for (DocumentChange item : value.getDocumentChanges()){
+                        if (item.getType().equals(DocumentChange.Type.ADDED))
+                        {
+                            comments.add(item.getDocument().toObject(CommentModel.class));
+
+                            Collections.sort(comments, new Comparator<CommentModel>(){
+                                public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
+
+                                }
+
+                            });
+                            if (adapter!=null){
+
+                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                adapter.notifyDataSetChanged();
+                            }
+                            firstPage = comments.get(0).getCommentId();
+                            loadMoreButton.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
+                }
+            }
+        });
     }
 
-    private void getComment(CurrentUser currentUser, NoticesMainModel postModel) {
-
+    private void scrollRecyclerViewToBottom(RecyclerView recyclerView) {
+        RecyclerView.Adapter adapter = recyclerView.getAdapter();
+        if (adapter != null && adapter.getItemCount() > 0) {
+            recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+        }
     }
 
-    private void scrollRecyclerViewToBottom(RecyclerView commentList) {
+    private void loadMoreComment(NoticesMainModel post) {
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
 
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment")
+                    .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
+                    .limitToLast(5);
+            dbNext.get().addOnCompleteListener(SchoolPostCommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+        }
     }
+    private void deleteComment(NoticesMainModel postModel, String commentId , CallBackCount count){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("comment").document(postModel.getPostId())
+                .collection("comment").document(commentId);
+        ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    getTotalComment(postModel.getPostId(), new CallBackCount() {
+                        @Override
+                        public void callBackCount(long countt) {
+                            count.callBackCount(countt);
+                        }
+                    }); }
+            }
+        });
+    }
+    private void getTotalComment(String postId , CallBackCount count){
 
-    private void loadMoreComment(NoticesMainModel postModel) {
 
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("comment").document(postId).collection("comment");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        count.callBackCount(0);
+                    }else{
+                        count.callBackCount(task.getResult().getDocuments().size());
+                    }
+                }
+            }
+        })      ;
     }
 
     private void setToolbar() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        title = toolbar.findViewById(R.id.toolbar_title);
+        toolbar.setTitle("");
+        toolbar.setSubtitle("");
+        title.setText("Yorumlar");
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                Helper.shared().back(SchoolPostCommentActivity.this);
+            }
+        });
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        Helper.shared().back(SchoolPostCommentActivity.this);
     }
 }
