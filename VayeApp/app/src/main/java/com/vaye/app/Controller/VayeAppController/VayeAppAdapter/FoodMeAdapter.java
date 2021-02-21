@@ -209,6 +209,16 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                     }
                 });
+                itemHolder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                @Override
+                public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                    String url = text.toString();
+                    if (!url.startsWith("http://") && !url.startsWith("https://"))
+                        url = "http://" + url;
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    context.startActivity(browserIntent);
+                }
+            });
                itemHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                    @Override
                    public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
@@ -402,6 +412,16 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                         }
 
+                    }
+                });
+                postHolder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                        String url = text.toString();
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        context.startActivity(browserIntent);
                     }
                 });
                 postHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {

@@ -3,6 +3,7 @@ package com.vaye.app.Controller.VayeAppController.VayeAppAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -185,6 +186,17 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                 caping_post_holder.setTime(menuItem.getPostTime());
                 caping_post_holder.setLocationButton(menuItem.getGeoPoint());
+                caping_post_holder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                        String url = text.toString();
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        context.startActivity(browserIntent);
+                    }
+                });
+
                 caping_post_holder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -262,6 +274,7 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                     }
                 });
+
                 caping_post_holder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
@@ -389,6 +402,16 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 camping_post_data_holder.setDislike(menuItemData.getDislike(),currentUser , context);
                 camping_post_data_holder.setTime(menuItemData.getPostTime());
                 camping_post_data_holder.setLocationButton(menuItemData.getGeoPoint());
+                camping_post_data_holder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                        String url = text.toString();
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        context.startActivity(browserIntent);
+                    }
+                });
                 camping_post_data_holder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -716,6 +739,16 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                     }
                 });
+               foodme_post_data_holder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                @Override
+                public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                    String url = text.toString();
+                    if (!url.startsWith("http://") && !url.startsWith("https://"))
+                        url = "http://" + url;
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    context.startActivity(browserIntent);
+                }
+            });
                 foodme_post_data_holder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
@@ -981,6 +1014,16 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                     }
                 });
+               foodme_post_holder .text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                @Override
+                public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                    String url = text.toString();
+                    if (!url.startsWith("http://") && !url.startsWith("https://"))
+                        url = "http://" + url;
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    context.startActivity(browserIntent);
+                }
+            });
                 foodme_post_holder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
@@ -1192,7 +1235,16 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                     }
                 });
-
+            buy_sell_post_holder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                            @Override
+                            public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                                String url = text.toString();
+                                if (!url.startsWith("http://") && !url.startsWith("https://"))
+                                    url = "http://" + url;
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                context.startActivity(browserIntent);
+                            }
+                        });
                 buy_sell_post_holder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
@@ -1394,6 +1446,16 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     }
                 });
                 buy_sell_post_data_holder.setLocationButton(menuItemData.getGeoPoint());
+                buy_sell_post_data_holder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                @Override
+                public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                    String url = text.toString();
+                    if (!url.startsWith("http://") && !url.startsWith("https://"))
+                        url = "http://" + url;
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    context.startActivity(browserIntent);
+                }
+            });
                 buy_sell_post_data_holder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {

@@ -3,6 +3,7 @@ package com.vaye.app.Controller.VayeAppController.VayeAppAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -199,6 +200,16 @@ public class CampingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                     }
                 });
+                itemHolder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                @Override
+                public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                    String url = text.toString();
+                    if (!url.startsWith("http://") && !url.startsWith("https://"))
+                        url = "http://" + url;
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    context.startActivity(browserIntent);
+                }
+            });
                 itemHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
@@ -333,6 +344,16 @@ public class CampingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.setDislike(menuItemData.getDislike(),currentUser , context);
                 postHolder.setTime(menuItemData.getPostTime());
                 postHolder.setLocationButton(menuItemData.getGeoPoint());
+                postHolder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                        String url = text.toString();
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        context.startActivity(browserIntent);
+                    }
+                });
                 postHolder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

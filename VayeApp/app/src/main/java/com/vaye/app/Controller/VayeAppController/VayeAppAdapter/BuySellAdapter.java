@@ -3,6 +3,7 @@ package com.vaye.app.Controller.VayeAppController.VayeAppAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -139,7 +140,16 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 itemHolder.setTime(menuItem.getPostTime());
                 itemHolder.setLocationButton(menuItem.getGeoPoint());
-
+                itemHolder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                        String url = text.toString();
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        context.startActivity(browserIntent);
+                    }
+                });
                 itemHolder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -333,6 +343,16 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.setLike(menuItemData.getLikes(),currentUser , context);
                 postHolder.setDislike(menuItemData.getDislike(),currentUser , context);
                 postHolder.setTime(menuItemData.getPostTime());
+                postHolder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
+                        String url = text.toString();
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        context.startActivity(browserIntent);
+                    }
+                });
                 postHolder.itemView.findViewById(R.id.profileLay).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
