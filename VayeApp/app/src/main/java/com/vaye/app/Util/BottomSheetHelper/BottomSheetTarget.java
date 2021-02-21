@@ -16,4 +16,7 @@ public interface BottomSheetTarget {
     String school_app_other_user_launcher= "school_app_other_user_launcher";
     String school_app_current_user_launcher = "school_app_current_user_launcher";
 
+    String add_link = "add_link";
+
+
 }

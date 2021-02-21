@@ -190,7 +190,9 @@ public class StudentNewPostActivity extends AppCompatActivity {
                 }else {
                     WaitDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
                     MajorPostNS.shared().sendNewPostNotification(currentUser,String.valueOf(Calendar.getInstance().getTimeInMillis()),lessonName,msgText, Notifications.NotificationType.home_new_post,String.valueOf(postDate));
-
+                    for (String username : Helper.shared().getMentionedUser(msgText)){
+                        MajorPostNS.shared().setMentionedPost(username,currentUser , String.valueOf(postDate), Notifications.NotificationType.home_new_mentions_post, Notifications.NotificationDescription.home_new_mentions_post , lessonName);
+                    }
                     MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
                         @Override
                         public void onCallback(ArrayList<LessonFallowerUser> users) {

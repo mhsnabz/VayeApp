@@ -22,4 +22,19 @@ public class VayeAppBottomSheetLauncherViewHolder extends RecyclerView.ViewHolde
     void setTitle(String text){
         title.setText(text);
     }
+    public String getLinkTarget(String item){
+        if (item.equals(BottomSheetActionTarget.dropbox))
+            return  LinkTarget.dropbox;
+        else if (item.equals(BottomSheetActionTarget.google_drive))
+            return  LinkTarget.google_drive;
+        else if (item.equals(BottomSheetActionTarget.yandex_disk))
+            return LinkTarget.yandex;
+        else if (item.equals(BottomSheetActionTarget.iClould))
+            return LinkTarget.iClould;
+        else if (item.equals(BottomSheetActionTarget.mega))
+            return LinkTarget.mega;
+        else if (item.equals(BottomSheetActionTarget.one_drive))
+            return LinkTarget.oneDrive;
+        return  "";
+    }
 }

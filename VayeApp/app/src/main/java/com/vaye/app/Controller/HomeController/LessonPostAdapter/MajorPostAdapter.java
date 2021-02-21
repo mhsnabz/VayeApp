@@ -177,10 +177,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         }
                     }
                 });
-
-
                 LessonPostModel menuItemData = post.get(i);
-
                 postHolder.setCommentLbl(menuItemData.getComment());
 
                 postHolder.setImages(menuItemData.getThumbData());

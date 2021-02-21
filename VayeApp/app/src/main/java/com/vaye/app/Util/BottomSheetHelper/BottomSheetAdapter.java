@@ -50,10 +50,10 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 {
 
     static final int view_lesson = 0;
-    static final int view_currentUser = 1;
+
     static final int view_add_link = 2;
     static final int view_add_link_on_post = 3;
-    static final int otheruser_options_target = 4;
+
 //target ,currentUser ,activity ,model , bottomSheetDialog , lessonModel)
     public BottomSheetAdapter(String target,String link , CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog ) {
         this.target = target;
@@ -122,14 +122,10 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public int getItemViewType(int position) {
         if (model.getTarget().equals(BottomSheetTarget.lessonTarget)){
             return view_lesson;
-        }else if (model.getTarget().equals(BottomSheetTarget.lesson_currentUser_target)){
-            return view_currentUser;
         }else if (model.getTarget().equals(BottomSheetTarget.post_add_link_target)){
             return view_add_link;
         }else if (model.getTarget().equals(BottomSheetTarget.new_post_add_link_target)){
             return  view_add_link_on_post;
-        }else if (model.getTarget().equals(BottomSheetTarget.otheruser_options_target)){
-            return otheruser_options_target;
         }
         return super.getItemViewType(position);
     }
@@ -145,11 +141,6 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 return new BottomSheetLessonViewHolder(itemView);
 
-            case view_currentUser:
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.action_sheet_single_item, parent, false);
-
-                return new BottomSheetLessonCurrentUserViewHolder(view);
 
             case view_add_link:
                 View view_link = LayoutInflater.from(parent.getContext())
@@ -163,11 +154,6 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 return new BottomSheetLessonCurrentUserViewHolder(new_view_link);
 
-            case otheruser_options_target :
-                View otherUser_view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.action_sheet_single_item, parent, false);
-
-                return new BottomSheetLessonViewHolder(otherUser_view);
 
 
         }
@@ -212,60 +198,7 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
         }
-        else if (viewType == view_currentUser){
-            BottomSheetLessonCurrentUserViewHolder currentUser_holder = (BottomSheetLessonCurrentUserViewHolder) holder;
-            currentUser_holder.setTitle(model.getItems().get(i));
-            currentUser_holder.setImageOne(model.getImagesHolder().get(i));
 
-            currentUser_holder.title.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_düzenle)){
-
-                        Intent i = new Intent(context , EditPostActivity.class);
-                        i.putExtra("currentUser",currentUser);
-                        i.putExtra("post",post);
-                        context.startActivity(i);
-                        Helper.shared().go((Activity) context);
-                        dialog.dismiss();
-                    }
-                    else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_sil))
-                    {
-                        MajorPostService.shared().deleteCurrentUserPost((Activity) context, currentUser, post, new TrueFalse<Boolean>() {
-                            @Override
-                            public void callBack(Boolean _value) {
-                                if (_value){
-                                    WaitDialog.dismiss();
-                                    postModels.remove(post);
-
-                                    dialog.dismiss();
-                                }
-                            }
-                        });
-
-                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderiyi_sessize_al)){
-                        MajorPostService.shared().setCurrentUserPostSlient((Activity) context, currentUser, post, new TrueFalse<Boolean>() {
-                            @Override
-                            public void callBack(Boolean _value) {
-                                if (_value){
-                                    dialog.dismiss();;
-
-                                }
-                            }
-                        });
-                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.gonderi_bildirimlerini_ac)){
-                       MajorPostService.shared().setCurrentUserPostNotSilent((Activity) context, currentUser, post, new TrueFalse<Boolean>() {
-                           @Override
-                           public void callBack(Boolean _value) {
-                               if (_value)
-                                   dialog.dismiss();
-
-                           }
-                       });
-                    }
-                }
-            });
-        }
         else if (viewType == view_add_link){
 
             BottomSheetLessonCurrentUserViewHolder currentUser_holder = (BottomSheetLessonCurrentUserViewHolder) holder;
@@ -529,63 +462,12 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             });
         }
-        else if (viewType == otheruser_options_target){
-            BottomSheetLessonViewHolder otheruser_holder = (BottomSheetLessonViewHolder) holder;
-            otheruser_holder.setTitle(model.getItems().get(i));
-            otheruser_holder.setImageOne(model.getImagesHolder().get(i));
-            otheruser_holder.setImageOne(model.getImagesHolder().get(i));
-            otheruser_holder.setTitle(model.getItems().get(i));
-            otheruser_holder.title.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_gonderiyi_sikayet_et)){
-                        Intent i = new Intent(context , ReportActivity.class);
-                        i.putExtra("otherUser",post.getSenderUid());
-                        i.putExtra("postId",post.getPostId());
-                        i.putExtra("target", Report.ReportTarget.homePost);
-                        i.putExtra("reportType", Report.ReportType.reportPost);
-                        i.putExtra("currentUser",currentUser);
-                        context.startActivity(i);
-                        Helper.shared().go((Activity) context);
-                        dialog.dismiss();
-                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_sessize_al)){
-                        Toast.makeText(context , BottomSheetActionTarget.bu_dersi_sessize_al , Toast.LENGTH_SHORT).show();
 
-                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_sessizden_al)){
-                        Toast.makeText(context , BottomSheetActionTarget.bu_dersi_sessizden_al , Toast.LENGTH_SHORT).show();
-                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_kullaniciyi_sessize_al)){
-                        Toast.makeText(context , BottomSheetActionTarget.bu_kullaniciyi_sessize_al , Toast.LENGTH_SHORT).show();
-                    }
-                    else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak)){
-                        Toast.makeText(context , BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak , Toast.LENGTH_SHORT).show();
-                    }
-                    else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et)){
-                        Toast.makeText(context , BottomSheetActionTarget.bu_kullaniciyi_sikayet_et , Toast.LENGTH_SHORT).show();
-                        Intent i = new Intent(context , ReportActivity.class);
-                        i.putExtra("otherUser",post.getSenderUid());
-                        i.putExtra("postId",post.getPostId());
-                        i.putExtra("target", Report.ReportTarget.homePost);
-                        i.putExtra("reportType", Report.ReportType.reportUser);
-                        i.putExtra("currentUser",currentUser);
-                        context.startActivity(i);
-                        Helper.shared().go((Activity) context);
-                        dialog.dismiss();
-                    }
-
-                }
-            });
-        }
     }
-
-
-
     @Override
     public int getItemCount() {
         return model.getImagesHolder().size();
     }
-
-
-
     public class BottomSheetLessonViewHolder extends RecyclerView.ViewHolder {
         public BottomSheetLessonViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -601,7 +483,6 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
     }
-
     class BottomSheetLessonCurrentUserViewHolder extends  RecyclerView.ViewHolder{
 
         public BottomSheetLessonCurrentUserViewHolder(@NonNull View itemView) {

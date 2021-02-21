@@ -58,14 +58,10 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         this.context = context;
         this.currentUser = currentUser;
         if (context instanceof CurrentUserProfile){
-            Log.d("FollowersAdapter", "FollowersAdapter: " + "instanceof CurrentUserProfile");
             istanceOfCurrentUserProfile = true;
         }else{
-
-            Log.d("FollowersAdapter", "FollowersAdapter: " + "not instanceof CurrentUserProfile");
             istanceOfCurrentUserProfile = false;
         }
-
         if (context instanceof  OtherUserProfileActivity){
             istanceOfOtherUserProfile= true;
         }else{

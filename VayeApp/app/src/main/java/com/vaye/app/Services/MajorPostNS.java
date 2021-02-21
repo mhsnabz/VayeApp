@@ -15,6 +15,7 @@ import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Util.Helper;
 
@@ -129,6 +130,30 @@ public class MajorPostNS {
                 }else{
                     callback.callBack(false);
                 }
+            }
+        });
+    }
+
+    public void setMentionedPost(String username , CurrentUser currentUser, String postId , String type , String text , String lessonName){
+        UserService.shared().getOthUserIdByMention(username, new StringCompletion() {
+            @Override
+            public void getString(String otherUserUid) {
+                if (otherUserUid!=null){
+                    if (otherUserUid.equals(currentUser.getUid())){
+                        return;
+                    }else{
+
+                            if (!currentUser.getSlient().contains(otherUserUid)){
+                                String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                        .document(otherUserUid).collection("notification")
+                                        .document(notificaitonId);
+                                ref.set(map(currentUser , notificaitonId , postId, text , type  , lessonName) , SetOptions.merge());
+                            }
+
+                    }
+                }
+
             }
         });
     }
