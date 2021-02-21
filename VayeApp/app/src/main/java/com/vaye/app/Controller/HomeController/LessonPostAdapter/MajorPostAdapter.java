@@ -128,101 +128,30 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     @Override
                     public void onClick(View view) {
                         if (post.get(i).getSenderUid().equals(currentUser.getUid())){
-                            ArrayList<String > items = new ArrayList<>();
-                            items.add(BottomSheetActionTarget.gonderiyi_düzenle);
-                            items.add(BottomSheetActionTarget.gonderiyi_sil);
-                            ArrayList<Integer> res = new ArrayList<>();
-                            res.add(R.drawable.edit);
-                            res.add(R.drawable.trash);
-
-                            MajorPostService.shared().check_currentUser_post_is_slient(currentUser, post.get(i), new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    if (_value){
-                                        items.add(BottomSheetActionTarget.gonderi_bildirimlerini_ac);
-                                        res.add(R.drawable.slient_selected);
-                                    }else {
-                                        items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
-                                        res.add(R.drawable.slient);
+                                Helper.shared().MajorPostCurrentUserBottomSheetLaunher((Activity) context, post, currentUser, post.get(i), new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            notifyDataSetChanged();
+                                        }
                                     }
-                                }
-                            });
-                            BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.lesson_currentUser_target,res);
-
-                            Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context,post, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    if (_value){
-                                        notifyDataSetChanged();
-                                    }
-                                }
-                            });
+                                });
                         }else {
 
-                            UserService.shared().getOtherUser((Activity) context,post.get(i).getSenderUid(), new OtherUserService() {
+                            UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
                                 @Override
-                                public void callback(OtherUser otherUser) {
-                                    ArrayList<String > items = new ArrayList<>();
-                                    ArrayList<Integer> res = new ArrayList<>();
-
-                                    DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                            .document("lesson-post")
-                                            .collection(currentUser.getBolum())
-                                            .document(post.get(i).getLessonName())
-                                            .collection("notification_getter")
-                                            .document(currentUser.getUid());
-                                    ref.get().addOnSuccessListener((Activity) context, new OnSuccessListener<DocumentSnapshot>() {
+                                public void callback(OtherUser user) {
+                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, post, user, currentUser, post.get(i), new TrueFalse<Boolean>() {
                                         @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                            if (!documentSnapshot.exists()){
-                                                items.add(BottomSheetActionTarget.bu_gonderiyi_sikayet_et);
-                                                res.add(R.drawable.black_color_report);
-                                                items.add(BottomSheetActionTarget.bu_dersi_sessize_al);
-                                                res.add(R.drawable.slient);
-                                                items.add(BottomSheetActionTarget.bu_kullaniciyi_sessize_al);
-                                                res.add(R.drawable.make_mute);
-                                                items.add(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak);
-                                                items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
-                                                res.add(R.drawable.cancel);
-                                                res.add(R.drawable.red_report);
-                                                BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.otheruser_options_target , res);
-                                                Helper.shared().BottomSheetOtherUser((Activity) context, otherUser, BottomSheetTarget.otheruser_options_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
-                                                    @Override
-                                                    public void callBack(Boolean _value) {
-
-                                                    }
-                                                });
-                                                WaitDialog.dismiss();
-                                            }else{
-                                                items.add(BottomSheetActionTarget.bu_gonderiyi_sikayet_et);
-                                                res.add(R.drawable.black_color_report);
-                                                items.add(BottomSheetActionTarget.bu_dersi_sessizden_al);
-                                                res.add(R.drawable.slient_selected);
-                                                items.add(BottomSheetActionTarget.bu_kullaniciyi_sessiden_al);
-                                                res.add(R.drawable.make_not_mute);
-                                                items.add(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak);
-                                                items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
-                                                res.add(R.drawable.cancel);
-                                                res.add(R.drawable.red_report);
-                                                BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.otheruser_options_target , res);
-                                                Helper.shared().BottomSheetOtherUser((Activity) context, otherUser, BottomSheetTarget.otheruser_options_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
-                                                    @Override
-                                                    public void callBack(Boolean _value) {
-
-                                                    }
-                                                });
-                                                WaitDialog.dismiss();
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                notifyDataSetChanged();
                                             }
                                         }
                                     });
-
-
-
-
                                 }
                             });
-
-
+                            WaitDialog.dismiss();
                         }
                     }
                 });
@@ -363,29 +292,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
 
                         if (post.get(i).getSenderUid().equals(currentUser.getUid())){
-                            ArrayList<String > items = new ArrayList<>();
-                            items.add(BottomSheetActionTarget.gonderiyi_düzenle);
-                            items.add(BottomSheetActionTarget.gonderiyi_sil);
-                            ArrayList<Integer> res = new ArrayList<>();
-                            res.add(R.drawable.edit);
-                            res.add(R.drawable.trash);
-
-                            MajorPostService.shared().check_currentUser_post_is_slient(currentUser, post.get(i), new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    if (_value){
-                                        items.add(BottomSheetActionTarget.gonderi_bildirimlerini_ac);
-                                        res.add(R.drawable.slient_selected);
-                                    }else {
-                                        items.add(BottomSheetActionTarget.gonderiyi_sessize_al);
-                                        res.add(R.drawable.slient);
-                                    }
-                                }
-                            });
-
-                            BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.lesson_currentUser_target,res);
-
-                            Helper.shared().BottomSheet_LessonCurrenUser_Dialog((Activity) context,post, BottomSheetTarget.lesson_currentUser_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
+                            Helper.shared().MajorPostCurrentUserBottomSheetLaunher((Activity) context, post, currentUser, post.get(i), new TrueFalse<Boolean>() {
                                 @Override
                                 public void callBack(Boolean _value) {
                                     if (_value){
@@ -394,68 +301,21 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 }
                             });
                         }else{
-                            UserService.shared().getOtherUser((Activity) context,post.get(i).getSenderUid(), new OtherUserService() {
+                            UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
                                 @Override
-                                public void callback(OtherUser otherUser) {
-                                    ArrayList<String > items = new ArrayList<>();
-                                    ArrayList<Integer> res = new ArrayList<>();
-
-                                    DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                            .document("lesson-post")
-                                            .collection(currentUser.getBolum())
-                                            .document(post.get(i).getLessonName())
-                                            .collection("notification_getter")
-                                            .document(currentUser.getUid());
-                                    ref.get().addOnSuccessListener((Activity) context, new OnSuccessListener<DocumentSnapshot>() {
+                                public void callback(OtherUser user) {
+                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, post, user, currentUser, post.get(i), new TrueFalse<Boolean>() {
                                         @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                            if (!documentSnapshot.exists()){
-                                                items.add(BottomSheetActionTarget.bu_gonderiyi_sikayet_et);
-                                                res.add(R.drawable.black_color_report);
-                                                items.add(BottomSheetActionTarget.bu_dersi_sessize_al);
-                                                res.add(R.drawable.slient);
-                                                items.add(BottomSheetActionTarget.bu_kullaniciyi_sessize_al);
-                                                res.add(R.drawable.make_mute);
-                                                items.add(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak);
-                                                items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
-                                                res.add(R.drawable.cancel);
-                                                res.add(R.drawable.red_report);
-                                                BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.otheruser_options_target , res);
-                                                Helper.shared().BottomSheetOtherUser((Activity) context, otherUser, BottomSheetTarget.otheruser_options_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
-                                                    @Override
-                                                    public void callBack(Boolean _value) {
-
-                                                    }
-                                                });
-                                                WaitDialog.dismiss();
-                                            }else{
-                                                items.add(BottomSheetActionTarget.bu_gonderiyi_sikayet_et);
-                                                res.add(R.drawable.black_color_report);
-                                                items.add(BottomSheetActionTarget.bu_dersi_sessizden_al);
-                                                res.add(R.drawable.slient_selected);
-                                                items.add(BottomSheetActionTarget.bu_kullaniciyi_sessiden_al);
-                                                res.add(R.drawable.make_not_mute);
-                                                items.add(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak);
-                                                items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
-                                                res.add(R.drawable.cancel);
-                                                res.add(R.drawable.red_report);
-                                                BottomSheetModel model = new BottomSheetModel(items , BottomSheetTarget.otheruser_options_target , res);
-                                                Helper.shared().BottomSheetOtherUser((Activity) context, otherUser, BottomSheetTarget.otheruser_options_target, currentUser, model, post.get(i), new TrueFalse<Boolean>() {
-                                                    @Override
-                                                    public void callBack(Boolean _value) {
-
-                                                    }
-                                                });
-                                                WaitDialog.dismiss();
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                notifyDataSetChanged();
                                             }
                                         }
                                     });
-
-
-
-
                                 }
                             });
+                            WaitDialog.dismiss();
+
                         }
 
 
