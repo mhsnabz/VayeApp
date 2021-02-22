@@ -180,7 +180,7 @@ public class CurrentUserProfile extends AppCompatActivity {
                 ContextCompat.getColor(this, R.color.red),currentUser), currentUser.getShort_school());
         adapter.addFrag(new VayeAppFragment(
                 ContextCompat.getColor(this, R.color.black),currentUser), "Vaye.app");
-        adapter.addFrag(new FavFragment(), "Favoriler");
+        adapter.addFrag(new FavFragment(currentUser), "Favoriler");
         viewPager.setAdapter(adapter);
     }
     private void setToolbar(CurrentUser currentUser) {

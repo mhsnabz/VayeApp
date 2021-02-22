@@ -368,64 +368,7 @@ public class MajorPostFragment extends Fragment {
         adLoader.loadAd(new  AdRequest.Builder().build());
     }
 
-    private void setNewPost(){
-        Intent i = new Intent(getActivity(), StudentChooseLessonActivity.class);
-        i.putExtra("currentUser",currentUser);
-        getActivity().startActivity(i);
-        Helper.shared().go(getActivity());
-    }
-    private void getPostId(CurrentUser currentUser , StringArrayListInterface result){
-        postIds = new ArrayList<>();
-        Query db = FirebaseFirestore.getInstance().collection("user")
-                .document(currentUser.getUid())
-                .collection("lesson-post")
-                .limit(1)
-                .orderBy("postId" , Query.Direction.DESCENDING);
-        db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    if (task.getResult().isEmpty()){
-                        result.getArrayList(postIds);
-                    }else{
 
-                        for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                    .document("lesson-post")
-                                    .collection("post").document(item.getId());
-
-                            ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
-                                @Override
-                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    if (documentSnapshot.exists()){
-                                        lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
-                                        Log.d(TAG, "onSuccess: "+ documentSnapshot.getString("type"));
-                                        adapter.notifyDataSetChanged();
-                                        swipeRefreshLayout.setRefreshing(false);
-                                        lastPage =  task.getResult().getDocuments().get(task.getResult().size() - 1);
-                                    }else {
-                                        deletePostId(currentUser , item.getId());
-                                    }
-
-                                }
-                            }).addOnFailureListener(getActivity(), new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-
-                        }
-                        result.getArrayList(postIds);
-                    }
-                }
-            }
-        });
-    }
-    private void getLessonPost(CurrentUser currentUser , String postIds , LessonPostModelCompletion result){
-
-
-    }
 
 
 
