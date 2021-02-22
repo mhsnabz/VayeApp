@@ -54,25 +54,25 @@ public class MajorPostService {
                 .document("lesson-post")
                 .collection("post")
                 .document(post.getPostId());
-        Map<String , Object> mapLike = new HashMap<>();
-        Map<String , Object> mapDisike = new HashMap<>();
+
 
         if (!post.getLikes().contains(currentUser.getUid())){
             post.getLikes().add(currentUser.getUid());
             post.getDislike().remove(currentUser.getUid());
             result.callBack(true);
+            Map<String , Object> mapLike = new HashMap<>();
             mapLike.put("likes",FieldValue.arrayUnion(currentUser.getUid()));
-            mapDisike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
-            ref.update(mapLike);
-            ref.update(mapDisike);
+            mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
+            ref.set(mapLike , SetOptions.merge());
             NotificaitonService.shared().setPost_CommentLike(post , currentUser , Notifications.NotificationDescription.like_home,Notifications.NotificationType.like_home);
         }
         else{
             post.getLikes().remove(currentUser.getUid());
             result.callBack(true);
+            Map<String , Object> mapLike = new HashMap<>();
             mapLike.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
             ref.update(mapLike);
-            NotificaitonService.shared().remove_Like_Post_Comment_Notification(post,currentUser, Notifications.NotificationType.like_home);
+
 
         }
     }
@@ -82,21 +82,23 @@ public class MajorPostService {
                 .document("lesson-post")
                 .collection("post")
                 .document(post.getPostId());
-        Map<String , Object> mapLike = new HashMap<>();
+
 
 
         if (!post.getDislike().contains(currentUser.getUid())){
             post.getLikes().remove(currentUser.getUid());
             post.getDislike().add(currentUser.getUid());
             result.callBack(true);
+            Map<String , Object> mapLike = new HashMap<>();
             mapLike.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
             mapLike.put("dislike",FieldValue.arrayUnion(currentUser.getUid()));
-            ref.update(mapLike);
+            ref.set(mapLike,SetOptions.merge());
         }else{
             post.getDislike().remove(currentUser.getUid());
             result.callBack(true);
+            Map<String , Object> mapLike = new HashMap<>();
             mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
-            ref.update(mapLike);
+            ref.set(mapLike , SetOptions.merge());
         }
     }
 
@@ -109,13 +111,14 @@ public class MajorPostService {
                 .document(currentUser.getUid())
                 .collection("fav-post")
                 .document(post.getPostId());
-        Map<String, Object> mapFav = new HashMap<>();
+
         Map<String , Object> mapUser = new HashMap<>();
         if (!post.getFavori().contains(currentUser.getUid())){
             post.getFavori().add(currentUser.getUid());
             result.callBack(true);
+            Map<String, Object> mapFav = new HashMap<>();
             mapFav.put("favori", FieldValue.arrayUnion(currentUser.getUid()));
-            ref.update(mapFav).addOnCompleteListener(new OnCompleteListener<Void>() {
+            ref.set(mapFav, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isComplete()){
@@ -125,10 +128,11 @@ public class MajorPostService {
                 }
             });
         }else{
+            Map<String, Object> mapFav = new HashMap<>();
             post.getFavori().remove(currentUser.getUid());
             result.callBack(true);
             mapFav.put("favori",FieldValue.arrayRemove(currentUser.getUid()));
-            ref.update(mapFav).addOnCompleteListener(new OnCompleteListener<Void>() {
+            ref.set(mapFav,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isComplete()){
@@ -563,48 +567,5 @@ public class MajorPostService {
         }
 
   }
-
-  public void setOtherUserOPtions(CurrentUser currentUser , OtherUser otherUser , LessonPostModel postModel , OtherUserOptionsCompletion<Boolean> completion){
-
-      DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-              .document("lesson-post")
-              .collection(currentUser.getBolum())
-              .document(postModel.getLessonName())
-              .collection("notification_getter")
-              .document(currentUser.getUid());
-      ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-          @Override
-          public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()){
-                    completion.isSilent(false);
-                    if ( otherUser.getSlient().contains(currentUser.getUid())){
-                        completion.isMute(true);
-                    }else{
-                        completion.isMute(false);
-                    }
-                    WaitDialog.dismiss();
-                }else{
-                    completion.isSilent(true);
-                    if ( otherUser.getSlient().contains(currentUser.getUid())){
-                        completion.isMute(true);
-                    }else{
-                        completion.isMute(false);
-                    }
-                    WaitDialog.dismiss();
-                }
-          }
-      });
-
-
-      // if slientUser.contains(currentUser.uid){
-      //            completion(true)
-      //        }else{
-      //            completion(false)
-      //        }
-
-
-
-  }
-
 
 }

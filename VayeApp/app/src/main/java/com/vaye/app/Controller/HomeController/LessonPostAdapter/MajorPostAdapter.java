@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.rpc.Help;
 import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
@@ -295,6 +296,62 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         context.startActivity(browserIntent);
                     }
                 });
+                postHolder.profileImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (post.get(i).getSenderUid().equals(currentUser.getUid())){
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity)context);
+                            }
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+
+                            }
+                        }
+                    }
+                });
+                postHolder.name.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (post.get(i).getSenderUid().equals(currentUser.getUid())){
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity)context);
+                            }
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+
+                            }
+                        }
+                    }
+                });
                 postHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
@@ -358,7 +415,62 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     Helper.shared().go((Activity) context);
                 }
             });
+                itemHolder.profileImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (post.get(i).getSenderUid().equals(currentUser.getUid())){
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity)context);
+                            }
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
 
+                            }
+                        }
+                    }
+                });
+                itemHolder.name.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (post.get(i).getSenderUid().equals(currentUser.getUid())){
+                            if (!istanceOfCurrentUserProfile){
+                                Intent i = new Intent(context , CurrentUserProfile.class);
+                                i.putExtra("currentUser",currentUser);
+                                context.startActivity(i);
+                                Helper.shared().go((Activity)context);
+                            }
+                        }else{
+                            if (!istanceOfOtherUserProfile){
+                                UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser user) {
+                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("otherUser",user);
+                                        i.putExtra("currentUser",currentUser);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity) context);
+                                        WaitDialog.dismiss();
+                                    }
+                                });
+
+                            }
+                        }
+                    }
+                });
                 itemHolder.more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

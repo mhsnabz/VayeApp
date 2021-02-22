@@ -36,12 +36,14 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
+import com.vaye.app.Controller.HomeController.SchoolPostAdapter.SchoolPostAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
@@ -60,10 +62,10 @@ public class SchoolFragment extends Fragment {
     CurrentUser currentUser;
     OtherUser otherUser;
     RecyclerView postList;
-    ArrayList<LessonPostModel> lessonPostModels;
+    ArrayList<NoticesMainModel> lessonPostModels;
     ArrayList<String> postIds;
     DocumentSnapshot lastPage;
-    MajorPostAdapter adapter;
+    SchoolPostAdapter adapter;
     SwipeRefreshLayout swipeRefreshLayout;
     int currentItems, totalItems, scrollOutItems;
     Boolean isLoadMore = true;
@@ -147,7 +149,7 @@ public class SchoolFragment extends Fragment {
     private void getPost(CurrentUser currentUser ){
         swipeRefreshLayout.setRefreshing(true);
         lessonPostModels = new ArrayList<>();
-        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity());
+        adapter = new SchoolPostAdapter(lessonPostModels , currentUser , getActivity());
         postList.setAdapter(adapter);
         getAllPost(currentUser);
 
@@ -164,7 +166,7 @@ public class SchoolFragment extends Fragment {
             // isLoadMore = true;
             Query db = FirebaseFirestore.getInstance().collection("user")
                     .document(currentUser.getUid())
-                    .collection("lesson-post")
+                    .collection(currentUser.getShort_school())
                     .limit(5).orderBy("postId" , Query.Direction.DESCENDING).startAfter(lastPage);
 
 
@@ -177,7 +179,7 @@ public class SchoolFragment extends Fragment {
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
                                 if (item.exists()){
                                     DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                            .document("lesson-post")
+                                            .document("notices")
                                             .collection("post").document(item.getId());
 
 
@@ -186,9 +188,9 @@ public class SchoolFragment extends Fragment {
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task1)
                                         {
                                             if (task1.getResult().exists()){
-                                                lessonPostModels.add(task1.getResult().toObject(LessonPostModel.class));
-                                                Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
-                                                    public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                                lessonPostModels.add(task1.getResult().toObject(NoticesMainModel.class));
+                                                Collections.sort(lessonPostModels, new Comparator<NoticesMainModel>(){
+                                                    public int compare(NoticesMainModel obj1, NoticesMainModel obj2) {
                                                         return obj2.getPostTime().compareTo(obj1.getPostTime());
                                                     }
 
@@ -201,7 +203,7 @@ public class SchoolFragment extends Fragment {
                                             }else {
                                                 isLoadMore = false;
                                                 deletePostId(currentUser , item.getId());
-                                                deletePostId(currentUser , item.getId());
+
                                             }
                                         }
                                     }).addOnFailureListener(getActivity(), new OnFailureListener() {
@@ -255,7 +257,7 @@ public class SchoolFragment extends Fragment {
     private void getAllPost(CurrentUser currentUser){
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
-                .collection("lesson-post")
+                .collection(currentUser.getShort_school())
                 .limit(5)
                 .orderBy("postId" , Query.Direction.DESCENDING);
 
@@ -266,16 +268,16 @@ public class SchoolFragment extends Fragment {
                     for (DocumentSnapshot item : queryDocumentSnapshots.getDocuments()){
                         if (item.exists()){
                             DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                    .document("lesson-post")
+                                    .document("notices")
                                     .collection("post").document(item.getId());
 
                             ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     if (documentSnapshot.exists()){
-                                        lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
-                                        Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
-                                            public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                        lessonPostModels.add(documentSnapshot.toObject(NoticesMainModel.class));
+                                        Collections.sort(lessonPostModels, new Comparator<NoticesMainModel>(){
+                                            public int compare(NoticesMainModel obj1, NoticesMainModel obj2) {
 
                                                 return obj2.getPostTime().compareTo(obj1.getPostTime());
 
@@ -290,6 +292,10 @@ public class SchoolFragment extends Fragment {
                                         Log.d(TAG, "onSuccess: "+lastPage.getId());
                                     }else {
                                         deletePostId(currentUser , item.getId());
+                                        isLoadMore = false;
+                                        swipeRefreshLayout.setRefreshing(false);
+                                        progressBar.setVisibility(View.GONE);
+
                                     }
 
                                 }
@@ -299,6 +305,10 @@ public class SchoolFragment extends Fragment {
 
                                 }
                             });
+                        }else{
+                            isLoadMore = false;
+                            swipeRefreshLayout.setRefreshing(false);
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 }else{
@@ -323,7 +333,7 @@ public class SchoolFragment extends Fragment {
     private void deletePostId(CurrentUser currentUser , String postID){
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
-                .collection("lesson-post")
+                .collection(currentUser.getShort_school())
                 .document(postID);
         ref.delete();
     }
@@ -335,7 +345,7 @@ public class SchoolFragment extends Fragment {
             public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd)
             {
                 if (!lessonPostModels.isEmpty()){
-                    lessonPostModels.add(new LessonPostModel("","","","","","","","","",null,null,null,null,null,null,null,0,
+                    lessonPostModels.add(new NoticesMainModel("","","","","","","","","",null,null,null,null,null,null,null,0,
                             lessonPostModels.get(lessonPostModels.size() -1).getPostTime(),unifiedNativeAd,"","ads",""));
                     adapter.notifyDataSetChanged();
                 }
@@ -367,68 +377,6 @@ public class SchoolFragment extends Fragment {
 
         adLoader.loadAd(new  AdRequest.Builder().build());
     }
-
-    private void setNewPost(){
-        Intent i = new Intent(getActivity(), StudentChooseLessonActivity.class);
-        i.putExtra("currentUser",currentUser);
-        getActivity().startActivity(i);
-        Helper.shared().go(getActivity());
-    }
-    private void getPostId(CurrentUser currentUser , StringArrayListInterface result){
-        postIds = new ArrayList<>();
-        Query db = FirebaseFirestore.getInstance().collection("user")
-                .document(currentUser.getUid())
-                .collection("lesson-post")
-                .limit(1)
-                .orderBy("postId" , Query.Direction.DESCENDING);
-        db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    if (task.getResult().isEmpty()){
-                        result.getArrayList(postIds);
-                    }else{
-
-                        for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                    .document("lesson-post")
-                                    .collection("post").document(item.getId());
-
-                            ref.get().addOnSuccessListener(getActivity(), new OnSuccessListener<DocumentSnapshot>() {
-                                @Override
-                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    if (documentSnapshot.exists()){
-                                        lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
-                                        Log.d(TAG, "onSuccess: "+ documentSnapshot.getString("type"));
-                                        adapter.notifyDataSetChanged();
-                                        swipeRefreshLayout.setRefreshing(false);
-                                        lastPage =  task.getResult().getDocuments().get(task.getResult().size() - 1);
-                                    }else {
-                                        deletePostId(currentUser , item.getId());
-                                    }
-
-                                }
-                            }).addOnFailureListener(getActivity(), new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-
-                        }
-                        result.getArrayList(postIds);
-                    }
-                }
-            }
-        });
-    }
-    private void getLessonPost(CurrentUser currentUser , String postIds , LessonPostModelCompletion result){
-
-
-    }
-
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();

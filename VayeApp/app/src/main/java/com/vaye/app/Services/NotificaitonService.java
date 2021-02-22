@@ -118,34 +118,7 @@ public class NotificaitonService {
             }
         }
     }
-    public void remove_Like_Post_Comment_Notification(LessonPostModel post , CurrentUser currentUser , String type){
-        Query db = FirebaseFirestore
-                .getInstance().collection("user")
-                .document(post.getSenderUid())
-                .collection("notification")
-                .whereEqualTo("postId",post.getPostId())
-                .whereEqualTo("senderUid",currentUser.getUid())
-                .whereEqualTo("type", type);
-        db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    if (task.getResult().isEmpty()){
-                        return;
-                    }else{
-                        for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            DocumentReference ref = FirebaseFirestore.getInstance()
-                                    .collection("user")
-                                    .document(post.getSenderUid())
-                                    .collection("notification")
-                                    .document(item.getId());
-                            ref.delete();
-                        }
-                    }
-                }
-            }
-        });
-    }
+
 
 
     public void removeCommentLikeNotification(LessonPostModel post , CurrentUser currentUser , String type){
@@ -252,27 +225,30 @@ public class NotificaitonService {
 
                 else{
                     if (!post.getSilent().contains(post.getSenderUid())){
-                        if (!currentUser.getSlient().contains(user.getUid())){
-                            String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-                            DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
-                                    .document(user.getUid())
-                                    .collection("notification")
-                                    .document(notificaitonId);
-                            Map<String , Object> map = new HashMap<>();
+                        if (user.getMention()){
+                            if (!currentUser.getSlient().contains(user.getUid())){
+                                String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                        .document(user.getUid())
+                                        .collection("notification")
+                                        .document(notificaitonId);
+                                Map<String , Object> map = new HashMap<>();
 
-                            map.put("type",type);
-                            map.put("text",text);
-                            map.put("senderUid",currentUser.getUid());
-                            map.put("time",FieldValue.serverTimestamp());
-                            map.put("senderImage",currentUser.getThumb_image());
-                            map.put("not_id",notificaitonId);
-                            map.put("isRead",false);
-                            map.put("username",currentUser.getUsername());
-                            map.put("postId",post.getPostId());
-                            map.put("senderName",currentUser.getName());
-                            map.put("lessonName",post.getLessonName());
-                            ref.set(map , SetOptions.merge());
+                                map.put("type",type);
+                                map.put("text",text);
+                                map.put("senderUid",currentUser.getUid());
+                                map.put("time",FieldValue.serverTimestamp());
+                                map.put("senderImage",currentUser.getThumb_image());
+                                map.put("not_id",notificaitonId);
+                                map.put("isRead",false);
+                                map.put("username",currentUser.getUsername());
+                                map.put("postId",post.getPostId());
+                                map.put("senderName",currentUser.getName());
+                                map.put("lessonName",post.getLessonName());
+                                ref.set(map , SetOptions.merge());
+                            }
                         }
+
                     }
                 }
             }
