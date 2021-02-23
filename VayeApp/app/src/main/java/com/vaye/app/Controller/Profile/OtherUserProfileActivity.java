@@ -1,5 +1,6 @@
 package com.vaye.app.Controller.Profile;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -8,6 +9,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -15,6 +18,16 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.kongzue.dialog.v3.TipDialog;
@@ -24,6 +37,9 @@ import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.MajorPostFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.SchoolFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.VayeAppFragment;
+import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserMajorFragment;
+import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserSchoolFragment;
+import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserVayeAppFragment;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
@@ -31,6 +47,9 @@ import com.vaye.app.R;
 import com.vaye.app.Services.FollowService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -52,10 +71,13 @@ public class OtherUserProfileActivity extends AppCompatActivity {
     LinearLayout socialLayout;
     ImageButton github , linkedin , insta , twitter;
 
+    private InterstitialAd mInterstitialAd;
+    private Timer myTimer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_other_user_profile);
+
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras==null){
@@ -66,9 +88,67 @@ public class OtherUserProfileActivity extends AppCompatActivity {
 
             setToolbar(otherUser);
             setView(currentUser,otherUser);
+            getAds();
+            
         }
 
     }
+
+    private void getAds(){
+
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                createPersonalizedAd();
+            }
+        });
+
+
+    }
+
+    private void createPersonalizedAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        createInterstitialAd(adRequest);
+        if (mInterstitialAd !=null){
+            mInterstitialAd.show(OtherUserProfileActivity.this);
+        }else{
+            Log.d("---adMob", "run: " +"failed");
+        }
+    }
+    private void createInterstitialAd(AdRequest adRequest){
+            com.google.android.gms.ads.interstitial.InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712",adRequest,new InterstitialAdLoadCallback(){
+            @Override
+            public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+              mInterstitialAd =  interstitialAd;
+               mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                   @Override
+                   public void onAdFailedToShowFullScreenContent(AdError adError) {
+                       Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+
+                   }
+
+                   @Override
+                   public void onAdShowedFullScreenContent() {
+                       Log.d("---adMob", "onAdLoaded: " + "add loaded");
+                   }
+
+                   @Override
+                   public void onAdDismissedFullScreenContent() {
+                       super.onAdDismissedFullScreenContent();
+                   }
+               });
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.d("---adMob", loadAdError.getMessage());
+                mInterstitialAd = null;
+            }
+        });
+    }
+
 
     private void setView(CurrentUser currentUser , OtherUser otherUser) {
 
@@ -142,7 +222,6 @@ public class OtherUserProfileActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.htab_tabs);
         tabLayout.setupWithViewPager(viewPager);
-
         if (currentUser.getShort_school().equals(otherUser.getShort_school())){
             if (currentUser.getBolum().equals(otherUser.getBolum())){
                adapter = new ProfileViewPager(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
@@ -150,25 +229,25 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                 for (String s : otherUser.getBolum().split(" ")) {
                     initials+=s.charAt(0);
                 }
-                adapter.addFrag(new MajorPostFragment(
-                        ContextCompat.getColor(this, R.color.mainColor),otherUser), initials);
-                adapter.addFrag(new SchoolFragment(
-                        ContextCompat.getColor(this, R.color.red),otherUser), otherUser.getShort_school());
-                adapter.addFrag(new VayeAppFragment(
-                        ContextCompat.getColor(this, R.color.black),otherUser), "Vaye.app");
+                adapter.addFrag(new OtherUserMajorFragment(
+                            currentUser,otherUser), initials);
+                adapter.addFrag(new OtherUserSchoolFragment(
+                        currentUser,otherUser), otherUser.getShort_school());
+                adapter.addFrag(new OtherUserVayeAppFragment(
+                        currentUser,otherUser), "Vaye.app");
                 viewPager.setAdapter(adapter);
             }else {
                 adapter = new ProfileViewPager(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-                adapter.addFrag(new SchoolFragment(
-                        ContextCompat.getColor(this, R.color.red),otherUser), otherUser.getShort_school());
-                adapter.addFrag(new VayeAppFragment(
-                        ContextCompat.getColor(this, R.color.black),otherUser), "Vaye.app");
+                adapter.addFrag(new OtherUserSchoolFragment(
+                        currentUser,otherUser), otherUser.getShort_school());
+                adapter.addFrag(new OtherUserVayeAppFragment(
+                        currentUser,otherUser), "Vaye.app");
                 viewPager.setAdapter(adapter);
             }
         }else{
             adapter = new ProfileViewPager(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-            adapter.addFrag(new VayeAppFragment(
-                    ContextCompat.getColor(this, R.color.black),otherUser), "Vaye.app");
+            adapter.addFrag(new OtherUserVayeAppFragment(
+                    currentUser,otherUser), "Vaye.app");;
             viewPager.setAdapter(adapter);
         }
 
@@ -271,4 +350,8 @@ public class OtherUserProfileActivity extends AppCompatActivity {
 
     public void sendMsg(View view) {
     }
+
+
+
+
 }
