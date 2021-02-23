@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
@@ -63,6 +64,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
     CollapsingToolbarLayout collapsingToolbarLayout;
     ProfileViewPager adapter;
     Boolean isFollowing = false;
+    private Handler mHandler = new Handler();
 
     CircleImageView profileImage;
     ProgressBar progressBar;
@@ -71,7 +73,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
     LinearLayout socialLayout;
     ImageButton github , linkedin , insta , twitter;
 
-    private InterstitialAd mInterstitialAd;
+    private InterstitialAd mInterstitialAd , githubAds , instaAds , twitterAds , linkedInAds;
     private Timer myTimer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,56 +90,118 @@ public class OtherUserProfileActivity extends AppCompatActivity {
 
             setToolbar(otherUser);
             setView(currentUser,otherUser);
-            getAds();
-            
+            AdRequest adRequest = new AdRequest.Builder().build();
+            MobileAds.initialize(this, new OnInitializationCompleteListener() {
+                @Override
+                public void onInitializationComplete(InitializationStatus initializationStatus) {
+                    Log.d("---adMob", "onInitializationComplete: " + initializationStatus.getAdapterStatusMap());
+                }
+            });
+            mainAds(adRequest);
+            setTwitterAds(adRequest);
+            setInstaAds(adRequest);
+            setGithubAds(adRequest);
+            setLinkedInAds(adRequest);
         }
+
 
     }
 
-    private void getAds(){
-
-
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+    private void setLinkedInAds(AdRequest adRequest) {
+        com.google.android.gms.ads.interstitial.InterstitialAd.load(this,getResources().getString(R.string.gecis_unit_id),adRequest,new InterstitialAdLoadCallback(){
             @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                createPersonalizedAd();
+            public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                linkedInAds =  interstitialAd;
+
+                linkedInAds.setFullScreenContentCallback(new FullScreenContentCallback(){
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+                        Toast.makeText(OtherUserProfileActivity.this , "linkedInAds ads failed to load" ,Toast.LENGTH_SHORT).show();
+
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        Log.d("---adMob", "onAdLoaded: " + "add loaded");
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.d("---adMob", loadAdError.getMessage());
+                linkedInAds = null;
             }
         });
 
-
     }
 
-    private void createPersonalizedAd() {
-        AdRequest adRequest = new AdRequest.Builder().build();
-        createInterstitialAd(adRequest);
-        if (mInterstitialAd !=null){
-            mInterstitialAd.show(OtherUserProfileActivity.this);
-        }else{
-            Log.d("---adMob", "run: " +"failed");
-        }
-    }
-    private void createInterstitialAd(AdRequest adRequest){
-            com.google.android.gms.ads.interstitial.InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712",adRequest,new InterstitialAdLoadCallback(){
+    private void setGithubAds(AdRequest adRequest) {
+        com.google.android.gms.ads.interstitial.InterstitialAd.load(this,getResources().getString(R.string.gecis_unit_id),adRequest,new InterstitialAdLoadCallback(){
             @Override
             public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
-              mInterstitialAd =  interstitialAd;
-               mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
-                   @Override
-                   public void onAdFailedToShowFullScreenContent(AdError adError) {
-                       Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+                githubAds =  interstitialAd;
 
-                   }
+                githubAds.setFullScreenContentCallback(new FullScreenContentCallback(){
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+                        Toast.makeText(OtherUserProfileActivity.this , "githubAds ads failed to load" ,Toast.LENGTH_SHORT).show();
 
-                   @Override
-                   public void onAdShowedFullScreenContent() {
-                       Log.d("---adMob", "onAdLoaded: " + "add loaded");
-                   }
+                    }
 
-                   @Override
-                   public void onAdDismissedFullScreenContent() {
-                       super.onAdDismissedFullScreenContent();
-                   }
-               });
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        Log.d("---adMob", "onAdLoaded: " + "add loaded");
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.d("---adMob", loadAdError.getMessage());
+                githubAds = null;
+            }
+        });
+    }
+
+    private void mainAds(AdRequest adRequest){
+
+        com.google.android.gms.ads.interstitial.InterstitialAd.load(this,getResources().getString(R.string.gecis_unit_id),adRequest,new InterstitialAdLoadCallback(){
+            @Override
+            public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                mInterstitialAd =  interstitialAd;
+
+                mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        Log.d("---adMob", "onAdLoaded: " + "add loaded");
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                    }
+                });
 
             }
 
@@ -148,7 +212,106 @@ public class OtherUserProfileActivity extends AppCompatActivity {
             }
         });
     }
+    private void setTwitterAds(AdRequest adRequest){
 
+        com.google.android.gms.ads.interstitial.InterstitialAd.load(this,getResources().getString(R.string.gecis_unit_id),adRequest,new InterstitialAdLoadCallback(){
+            @Override
+            public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                twitterAds =  interstitialAd;
+
+                twitterAds.setFullScreenContentCallback(new FullScreenContentCallback(){
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+                        Toast.makeText(OtherUserProfileActivity.this , "twitter ads failed to load" ,Toast.LENGTH_SHORT).show();
+
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        Log.d("---adMob", "onAdLoaded: " + "add loaded");
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.d("---adMob", loadAdError.getMessage());
+                twitterAds = null;
+            }
+        });
+    }
+    private void setInstaAds(AdRequest adRequest){
+
+        com.google.android.gms.ads.interstitial.InterstitialAd.load(this,getResources().getString(R.string.gecis_unit_id),adRequest,new InterstitialAdLoadCallback(){
+            @Override
+            public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                instaAds =  interstitialAd;
+
+                instaAds.setFullScreenContentCallback(new FullScreenContentCallback(){
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+                        Toast.makeText(OtherUserProfileActivity.this , "insta ads failed to load" ,Toast.LENGTH_SHORT).show();
+
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        Log.d("---adMob", "onAdLoaded: " + "add loaded");
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.d("---adMob", loadAdError.getMessage());
+                instaAds = null;
+            }
+        });
+    }
+    private Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+            // Wait 60 seconds
+            mHandler.postDelayed(this, 1000);
+
+            // Show Ad
+            showInterstitial();
+
+        }
+    };
+
+    private void showInterstitial() {
+        if (mInterstitialAd != null){
+            mInterstitialAd.show(OtherUserProfileActivity.this);
+        }
+    }
+
+    private void getAds(){
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mHandler = new Handler();
+
+        mHandler.postDelayed(mRunnable,2*1000);
+    }
 
     private void setView(CurrentUser currentUser , OtherUser otherUser) {
 
@@ -320,6 +483,17 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                             }
                         }
                     });
+                }
+            }
+        });
+
+        github.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (githubAds != null){
+                    githubAds.show(OtherUserProfileActivity.this);
+                }else{
+                    
                 }
             }
         });
