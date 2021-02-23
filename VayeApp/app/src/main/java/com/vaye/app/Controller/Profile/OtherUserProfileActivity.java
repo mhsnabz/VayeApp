@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -118,7 +119,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                     public void onAdFailedToShowFullScreenContent(AdError adError) {
                         Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
                         Toast.makeText(OtherUserProfileActivity.this , "linkedInAds ads failed to load" ,Toast.LENGTH_SHORT).show();
-
+                        showUrl(otherUser.getLinkedin());
                     }
 
                     @Override
@@ -129,6 +130,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                     @Override
                     public void onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent();
+                        showUrl(otherUser.getLinkedin());
                     }
                 });
 
@@ -153,8 +155,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                     @Override
                     public void onAdFailedToShowFullScreenContent(AdError adError) {
                         Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
-                        Toast.makeText(OtherUserProfileActivity.this , "githubAds ads failed to load" ,Toast.LENGTH_SHORT).show();
-
+                        showUrl(otherUser.getGithub(),"github.com");
                     }
 
                     @Override
@@ -165,6 +166,8 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                     @Override
                     public void onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent();
+                        showUrl(otherUser.getGithub(),"github.com");
+
                     }
                 });
 
@@ -224,7 +227,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                     public void onAdFailedToShowFullScreenContent(AdError adError) {
                         Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
                         Toast.makeText(OtherUserProfileActivity.this , "twitter ads failed to load" ,Toast.LENGTH_SHORT).show();
-
+                        showUrl(currentUser.getTwitter(),"twitter.com");
                     }
 
                     @Override
@@ -235,6 +238,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                     @Override
                     public void onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent();
+                        showUrl(otherUser.getTwitter(),"twitter.com");
                     }
                 });
 
@@ -258,8 +262,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                     @Override
                     public void onAdFailedToShowFullScreenContent(AdError adError) {
                         Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
-                        Toast.makeText(OtherUserProfileActivity.this , "insta ads failed to load" ,Toast.LENGTH_SHORT).show();
-
+                        showUrl(otherUser.getInstagram(),"instagram.com");
                     }
 
                     @Override
@@ -270,6 +273,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                     @Override
                     public void onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent();
+                        showUrl(otherUser.getInstagram(),"instagram.com");
                     }
                 });
 
@@ -301,9 +305,6 @@ public class OtherUserProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void getAds(){
-
-    }
 
     @Override
     protected void onStart() {
@@ -493,7 +494,40 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                 if (githubAds != null){
                     githubAds.show(OtherUserProfileActivity.this);
                 }else{
-                    
+                    showUrl(otherUser.getGithub() , "github.com");
+                }
+            }
+        });
+
+
+        twitter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (twitterAds != null){
+                    twitterAds.show(OtherUserProfileActivity.this);
+                }else{
+                    showUrl(otherUser.getTwitter() , "twitter.com");
+                }
+            }
+        });
+        insta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (instaAds!=null){
+                    instaAds.show(OtherUserProfileActivity.this);
+                }else{
+                    showUrl(otherUser.getInstagram(),"instagram.com");
+                }
+            }
+        });
+
+        linkedin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (linkedInAds!=null){
+                    linkedInAds.show(OtherUserProfileActivity.this);
+                }else{
+                    showUrl(otherUser.getLinkedin());
                 }
             }
         });
@@ -526,6 +560,20 @@ public class OtherUserProfileActivity extends AppCompatActivity {
     }
 
 
+    private void showUrl(String username,String url){
+        String text = username.replace("@","");
+        if (!url.startsWith("http://") && !url.startsWith("https://"))
+            url = "http://" + url;
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url+"/"+text));
+        startActivity(browserIntent);
+    }
 
+    private void showUrl(String url){
+
+        if (!url.startsWith("http://") && !url.startsWith("https://"))
+            url = "http://" + url;
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(browserIntent);
+    }
 
 }
