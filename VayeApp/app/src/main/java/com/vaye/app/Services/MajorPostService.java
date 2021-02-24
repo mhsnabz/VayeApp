@@ -1,6 +1,7 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -570,6 +572,57 @@ public class MajorPostService {
 
         }
 
+        CollectionReference refComment = FirebaseFirestore.getInstance().collection("comment")
+                .document(postModel.getPostId()).collection("comment");
+        refComment.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        return;
+                    }else {
+                        for (DocumentSnapshot doc : task.getResult().getDocuments()){
+                            if (doc.get("replies") != null){
+                                ArrayList<String> repliedComment = (ArrayList<String>) doc.get("replies");
+                                deleteRepliedComment(repliedComment,postModel.getPostId(),doc.getId());
+                                Log.d("array list ", "onComplete: "+ (ArrayList<String>) doc.get("replies"));
+                            }
+                            DocumentReference ref = FirebaseFirestore.getInstance().collection("comment")
+                                    .document(postModel.getPostId()).collection("comment").document(doc.getId());
+                            ref.delete();
+                        }
+                    }
+                }
+            }
+        });
+
+
   }
+
+  private void deleteRepliedComment(ArrayList<String> comment , String postId,String commentId){
+        for (String item : comment){
+            Query refDeleteRepliedComment = FirebaseFirestore.getInstance().collection("comment")
+                    .document(postId).collection("comment-replied").document("comment").collection(commentId).whereEqualTo("commentId",item);
+            refDeleteRepliedComment.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot doc : task.getResult().getDocuments()){
+                                DocumentReference reference =  FirebaseFirestore.getInstance().collection("comment")
+                                        .document(postId).collection("comment-replied").document("comment").collection(commentId).document(doc.getId());
+                                reference.delete();
+                            }
+
+                        }
+                    }
+                }
+            });
+        }
+
+  }
+
+
+
 
 }
