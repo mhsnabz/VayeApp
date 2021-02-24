@@ -677,7 +677,7 @@ public class Helper {
         });
 
     }
-   public void VayeAppCurrentUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
+    public void VayeAppCurrentUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
        RecyclerView recyclerView;
        CardView headerView;
        Button cancel;
@@ -732,8 +732,7 @@ public class Helper {
        bottomSheetDialog.setContentView(view);
        bottomSheetDialog.show();
    }
-
-   public void VayeAppOtherUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , OtherUser otherUser , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
+    public void VayeAppOtherUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , OtherUser otherUser , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
        RecyclerView recyclerView;
        CardView headerView;
        CircleImageView profileImage;

@@ -34,7 +34,7 @@ public class VayeAppActivity extends AppCompatActivity {
     String TAG = "VayeAppActivity";
     Toolbar toolbar;
     TextView title;
-    ImageButton followers , foodme , camping , buySell;
+    ImageButton followers , foodme , camping , buySell , setting;
     RelativeLayout followesLine , foodmeLine , campingLine , buySellLine;
     ViewPager mainViewPager;
     VayeAppPager pagerViewAdapter;
@@ -148,6 +148,16 @@ public class VayeAppActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         title = toolbar.findViewById(R.id.toolbar_title);
+        setting = toolbar.findViewById(R.id.notificationSetting);
+        setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            Intent i = new Intent(VayeAppActivity.this , VayeAppnotificationSettingActivity.class);
+            i.putExtra("currentUser",currentUser);
+            startActivity(i);
+            Helper.shared().go(VayeAppActivity.this);
+            }
+        });
         toolbar.setTitle("");
         toolbar.setSubtitle("");
         title.setText("Takip Ettiklerin");

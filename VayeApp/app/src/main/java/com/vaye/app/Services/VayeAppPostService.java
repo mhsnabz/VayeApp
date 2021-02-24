@@ -1,6 +1,10 @@
 package com.vaye.app.Services;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -9,6 +13,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.vaye.app.Interfaces.TrueFalse;
+import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 
 public class VayeAppPostService {
@@ -93,5 +98,28 @@ public class VayeAppPostService {
             }
         });
 
+    }
+
+
+    public void checkIsFollowing(String uid ,String topic, TrueFalse<Boolean> callback){
+        // let db = Firestore.firestore().collection("main-post")
+        //            .document(topic).collection("followers")
+        //            .document(currentUser.uid)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                .document(topic).collection("followers").document(uid);
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        callback.callBack(true);
+                    }else{
+                        callback.callBack(false);
+                    }
+                }else{
+                    callback.callBack(false);
+                }
+            }
+        });
     }
 }
