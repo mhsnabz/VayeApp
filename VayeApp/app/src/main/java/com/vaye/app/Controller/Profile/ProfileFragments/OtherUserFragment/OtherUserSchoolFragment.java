@@ -119,16 +119,12 @@ public class OtherUserSchoolFragment extends Fragment {
                             if (schoolPostModel.get(i).getType().equals("ads"))
                                 totalAdsCount ++;
                         }
-
                         if ((schoolPostModel.size() - totalAdsCount) % 5 == 0){
                             // if (!lessonPostModels.get(lessonPostModels.size() -1).getType().equals("ads"))
                             getAds();
                             progressBar.setVisibility(View.GONE);
                         }
-
                     }
-
-
                 }
             }
         });

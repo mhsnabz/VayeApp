@@ -42,6 +42,7 @@ import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.Vaye
 import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserMajorFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserSchoolFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserVayeAppFragment;
+import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
@@ -312,9 +313,65 @@ public class OtherUserProfileActivity extends AppCompatActivity {
         mHandler = new Handler();
 
         mHandler.postDelayed(mRunnable,2*1000);
+
+        if (followButton == null){
+            followButton = (Button) findViewById(R.id.followButton);
+            UserService.shared().checkIsFallowing(currentUser, otherUser, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        followButton.setText("Takibi Bırak");
+                        followButton.setBackgroundResource(R.drawable.button_unfollow_back);
+                        isFollowing = _value;
+                    }else{
+                        followButton.setBackgroundResource(R.drawable.button_fallow_back);
+                        followButton.setText("Takip Et");
+                        isFollowing = _value;
+                    }
+                }
+            });
+
+        }else{
+            UserService.shared().checkIsFallowing(currentUser, otherUser, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        followButton.setText("Takibi Bırak");
+                        followButton.setBackgroundResource(R.drawable.button_unfollow_back);
+                        isFollowing = _value;
+                    }else{
+                        followButton.setBackgroundResource(R.drawable.button_fallow_back);
+                        followButton.setText("Takip Et");
+                        isFollowing = _value;
+                    }
+                }
+            });
+
+        }
+
     }
 
     private void setView(CurrentUser currentUser , OtherUser otherUser) {
+        followerCount = (TextView)findViewById(R.id.followerCount);
+        followingCount = (TextView)findViewById(R.id.followingCount);
+        followerLbl = (TextView)findViewById(R.id.followerLbl);
+        followingLbl = (TextView)findViewById(R.id.followingLbl);
+
+
+        FollowService.shared().getOtherUserUserFollowersCount(otherUser, new CallBackCount() {
+            @Override
+            public void callBackCount(long count) {
+                followerCount.setText(String.valueOf(count));
+            }
+        });
+        FollowService.shared().getOthertUserFollowingCount(otherUser, new CallBackCount() {
+            @Override
+            public void callBackCount(long count) {
+                followingCount.setText(String.valueOf(count));
+            }
+        });
+
+
 
         profileImage = (CircleImageView)findViewById(R.id.profileImage);
         progressBar = (ProgressBar)findViewById(R.id.progress);
@@ -415,18 +472,17 @@ public class OtherUserProfileActivity extends AppCompatActivity {
             viewPager.setAdapter(adapter);
         }
 
-
         UserService.shared().checkIsFallowing(currentUser, otherUser, new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 if (_value){
-                    isFollowing = false;
-                    followButton.setBackground(getApplicationContext().getDrawable(R.drawable.button_fallow_back));
-                    followButton.setText("Takip Et");
+                    followButton.setText("Takibi Bırak");
+                    followButton.setBackgroundResource(R.drawable.button_unfollow_back);
+                    isFollowing = _value;
                 }else{
-                    followButton.setBackground(getApplicationContext().getDrawable(R.drawable.button_unfollow_back));
-                    followButton.setText("Takip Etmeyi Bırak");
-                    isFollowing = true;
+                    followButton.setBackgroundResource(R.drawable.button_fallow_back);
+                    followButton.setText("Takip Et");
+                    isFollowing = _value;
                 }
             }
         });
@@ -577,4 +633,10 @@ public class OtherUserProfileActivity extends AppCompatActivity {
         startActivity(browserIntent);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        Helper.shared().back(OtherUserProfileActivity.this);
+    }
 }
