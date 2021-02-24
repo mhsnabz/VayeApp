@@ -3,6 +3,7 @@ package com.vaye.app.Util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +31,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.Notifications;
@@ -65,6 +67,8 @@ public class Helper {
     private boolean isFallowing = false;
     private static final String TAG = "Helper";
     private static final Helper instance = new Helper();
+   private Boolean istanceOfCurrentUserProfile = false;
+   private Boolean istanceOfOtherUserProfile = false;
     public static Helper shared() {  return instance;}
     public void back(Activity activity){
         activity.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
@@ -347,14 +351,35 @@ public class Helper {
         username.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: " + "show profile");
+
+                if (activity instanceof OtherUserProfileActivity){
+                    return;
+                }else{
+                    Intent i = new Intent(activity , OtherUserProfileActivity.class);
+                    i.putExtra("currentUser",currentUser);
+                    i.putExtra("otherUser",otherUser);
+                    activity.startActivity(i);
+                    go(activity);
+                    bottomSheetDialog.dismiss();
+                }
+
+
             }
         });
 
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: " + "show profile");
+                if (activity instanceof OtherUserProfileActivity){
+                    return;
+                }else{
+                    Intent i = new Intent(activity , OtherUserProfileActivity.class);
+                    i.putExtra("currentUser",currentUser);
+                    i.putExtra("otherUser",otherUser);
+                    activity.startActivity(i);
+                    go(activity);
+                    bottomSheetDialog.dismiss();
+                }
             }
         });
         if (otherUser.getThumb_image() != null && !otherUser.getThumb_image().isEmpty()){
@@ -407,6 +432,12 @@ public class Helper {
                             if (_value){
                                 WaitDialog.dismiss();
                                 TipDialog.show((AppCompatActivity) activity , "Takip Ediliyor", TipDialog.TYPE.SUCCESS);
+                                NotificaitonService.shared().start_following_you(currentUser, otherUser, Notifications.NotificationDescription.following_you, Notifications.NotificationType.following_you, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+
+                                    }
+                                });
                                 TipDialog.dismiss(1000);
                                 bottomSheetDialog.dismiss();
                                 isFallowing = true;
@@ -546,14 +577,32 @@ public class Helper {
         username.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: " + "show profile");
+                if (activity instanceof OtherUserProfileActivity){
+                    return;
+                }else{
+                    Intent i = new Intent(activity , OtherUserProfileActivity.class);
+                    i.putExtra("currentUser",currentUser);
+                    i.putExtra("otherUser",otherUser);
+                    activity.startActivity(i);
+                    go(activity);
+                    bottomSheetDialog.dismiss();
+                }
             }
         });
 
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: " + "show profile");
+                if (activity instanceof OtherUserProfileActivity){
+                    return;
+                }else{
+                    Intent i = new Intent(activity , OtherUserProfileActivity.class);
+                    i.putExtra("currentUser",currentUser);
+                    i.putExtra("otherUser",otherUser);
+                    activity.startActivity(i);
+                    go(activity);
+                    bottomSheetDialog.dismiss();
+                }
             }
         });
         if (otherUser.getThumb_image() != null && !otherUser.getThumb_image().isEmpty()){
@@ -606,6 +655,12 @@ public class Helper {
                             if (_value){
                                 WaitDialog.dismiss();
                                 TipDialog.show((AppCompatActivity) activity , "Takip Ediliyor", TipDialog.TYPE.SUCCESS);
+                                NotificaitonService.shared().start_following_you(currentUser, otherUser, Notifications.NotificationDescription.following_you, Notifications.NotificationType.following_you, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+
+                                    }
+                                });
                                 TipDialog.dismiss(1000);
                                 bottomSheetDialog.dismiss();
                                 isFallowing = true;
@@ -748,14 +803,32 @@ public class Helper {
        username.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
-               Log.d(TAG, "onClick: " + "show profile");
+               if (activity instanceof OtherUserProfileActivity){
+                   return;
+               }else{
+                   Intent i = new Intent(activity , OtherUserProfileActivity.class);
+                   i.putExtra("currentUser",currentUser);
+                   i.putExtra("otherUser",otherUser);
+                   activity.startActivity(i);
+                   go(activity);
+                   bottomSheetDialog.dismiss();
+               }
            }
        });
 
        headerView.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
-               Log.d(TAG, "onClick: " + "show profile");
+               if (activity instanceof OtherUserProfileActivity){
+                   return;
+               }else{
+                   Intent i = new Intent(activity , OtherUserProfileActivity.class);
+                   i.putExtra("currentUser",currentUser);
+                   i.putExtra("otherUser",otherUser);
+                   activity.startActivity(i);
+                   go(activity);
+                   bottomSheetDialog.dismiss();
+               }
            }
        });
        if (otherUser.getThumb_image() != null && !otherUser.getThumb_image().isEmpty()){
@@ -808,6 +881,12 @@ public class Helper {
                            if (_value){
                                WaitDialog.dismiss();
                                TipDialog.show((AppCompatActivity) activity , "Takip Ediliyor", TipDialog.TYPE.SUCCESS);
+                               NotificaitonService.shared().start_following_you(currentUser, otherUser, Notifications.NotificationDescription.following_you, Notifications.NotificationType.following_you, new TrueFalse<Boolean>() {
+                                   @Override
+                                   public void callBack(Boolean _value) {
+
+                                   }
+                               });
                                TipDialog.dismiss(1000);
                                bottomSheetDialog.dismiss();
                                isFallowing = true;

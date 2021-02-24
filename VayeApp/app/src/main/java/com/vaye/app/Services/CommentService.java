@@ -30,9 +30,8 @@ public class CommentService {
         return instance;
     }
     public void removeCommentLike(CurrentUser currentUser , CommentModel commentModel , LessonPostModel post){
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(commentModel.getPostId())
                 .collection("comment")
                 .document(commentModel.getCommentId());
@@ -50,9 +49,8 @@ public class CommentService {
     public void setCommentLike(Activity activity, CurrentUser currentUser , CommentModel commentModel , LessonPostModel post){
         //  let db = Firestore.firestore().collection(currentUser.short_school)
         //                .document("lesson-post").collection("post").document(comment.postId!).collection("comment").document(comment.commentId!)
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(commentModel.getPostId())
                 .collection("comment")
                 .document(commentModel.getCommentId());
@@ -73,9 +71,8 @@ public class CommentService {
 
 
     public void sendNewComment(CurrentUser currentUser , String commentText , String postId , String commentId , TrueFalse<Boolean> val){
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(postId)
                 .collection("comment")
                 .document(commentId);
@@ -124,9 +121,8 @@ public class CommentService {
 
     public void getTotalRepliedCount(CurrentUser currentUser  ,String repliedCommentId,  String postId , CallBackCount count){
         ///İSTE/lesson-post/post/1610997978137/comment-replied/comment/1612028213709/
-        CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        CollectionReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(repliedCommentId)
                 .collection("comment-replied");
         ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -148,9 +144,8 @@ public class CommentService {
     public void getTotalCommentCount(CurrentUser currentUser , String postId , CallBackCount count){
       //       let db = Firestore.firestore().collection(currentUser.short_school)
         //            .document("lesson-post").collection("post").document(postId).collection("comment")
-        CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        CollectionReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(postId)
                 .collection("comment");
         ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -174,9 +169,8 @@ public class CommentService {
         //        let db = Firestore.firestore().collection(currentUser.short_school)
         //            .document("lesson-post").collection("post").document(postId).collection("comment-replied")
         //            .document("comment").collection(targetCommentId).document(commentId)
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(postId)
                 .collection("comment-replied")
                 .document("comment")
@@ -207,9 +201,8 @@ public class CommentService {
     private void setRepliedCommentId(String targetCommentId , String commentID , CurrentUser currentUser , String postID){
         //  let db = Firestore.firestore().collection(currentUser.short_school)
         //            .document("lesson-post").collection("post").document(postId).collection("comment").document(targetCommentID)
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(postID)
                 .collection("comment")
                 .document(targetCommentId);

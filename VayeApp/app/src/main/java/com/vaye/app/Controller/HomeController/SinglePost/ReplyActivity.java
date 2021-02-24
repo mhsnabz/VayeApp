@@ -148,9 +148,8 @@ public class ReplyActivity extends AppCompatActivity {
 
 
     private void getComment(CurrentUser currentUser){
-        Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post").document(comment.getPostId())
+        Query dbNext = FirebaseFirestore.getInstance()
+                .collection("comment").document(comment.getPostId())
                 .collection("comment-replied")
                 .document("comment")
                 .collection(comment.getCommentId()).limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
@@ -200,9 +199,8 @@ public class ReplyActivity extends AppCompatActivity {
 
             return;
         }else{
-            Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                    .document("lesson-post")
-                    .collection("post").document(comment.getPostId())
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment").document(comment.getPostId())
                     .collection("comment-replied")
                     .document("comment")
                     .collection(comment.getCommentId()).orderBy("commentId").endBefore(firstPage).limitToLast(5);
@@ -348,9 +346,8 @@ public class ReplyActivity extends AppCompatActivity {
 
     private void deleteComment(CommentModel comment,String  commentID, CurrentUser currentUser) {
 
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(comment.getPostId())
                 .collection("comment-replied")
                 .document("comment")

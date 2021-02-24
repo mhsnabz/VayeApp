@@ -182,12 +182,13 @@ public class CommentActivity extends AppCompatActivity {
                 //Delete
 
                 deleteComment(comments.get(position).getCommentId() , postModel.getPostId());
-                comments.remove(position);
+                comments.remove(comments.get(position));
                 adapter.notifyItemRemoved(position);
                 CommentService.shared().getTotalCommentCount(currentUser, postModel.getPostId(), new CallBackCount() {
                     @Override
                     public void callBackCount(long count) {
                         if (count > 0 ){
+                            ///İSTE/lesson-post/post/1610231975623
                             postModel.setComment((int) count);
                             DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                                     .document("lesson-post")
@@ -256,9 +257,8 @@ public class CommentActivity extends AppCompatActivity {
     }
     private void getComment(CurrentUser currentUser, LessonPostModel post) {
 
-            Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                    .document("lesson-post")
-                    .collection("post")
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment")
                     .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
             dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
                 @Override
@@ -304,9 +304,8 @@ public class CommentActivity extends AppCompatActivity {
 
             return;
         }else{
-            Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                    .document("lesson-post")
-                    .collection("post")
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment")
                     .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
                     .limitToLast(5);
             dbNext.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
@@ -365,9 +364,8 @@ public class CommentActivity extends AppCompatActivity {
         //  let db = Firestore.firestore().collection(currentUser.short_school).document("lesson-post")
         //            .collection("post").document(postID).collection("comment").document(commentID)
         //        db.delete()
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
                 .document(postId)
                 .collection("comment")
                 .document(commentID);

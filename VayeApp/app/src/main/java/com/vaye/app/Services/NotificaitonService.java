@@ -49,13 +49,13 @@ public class NotificaitonService {
         map.put("type",type);
         map.put("text",text);
         map.put("senderUid",currentUser.getUid());
-        map.put("time",currentUser.getUid());
-        map.put("senderImage",currentUser.getUid());
-        map.put("not_id",currentUser.getUid());
-        map.put("isRead",currentUser.getUid());
-        map.put("username",currentUser.getUid());
+        map.put("time",FieldValue.serverTimestamp());
+        map.put("senderImage",currentUser.getThumb_image());
+        map.put("not_id",notId);
+        map.put("isRead",false);
+        map.put("username",currentUser.getUsername());
         map.put("postId","currentUser.getUid()");
-        map.put("senderName",currentUser.getUid());
+        map.put("senderName",currentUser.getName());
         map.put("lessonName","currentUser.getUid()");
         reference.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

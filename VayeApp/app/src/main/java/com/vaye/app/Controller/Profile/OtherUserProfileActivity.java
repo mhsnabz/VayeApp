@@ -43,11 +43,13 @@ import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherU
 import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserSchoolFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserVayeAppFragment;
 import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.FollowService;
+import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
@@ -529,6 +531,12 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                                 WaitDialog.dismiss();
                                 TipDialog.show(OtherUserProfileActivity.this, "Takip Ediliyor", TipDialog.TYPE.SUCCESS);
                                 TipDialog.dismiss(1000);
+                                NotificaitonService.shared().start_following_you(currentUser, otherUser, Notifications.NotificationDescription.following_you, Notifications.NotificationType.following_you, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+
+                                    }
+                                });
                                 followButton.setBackground(getApplicationContext().getDrawable(R.drawable.button_unfollow_back));
                                 followButton.setText("Takip Etmeyi Bırak");
                                 isFollowing = true;
