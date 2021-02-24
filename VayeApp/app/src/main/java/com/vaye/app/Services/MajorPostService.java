@@ -444,7 +444,11 @@ public class MajorPostService {
             map.put("link",link);
         }
 
-
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid()).collection("my-post").document(String.valueOf(postId));
+        Map<String , String> myPost = new HashMap<>();
+        myPost.put("postId",String.valueOf(postId));
+        ref.set(myPost,SetOptions.merge());
         setPostForLesson(datas,currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {

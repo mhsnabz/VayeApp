@@ -557,6 +557,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
     }
 
     public void sendMsg(View view) {
+
     }
 
 

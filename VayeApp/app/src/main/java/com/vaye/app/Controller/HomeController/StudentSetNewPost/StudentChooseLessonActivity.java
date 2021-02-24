@@ -90,12 +90,9 @@ public class StudentChooseLessonActivity extends AppCompatActivity {
     private void getMyLesson(CurrentUser currentUser){
 
         WaitDialog.show(StudentChooseLessonActivity.this , "");
-        //let db = Firestore.firestore().collection("user")
-        //            .document(currentUser.uid).collection("lesson")
         CollectionReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("lesson");
-
         ref.get().addOnCompleteListener(StudentChooseLessonActivity.this, new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -107,7 +104,7 @@ public class StudentChooseLessonActivity extends AppCompatActivity {
                         }else{
                             for (DocumentSnapshot doc : task.getResult().getDocuments()){
                                 lessons.add(doc.toObject(LessonModel.class));
-                                adapter.notifyDataSetChanged();
+
                             }
                             adapter.notifyDataSetChanged();
                             WaitDialog.dismiss();

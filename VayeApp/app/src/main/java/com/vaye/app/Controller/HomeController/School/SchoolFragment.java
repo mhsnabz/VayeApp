@@ -139,7 +139,7 @@ public class SchoolFragment extends Fragment {
                 }
             }
         });
-        ;
+
         return rootView;
     }
 

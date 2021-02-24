@@ -26,9 +26,18 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
@@ -46,6 +55,9 @@ import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.SplashScreen.SplashScreen;
 import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.Helper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -322,6 +334,7 @@ public class HomeActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
     }
+
 
 
     @Override
