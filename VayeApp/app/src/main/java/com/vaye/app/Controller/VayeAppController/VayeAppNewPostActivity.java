@@ -21,20 +21,33 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.NewPostAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
 import com.vaye.app.Interfaces.DataTypes;
+import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.StringArrayListInterface;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.MainPostTopicFollower;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.MainPostNS;
+import com.vaye.app.Services.MajorPostNS;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.Helper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
@@ -44,6 +57,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -67,8 +82,9 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     RecyclerView datas;
     KProgressHUD hud;
     MainPostModel mainPostModel;
-    ArrayList<String> followers;
+    ArrayList<MainPostTopicFollower>  followers;
     String postType;
+    String postName = "";
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int gallery_request =400;
     private static final int image_pick_request =600;
@@ -85,7 +101,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     String mimeType = "";
     long postDate = Calendar.getInstance().getTimeInMillis();
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
-
+    String notificationType = "";
     NewPostAdapter adapter ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +118,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
             followers = intentIncoming.getParcelableExtra("followers");
             setToolbar(postType);
             setView(currentUser,postType);
-
+            setStackView(postType);
 
         }else {
             finish();
@@ -134,6 +150,73 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 finish();
                 Helper.shared().back(VayeAppNewPostActivity.this);
+            }
+        });
+        rigthBarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                 String  msgText = text.getText().toString();
+                if (msgText.isEmpty()){
+                    TipDialog.show(VayeAppNewPostActivity.this , "Gönderiniz Boş Olamaz", TipDialog.TYPE.ERROR);
+                    return;
+                }else {
+                    WaitDialog.show(VayeAppNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
+                    if (postType.equals(BottomSheetActionTarget.al_sat)){
+                        notificationType = Notifications.NotificationType.new_ad;
+                        postName = BottomSheetActionTarget.sell_buy;
+                    }else if (postType.equals(BottomSheetActionTarget.yemek)){
+                        notificationType = Notifications.NotificationType.new_food_me;
+                        postName = BottomSheetActionTarget.food_me;
+                    }
+                    else if (postType.equals(BottomSheetActionTarget.yemek)){
+                        notificationType = Notifications.NotificationType.new_camping;
+                        postName = BottomSheetActionTarget.camping;
+
+                    }
+                    MainPostNS.shared().setNewPostNotification(followers,currentUser,String.valueOf(Calendar.getInstance().getTimeInMillis()),postType,msgText, notificationType,String.valueOf(postDate));
+                    for (String username : Helper.shared().getMentionedUser(msgText)){
+                        MainPostNS.shared().setMentionedPost(username,currentUser , String.valueOf(postDate), Notifications.NotificationType.home_new_mentions_post, Notifications.NotificationDescription.home_new_mentions_post );
+                    }
+                    MainPostNS.shared().getMyFollowers(currentUser.getUid(), new StringArrayListInterface() {
+                        @Override
+                        public void getArrayList(ArrayList<String> list) {
+                            if (list!=null && !list.isEmpty()){
+                                MainPostNS.shared().setNewPost(postName, "post", "", "", currentUser, null, postDate, list, msgText, dataModel, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                                                    .document("post")
+                                                    .collection("post")
+                                                    .document(String.valueOf(postDate));
+
+                                            Map<String , Object> mapObj = new HashMap<>();
+                                            if (!dataModel.isEmpty()){
+                                                mapObj.put("type","data");
+
+                                                for (int i = 0 ; i < dataModel.size() ; i ++){
+                                                    mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
+                                                    mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
+                                                    ref.set(mapObj, SetOptions.merge());
+
+                                                }
+
+                                            }
+
+                                            WaitDialog.dismiss();
+                                            TipDialog.show(VayeAppNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                            TipDialog.dismiss(1000);
+                                            finish();
+                                            Helper.shared().back(VayeAppNewPostActivity.this);
+                                        }
+
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
             }
         });
     }
@@ -180,11 +263,27 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     }
 
 
-    private void setStackView(){
+    private void setStackView(String postType){
+
         addImage = (ImageButton)findViewById(R.id.gallery);
         price = (ImageButton)findViewById(R.id.price);
         map_pin = (ImageButton)findViewById(R.id.map_pin);
 
+
+        if (postType.equals(BottomSheetActionTarget.al_sat)){
+            addImage.setVisibility(View.VISIBLE);
+            price.setVisibility(View.VISIBLE);
+            map_pin.setVisibility(View.VISIBLE);
+
+        }else if (postType.equals(BottomSheetActionTarget.yemek)){
+            addImage.setVisibility(View.VISIBLE);
+            price.setVisibility(View.GONE);
+            map_pin.setVisibility(View.VISIBLE);
+        }else if (postType.equals(BottomSheetActionTarget.kamp)){
+            addImage.setVisibility(View.VISIBLE);
+            price.setVisibility(View.GONE);
+            map_pin.setVisibility(View.VISIBLE);
+        }
 
 
 

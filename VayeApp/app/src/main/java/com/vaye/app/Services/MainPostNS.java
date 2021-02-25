@@ -1,14 +1,29 @@
 package com.vaye.app.Services;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.vaye.app.Interfaces.MainPostFollowers;
+import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.StringCompletion;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.MainPostTopicFollower;
+import com.vaye.app.Model.NewPostDataModel;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,6 +111,151 @@ public class MainPostNS {
         });
     }
 
+    public void setNewPostNotification(ArrayList<MainPostTopicFollower>  notificaitonGetter, CurrentUser currentUser, String notificationId, String postType , String text , String type , String postId){
+        if (!notificaitonGetter.isEmpty() && notificaitonGetter!=null){
+            for (MainPostTopicFollower item : notificaitonGetter){
+                if (!item.getUserId().equals(currentUser.getUid())){
+                    DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user")
+                            .document(item.getUserId())
+                            .collection("notification")
+                            .document(notificationId);
+                    ref1.set(map(currentUser , notificationId , postId , text , type),SetOptions.merge());
+                }
+            }
+        }
+    }
+    public void setMentionedPost(String username , CurrentUser currentUser, String postId , String type , String text ){
+        UserService.shared().getOthUserIdByMention(username, new StringCompletion() {
+            @Override
+            public void getString(String otherUserUid) {
+                if (otherUserUid!=null){
+                    if (otherUserUid.equals(currentUser.getUid())){
+                        return;
+                    }else{
+
+                        if (!currentUser.getSlient().contains(otherUserUid)){
+                            String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                            DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                    .document(otherUserUid).collection("notification")
+                                    .document(notificaitonId);
+                            ref.set(map(currentUser , notificaitonId , postId, text , type  ) , SetOptions.merge());
+                        }
+
+                    }
+                }
+
+            }
+        });
+    }
+    public void setNewPost(String  postType, String type , String locationName, String value,CurrentUser currentUser, GeoPoint location, long postId , ArrayList<String> followers
+            , String msgText , ArrayList<NewPostDataModel> datas , TrueFalse<Boolean> val){
+
+        Map<String , Object> map = new HashMap<>();
+
+        if (datas.isEmpty()){
+            map.put("type","post");
+            map.put("data",FieldValue.arrayUnion());
+            map.put("thumb_data",FieldValue.arrayUnion());
+        }else{
+
+        }
+        map.put("postTime",FieldValue.serverTimestamp());
+        map.put("senderName",currentUser.getName());
+        map.put("text",msgText);
+        map.put("postType",postType);
+        map.put("locationName",locationName);
+
+        map.put("likes",FieldValue.arrayUnion());
+        map.put("geoPoint",location);
+        map.put("postId",String.valueOf(postId));
+        map.put("senderUid",currentUser.getUid());
+        map.put("silent",FieldValue.arrayUnion());
+        map.put("comment",0);
+        map.put("dislike",FieldValue.arrayUnion());
+        map.put("post_ID",postId);
+        map.put("username",currentUser.getUsername());
+        map.put("thumb_image",currentUser.getThumb_image());
+        map.put("value",value);
+
+
+        DocumentReference reference = FirebaseFirestore.getInstance().collection("main-post")
+                .document("post").collection("post").document(String.valueOf(postId));
+        reference.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    val.callBack(true);
+                    setPostForCurrentUser( currentUser.getUid() ,String.valueOf(postId));
+                    setPostForUniversity(String.valueOf(postId),postType,currentUser.getShort_school());
+                    setPostForFollowers(currentUser.getUid(),followers,String.valueOf(postId));
+                }
+            }
+        });
+    }
+
+    private void setPostForFollowers(String senderUid,ArrayList<String> followers,String postId) {
+        for (String item : followers){
+            DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                    .document(item).collection("main-post")
+                    .document(postId);
+            Map<String ,String> map = new HashMap<>();
+            map.put("postId",postId);
+            map.put("senderUid",senderUid);
+            ref.set(map,SetOptions.merge());
+        }
+    }
+
+    private void setPostForUniversity(String postId,String postType, String short_school) {
+        //let db = Firestore.firestore().collection(shortname)
+        //            .document("main-post")
+        //            .collection("sell-buy")
+        //            .document(postId)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(short_school)
+                .document("main-post")
+                .collection(postType)
+                .document(postId);
+        Map<String ,String> map = new HashMap<>();
+        map.put("postId",postId);
+        ref.set(map,SetOptions.merge());
+
+    }
+
+    private void setPostForCurrentUser(String uid,String postId) {
+        //let db = Firestore.firestore().collection("user")
+        //            .document(currentUser.uid).collection("user-main-post").document(postId)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(uid).collection("user-main-post")
+                .document(postId);
+        Map<String ,String> map = new HashMap<>();
+        map.put("postId",postId);
+        ref.set(map,SetOptions.merge());
+
+    }
+
+    public void getMyFollowers(String uid , StringArrayListInterface list){
+        ArrayList<String> followersList = new ArrayList<>();
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(uid)
+                .collection("fallowers");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        list.getArrayList(followersList);
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            followersList.add(item.getId());
+                        }
+                        list.getArrayList(followersList);
+                    }
+                }else{
+                    list.getArrayList(followersList);
+                }
+
+            }
+        });
+
+    }
 
     private Map<String , Object>  map (CurrentUser currentUser ,String notificationId , String postId, String text , String type){
         Map<String , Object> map = new HashMap<>();
