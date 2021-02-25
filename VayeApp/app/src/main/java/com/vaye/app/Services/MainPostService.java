@@ -268,13 +268,15 @@ public class MainPostService {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
                     if (task.getResult().isEmpty()){
-                        list.getTopicFollower(followers);
+                        list.getTopicFollower(null);
                     }else {
                         for (DocumentSnapshot doc : task.getResult().getDocuments()){
                             followers.add(doc.toObject(MainPostTopicFollower.class));
                         }
                         list.getTopicFollower(followers);
                     }
+                }else{
+                    list.getTopicFollower(null);
                 }
             }
         });

@@ -112,7 +112,7 @@ public class MainPostNS {
     }
 
     public void setNewPostNotification(ArrayList<MainPostTopicFollower>  notificaitonGetter, CurrentUser currentUser, String notificationId, String postType , String text , String type , String postId){
-        if (!notificaitonGetter.isEmpty() && notificaitonGetter!=null){
+        if ( notificaitonGetter!=null && !notificaitonGetter.isEmpty()){
             for (MainPostTopicFollower item : notificaitonGetter){
                 if (!item.getUserId().equals(currentUser.getUid())){
                     DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user")
@@ -177,7 +177,9 @@ public class MainPostNS {
         map.put("thumb_image",currentUser.getThumb_image());
         map.put("value",value);
 
-
+        setPostForCurrentUser( currentUser.getUid() ,String.valueOf(postId));
+        setPostForUniversity(String.valueOf(postId),postType,currentUser.getShort_school());
+        setPostForFollowers(currentUser.getUid(),followers,String.valueOf(postId));
         DocumentReference reference = FirebaseFirestore.getInstance().collection("main-post")
                 .document("post").collection("post").document(String.valueOf(postId));
         reference.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -185,9 +187,7 @@ public class MainPostNS {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
                     val.callBack(true);
-                    setPostForCurrentUser( currentUser.getUid() ,String.valueOf(postId));
-                    setPostForUniversity(String.valueOf(postId),postType,currentUser.getShort_school());
-                    setPostForFollowers(currentUser.getUid(),followers,String.valueOf(postId));
+
                 }
             }
         });
