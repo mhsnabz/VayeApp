@@ -101,25 +101,5 @@ public class VayeAppPostService {
     }
 
 
-    public void checkIsFollowing(String uid ,String topic, TrueFalse<Boolean> callback){
-        // let db = Firestore.firestore().collection("main-post")
-        //            .document(topic).collection("followers")
-        //            .document(currentUser.uid)
-        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
-                .document(topic).collection("followers").document(uid);
-        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
-                    if (task.getResult().exists()){
-                        callback.callBack(true);
-                    }else{
-                        callback.callBack(false);
-                    }
-                }else{
-                    callback.callBack(false);
-                }
-            }
-        });
-    }
+
 }

@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -87,6 +88,72 @@ public class NotificaitonService {
         });
 
     }
+
+    public void checkIsFollowingTopic(String uid ,String topic, TrueFalse<Boolean> callback){
+        // let db = Firestore.firestore().collection("main-post")
+        //            .document(topic).collection("followers")
+        //            .document(currentUser.uid)
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                .document(topic).collection("followers").document(uid);
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        callback.callBack(true);
+                    }else{
+                        callback.callBack(false);
+                    }
+                }else{
+                    callback.callBack(false);
+                }
+            }
+        });
+    }
+
+    public void followMainPostTopic(CurrentUser currentUser , String topic , TrueFalse<Boolean> callback){
+        ///main-post/camping/followers/VUSU6uA0odX7vuF5giXWbOUYzni1
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                .document(topic).collection("followers").document(currentUser.getUid());
+        Map<String , String> map = new HashMap<>();
+        map.put("school",currentUser.getShort_school());
+        map.put("userId",currentUser.getUid());
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(true);
+                }else{
+                    callback.callBack(false);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.callBack(false);
+            }
+        });
+    }
+    public void unFollowMainPostTopic(String uid , String topic , TrueFalse<Boolean> callback){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                .document(topic).collection("followers").document(uid);
+        ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(false);
+                }else{
+                    callback.callBack(true);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.callBack(true);
+            }
+        });
+    }
+
     //TODO:: home post notifications
     public void setPost_CommentLike(LessonPostModel post , CurrentUser currentUser , String text , String type ){
         if (post.getSenderUid().equals(currentUser.getUid())){

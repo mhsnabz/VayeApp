@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Services.VayeAppPostService;
 import com.vaye.app.Util.Helper;
 
@@ -64,7 +66,7 @@ public class VayeAppnotificationSettingActivity extends AppCompatActivity {
         switch2 = (Switch)findViewById(R.id.switch2);
         switch3 = (Switch)findViewById(R.id.switch3);
 
-        VayeAppPostService.shared().checkIsFollowing(currentUser.getUid(), "sell-buy", new TrueFalse<Boolean>() {
+        NotificaitonService.shared().checkIsFollowingTopic(currentUser.getUid(), "sell-buy", new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 switch1.setChecked(_value);
@@ -72,20 +74,104 @@ public class VayeAppnotificationSettingActivity extends AppCompatActivity {
                 WaitDialog.dismiss();
             }
         });
-        VayeAppPostService.shared().checkIsFollowing(currentUser.getUid(), "food-me", new TrueFalse<Boolean>() {
+        NotificaitonService.shared().checkIsFollowingTopic(currentUser.getUid(), "food-me", new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 switch2.setChecked(_value);
                 isFollowingFoodMe = _value;
             }
         });
-        VayeAppPostService.shared().checkIsFollowing(currentUser.getUid(), "camping", new TrueFalse<Boolean>() {
+        NotificaitonService.shared().checkIsFollowingTopic(currentUser.getUid(), "camping", new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 switch3.setChecked(_value);
                 isFollowingCamp = _value;
             }
         });
+
+
+        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (isFollowingBuySell){
+                    WaitDialog.show(VayeAppnotificationSettingActivity.this,null);
+                    NotificaitonService.shared().unFollowMainPostTopic(currentUser.getUid(), "sell-buy", new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            switch1.setChecked(_value);
+                            isFollowingBuySell = _value;
+                            WaitDialog.dismiss();
+                        }
+                    });
+                }else{
+                    WaitDialog.show(VayeAppnotificationSettingActivity.this,null);
+                    NotificaitonService.shared().followMainPostTopic(currentUser, "sell-buy", new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            switch1.setChecked(_value);
+                            isFollowingBuySell = _value;
+                            WaitDialog.dismiss();
+
+                        }
+                    });
+                }
+            }
+        });
+        switch2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (isFollowingFoodMe){
+                    WaitDialog.show(VayeAppnotificationSettingActivity.this,null);
+                    NotificaitonService.shared().unFollowMainPostTopic(currentUser.getUid(), "food-me", new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            switch2.setChecked(_value);
+                            isFollowingFoodMe = _value;
+                            WaitDialog.dismiss();
+                        }
+                    });
+                }else{
+                    WaitDialog.show(VayeAppnotificationSettingActivity.this,null);
+                    NotificaitonService.shared().followMainPostTopic(currentUser, "food-me", new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            switch2.setChecked(_value);
+                            isFollowingFoodMe = _value;
+                            WaitDialog.dismiss();
+
+                        }
+                    });
+                }
+            }
+        });
+        switch3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (isFollowingCamp){
+                    WaitDialog.show(VayeAppnotificationSettingActivity.this,null);
+                    NotificaitonService.shared().unFollowMainPostTopic(currentUser.getUid(), "camping", new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            switch3.setChecked(_value);
+                            isFollowingCamp = _value;
+                            WaitDialog.dismiss();
+                        }
+                    });
+                }else{
+                    WaitDialog.show(VayeAppnotificationSettingActivity.this,null);
+                    NotificaitonService.shared().followMainPostTopic(currentUser, "camping", new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            switch3.setChecked(_value);
+                            isFollowingCamp = _value;
+                            WaitDialog.dismiss();
+
+                        }
+                    });
+                }
+            }
+        });
+
     }
 
     @Override
