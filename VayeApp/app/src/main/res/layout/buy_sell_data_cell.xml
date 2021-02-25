@@ -103,6 +103,7 @@
         android:layout_marginLeft="60dp"
         android:layout_marginRight="8dp"
         android:autoLink="all"
+        android:layout_marginTop="-10dp"
 
         app:socialFlags="hyperlink|mention"
 
@@ -157,9 +158,10 @@
         android:layout_marginTop="8dp"
         android:layout_alignStart="@id/text"
         android:visibility="gone"
+
         android:layout_width="match_parent"></include>
     <include layout="@layout/two_image" android:id="@+id/two_image"
-        android:layout_below="@id/text"
+        android:layout_below="@id/valueLayout"
         android:layout_height="200dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="8dp"
@@ -167,7 +169,7 @@
         android:visibility="gone"
         android:layout_width="match_parent"></include>
     <include layout="@layout/there_image" android:id="@+id/there_image"
-        android:layout_below="@id/text"
+        android:layout_below="@id/valueLayout"
         android:layout_height="200dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="8dp"
@@ -175,7 +177,7 @@
         android:visibility="gone"
         android:layout_width="match_parent"></include>
     <include layout="@layout/four_image" android:id="@+id/four_image"
-        android:layout_below="@id/text"
+        android:layout_below="@id/valueLayout"
         android:layout_height="200dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="8dp"
@@ -190,7 +192,7 @@
         android:id="@+id/toolbarStack"
         android:layout_below="@id/text"
         android:layout_alignStart="@id/text"
-        android:layout_marginTop="220dp"
+        android:layout_marginTop="240dp"
         android:layout_marginLeft="4dp"
         android:weightSum="3"
         >

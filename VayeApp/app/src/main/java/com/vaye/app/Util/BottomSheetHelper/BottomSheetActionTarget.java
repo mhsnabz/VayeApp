@@ -31,7 +31,7 @@ public interface BottomSheetActionTarget {
     String yemek = "Yemek";
     String kamp = "Kamp";
 
-    String sell_buy = "sell_buy";
+    String sell_buy = "sell-buy";
     String camping = "camping";
     String food_me = "food-me";
 

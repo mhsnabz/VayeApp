@@ -1,8 +1,10 @@
 package com.vaye.app.Controller.VayeAppController.FoodMe;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,15 +31,22 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Application.VayeApp;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Controller.VayeAppController.VayeAppActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.FoodMeAdapter;
+import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
+import com.vaye.app.Interfaces.MainPostFollowers;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.MainPostTopicFollower;
 import com.vaye.app.R;
+import com.vaye.app.Services.MainPostService;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +92,21 @@ public class FoodMeFragment extends Fragment {
         newPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                WaitDialog.show((AppCompatActivity) getActivity(), null);
+                MainPostService.shared().getTopicFollowers(BottomSheetActionTarget.food_me, new MainPostFollowers() {
+                    @Override
+                    public void getTopicFollower(ArrayList<MainPostTopicFollower> list) {
 
+                        Intent i = new Intent(getActivity() , VayeAppNewPostActivity.class);
+                        i.putExtra("followers",list);
+                        i.putExtra("currentUser",currentUser);
+                        i.putExtra("postType",BottomSheetActionTarget.yemek);
+                        getActivity().startActivity(i);
+
+                        Helper.shared().go(getActivity());
+                        WaitDialog.dismiss();
+                    }
+                });
             }
         });
 

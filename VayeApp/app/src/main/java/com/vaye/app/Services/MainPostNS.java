@@ -1,5 +1,7 @@
 package com.vaye.app.Services;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -180,6 +182,7 @@ public class MainPostNS {
         setPostForCurrentUser( currentUser.getUid() ,String.valueOf(postId));
         setPostForUniversity(String.valueOf(postId),postType,currentUser.getShort_school());
         setPostForFollowers(currentUser.getUid(),followers,String.valueOf(postId));
+
         DocumentReference reference = FirebaseFirestore.getInstance().collection("main-post")
                 .document("post").collection("post").document(String.valueOf(postId));
         reference.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -194,6 +197,7 @@ public class MainPostNS {
     }
 
     private void setPostForFollowers(String senderUid,ArrayList<String> followers,String postId) {
+
         for (String item : followers){
             DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                     .document(item).collection("main-post")
@@ -206,11 +210,10 @@ public class MainPostNS {
     }
 
     private void setPostForUniversity(String postId,String postType, String short_school) {
-        //let db = Firestore.firestore().collection(shortname)
-        //            .document("main-post")
-        //            .collection("sell-buy")
-        //            .document(postId)
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(short_school)
+        Log.d("setPostForUniversity", "setPostForUniversity: " + short_school);
+        Log.d("setPostForUniversity", "setPostForUniversity: " + postType);
+        Log.d("setPostForUniversity", "setPostForUniversity: " + postId);
+    DocumentReference ref = FirebaseFirestore.getInstance().collection(short_school)
                 .document("main-post")
                 .collection(postType)
                 .document(postId);
@@ -227,7 +230,18 @@ public class MainPostNS {
                 .document(postId);
         Map<String ,String> map = new HashMap<>();
         map.put("postId",postId);
-        ref.set(map,SetOptions.merge());
+        ref.set(map,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                        .document(uid).collection("main-post")
+                        .document(String.valueOf(postId));
+                Map<String ,String> mapa = new HashMap<>();
+                mapa.put("postId",postId);
+                mapa.put("senderUid",uid);
+                ref.set(map,SetOptions.merge());
+            }
+        });
 
     }
 

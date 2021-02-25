@@ -203,7 +203,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                         notificationType = Notifications.NotificationType.new_food_me;
                         postName = BottomSheetActionTarget.food_me;
                     }
-                    else if (postType.equals(BottomSheetActionTarget.yemek)){
+                    else if (postType.equals(BottomSheetActionTarget.kamp)){
                         notificationType = Notifications.NotificationType.new_camping;
                         postName = BottomSheetActionTarget.camping;
 
@@ -215,7 +215,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                     MainPostNS.shared().getMyFollowers(currentUser.getUid(), new StringArrayListInterface() {
                         @Override
                         public void getArrayList(ArrayList<String> list) {
-                            if (list!=null && !list.isEmpty()){
+
                                 MainPostNS.shared().setNewPost(postName, "post", "", value, currentUser, null, postDate, list, msgText, dataModel, new TrueFalse<Boolean>() {
                                     @Override
                                     public void callBack(Boolean _value) {
@@ -247,7 +247,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
 
                                     }
                                 });
-                            }
+
                         }
                     });
                 }
@@ -454,7 +454,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                             @Override
                             public void getString(String url) {
                                 try {
-                                    setThumbData(DataTypes.contentType.image, VayeAppNewPostActivity.this, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, postName, file, new StringCompletion() {
+                                    setThumbData(DataTypes.contentType.image, VayeAppNewPostActivity.this, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
                                         @Override
                                         public void getString(String thumb_url) {
                                             updateImages(VayeAppNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
