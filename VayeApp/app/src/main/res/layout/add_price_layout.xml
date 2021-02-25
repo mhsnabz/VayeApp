@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    android:elevation="4dp"
+    app:cardCornerRadius="8dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_margin="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageButton
+
+            android:id="@+id/dismis"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/dismis"
+            ></ImageButton>
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/price"
+            android:layout_below="@id/dismis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:hint="Fiyat Girin..."
+            android:textAlignment="center"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="14dp"
+            android:inputType="number"
+            app:met_floatingLabel="normal"
+
+            />
+        <LinearLayout
+            android:weightSum="2"
+
+            android:layout_below="@id/price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12sp"
+            android:layout_marginRight="12sp"
+            android:layout_marginTop="4dp"
+            >
+            <Button
+                android:id="@+id/cancel"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_marginRight="6dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:text="Vazgeç"
+                android:textSize="12sp"
+                android:background="@drawable/button_drive_back"
+                ></Button>
+            <Button
+                android:id="@+id/addPrice"
+                android:background="@drawable/button_add_link_bac"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_marginLeft="6dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:text="Fiyat Gir"
+                android:textSize="12sp"
+                ></Button>
+        </LinearLayout>
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

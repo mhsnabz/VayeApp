@@ -144,7 +144,7 @@
             android:layout_toEndOf="@id/priceImage"
             android:fontFamily="@font/nunito_semibold"
             android:textSize="14sp"
-            android:text="Konum Eklendi"
+
             android:textColor="@color/black"
             android:layout_marginLeft="8dp"
             android:id="@+id/totalPrice"

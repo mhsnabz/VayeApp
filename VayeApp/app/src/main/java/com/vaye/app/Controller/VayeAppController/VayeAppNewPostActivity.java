@@ -1,5 +1,6 @@
 package com.vaye.app.Controller.VayeAppController;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -8,28 +9,41 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.kongzue.dialog.v3.CustomDialog;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.rengwuxian.materialedittext.MaterialEditText;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.NewPostAdapter;
@@ -37,6 +51,7 @@ import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostAc
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringArrayListInterface;
+import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonFallowerUser;
@@ -47,20 +62,26 @@ import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.MainPostNS;
 import com.vaye.app.Services.MajorPostNS;
+import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
+import com.vaye.app.Util.BottomSheetHelper.LinkNames;
 import com.vaye.app.Util.Helper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
@@ -93,16 +114,18 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     private int MAX_ATTACHMENT_COUNT = 10;
     private ArrayList<String> photoPaths = new ArrayList<>();
     private ArrayList<Uri> docPaths = new ArrayList<>();
-
+    String value = "";
     String storagePermission[];
     //Stackview
-    ImageButton addImage, map_pin , price;
+    ImageButton addImage, map_pin , price , cancelPrice , cancelLacation;
     String contentType = "";
     String mimeType = "";
     long postDate = Calendar.getInstance().getTimeInMillis();
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
     String notificationType = "";
     NewPostAdapter adapter ;
+    RelativeLayout priceLayout , locationLayout;
+    TextView totalPrice;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,6 +142,17 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
             setToolbar(postType);
             setView(currentUser,postType);
             setStackView(postType);
+            setRecylerView(currentUser);
+            priceLayout = (RelativeLayout)findViewById(R.id.priceLayout);
+            cancelPrice = (ImageButton)findViewById(R.id.cancelPriceButton) ;
+            totalPrice = (TextView)findViewById(R.id.totalPrice);
+            cancelPrice.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    value = "";
+                    setPriceLayout(value);
+                }
+            });
 
         }else {
             finish();
@@ -182,7 +216,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                         @Override
                         public void getArrayList(ArrayList<String> list) {
                             if (list!=null && !list.isEmpty()){
-                                MainPostNS.shared().setNewPost(postName, "post", "", "", currentUser, null, postDate, list, msgText, dataModel, new TrueFalse<Boolean>() {
+                                MainPostNS.shared().setNewPost(postName, "post", "", value, currentUser, null, postDate, list, msgText, dataModel, new TrueFalse<Boolean>() {
                                     @Override
                                     public void callBack(Boolean _value) {
                                         if (_value){
@@ -284,15 +318,67 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
             price.setVisibility(View.GONE);
             map_pin.setVisibility(View.VISIBLE);
         }
-
-
-
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 uploadImage();
             }
         });
+
+        price.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                CustomDialog.show(VayeAppNewPostActivity.this, R.layout.add_price_layout, new CustomDialog.OnBindView() {
+                    @Override
+                    public void onBind(CustomDialog dialog, View v) {
+                        Button addPrice = (Button)v.findViewById(R.id.addPrice);
+                        EditText price = (EditText)v.findViewById(R.id.price);
+                        Button cancel = (Button)v.findViewById(R.id.cancel);
+                        ImageButton dismiss = ( ImageButton)v.findViewById(R.id.dismis);
+                        dismiss.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.doDismiss();
+                            }
+                        });
+
+                        addPrice.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                String priceValue = price.getText().toString();
+                                if (!priceValue.isEmpty()){
+                                    value = priceValue;
+                                    setPriceLayout(value);
+                                }
+                                dialog.doDismiss();
+                            }
+                        });
+                        cancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.doDismiss();
+                            }
+                        });
+
+
+                    }
+                });
+            }
+        });
+    }
+
+    private void setPriceLayout(String value){
+
+        if (value.isEmpty() && value.equals("")){
+
+            priceLayout.setVisibility(View.GONE);
+            totalPrice.setText("");
+        }else{
+            priceLayout.setVisibility(View.VISIBLE);
+            totalPrice.setText(value + " ₺");
+        }
+
     }
 
     private void uploadImage() {
@@ -364,11 +450,156 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                         String mimeType = DataTypes.mimeType.image;
                         String  contentType = DataTypes.contentType.image;
                         dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
+                        saveDatasToDataBase(DataTypes.contentType.image, DataTypes.mimeType.image, this, String.valueOf(postDate), currentUser, file, new StringCompletion() {
+                            @Override
+                            public void getString(String url) {
+                                try {
+                                    setThumbData(DataTypes.contentType.image, VayeAppNewPostActivity.this, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, postName, file, new StringCompletion() {
+                                        @Override
+                                        public void getString(String thumb_url) {
+                                            updateImages(VayeAppNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    WaitDialog.dismiss();
+                                                    TipDialog.show(VayeAppNewPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                                    TipDialog.dismiss(1500);
+                                                    for (int i = 0 ; i< dataModel.size() ; i++){
+                                                        if (dataModel.get(i).getFile() == fileUri){
+                                                            dataModel.get(i).setFileUrl(url);
+                                                            dataModel.get(i).setThumb_url(thumb_url);
+                                                            adapter.notifyDataSetChanged();
+                                                        }
+                                                    }
+                                                    title.setText(String.valueOf(getTotalSize(VayeAppNewPostActivity.this , dataModel) +"mb"));
+                                                }
+                                            });
+                                        }
+                                    });
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        });
                     }
                 }
         }
     }
+    //TODO:: upload images
+    private void saveDatasToDataBase(String contentType, String mimeType, Activity activity , String date , CurrentUser currentUser , Uri data,
+                                     StringCompletion completion ){
+        hud.show();
 
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType(contentType)
+                .build();
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child("main-post")
+                .child(currentUser.getShort_school())
+                .child(postType)
+                .child(currentUser.getUsername())
+                .child(date)
+                .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +mimeType);
+        uploadTask =  ref.putFile(data , metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()){
+
+                    task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String  url = uri.toString();
+                            Log.d(TAG, "onComplete: "+ url);
+                            hud.dismiss();
+                            WaitDialog.show((AppCompatActivity) activity , "Dosya Yükleniyor");
+                            completion.getString(url);
+
+
+                        }
+                    });
+
+                }
+
+            }
+
+        });
+
+        uploadTask.addOnProgressListener(activity, new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                hud.setProgress((int) progress);
+                Log.d(TAG, "onProgress: " + progress);
+            }
+        });
+
+    }
+    private void setThumbData(String contentType, Activity activity ,String date ,String mimeType, CurrentUser currentUser , String type , Uri data,
+                              StringCompletion completion) throws IOException {
+        WaitDialog.show((AppCompatActivity) activity ,null);
+        if (type == "image"){
+
+            StorageMetadata metadata = new StorageMetadata.Builder()
+                    .setContentType(contentType)
+                    .build();
+
+            File thumb_file = new File(data.getPath());
+            Bitmap thumb_bitmap = new Compressor(this)
+                    .setMaxHeight(300)
+                    .setMaxWidth(300).setQuality(100)
+                    .compressToBitmap(thumb_file);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            final byte[] thumb_byte = baos.toByteArray();
+
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child("main-post-thumb")
+                    .child(currentUser.getShort_school())
+                    .child(postType)
+                    .child(currentUser.getUsername())
+                    .child(date)
+                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +mimeType);
+
+            ref.putBytes(thumb_byte, metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if (task.isSuccessful()){
+                        task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(activity, new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String thumb_url = uri.toString();
+                                completion.getString(thumb_url);
+
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+    }
+    private void  updateImages(Activity activity , CurrentUser currentUser ,String url , String  thumb_url, TrueFalse<Boolean> callback ){
+
+        ///user/VUSU6uA0odX7vuF5giXWbOUYzni1/saved-task/task
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("saved-task")
+                .document("task");
+        Map<String , Object> map = new HashMap<>();
+        map.put("data", FieldValue.arrayUnion(url));
+        map.put("thumbData",FieldValue.arrayUnion(thumb_url));
+        map.put("type","data");
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+
+                    callback.callBack(true);
+                }
+            }
+        });
+
+    }
 
     @Override
     public void onBackPressed() {
