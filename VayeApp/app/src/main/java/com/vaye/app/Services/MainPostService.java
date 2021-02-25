@@ -9,21 +9,26 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.MainPostFollowers;
+import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.MainPostTopicFollower;
 import com.vaye.app.Model.OtherUser;
 
 import org.w3c.dom.Comment;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -249,6 +254,28 @@ public class MainPostService {
                             count.callBackCount(task.getResult().getDocuments().size());
                         }
                     }
+            }
+        });
+    }
+
+    public void getTopicFollowers(String topic , MainPostFollowers list){
+        ArrayList<MainPostTopicFollower> followers = new ArrayList<>();
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                .document(topic)
+                .collection("followers");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        list.getTopicFollower(followers);
+                    }else {
+                        for (DocumentSnapshot doc : task.getResult().getDocuments()){
+                            followers.add(doc.toObject(MainPostTopicFollower.class));
+                        }
+                        list.getTopicFollower(followers);
+                    }
+                }
             }
         });
     }

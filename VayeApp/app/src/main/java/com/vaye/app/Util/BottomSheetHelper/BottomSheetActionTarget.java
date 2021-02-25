@@ -27,6 +27,13 @@ public interface BottomSheetActionTarget {
     String iClould = "Apple iCloud";
 
 
+    String al_sat = "Al-Sat";
+    String yemek = "Yemek";
+    String kamp = "Kamp";
+
+    String sell_buy = "sell_buy";
+    String camping = "camping";
+    String food_me = "food-me";
 
 
 

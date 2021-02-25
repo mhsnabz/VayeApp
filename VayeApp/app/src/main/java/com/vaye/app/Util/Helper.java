@@ -55,6 +55,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.BottomSheetHelper.MajorPostBottomAdapter;
 import com.vaye.app.Util.BottomSheetHelper.SchoolPostBottomSheetAdapter;
 import com.vaye.app.Util.BottomSheetHelper.VayeAppBottomSheet;
+import com.vaye.app.Util.BottomSheetHelper.VayeAppChooseTargetBottomSheetAdapter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -903,7 +904,51 @@ public class Helper {
 
 
    }
+    public void VayeAppChooseTargetBottomSheetLaunher(Activity activity ,CurrentUser currentUser , TrueFalse<Boolean> callback){
+        RecyclerView recyclerView;
+        CardView headerView;
+        Button cancel;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+        ArrayList<String > items = new ArrayList<>();
+        items.add(BottomSheetActionTarget.al_sat);
+        items.add(BottomSheetActionTarget.yemek);
+        items.add(BottomSheetActionTarget.kamp);
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(R.drawable.buy_sell_selected);
+        res.add(R.drawable.food_me_selected);
+        res.add(R.drawable.camping_selected);
 
+
+
+
+        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.vaye_app_current_user_launcher,res);
+        VayeAppChooseTargetBottomSheetAdapter adapter = new VayeAppChooseTargetBottomSheetAdapter(currentUser , activity , model , bottomSheetDialog);
+        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        adapter.notifyDataSetChanged();
+        headerView = (CardView)view.findViewById(R.id.header);
+        headerView.setVisibility(View.GONE);
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                callback.callBack(true);
+            }
+        });
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
     public ArrayList<String> getMentionedUser(String text){
         ArrayList<String> user = new ArrayList<>();
         String[] words = text.split("[ \\.]");

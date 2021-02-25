@@ -33,10 +33,12 @@ import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter
 import com.vaye.app.Controller.VayeAppController.VayeAppActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.BuySellAdapter;
 import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.FollowersAdapter;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.R;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +75,7 @@ public class FollowersFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_followers, container, false);
 
         newPost = (FloatingActionButton)rootView.findViewById(R.id.newPostButton);
+
         postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
         postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         postList.setHasFixedSize(true);
@@ -85,7 +88,12 @@ public class FollowersFragment extends Fragment {
         newPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Helper.shared().VayeAppChooseTargetBottomSheetLaunher(getActivity(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        
+                    }
+                });
             }
         });
 

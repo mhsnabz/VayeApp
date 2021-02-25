@@ -374,6 +374,7 @@ public class MajorPostService {
                 .collection("saved-task").document("task");
         Map<String , Object> map = new HashMap<>();
         map.put("link","");
+
         ref.set(map , SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

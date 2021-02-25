@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.VayeAppController.VayeAppnotificationSettingActivity"></activity>
+        <activity android:name=".Controller.VayeAppController.VayeAppNewPostActivity"></activity>
+        <activity android:name=".Controller.VayeAppController.VayeAppnotificationSettingActivity" />
         <activity android:name=".Controller.HomeController.School.SchoolPostComment.SchoolPostCommentActivity" />
         <activity android:name=".Controller.HomeController.School.SchoolPostNotificationActivity" />
         <activity android:name=".Controller.HomeController.School.ChooseClupActivity" />
