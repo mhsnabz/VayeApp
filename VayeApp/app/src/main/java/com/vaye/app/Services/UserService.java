@@ -1,6 +1,7 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,11 +10,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.rpc.Help;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
@@ -461,5 +467,135 @@ public class UserService {
                 }
             }
         });
+    }
+
+
+    public void deleteProfileImage(Activity activity,CurrentUser currentUser , TrueFalse<Boolean> callback){
+        WaitDialog.show((AppCompatActivity) activity, "Resminiz Siliniyor...");
+        Log.d("UserService", "onFailure: " +currentUser.getProfileImage());
+        Log.d("UserService", "onFailure: " +currentUser.getThumb_image());
+        if (currentUser.getProfileImage()!=null && !currentUser.getProfileImage().isEmpty()){
+            StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(currentUser.getProfileImage());
+            ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        if (currentUser.getThumb_image()!=null && !currentUser.getThumb_image().isEmpty()){
+                            StorageReference ref1 = FirebaseStorage.getInstance().getReferenceFromUrl(currentUser.getThumb_image());
+                            ref1.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()){
+                                        currentUser.setProfileImage("");
+                                        currentUser.setThumb_image("");
+                                        callback.callBack(true);
+                                        WaitDialog.dismiss();
+                                        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                                .document(currentUser.getUid());
+                                        Map<String , String> map = new HashMap<>();
+                                        map.put("profileImage","");
+                                        map.put("thumb_image","");
+                                        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()){
+                                                    currentUser.setThumb_image("");
+                                                    currentUser.setProfileImage("");
+                                                    updateAllPost(currentUser);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }).addOnFailureListener(activity, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    callback.callBack(false);
+                    Log.d("UserService", "onFailure: " +e.getLocalizedMessage());
+                }
+            });
+        }else{
+            callback.callBack(true);
+            WaitDialog.dismiss();
+        }
+    }
+
+    private void updateAllPost(CurrentUser currentUser ){
+        Query mainPostRef = FirebaseFirestore.getInstance().collection("main-post")
+                .document("post").collection("post").whereEqualTo("senderUid",currentUser.getUid());
+
+        mainPostRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (!task.getResult().isEmpty()){
+                        for (DocumentSnapshot doc : task.getResult().getDocuments()){
+                            updateMainPost(currentUser , doc.getId());
+                        }
+                    }
+                }
+            }
+        });
+
+        Query majorPostRef = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post").collection("post").whereEqualTo("senderUid",currentUser.getUid());
+        majorPostRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (!task.getResult().isEmpty()){
+                        for (DocumentSnapshot doc : task.getResult().getDocuments()){
+                            updateMajorPost(currentUser , doc.getId());
+                        }
+                    }
+                }
+            }
+        });
+
+        Query noticesPostRef = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices").collection("post").whereEqualTo("senderUid",currentUser.getUid());
+        noticesPostRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (!task.getResult().isEmpty()){
+                        for (DocumentSnapshot doc : task.getResult().getDocuments()){
+                            updateNoticesPost(currentUser , doc.getId());
+                        }
+                    }
+                }
+            }
+        });
+    }
+    private void updateMajorPost(CurrentUser currentUser , String postId){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post").collection("post").document(postId);
+        Map<String , String> map = new HashMap<>();
+        map.put("thumb_image",currentUser.getThumb_image());
+        map.put("username",currentUser.getUsername());
+        ref.set(map , SetOptions.merge());
+
+    }
+    private void updateNoticesPost(CurrentUser currentUser , String postId){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices").collection("post").document(postId);
+        Map<String , String> map = new HashMap<>();
+        map.put("thumb_image",currentUser.getThumb_image());
+        map.put("username",currentUser.getUsername());
+        ref.set(map , SetOptions.merge());
+
+    }
+    private void updateMainPost(CurrentUser currentUser , String postId){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                .document("post").collection("post").document(postId);
+        Map<String , String> map = new HashMap<>();
+        map.put("thumb_image",currentUser.getThumb_image());
+        map.put("username",currentUser.getUsername());
+        ref.set(map , SetOptions.merge());
     }
 }

@@ -62,6 +62,7 @@
                         ></TextView>
                 </LinearLayout>
                 <LinearLayout
+                    android:clickable="true"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -111,6 +112,8 @@
 
                     ></TextView>
                 <LinearLayout
+                    android:onClick="lisanslar"
+                    android:clickable="true"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -140,6 +143,8 @@
                         ></TextView>
                 </LinearLayout>
                 <LinearLayout
+                    android:clickable="true"
+                    android:onClick="hizmetKosullari"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -170,7 +175,8 @@
                         ></TextView>
                 </LinearLayout>
                 <LinearLayout
-
+                    android:clickable="true"
+                    android:onClick="gizlilikPolitikasi"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -219,6 +225,8 @@
                     android:textSize="10sp"
                     ></TextView>
                 <LinearLayout
+                    android:clickable="true"
+                    android:onClick="report"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -248,6 +256,8 @@
                         ></TextView>
                 </LinearLayout>
                 <LinearLayout
+                    android:clickable="true"
+                    android:onClick="rateUs"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -278,7 +288,8 @@
                         ></TextView>
                 </LinearLayout>
                 <LinearLayout
-
+                    android:onClick="contackMail"
+                    android:clickable="true"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -312,6 +323,7 @@
                 </LinearLayout>
             </RelativeLayout>
             <RelativeLayout
+
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="4dp"
                 android:layout_width="match_parent"
@@ -330,6 +342,8 @@
 
                     ></TextView>
                 <LinearLayout
+                    android:clickable="true"
+                    android:onClick="instaClick"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -359,6 +373,8 @@
                         ></TextView>
                 </LinearLayout>
                 <LinearLayout
+                    android:clickable="true"
+                    android:onClick="twitterClick"
                     android:layout_marginBottom="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

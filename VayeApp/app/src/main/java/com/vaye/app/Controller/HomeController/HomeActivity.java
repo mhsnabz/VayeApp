@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -49,6 +50,7 @@ import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivit
 import com.vaye.app.Controller.HomeController.SettingController.SettingActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.SchoolPostService;
@@ -73,7 +75,7 @@ public class HomeActivity extends AppCompatActivity {
     TextView bolumLbl , schoolLbl;
     RelativeLayout line1,line2;
     ViewPager viewPager;
-    ImageButton addLesson , notificationSetting;
+    ImageButton addLesson , notificationSetting , profileImageSetting;
     private int STORAGE_PERMISSION_CODE = 1;
     private int STOREGE_READ_WRİTE_CODE = 2;
     private int STROGE_MANAGE_CODE = 3;
@@ -174,6 +176,7 @@ public class HomeActivity extends AppCompatActivity {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerview = navigationView.getHeaderView(0);
         profileIamge = (CircleImageView)headerview.findViewById(R.id.profileImage);
+        profileImageSetting = ( ImageButton)headerview.findViewById(R.id.profileImageSetting);
         name = (TextView)headerview.findViewById(R.id.name);
         username = (TextView)headerview.findViewById(R.id.username);
         Log.d(TAG, "setUserProile: " + currentUser.getThumb_image());
@@ -182,9 +185,24 @@ public class HomeActivity extends AppCompatActivity {
         if (!currentUser.getThumb_image().isEmpty() && currentUser.getThumb_image()!=null){
             Picasso.get().load(currentUser.getThumb_image()).resize(256,256).centerCrop().into(profileIamge);
 
+        }else{
+            profileIamge.setImageResource(android.R.color.darker_gray);
         }
 
         showProflie = (Button)headerview.findViewById(R.id.showProfile);
+        showProflie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent i = new Intent(HomeActivity.this , CurrentUserProfile.class);
+                i.putExtra("currentUser",currentUser);
+                startActivity(i);
+                Helper.shared().go(HomeActivity.this);
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                }
+            }
+        });
         exit = (Button)headerview.findViewById(R.id.exit2);
         exit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -229,7 +247,8 @@ public class HomeActivity extends AppCompatActivity {
         showProflie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(HomeActivity.this , CurrentUserProfile.class);
+                Intent i = new Intent(HomeActivity.this, CurrentUserProfile.class);
+                i.putExtra("currentUser",currentUser);
                 startActivity(i);
                 Helper.shared().go(HomeActivity.this);
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -242,6 +261,25 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 addLesson();
+            }
+        });
+        profileImageSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Helper.shared().ProfileImageSetting(HomeActivity.this, currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            if (!currentUser.getThumb_image().isEmpty() && currentUser.getThumb_image()!=null){
+                                Picasso.get().load(currentUser.getThumb_image()).resize(256,256).centerCrop().into(profileIamge);
+
+                            }else{
+                                profileIamge.setImageResource(android.R.color.darker_gray);
+
+                            }
+                        }
+                    }
+                });
             }
         });
     }
@@ -334,6 +372,7 @@ public class HomeActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
     }
+
 
 
 

@@ -53,6 +53,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetLinkAdapter;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.BottomSheetHelper.MajorPostBottomAdapter;
+import com.vaye.app.Util.BottomSheetHelper.ProfileImageSettingAdapter;
 import com.vaye.app.Util.BottomSheetHelper.SchoolPostBottomSheetAdapter;
 import com.vaye.app.Util.BottomSheetHelper.VayeAppBottomSheet;
 import com.vaye.app.Util.BottomSheetHelper.VayeAppChooseTargetBottomSheetAdapter;
@@ -949,6 +950,52 @@ public class Helper {
         bottomSheetDialog.setContentView(view);
         bottomSheetDialog.show();
     }
+
+
+    public void ProfileImageSetting(Activity activity , CurrentUser currentUser , TrueFalse<Boolean> callback){
+        RecyclerView recyclerView;
+        CardView headerView;
+        Button cancel;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+        ArrayList<String > items = new ArrayList<>();
+        items.add(BottomSheetActionTarget.show_profile_image);
+        items.add(BottomSheetActionTarget.delete_profile_image);
+        items.add(BottomSheetActionTarget.take_new_image);
+        items.add(BottomSheetActionTarget.choose_image_from_gallery);
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(R.drawable.full_screen);
+        res.add(R.drawable.trash);
+        res.add(R.drawable.camera);
+        res.add(R.drawable.gallery_btn);
+        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.profile_image_setting,res);
+        ProfileImageSettingAdapter adapter = new ProfileImageSettingAdapter(currentUser , activity , model , bottomSheetDialog);
+        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        adapter.notifyDataSetChanged();
+        headerView = (CardView)view.findViewById(R.id.header);
+        headerView.setVisibility(View.GONE);
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                callback.callBack(true);
+            }
+        });
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
+
     public ArrayList<String> getMentionedUser(String text){
         ArrayList<String> user = new ArrayList<>();
         String[] words = text.split("[ \\.]");

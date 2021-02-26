@@ -19,4 +19,7 @@ public interface BottomSheetTarget {
     String add_link = "add_link";
 
 
+    String profile_image_setting = "profile_image_setting";
+
+
 }

@@ -36,6 +36,12 @@ public interface BottomSheetActionTarget {
     String food_me = "food-me";
 
 
+    String show_profile_image = "Profil Resimini Gör";
+    String delete_profile_image = "Profil Resmini Sil";
+    String take_new_image = "Yeni Bir Resim Çek";
+    String choose_image_from_gallery = "Galeriden Resim Seç";
+
+
 
 
 
