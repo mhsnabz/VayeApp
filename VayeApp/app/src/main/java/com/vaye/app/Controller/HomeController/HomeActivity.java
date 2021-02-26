@@ -120,6 +120,8 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     private static final int gallery_request =400;
     private static final int image_pick_request =600;
     private static final int camera_pick_request =800;
+    private static final int CAMERA_REQUEST = 1888;
+
     String cameraPermission[];
     String storagePermission[];
     private PagerViewApadater pagerViewApadater;
@@ -417,6 +419,20 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == camera_pick_request)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+            }
+            else
+            {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
 
     }
 
@@ -436,6 +452,18 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         //  Intent intent = new Intent(Intent.ACTION_PICK);
         // intent.setType("*/*");
         startActivityForResult(intent,image_pick_request);
+    }
+
+    private void takeImage(){
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, camera_pick_request);
+        }
+        else
+        {
+            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+        }
     }
     private boolean checkGalleryPermissions()
     {
@@ -471,7 +499,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
             if (target.equals(CompletionWithValue.chooseImage)){
                 uploadProfileImage();
             }else if (target.equals(CompletionWithValue.takePicture)){
-
+                takeImage();
             }
         }
     };
@@ -483,17 +511,23 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
             if (requestCode == image_pick_request) {
                 CropImage.activity(data.getData())
                         .setGuidelines(CropImageView.Guidelines.ON)
+                        .setCropShape(CropImageView.CropShape.OVAL)
+                        .setActivityTitle("Konumlandır")
+                        .setCropMenuCropButtonTitle("Seç")
+                        .setAllowFlipping(false)
+                        .setAllowRotation(false)
+                        .setAllowCounterRotation(false)
                         .setAspectRatio(1, 1)
                         .setMinCropWindowSize(500, 500)
                         .start(this);
             }
             if (requestCode == camera_pick_request) {
-                CropImage.activity(image)
-
+                CropImage.activity(data.getData())
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .setAspectRatio(1, 1)
                         .setMinCropWindowSize(500, 500)
                         .start(this);
+
 
             }
         }
