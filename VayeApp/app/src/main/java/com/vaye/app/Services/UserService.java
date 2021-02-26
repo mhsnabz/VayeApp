@@ -23,6 +23,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.rpc.Help;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
 import com.vaye.app.Interfaces.OtherUserService;
@@ -470,7 +471,7 @@ public class UserService {
     }
 
 
-    public void deleteProfileImage(Activity activity,CurrentUser currentUser , TrueFalse<Boolean> callback){
+    public void deleteProfileImage(Activity activity,CurrentUser currentUser , CompletionWithValue callback){
         WaitDialog.show((AppCompatActivity) activity, "Resminiz Siliniyor...");
         Log.d("UserService", "onFailure: " +currentUser.getProfileImage());
         Log.d("UserService", "onFailure: " +currentUser.getThumb_image());
@@ -488,7 +489,7 @@ public class UserService {
                                     if (task.isSuccessful()){
                                         currentUser.setProfileImage("");
                                         currentUser.setThumb_image("");
-                                        callback.callBack(true);
+                                        callback.completion(true, CompletionWithValue.deleted);
                                         WaitDialog.dismiss();
                                         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                                                 .document(currentUser.getUid());
@@ -515,17 +516,17 @@ public class UserService {
             }).addOnFailureListener(activity, new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    callback.callBack(false);
+                    callback.completion(false, CompletionWithValue.deleted);
                     Log.d("UserService", "onFailure: " +e.getLocalizedMessage());
                 }
             });
         }else{
-            callback.callBack(true);
+            callback.completion(true, CompletionWithValue.deleted);
             WaitDialog.dismiss();
         }
     }
 
-    private void updateAllPost(CurrentUser currentUser ){
+    public void updateAllPost(CurrentUser currentUser ){
         Query mainPostRef = FirebaseFirestore.getInstance().collection("main-post")
                 .document("post").collection("post").whereEqualTo("senderUid",currentUser.getUid());
 

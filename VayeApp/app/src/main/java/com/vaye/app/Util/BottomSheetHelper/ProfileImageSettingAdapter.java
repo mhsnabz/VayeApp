@@ -9,10 +9,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.vaye.app.Controller.HomeController.SingleImageActivity;
+import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
@@ -24,11 +26,12 @@ public class ProfileImageSettingAdapter extends RecyclerView.Adapter<RecyclerVie
     BottomSheetModel model;
     BottomSheetDialog dialog;
 
-    public ProfileImageSettingAdapter(CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog) {
+    public ProfileImageSettingAdapter(CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog ) {
         this.currentUser = currentUser;
         this.context = context;
         this.model = model;
         this.dialog = dialog;
+
     }
 
     @NonNull
@@ -49,27 +52,49 @@ public class ProfileImageSettingAdapter extends RecyclerView.Adapter<RecyclerVie
             @Override
             public void onClick(View view) {
                 if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.delete_profile_image)){
-                    UserService.shared().deleteProfileImage((Activity) context, currentUser, new TrueFalse<Boolean>() {
+                    UserService.shared().deleteProfileImage((Activity) context, currentUser, new CompletionWithValue() {
                         @Override
-                        public void callBack(Boolean _value) {
-                          dialog.dismiss();
+                        public void completion(Boolean bool, String val) {
+                            dialog.dismiss();
 
+                            Intent intent = new Intent("target_choose");
+
+                            intent.putExtra("target",val);
+
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         }
                     });
+
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.show_profile_image)){
                     Intent i = new Intent(context , SingleImageActivity.class);
                     i.putExtra("profileImage",currentUser.getProfileImage());
                     context.startActivity(i);
                     dialog.dismiss();
+                    Intent intent = new Intent("target_choose");
+
+                    intent.putExtra("target",CompletionWithValue.showImage);
+
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.take_new_image)){
-                   
+                    dialog.dismiss();
+                    Intent intent = new Intent("target_choose");
+
+                    intent.putExtra("target",CompletionWithValue.takePicture);
+
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.choose_image_from_gallery)){
-                    //pick image
+                    Intent intent = new Intent("target_choose");
+
+                    intent.putExtra("target",CompletionWithValue.chooseImage);
+
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                 }
             }
         });
     }
+    
 
     @Override
     public int getItemCount() {

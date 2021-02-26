@@ -80,6 +80,7 @@ dependencies {
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
     implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'
    implementation "com.hendraanggrian.appcompat:socialview:0.2"
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
 
 
 }
