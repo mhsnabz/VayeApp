@@ -58,12 +58,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
-
-import static androidx.recyclerview.widget.ItemTouchHelper.DOWN;
-import static androidx.recyclerview.widget.ItemTouchHelper.END;
-import static androidx.recyclerview.widget.ItemTouchHelper.START;
-import static androidx.recyclerview.widget.ItemTouchHelper.UP;
 
 public class CommentActivity extends AppCompatActivity {
 

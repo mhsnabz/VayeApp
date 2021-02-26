@@ -21,7 +21,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.HomeController.SingleImageActivity"></activity>
+        <activity android:name=".Controller.HomeController.SettingController.Settings.PaswordSettingActivity"></activity>
+        <activity android:name=".Controller.HomeController.SettingController.Settings.HizmetActivity" />
+        <activity android:name=".Controller.HomeController.SettingController.Settings.GizlilikActivity" />
+        <activity android:name=".Controller.HomeController.SettingController.Settings.LicencesActivity" />
+        <activity android:name=".Controller.HomeController.SingleImageActivity" />
         <activity android:name=".Controller.VayeAppController.VayeAppNewPostActivity" />
         <activity android:name=".Controller.VayeAppController.VayeAppnotificationSettingActivity" />
         <activity android:name=".Controller.HomeController.School.SchoolPostComment.SchoolPostCommentActivity" />
@@ -83,6 +87,7 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
+
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />

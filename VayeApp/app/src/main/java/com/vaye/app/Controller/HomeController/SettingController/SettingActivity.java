@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat;
+import com.vaye.app.Controller.HomeController.SettingController.Settings.GizlilikActivity;
+import com.vaye.app.Controller.HomeController.SettingController.Settings.HizmetActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
@@ -75,12 +78,22 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     public void gizlilikPolitikasi(View view) {
+        Intent i = new Intent(SettingActivity.this , GizlilikActivity.class);
+        startActivity(i);
+        Helper.shared().go(SettingActivity.this);
     }
 
     public void hizmetKosullari(View view) {
+        Intent i = new Intent(SettingActivity.this , HizmetActivity.class);
+        startActivity(i);
+        Helper.shared().go(SettingActivity.this);
     }
 
     public void lisanslar(View view) {
+        new EasyLicensesDialogCompat(this)
+                .setTitle("Lisanslar")
+                .setPositiveButton("Tamam", null)
+                .show();
     }
 
     public void eMailSetting(View view) {
