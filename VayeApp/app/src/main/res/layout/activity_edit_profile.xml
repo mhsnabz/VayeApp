@@ -7,8 +7,9 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".Controller.Profile.EditProfileActivity">
-<include layout="@layout/toolbar_layout" android:id="@+id/toolbar"></include>
+<include layout="@layout/custom_toolbar" android:id="@+id/toolbar"></include>
     <RelativeLayout
+        android:layout_marginTop="20dp"
         android:id="@+id/usernameLay"
         android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
@@ -55,7 +56,7 @@
             android:id="@+id/github"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint=" @kullanıcıadi"
+            android:hint=" @github"
             android:textAlignment="center"
             android:fontFamily="@font/nunito_semibold"
             android:textSize="12dp"
@@ -84,7 +85,7 @@
             android:id="@+id/linkedin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint=" @kullanıcıadi"
+            android:hint="Linked.in profil linki"
             android:textAlignment="center"
             android:fontFamily="@font/nunito_semibold"
             android:textSize="12dp"
@@ -113,7 +114,7 @@
             android:id="@+id/insta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint=" @kullanıcıadi"
+            android:hint=" @instagram"
             android:textAlignment="center"
             android:fontFamily="@font/nunito_semibold"
             android:textSize="12dp"
@@ -142,7 +143,7 @@
             android:id="@+id/twitter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint=" @kullanıcıadi"
+            android:hint=" @twitter"
             android:textAlignment="center"
             android:fontFamily="@font/nunito_semibold"
             android:textSize="12dp"

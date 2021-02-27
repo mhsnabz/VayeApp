@@ -70,6 +70,7 @@ import com.vaye.app.Controller.HomeController.SettingController.SettingActivity;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
+import com.vaye.app.Controller.Profile.EditProfileActivity;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.StringCompletion;
@@ -101,6 +102,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     private DrawerLayout drawer;
     Toolbar toolbar;
     Button showProflie ,notButton, settingButton,exit ,homeButton2;
+    ImageButton edit;
     CircleImageView profileIamge;
     CurrentUser currentUser;
     TextView name , username;
@@ -234,6 +236,16 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
                     drawer.closeDrawer(GravityCompat.START);
                 }
+            }
+        });
+        edit = (ImageButton)headerview.findViewById(R.id.edit);
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(HomeActivity.this , EditProfileActivity.class);
+                i.putExtra("currentUser",currentUser);
+                startActivity(i);
+                Helper.shared().go(HomeActivity.this);
             }
         });
         name = (TextView)headerview.findViewById(R.id.name);
