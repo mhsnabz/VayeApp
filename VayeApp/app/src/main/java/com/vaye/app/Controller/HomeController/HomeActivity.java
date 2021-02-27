@@ -72,6 +72,7 @@ import com.vaye.app.Controller.NotificationController.NotificationSetting.Notifi
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.EditProfileActivity;
 import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -242,10 +243,18 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(HomeActivity.this , EditProfileActivity.class);
-                i.putExtra("currentUser",currentUser);
-                startActivity(i);
-                Helper.shared().go(HomeActivity.this);
+                WaitDialog.show(HomeActivity.this,"");
+                UserService.shared().getCurrentUser(currentUser.getUid(), new CurrentUserService() {
+                    @Override
+                    public void onCallback(CurrentUser user) {
+                        Intent i = new Intent(HomeActivity.this , EditProfileActivity.class);
+                        i.putExtra("currentUser",user);
+                        startActivity(i);
+                        Helper.shared().go(HomeActivity.this);
+                        WaitDialog.dismiss();
+                    }
+                });
+
             }
         });
         name = (TextView)headerview.findViewById(R.id.name);
@@ -569,6 +578,12 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                                 public void getString(String thumb_url) {
                                     currentUser.setProfileImage(url);
                                     currentUser.setThumb_image(thumb_url);
+                                    DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
+                                            .document(currentUser.getUid());
+                                    Map<String , Object> map = new HashMap<>();
+                                    map.put("profileImage",url);
+                                    map.put("thumb_image",thumb_url);
+                                    reference.set(map , SetOptions.merge());
                                     UserService.shared().updateAllPost(currentUser);
                                     WaitDialog.dismiss();
                                     Picasso.get().load(thumb_url).resize(256,256).centerCrop().placeholder(android.R.color.darker_gray).into(profileIamge, new Callback() {
