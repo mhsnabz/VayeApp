@@ -19,9 +19,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.vaye.app.Controller.HomeController.SettingController.Settings.GizlilikActivity;
+import com.vaye.app.Controller.HomeController.SettingController.Settings.HizmetActivity;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.SplashScreen.SplashScreen;
+import com.vaye.app.Util.Helper;
 
 public class LoginActivity extends AppCompatActivity {
     Button login ;
@@ -109,5 +112,17 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void gizlilik(View view) {
+        Intent i = new Intent(LoginActivity.this , GizlilikActivity.class);
+        startActivity(i);
+        Helper.shared().go(LoginActivity.this);
+    }
+
+    public void hizmet_kosullari(View view) {
+        Intent i = new Intent(LoginActivity.this , HizmetActivity.class);
+        startActivity(i);
+        Helper.shared().go(LoginActivity.this);
     }
 }

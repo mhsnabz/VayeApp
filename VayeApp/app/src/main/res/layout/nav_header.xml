@@ -118,7 +118,7 @@
                 android:layout_height="match_parent"
                 android:layout_toEndOf="@id/homeButton"
                 android:background="@android:color/transparent"
-                android:text="Bilgisayar Mühendisliği"
+
                 android:textAllCaps="false"
                 android:fontFamily="@font/nunito_semibold"
                 android:textAlignment="textStart"

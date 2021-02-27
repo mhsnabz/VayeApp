@@ -100,7 +100,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     String TAG = "HomeActivity";
     private DrawerLayout drawer;
     Toolbar toolbar;
-    Button showProflie ,notButton, settingButton,exit;
+    Button showProflie ,notButton, settingButton,exit ,homeButton2;
     CircleImageView profileIamge;
     CurrentUser currentUser;
     TextView name , username;
@@ -226,6 +226,16 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         View headerview = navigationView.getHeaderView(0);
         profileIamge = (CircleImageView)headerview.findViewById(R.id.profileImage);
         profileImageSetting = ( ImageButton)headerview.findViewById(R.id.profileImageSetting);
+        homeButton2 = (Button)headerview.findViewById(R.id.homeButton2);
+        homeButton2.setText(currentUser.getBolum());;
+        homeButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                }
+            }
+        });
         name = (TextView)headerview.findViewById(R.id.name);
         username = (TextView)headerview.findViewById(R.id.username);
         Log.d(TAG, "setUserProile: " + currentUser.getThumb_image());

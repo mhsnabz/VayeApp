@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.HomeController.SettingController.Settings.PaswordSettingActivity"></activity>
+        <activity android:name=".Controller.HomeController.SettingController.Settings.PaswordSettingActivity" />
         <activity android:name=".Controller.HomeController.SettingController.Settings.HizmetActivity" />
         <activity android:name=".Controller.HomeController.SettingController.Settings.GizlilikActivity" />
         <activity android:name=".Controller.HomeController.SettingController.Settings.LicencesActivity" />
