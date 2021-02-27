@@ -1,9 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".Controller.HomeController.SettingController.Settings.PaswordSettingActivity">
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/costum_toolbar" android:id="@+id/toolbar"></include>
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_below="@id/toolbar"
+        android:id="@+id/currentPass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="30dp"
+        android:hint="Şifrenizi Girinizi"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="16dp"
+        android:inputType="textPassword"
+        app:met_floatingLabel="normal"
+        />
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_below="@id/currentPass"
+        android:id="@+id/newPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="30dp"
+        android:hint="Yeni Şifrenizi Giriniz"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="16dp"
+        android:inputType="textPassword"
+        app:met_floatingLabel="normal"
+        />
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_below="@id/newPassword"
+        android:id="@+id/newPasswordAgain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="30dp"
+        android:hint="Yeni Şifrenizi Tekrar Girinizi"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="16dp"
+        android:inputType="textPassword"
+        app:met_floatingLabel="normal"
+        />
+    <Button
+        android:onClick="resetPassword"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/login"
+        android:layout_below="@id/newPasswordAgain"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/nunito_semibold"
+        android:text="Şifreni Sıfırla"
+        android:background="@drawable/login_button_back"
+        android:textSize="18dp"
+        android:textColor="#fff"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        ></Button>
+</RelativeLayout>

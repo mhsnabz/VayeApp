@@ -11,7 +11,10 @@ import android.widget.TextView;
 import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.GizlilikActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.HizmetActivity;
+import com.vaye.app.Controller.HomeController.SettingController.Settings.PaswordSettingActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
+import com.vaye.app.Controller.ReportController.ReportActivity;
+import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
@@ -69,12 +72,23 @@ public class SettingActivity extends AppCompatActivity {
         });
     }
     public void contackMail(View view) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("plain/text");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "destek@vaye.app" });
+        intent.putExtra(Intent.EXTRA_SUBJECT, "destek");
+        startActivity(Intent.createChooser(intent, ""));
     }
 
     public void rateUs(View view) {
     }
 
     public void report(View view) {
+        Intent i = new Intent(SettingActivity.this  , ReportActivity.class);
+        i.putExtra("currentUser",currentUser);
+        i.putExtra("reportType", Report.ReportType.appReport);
+        i.putExtra("target", Report.ReportType.appReport);
+        startActivity(i);
+        Helper.shared().go(SettingActivity.this);
     }
 
     public void gizlilikPolitikasi(View view) {
@@ -97,6 +111,7 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     public void eMailSetting(View view) {
+
     }
 
     public void twitterClick(View view) {
@@ -110,5 +125,12 @@ public class SettingActivity extends AppCompatActivity {
         super.onBackPressed();
         finish();
         Helper.shared().back(SettingActivity.this);
+    }
+
+    public void passwordSetting(View view) {
+        Intent i = new Intent(SettingActivity.this , PaswordSettingActivity.class);
+
+        startActivity(i);
+        Helper.shared().go(SettingActivity.this);
     }
 }
