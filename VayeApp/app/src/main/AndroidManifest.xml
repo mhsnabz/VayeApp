@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
         android:name=".Application.VayeApp"
         android:allowBackup="true"
@@ -21,6 +21,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
+
+
+        <activity android:name=".Controller.MapsController.LocationPermissionActivity"></activity>
+        <activity android:name=".Controller.MapsController.LocationPickerActivity" />
         <activity android:name=".Controller.HomeController.SettingController.Settings.PaswordSettingActivity" />
         <activity android:name=".Controller.HomeController.SettingController.Settings.HizmetActivity" />
         <activity android:name=".Controller.HomeController.SettingController.Settings.GizlilikActivity" />
@@ -84,6 +88,8 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="@string/map_api_key"/>
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />

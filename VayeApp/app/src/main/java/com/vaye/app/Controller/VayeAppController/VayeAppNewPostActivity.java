@@ -48,6 +48,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.NewPostAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
+import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringArrayListInterface;
@@ -302,7 +303,13 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
         addImage = (ImageButton)findViewById(R.id.gallery);
         price = (ImageButton)findViewById(R.id.price);
         map_pin = (ImageButton)findViewById(R.id.map_pin);
-
+        map_pin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(VayeAppNewPostActivity.this , LocationPermissionActivity.class);
+                startActivity(i);
+              }
+        });
 
         if (postType.equals(BottomSheetActionTarget.al_sat)){
             addImage.setVisibility(View.VISIBLE);
