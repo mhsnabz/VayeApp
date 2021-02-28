@@ -13,6 +13,7 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -40,11 +41,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.vaye.app.R;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,7 +64,7 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
     private Button choose;
     private final int REQUEST_CODE = 100;
     private final float DEAFULT_ZOOM = 18;
-
+    String TAG = "LocationPickerActivity";
 
     public LocationPickerActivity() {
     }
@@ -93,7 +97,7 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
                 if (buttonCode == MaterialSearchBar.BUTTON_NAVIGATION){
 
                 }else if (buttonCode == MaterialSearchBar.BUTTON_BACK){
-                    materialSearchBar.closeSearch();
+                    materialSearchBar.disableSearch();
                 }
             }
         });
@@ -105,13 +109,48 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onTextChanged(CharSequence s, int i, int i1, int i2) {
+                FindAutocompletePredictionsRequest predictionsRequest = FindAutocompletePredictionsRequest.builder()
+                        .setTypeFilter(TypeFilter.ADDRESS)
+                        .setSessionToken(token)
+                        .setQuery(s.toString()).build();
+                placesClient.findAutocompletePredictions(predictionsRequest).addOnCompleteListener(LocationPickerActivity.this, new OnCompleteListener<FindAutocompletePredictionsResponse>() {
+                    @Override
+                    public void onComplete(@NonNull Task<FindAutocompletePredictionsResponse> task) {
+                        if (task.isSuccessful()){
+                            FindAutocompletePredictionsResponse predictionsResponse = task.getResult();
+                            if (predictionsResponse != null){
+                                predictionList = predictionsResponse.getAutocompletePredictions();
+                                List<String> suggetionsList = new ArrayList<>();
+                                Log.d(TAG, "onComplete: " + predictionList);
+                                for (int i  = 0 ; i < predictionList.size() ; i++){
+                                    AutocompletePrediction prediction = predictionList.get(i);
+                                    suggetionsList.add(prediction.getFullText(null).toString());
+                                }
 
+                                materialSearchBar.updateLastSuggestions(suggetionsList);
+
+                                if (!materialSearchBar.isSuggestionsVisible()){
+                                    materialSearchBar.showSuggestionsList();
+                                }
+                            }
+                        }else{
+                            Log.d(TAG, "onComplete: " +" FindAutocompletePredictionsResponse task unsuccesful");
+                        }
+                    }
+                }).addOnFailureListener(LocationPickerActivity.this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: " + e.getCause());
+                        Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
+                    }
+                });
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-                FindAutocompletePredictionsRequest predictionsRequest = FindAutocompletePredictionsRequest
+
+
             }
         });
 

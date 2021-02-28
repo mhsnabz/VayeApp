@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.github.marcoscgdev:EasyLicensesDialog:2.0.0'
     implementation 'com.karumi:dexter:6.2.2'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.github.mancj:MaterialSearchBar:0.8.5'
+    implementation 'com.github.mancj:MaterialSearchBar:0.8.2'
     implementation 'com.google.android.libraries.places:places:1.1.0'
 
 }
