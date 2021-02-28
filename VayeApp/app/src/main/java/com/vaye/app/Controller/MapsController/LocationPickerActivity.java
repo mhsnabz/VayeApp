@@ -11,6 +11,8 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -38,6 +40,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.vaye.app.R;
@@ -74,7 +77,43 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
         Places.initialize(LocationPickerActivity.this, getApplicationContext().getString(R.string.map_api_key));
         placesClient = Places.createClient(this);
         AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
+        materialSearchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
+            @Override
+            public void onSearchStateChanged(boolean enabled) {
 
+            }
+
+            @Override
+            public void onSearchConfirmed(CharSequence text) {
+                startSearch(text.toString(),true,null,true);
+            }
+
+            @Override
+            public void onButtonClicked(int buttonCode) {
+                if (buttonCode == MaterialSearchBar.BUTTON_NAVIGATION){
+
+                }else if (buttonCode == MaterialSearchBar.BUTTON_BACK){
+                    materialSearchBar.closeSearch();
+                }
+            }
+        });
+
+        materialSearchBar.addTextChangeListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                FindAutocompletePredictionsRequest predictionsRequest = FindAutocompletePredictionsRequest
+            }
+        });
 
     }
 
