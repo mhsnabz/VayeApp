@@ -8,17 +8,23 @@ import androidx.core.content.ContextCompat;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -34,6 +40,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,16 +49,23 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.mancj.materialsearchbar.MaterialSearchBar;
+import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 import com.vaye.app.R;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class LocationPickerActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap map;
@@ -65,7 +80,7 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
     private final int REQUEST_CODE = 100;
     private final float DEAFULT_ZOOM = 18;
     String TAG = "LocationPickerActivity";
-
+    private Marker myMarker;
     public LocationPickerActivity() {
     }
 
@@ -98,6 +113,7 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
 
                 }else if (buttonCode == MaterialSearchBar.BUTTON_BACK){
                     materialSearchBar.disableSearch();
+                    materialSearchBar.clearSuggestions();
                 }
             }
         });
@@ -153,10 +169,91 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
 
             }
         });
+        materialSearchBar.setSuggestionsClickListener(new SuggestionsAdapter.OnItemViewClickListener() {
+            @Override
+            public void OnItemClickListener(int position, View v) {
+                if (position >= predictionList.size()){
+                    return;
+                }
+                AutocompletePrediction selectedPredictions = predictionList.get(position);
+                String suggestion = materialSearchBar.getLastSuggestions().get(position).toString();
+                materialSearchBar.setText(suggestion);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        materialSearchBar.clearSuggestions();
+                    }
+                },1000);
+
+                InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                if (inputMethodManager != null){
+                    inputMethodManager.hideSoftInputFromInputMethod(materialSearchBar.getWindowToken() , InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    String placeId = selectedPredictions.getPlaceId();
+                     List<Place.Field> placeField = Arrays.asList(Place.Field.LAT_LNG);
+                    FetchPlaceRequest fetchPlaceRequest = FetchPlaceRequest.builder(placeId,placeField).build();
+                    placesClient.fetchPlace(fetchPlaceRequest).addOnSuccessListener(LocationPickerActivity.this,new OnSuccessListener<FetchPlaceResponse>() {
+                        @Override
+                        public void onSuccess(FetchPlaceResponse fetchPlaceResponse) {
+                            Place place = fetchPlaceResponse.getPlace();
+                            Log.d(TAG, "onSuccess: " + "place found" + place.getName());
+                            LatLng latLng = place.getLatLng();
+
+                            if (latLng != null){
+                                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,DEAFULT_ZOOM));
+                                getCompleteAddressString(latLng.latitude,latLng.longitude);
+
+                            }
+                        }
+                    }).addOnFailureListener(LocationPickerActivity.this, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (e instanceof ApiException){
+                                ApiException apiException  = (ApiException)e;
+                                apiException.printStackTrace();
+                                int statusCode = apiException.getStatusCode();
+                                Log.d(TAG, "onFailure: " +"place not found"+ e.getMessage());
+                                Log.d(TAG, "onFailure: " +"status code" + statusCode);
+                            }
+                        }
+                    });
+
+                }
+            }
+
+            @Override
+            public void OnItemDeleteListener(int position, View v) {
+
+            }
+        });
+
 
     }
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
 
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString();
+                Log.w(TAG, strReturnedAddress.toString());
+            } else {
+                Log.w(TAG, "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.w(TAG, "Canont get Address!");
+        }
+        return strAdd;
+    }
     public void selectLocaiton(View view) {
+
     }
 
     @SuppressLint("MissingPermission")
@@ -165,6 +262,7 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
         map = googleMap;
         map.setMyLocationEnabled(true);
         map.getUiSettings().setMyLocationButtonEnabled(true);
+
         if (mapView !=null && mapView.findViewById(Integer.parseInt("1"))!=null)
         {
           View locationButton = ((View)mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
@@ -184,7 +282,7 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
         task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
             @Override
             public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-
+                getDeviceLocation();
             }
         }).addOnFailureListener(this, new OnFailureListener() {
             @Override
@@ -199,6 +297,49 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
             }
             }
         });
+        map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                if (materialSearchBar.isSuggestionsVisible()){
+                    materialSearchBar.clearSuggestions();
+                }
+                if (materialSearchBar.isSearchEnabled()){
+                    materialSearchBar.disableSearch();
+                }
+                return true;
+            }
+        });
+
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng latLng) {
+
+                // Creating a marker
+                MarkerOptions markerOptions = new MarkerOptions().draggable(true);
+
+                // Setting the position for the marker
+                markerOptions.position(latLng);
+
+                // Setting the title for the marker.
+                // This will be displayed on taping the marker
+
+
+                // Clears the previously touched position
+                googleMap.clear();
+
+                // Animating to the touched position
+                googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+
+                // Placing a marker on the touched position
+                googleMap.addMarker(markerOptions);
+                markerOptions.title(getCompleteAddressString(latLng.latitude , latLng.longitude));
+            }
+        });
+
+
+
+
     }
 
     @Override
@@ -252,4 +393,6 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
             }
         });
     }
+
+
 }
