@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
@@ -37,7 +39,10 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.firebase.database.annotations.NotNull;
 import com.vaye.app.R;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnMapReadyCallback , LocationListener {
@@ -98,7 +103,7 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
             autocompleteFragment = (AutocompleteSupportFragment)
                     getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
-            autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.ADDRESS_COMPONENTS));
+            autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG));
            /* ;*/
             autocompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT);
             autocompleteFragment.setCountries("TR");
@@ -106,7 +111,9 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
                 @Override
                 public void onPlaceSelected(@NotNull Place place) {
                     // TODO: Get info about the selected place.
-                    Log.i(TAG, "Place: " + place.getName() + ", " + place.getId() + " " + place.getAddress());
+                    Log.i(TAG, "Place: " + place.getName() + ", " + place.getId() + " " + place.getLatLng());
+                  //  geoLocate(place.getLatLng(),place.getName(),place.getName());
+                    moveCamera(place.getLatLng(),DEFAULT_ZOOM,place.getName());
                 }
 
 
@@ -178,5 +185,28 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
     @Override
     public void onLocationChanged(@NonNull Location location) {
         setBounds(location,5500);
+    }
+    private void geoLocate(String searchString,String title) {
+        Geocoder geocoder = new Geocoder(VayeAppPlacePickerActivity.this);
+        List<Address> list = new ArrayList<>();
+
+
+            try {
+                list = geocoder.getFromLocationName(searchString,1);
+            }catch (IOException e){
+                Log.e(TAG, "geoLocate: "+ e.getMessage() );
+            }
+            if (list.size() > 0 ){
+                Address address = list.get(0);
+
+                Log.d(TAG, "geoLocate: found location" + address.toString());
+                if (title!=null && !title.isEmpty()){
+                    moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM,title);
+                }else{
+                    moveCamera(new LatLng(address.getLatitude(),address.getLongitude()),DEFAULT_ZOOM,address.getAddressLine(0));
+                }
+
+        }
+
     }
 }
