@@ -28,8 +28,9 @@ public class LocationPermissionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_permission);
-        if (ContextCompat.checkSelfPermission(LocationPermissionActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            Intent i = new Intent(LocationPermissionActivity.this,LocationPickerActivity.class);
+        if (ContextCompat.checkSelfPermission(LocationPermissionActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+        ContextCompat.checkSelfPermission(LocationPermissionActivity.this , Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            Intent i = new Intent(LocationPermissionActivity.this,VayeAppPlacePickerActivity.class);
             startActivity(i);
 
             finish();
@@ -44,7 +45,7 @@ public class LocationPermissionActivity extends AppCompatActivity {
                 .withListener(new PermissionListener() {
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
-                        Intent i = new Intent(LocationPermissionActivity.this,LocationPickerActivity.class);
+                        Intent i = new Intent(LocationPermissionActivity.this,VayeAppPlacePickerActivity.class);
                         startActivity(i);
                         finish();
                     }
@@ -68,6 +69,42 @@ public class LocationPermissionActivity extends AppCompatActivity {
                     }else{
                         Toast.makeText(LocationPermissionActivity.this,"Izın Verildi",Toast.LENGTH_SHORT).show();;
                     }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                        permissionToken.continuePermissionRequest();
+                    }
+                }).check();
+        Dexter.withActivity(LocationPermissionActivity.this)
+                .withPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                        Intent i = new Intent(LocationPermissionActivity.this,VayeAppPlacePickerActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                        if (permissionDeniedResponse.isPermanentlyDenied()){
+                            AlertDialog.Builder builder = new AlertDialog.Builder(LocationPermissionActivity.this);
+                            builder.setTitle("İzin Vermediniz")
+                                    .setMessage("Konumunuza Erişebilmemiz için konum servislerine izin vermeniz gerekiyor")
+                                    .setNegativeButton("Vazgeç",null)
+                                    .setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            Intent intent = new Intent();
+                                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                            intent.setData(Uri.fromParts("package",getPackageName(),null));
+
+                                        }
+                                    }).show();
+                        }else{
+                            Toast.makeText(LocationPermissionActivity.this,"Izın Verildi",Toast.LENGTH_SHORT).show();;
+                        }
                     }
 
                     @Override

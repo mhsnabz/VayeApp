@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -43,11 +46,9 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.kongzue.dialog.v3.CustomDialog;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
-import com.rengwuxian.materialedittext.MaterialEditText;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.NewPostAdapter;
-import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
 import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.Notifications;
@@ -55,17 +56,12 @@ import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
-import com.vaye.app.Model.LessonFallowerUser;
-import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.MainPostTopicFollower;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.MainPostNS;
-import com.vaye.app.Services.MajorPostNS;
-import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
-import com.vaye.app.Util.BottomSheetHelper.LinkNames;
 import com.vaye.app.Util.Helper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
@@ -75,7 +71,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -88,6 +83,7 @@ import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class VayeAppNewPostActivity extends AppCompatActivity {
     private static final String TAG = "StudentNewPostActivity";
+    private static final int ERROR_DIALOG_REQUEST = 9001;
     Toolbar toolbar;
 
     TextView title;
@@ -297,7 +293,21 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
 
     }
 
+    public boolean isServicesOk(){
+        Log.d(TAG, "isServicesOk: " +"check google service version");
+        int avabile = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(VayeAppNewPostActivity.this);
+        if (avabile == ConnectionResult.SUCCESS){
+            return true;
+        }else if (GoogleApiAvailability.getInstance().isUserResolvableError(avabile))
+        {
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(VayeAppNewPostActivity.this ,avabile,ERROR_DIALOG_REQUEST);
+            dialog.show();
+            return  false;
+        }else{
 
+        }
+        return  false;
+    }
     private void setStackView(String postType){
 
         addImage = (ImageButton)findViewById(R.id.gallery);
@@ -306,9 +316,11 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
         map_pin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(VayeAppNewPostActivity.this , LocationPermissionActivity.class);
-                startActivity(i);
-              }
+                if (isServicesOk()){
+                    Intent i = new Intent(VayeAppNewPostActivity.this , LocationPermissionActivity.class);
+                    startActivity(i);
+                }
+            }
         });
 
         if (postType.equals(BottomSheetActionTarget.al_sat)){
