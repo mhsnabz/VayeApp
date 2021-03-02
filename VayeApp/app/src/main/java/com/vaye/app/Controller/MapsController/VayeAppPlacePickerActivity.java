@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -21,7 +23,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,7 +41,14 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.database.annotations.NotNull;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.rpc.Help;
+import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Application.VayeApp;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.R;
+import com.vaye.app.Util.Helper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,6 +63,10 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
     private PlacesClient placesClient;
     private FusedLocationProviderClient fusedLocationProviderClient;
     AutocompleteSupportFragment autocompleteFragment;
+    Double lat ,longLat;
+    String locaitonName;
+    Marker prevMarker;
+    Location currentLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,19 +96,93 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
         getDevicesCurrentLocation();
 
         mMap.setMyLocationEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
-        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
+
 
         // Create a RectangularBounds object.
         RectangularBounds bounds = RectangularBounds.newInstance(
                 new LatLng(-33.880490, 151.184363),
                 new LatLng(-33.858754, 151.229596));
 
-        // Use the builder to create a FindAutocompletePredictionsRequest.
+       googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+           @Override
+           public boolean onMarkerClick(Marker marker) {
+
+               lat= marker.getPosition().latitude;
+               longLat=marker.getPosition().longitude;
+              locaitonName = marker.getTitle();
+
+               prevMarker = marker;
+               return false;
+           }
+
+       });
+
+       googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+           @Override
+           public void onMapClick(LatLng latLng) {
+               if (prevMarker != null) {
+                   prevMarker.remove();
+               }
 
 
+               prevMarker = googleMap.addMarker(new MarkerOptions()
+                       .position(latLng)
+                       .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                       .snippet("Bu Konumu Seç")
+                       .title(getCompleteAddressString(latLng.latitude,latLng.longitude)));
 
+
+           }
+       });
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+            @Override
+            public void onInfoWindowClick(Marker arg0) {
+                    WaitDialog.show(VayeAppPlacePickerActivity.this,null);
+                Helper.shared().LocationPickDialog(VayeAppPlacePickerActivity.this, arg0.getTitle(), getCompleteAddressString(arg0.getPosition().latitude,arg0.getPosition().longitude),arg0.getPosition().latitude, arg0.getPosition().longitude, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+
+                    }
+                });
+                    WaitDialog.dismiss();
+
+            }
+        });
+
+    }
+
+    public Bitmap resizeMapIcons(String iconName, int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+        return resizedBitmap;
+    }
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString();
+                Log.w(TAG, strReturnedAddress.toString());
+            } else {
+                Log.w(TAG, "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.w(TAG, "Canont get Address!");
+        }
+        return strAdd;
     }
     private void initMap(){
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
@@ -114,6 +203,12 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
                     Log.i(TAG, "Place: " + place.getName() + ", " + place.getId() + " " + place.getLatLng());
                   //  geoLocate(place.getLatLng(),place.getName(),place.getName());
                     moveCamera(place.getLatLng(),DEFAULT_ZOOM,place.getName());
+                    lat = place.getLatLng().latitude;
+                    longLat = place.getLatLng().latitude;
+                    locaitonName = place.getName();
+                    if (prevMarker!=null){
+                        prevMarker.remove();
+                    }
                 }
 
 
@@ -134,7 +229,7 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
                 @Override
                 public void onComplete(@NonNull Task<Location> task) {
                     if (task.isSuccessful()){
-                        Location currentLocation = task.getResult();
+                         currentLocation = task.getResult();
                         moveCamera(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),DEFAULT_ZOOM,"Konumunuz");
                         setBounds(task.getResult(),5500);
                     }else{
@@ -189,8 +284,6 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
     private void geoLocate(String searchString,String title) {
         Geocoder geocoder = new Geocoder(VayeAppPlacePickerActivity.this);
         List<Address> list = new ArrayList<>();
-
-
             try {
                 list = geocoder.getFromLocationName(searchString,1);
             }catch (IOException e){
