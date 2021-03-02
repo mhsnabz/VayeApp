@@ -78,12 +78,12 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
         }
 
 
-
     }
 
     public void goMyLocation(View view) {
         getDevicesCurrentLocation();
     }
+
 
     public void search(View view) {
     }
@@ -194,7 +194,7 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
 
             autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG));
            /* ;*/
-            autocompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT);
+            autocompleteFragment.setTypeFilter(TypeFilter.ADDRESS);
             autocompleteFragment.setCountries("TR");
             autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
@@ -301,5 +301,12 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
 
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        Helper.shared().back(VayeAppPlacePickerActivity.this);
     }
 }

@@ -5,15 +5,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -50,6 +53,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.NewPostAdapter;
 import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
+import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringArrayListInterface;
@@ -85,7 +89,8 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     private static final String TAG = "StudentNewPostActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
     Toolbar toolbar;
-
+    Double lat = null , longLat = null ;
+    String locationName = "";
     TextView title;
     ImageButton rigthBarButton;
     CurrentUser currentUser;
@@ -143,6 +148,10 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
             priceLayout = (RelativeLayout)findViewById(R.id.priceLayout);
             cancelPrice = (ImageButton)findViewById(R.id.cancelPriceButton) ;
             totalPrice = (TextView)findViewById(R.id.totalPrice);
+
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                    new IntentFilter("target_location"));
+
             cancelPrice.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -619,10 +628,35 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
         });
 
     }
+    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String target = intent.getStringExtra("target");
+            if (target.equals(CompletionWithValue.location)){
+                 lat = intent.getDoubleExtra("lat",-45);
+                 longLat = intent.getDoubleExtra("longLat",45);
+                 locationName = intent.getStringExtra("locationName");
+                Log.d(TAG, "onReceive: locaiton " + lat + " " + longLat + " " + locationName );
+                setLocationLayout();
+            }
+        }
+    };
+    private void setLocationLayout(){
+        locationLayout = (RelativeLayout)findViewById(R.id.locationLayout);
+        locationLayout.setVisibility(View.VISIBLE);
+
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         Helper.shared().back(VayeAppNewPostActivity.this);
+    }
+
+    public void hideLocationLayout(View view) {
+        locationLayout.setVisibility(View.GONE);
+        lat = null;
+        locationName = "";
+        longLat = null;
     }
 }

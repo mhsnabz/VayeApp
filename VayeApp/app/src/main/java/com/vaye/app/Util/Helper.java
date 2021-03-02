@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -166,14 +167,28 @@ public class Helper {
 
     public void LocationPickDialog(Activity activity , String _title , String _address , Double lat , Double longLat , TrueFalse<Boolean> callback){
         TextView title , address ;
-        Button selecteButton;
+        Button selecteButton,dismiss;
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
         View view = LayoutInflater.from(activity.getApplicationContext())
                 .inflate(R.layout.location_pick_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
         selecteButton = (Button)view.findViewById(R.id.select);
+        dismiss = (Button)view.findViewById(R.id.dismis);
+        selecteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent("target_location");
+
+                intent.putExtra("target",CompletionWithValue.location);
+                intent.putExtra("lat",lat);
+                intent.putExtra("longLat",longLat);
+                intent.putExtra("locationName",_title);
+                LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
+                bottomSheetDialog.dismiss();
+            }
+        });
         title = (TextView)view.findViewById(R.id.title);
         address = (TextView)view.findViewById(R.id.addresss);
-        selecteButton.setOnClickListener(new View.OnClickListener() {
+        dismiss.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 bottomSheetDialog.dismiss();
@@ -183,6 +198,14 @@ public class Helper {
         address.setText(_address);
         bottomSheetDialog.setContentView(view);
         bottomSheetDialog.show();
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                activity.finish();
+            }
+        });
+
+
     }
     public void BottomSheetAddLink(Activity activity, String  target , CurrentUser currentUser , BottomSheetModel model , LessonPostModel post , TrueFalse<Boolean> val){
         RecyclerView recyclerView;

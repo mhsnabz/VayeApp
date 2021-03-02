@@ -111,6 +111,7 @@
             android:id="@+id/locationName"
             ></TextView>
         <ImageButton
+            android:onClick="hideLocationLayout"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:id="@+id/cancelButton"

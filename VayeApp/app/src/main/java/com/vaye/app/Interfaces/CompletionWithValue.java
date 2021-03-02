@@ -6,4 +6,6 @@ public interface CompletionWithValue {
     String chooseImage = "chooseImage";
     String showImage = "showImage";
     String takePicture = "takePicture";
+
+    String location = "location";
 }
