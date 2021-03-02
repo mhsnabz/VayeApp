@@ -269,7 +269,9 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItem.getGeoPoint().getLatitude() + "," + menuItem.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
                 itemHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
@@ -303,7 +305,9 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
             itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    String uri = "http://maps.google.com/maps?saddr=" + menuItem.getGeoPoint().getLatitude() + "," + menuItem.getGeoPoint().getLongitude()  + "&daddr=" ;
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                    context.startActivity(intent);
                 }
             });
 
@@ -479,7 +483,9 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItemData.getGeoPoint().getLatitude() + "," + menuItemData.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {

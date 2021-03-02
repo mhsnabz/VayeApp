@@ -38,6 +38,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -222,7 +223,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                         @Override
                         public void getArrayList(ArrayList<String> list) {
 
-                                MainPostNS.shared().setNewPost(postName, "post", "", value, currentUser, null, postDate, list, msgText, dataModel, new TrueFalse<Boolean>() {
+                                MainPostNS.shared().setNewPost(postName, "post", locationName, value, currentUser, new GeoPoint(lat,longLat), postDate, list, msgText, dataModel, new TrueFalse<Boolean>() {
                                     @Override
                                     public void callBack(Boolean _value) {
                                         if (_value){

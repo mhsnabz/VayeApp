@@ -349,7 +349,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 caping_post_holder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItem.getGeoPoint().getLatitude() + "," + menuItem.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
 
@@ -534,7 +536,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 camping_post_data_holder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItemData.getGeoPoint().getLatitude() + "," + menuItemData.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
                 camping_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -800,7 +804,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 foodme_post_data_holder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItemData.getGeoPoint().getLatitude() + "," + menuItemData.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
                 foodme_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -1069,7 +1075,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 foodme_post_holder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItem.getGeoPoint().getLatitude() + "," + menuItem.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
                 foodme_post_holder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
@@ -1101,7 +1109,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 foodme_post_holder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItem.getGeoPoint().getLatitude() + "," + menuItem.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
 
@@ -1290,7 +1300,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 buy_sell_post_holder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItem.getGeoPoint().getLatitude() + "," + menuItem.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
                 buy_sell_post_holder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
@@ -1322,7 +1334,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 buy_sell_post_holder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItem.getGeoPoint().getLatitude() + "," + menuItem.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
 
@@ -1507,7 +1521,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 buy_sell_post_data_holder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItemData.getGeoPoint().getLatitude() + "," + menuItemData.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
                 buy_sell_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {

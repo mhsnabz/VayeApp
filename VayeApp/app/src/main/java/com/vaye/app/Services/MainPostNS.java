@@ -165,7 +165,12 @@ public class MainPostNS {
         map.put("senderName",currentUser.getName());
         map.put("text",msgText);
         map.put("postType",postType);
-        map.put("locationName",locationName);
+        if (locationName!=null && !locationName.isEmpty()){
+            map.put("locationName",locationName);
+
+        }else{
+            map.put("locationName","");
+        }
 
         map.put("likes",FieldValue.arrayUnion());
         map.put("geoPoint",location);

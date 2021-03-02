@@ -67,15 +67,12 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
     String locaitonName;
     Marker prevMarker;
     Location currentLocation;
+    private FusedLocationProviderClient locationProviderClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vaye_app_place_picker);
-        if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), getString(R.string.map_api_key), Locale.getDefault());
-            placesClient = Places.createClient(this);
-            initMap();
-        }
+        initMap();
 
 
     }
@@ -185,10 +182,13 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
         return strAdd;
     }
     private void initMap(){
+
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
+        locationProviderClient = LocationServices.getFusedLocationProviderClient(VayeAppPlacePickerActivity.this);
+        Places.initialize(VayeAppPlacePickerActivity.this, getApplicationContext().getString(R.string.map_api_key));
+        placesClient = Places.createClient(this);
             autocompleteFragment = (AutocompleteSupportFragment)
                     getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
@@ -230,8 +230,11 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
                 public void onComplete(@NonNull Task<Location> task) {
                     if (task.isSuccessful()){
                          currentLocation = task.getResult();
-                        moveCamera(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),DEFAULT_ZOOM,"Konumunuz");
-                        setBounds(task.getResult(),5500);
+                         if (currentLocation!=null){
+                             moveCamera(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),DEFAULT_ZOOM,"Konumunuz");
+                             setBounds(task.getResult(),5500);
+                         }
+
                     }else{
                         Log.d(TAG, "onComplete: "+"current location is null");
                     }

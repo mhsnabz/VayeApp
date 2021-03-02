@@ -97,7 +97,7 @@
         android:layout_marginLeft="60dp"
         android:layout_marginRight="8dp"
         android:autoLink="all"
-        android:text="www.google.com deneme @mhsnabz"
+
         app:socialFlags="hyperlink|mention"
 
         app:hyperlinkColor="@color/linkColor"
@@ -137,8 +137,8 @@
             ></TextView>
     </LinearLayout>
     <ImageButton
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_below="@id/header"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"

@@ -140,6 +140,7 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 itemHolder.setTime(menuItem.getPostTime());
                 itemHolder.setLocationButton(menuItem.getGeoPoint());
+
                 itemHolder.text.setOnHyperlinkClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence text) {
@@ -292,7 +293,9 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 itemHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItem.getGeoPoint().getLatitude() + "," + menuItem.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
 
@@ -468,7 +471,9 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.itemView.findViewById(R.id.locationButton).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        String uri = "http://maps.google.com/maps?saddr=" + menuItemData.getGeoPoint().getLatitude() + "," + menuItemData.getGeoPoint().getLongitude()  + "&daddr=" ;
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        context.startActivity(intent);
                     }
                 });
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {
