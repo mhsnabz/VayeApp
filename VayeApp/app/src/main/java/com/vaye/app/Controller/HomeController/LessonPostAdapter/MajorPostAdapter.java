@@ -49,8 +49,11 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String TAG = "MajorPostAdapter";
     Boolean istanceOfCurrentUserProfile = false;
     Boolean istanceOfOtherUserProfile = false;
     public MajorPostAdapter(ArrayList<LessonPostModel> post, CurrentUser currentUser, Context context) {
@@ -60,6 +63,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (context instanceof CurrentUserProfile){
             Log.d("FollowersAdapter", "FollowersAdapter: " + "instanceof CurrentUserProfile");
             istanceOfCurrentUserProfile = true;
+
         }else{
 
             Log.d("FollowersAdapter", "FollowersAdapter: " + "not instanceof CurrentUserProfile");
@@ -118,6 +122,8 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public int getItemViewType(int position) {
         LessonPostModel model = (LessonPostModel)post.get(position);
+        Log.d(TAG, "getItemViewType: " + model.getPostId());
+
         if (model.getType()!=null&& model.getType().equals("ads")) {
             return  VIEW_TYPE_ADS;
         }else if ( model.getType().equals("data")){

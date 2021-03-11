@@ -1052,6 +1052,44 @@ public class Helper {
         return  user;
     }
 
+//postType : String,type : String , text : String , currentUser : CurrentUser
+//                       ,not_id : String , targetCommentId : String?,postId :
+//                       String , lessonName : String? , clupName : String? , vayeAppPostName : String?)
+    public HashMap<String , Object> getDictionary( String postType , String  type , String text , CurrentUser currentUser ,String not_id , String targetCommentId,
+    String postId , String lessonName , String clupName , String vayeAppPostName ){
+        HashMap<String,Object> map = new HashMap<>();
+        map.put( "type",type);
+        map.put( "postType",postType);
+        map.put( "senderUid",currentUser.getUid());
+        map.put( "time",FieldValue.serverTimestamp());
+        map.put( "senderImage",currentUser.getThumb_image());
+        map.put( "text",text);
+        map.put( "not_id",not_id);
+        map.put( "isRead",false);
+        map.put( "postId",postId);
+        map.put( "username",currentUser.getUsername());
+        map.put( "senderName",currentUser.getName());
+        if (targetCommentId != null){
+            map.put( "targetCommentId",targetCommentId);
+        }else{
+            map.put( "targetCommentId","");
+        }
+
+        if (lessonName != null){
+            map.put("lessonName",lessonName);
+        }else if (clupName !=null){
+            map.put("lessonName",clupName);
+        }
+        else if (vayeAppPostName !=null){
+            map.put("lessonName",vayeAppPostName);
+        }else{
+            map.put("lessonName","");
+        }
+
+
+        return  map;
+    }
+
 
 }
 
