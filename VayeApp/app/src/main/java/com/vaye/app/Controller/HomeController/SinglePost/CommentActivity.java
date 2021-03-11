@@ -40,6 +40,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
+import com.vaye.app.Controller.NotificationService.CommentNotificationService;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
@@ -140,6 +141,7 @@ public class CommentActivity extends AppCompatActivity {
                 public void callBack(Boolean _value) {
                     if (_value){
                         commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+
                     }
                 }
             });

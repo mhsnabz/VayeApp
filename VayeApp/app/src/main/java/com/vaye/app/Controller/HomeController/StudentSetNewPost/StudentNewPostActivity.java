@@ -49,11 +49,16 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.PostDataAdaptar;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.NotificationPostType;
+import com.vaye.app.Controller.NotificationService.PushNotificationService;
+import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.DriveLinkNames;
 import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -61,9 +66,11 @@ import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NewPostDataModel;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostNS;
 import com.vaye.app.Services.MajorPostService;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
@@ -189,9 +196,31 @@ public class StudentNewPostActivity extends AppCompatActivity {
                     return;
                 }else {
                     WaitDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
-                    MajorPostNS.shared().sendNewPostNotification(currentUser,String.valueOf(Calendar.getInstance().getTimeInMillis()),lessonName,msgText, Notifications.NotificationType.home_new_post,String.valueOf(postDate));
-                    for (String username : Helper.shared().getMentionedUser(msgText)){
-                        MajorPostNS.shared().setMentionedPost(username,currentUser , String.valueOf(postDate), Notifications.NotificationType.home_new_mentions_post, Notifications.NotificationDescription.home_new_mentions_post , lessonName);
+                    MajorPostNS.shared().sendNewPostNotification(NotificationPostType.name.lessonPost,currentUser,lessonName,text.getText().toString(), MajorPostNotification.type.new_post,String.valueOf(postDate));
+                    for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
+                        String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                        UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
+                            @Override
+                            public void callback(OtherUser otherUser) {
+                                if (otherUser != null){
+                                    if (otherUser.getShort_school().equals(currentUser.getShort_school()))
+                                    {
+                                        if (otherUser.getBolum().equals(currentUser.getBolum())){
+                                            if (!currentUser.getUid().equals(otherUser.getUid())){
+                                                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                                        .document(otherUser.getUid())
+                                                        .collection("notification")
+                                                        .document(notId);
+                                                ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
+                                                PushNotificationService.shared().sendPushNotification(notId,otherUser.getUid(),otherUser, PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text.getText().toString(),MajorPostNotification.descp.new_mentioned_post,currentUser.getUid());
+
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        });
                     }
                     MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
                         @Override

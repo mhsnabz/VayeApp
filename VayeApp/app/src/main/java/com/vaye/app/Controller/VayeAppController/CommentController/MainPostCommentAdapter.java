@@ -18,6 +18,7 @@ import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.SinglePost.CommentAdapter;
+import com.vaye.app.Controller.NotificationService.MainPostNotification;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Interfaces.Notifications;
@@ -115,7 +116,7 @@ public class MainPostCommentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             @Override
             public void onClick(View view) {
 
-                MainPostService.shared().setCommentLike(model, Notifications.NotificationType.comment_like, Notifications.NotificationDescription.comment_like, postModel, currentUser, new TrueFalse<Boolean>() {
+                MainPostService.shared().setCommentLike(model, MainPostNotification.type.comment_like, comments.get(position).getComment(), postModel, currentUser, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
                         if (_value){

@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.NotificationService.CommentNotificationService;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.MainPostFollowers;
 import com.vaye.app.Interfaces.MajorPostFallower;
@@ -193,7 +194,8 @@ public class MainPostService {
              @Override
              public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    MainPostNS.shared().setCommentLikeNotification(post , comment , currentUser ,type , text );
+                   // MainPostNS.shared().setCommentLikeNotification(post , comment , currentUser ,type , text );
+                    CommentNotificationService.shared().likeMainPostComment(post,comment,currentUser,text,type);
                 }
              }
          });

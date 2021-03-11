@@ -107,7 +107,6 @@ public class CommentService {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
-
                                         val.callBack(true);
                                     }
                                 }

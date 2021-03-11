@@ -202,9 +202,7 @@ public class MainPostCommentActivity extends AppCompatActivity {
     }
 
     private void getComment(CurrentUser currentUser, MainPostModel post) {
-        Query dbNext = FirebaseFirestore.getInstance().collection("main-post")
-                .document("post")
-                .collection("post")
+        Query dbNext = FirebaseFirestore.getInstance().collection("comment")
                 .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
 
         dbNext.addSnapshotListener(MainPostCommentActivity.this, new EventListener<QuerySnapshot>() {
@@ -250,9 +248,7 @@ public class MainPostCommentActivity extends AppCompatActivity {
 
             return;
         }else{
-            Query dbNext = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                    .document("lesson-post")
-                    .collection("post")
+            Query dbNext = FirebaseFirestore.getInstance().collection("comment")
                     .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
                     .limitToLast(5);
             dbNext.get().addOnCompleteListener(MainPostCommentActivity.this, new OnCompleteListener<QuerySnapshot>() {

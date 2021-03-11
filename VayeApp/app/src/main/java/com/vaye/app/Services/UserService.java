@@ -44,7 +44,7 @@ public class UserService {
     public static UserService shared() {
         return instance;
     }
-
+    String TAG = "UserService";
     public void getCurrentUser(String uid , CurrentUserService result ){
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(uid);
@@ -170,6 +170,51 @@ public class UserService {
                     }
             }
         });
+    }
+
+    public void getOtherUser_Mentioned(String username , OtherUserService user){
+        Log.d(TAG, "getOtherUser_Mentioned: " + username);
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("username")
+                .document(username);
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        if (task.getResult().getString("uid") != null){
+                            DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                    .document(task.getResult().getString("uid"));
+                            ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()){
+                                        if (task.getResult().exists()){
+                                            user.callback(task.getResult().toObject(OtherUser.class));
+                                        }
+                                    }else{
+                                        user.callback(null );
+                                    }
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    user.callback(null);
+                                }
+                            });
+                        }
+
+                    }
+                }else{
+                    user.callback(null);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                    user.callback(null);
+            }
+        });
+
     }
     public void getOtherUserWihtoutProgres(Activity activity, String otherUserUid , OtherUserService user){
         WaitDialog.show((AppCompatActivity) activity, null);
