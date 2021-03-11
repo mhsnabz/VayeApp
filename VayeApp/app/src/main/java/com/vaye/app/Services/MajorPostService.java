@@ -20,6 +20,11 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.MajorPostNotificationService;
+import com.vaye.app.Controller.NotificationService.NotificationPostType;
+import com.vaye.app.Controller.NotificationService.PushNotificationService;
+import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
 import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
@@ -38,6 +43,7 @@ import java.net.URISyntaxException;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +72,8 @@ public class MajorPostService {
             mapLike.put("likes",FieldValue.arrayUnion(currentUser.getUid()));
             mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
             ref.set(mapLike , SetOptions.merge());
-            NotificaitonService.shared().setPost_CommentLike(post , currentUser , Notifications.NotificationDescription.like_home,Notifications.NotificationType.like_home);
+            MajorPostNotificationService.shared().setPostLike(NotificationPostType.name.lessonPost,post,currentUser,post.getText(), MajorPostNotification.type.post_like);
+            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.like,currentUser.getName(),post.getText(),MajorPostNotification.descp.post_like,currentUser.getUid());
         }
         else{
             post.getLikes().remove(currentUser.getUid());

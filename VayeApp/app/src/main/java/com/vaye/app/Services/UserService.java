@@ -185,6 +185,24 @@ public class UserService {
             }
         });
     }
+
+    public void otherUser(String otherUserUid , OtherUserService user){
+
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("user")
+                .document(otherUserUid);
+        ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    user.callback(documentSnapshot.toObject(OtherUser.class));
+                }else{
+
+                    user.callback(null);
+                }
+            }
+        });
+    }
     public void getOtherUser(Activity activity, String otherUserUid , OtherUserService user){
         WaitDialog.show((AppCompatActivity) activity, null);
         DocumentReference ref = FirebaseFirestore.getInstance()

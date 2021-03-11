@@ -10,8 +10,10 @@ public class OtherUser implements Parcelable {
     int totalBadge ;
     Boolean allowRequest,comment,mention,like,follow,lessonNotices;
     ArrayList<String> slient,friendList,slientChatUser;
+    String tokenID;
 
-    public OtherUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slient, ArrayList<String> friendList, ArrayList<String> slientChatUser) {
+
+    public OtherUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slient, ArrayList<String> friendList, ArrayList<String> slientChatUser , String tokenID) {
         this.email = email;
         this.bolum_key = bolum_key;
         this.name = name;
@@ -39,6 +41,7 @@ public class OtherUser implements Parcelable {
         this.slient = slient;
         this.friendList = friendList;
         this.slientChatUser = slientChatUser;
+        this.tokenID = tokenID;
 
     }
 
@@ -94,6 +97,17 @@ public class OtherUser implements Parcelable {
     };
 
 
+    public String getTokenID() {
+        return tokenID;
+    }
+
+    public void setTokenID(String tokenID) {
+        this.tokenID = tokenID;
+    }
+
+    public static Creator<OtherUser> getCREATOR() {
+        return CREATOR;
+    }
 
     public String getEmail() {
         return email;

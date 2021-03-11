@@ -20,7 +20,7 @@ public class MajorPostNotificationService {
         return instance;
     }
 
-    void setPostLike(String postType , LessonPostModel post , CurrentUser currentUser , String text , String type){
+   public void setPostLike(String postType , LessonPostModel post , CurrentUser currentUser , String text , String type){
         if (post.getSenderUid().equals(currentUser.getUid())){
             return;
         }else{
@@ -30,7 +30,7 @@ public class MajorPostNotificationService {
                         .document(post.getSenderUid()).collection("notification")
                         .document(notificationId);
                 ref.set(Helper.shared().getDictionary(postType,type,text,currentUser,notificationId,null,post.getPostId(),post.getLessonName(),null,null), SetOptions.merge());
-                
+
             }
         }
     }
