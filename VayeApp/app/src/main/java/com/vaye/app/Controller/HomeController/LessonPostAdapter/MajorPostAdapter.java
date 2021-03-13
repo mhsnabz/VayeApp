@@ -20,20 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.rpc.Help;
 import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
-import com.vaye.app.Controller.HomeController.SinglePost.CommentActivity;
+import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
-import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -43,13 +36,11 @@ import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Services.UserService;
-import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
-import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
-import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 
+import org.w3c.dom.Comment;
+
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -145,13 +136,23 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        intent.putExtra("lessonPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });
 
+                postHolder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("lessonPost",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
 
                 postHolder.more.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -410,17 +411,28 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case VIEW_TYPE_LESSON_POST:
                 MajorPostViewHolder itemHolder = (MajorPostViewHolder) holder;
                 LessonPostModel menuItem = post.get(i);
-
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context , CommentActivity.class);
-                    intent.putExtra("post",post.get(i));
-                    intent.putExtra("currentUser",currentUser);
-                    context.startActivity(intent);
-                    Helper.shared().go((Activity) context);
-                }
-            });
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("lessonPost",menuItem);
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+
+                itemHolder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("lessonPost",menuItem);
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+
                 itemHolder.profileImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

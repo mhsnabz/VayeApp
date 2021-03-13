@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Controller.HomeController.SinglePost.CommentActivity">
+    tools:context=".Controller.CommentController.CommentActivity">
 <include layout="@layout/costum_toolbar" android:id="@+id/toolbar"></include>
 
 

@@ -14,12 +14,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
-import com.vaye.app.Controller.HomeController.HomeActivity;
-import com.vaye.app.Controller.HomeController.School.SchoolFragment;
-import com.vaye.app.Controller.HomeController.SinglePost.ReplyActivity;
 import com.vaye.app.Controller.VayeAppController.BuySell.BuySellFragment;
 import com.vaye.app.Controller.VayeAppController.Camping.CampingFragment;
 import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;

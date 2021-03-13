@@ -1,4 +1,4 @@
-package com.vaye.app.Controller.HomeController.SinglePost;
+package com.vaye.app.Controller.CommentController;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +24,8 @@ import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
 import com.vaye.app.Util.Helper;
@@ -37,6 +39,27 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
     CurrentUser currentUser;
     Context context;
     LessonPostModel postModel;
+
+    NoticesMainModel noticesPostModel;
+
+    MainPostModel mainPostModel;
+
+
+    public CommentAdapter(ArrayList<CommentModel> comments, CurrentUser currentUser, Context context, MainPostModel mainPostModel) {
+        this.comments = comments;
+        this.currentUser = currentUser;
+        this.context = context;
+        this.mainPostModel = mainPostModel;
+        setHasStableIds(true);
+    }
+
+    public CommentAdapter(ArrayList<CommentModel> comments, CurrentUser currentUser, Context context, NoticesMainModel noticesPostModel) {
+        this.comments = comments;
+        this.currentUser = currentUser;
+        this.context = context;
+        this.noticesPostModel = noticesPostModel;
+        setHasStableIds(true);
+    }
 
     public CommentAdapter(ArrayList<CommentModel> comments, CurrentUser currentUser, Context context, LessonPostModel postModel) {
         this.comments = comments;

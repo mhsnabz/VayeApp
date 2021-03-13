@@ -1,4 +1,4 @@
-package com.vaye.app.Controller.HomeController.SinglePost;
+package com.vaye.app.Controller.CommentController;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,20 +8,14 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +23,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,15 +32,19 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
 import com.vaye.app.Controller.NotificationService.CommentNotificationService;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.PostName;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
+import com.vaye.app.Services.CommentServis;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
 import com.vaye.app.Util.SwipeControllerActions;
@@ -68,6 +65,8 @@ public class CommentActivity extends AppCompatActivity {
     String TAG = "CommentActivity";
     CurrentUser currentUser;
     LessonPostModel postModel;
+    NoticesMainModel noticesPostModel;
+    MainPostModel mainPostModel;
     Toolbar toolbar;
     TextView title;
     Boolean isLoadMore = true;
@@ -78,6 +77,8 @@ public class CommentActivity extends AppCompatActivity {
     CommentAdapter adapter ;
     RecyclerView commentList;
     Boolean scrollingToBottom = false;
+
+
     LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
     Button loadMoreButton;
     @Override
@@ -95,21 +96,45 @@ public class CommentActivity extends AppCompatActivity {
             swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeAndRefresh);
 
             currentUser = intentIncoming.getParcelableExtra("currentUser");
-            postModel = intentIncoming.getParcelableExtra("post");
+            postModel = intentIncoming.getParcelableExtra("lessonPost");
+            noticesPostModel = intentIncoming.getParcelableExtra("noticesPost");
+            mainPostModel = intentIncoming.getParcelableExtra("mainPost");
+
+            if (postModel!=null){
+                setLessonPostView(currentUser,postModel);
+            }else if (noticesPostModel!=null){
+                setNoticesViews(currentUser,noticesPostModel);
+            }else if (mainPostModel != null){
+                setMainPostView(currentUser,mainPostModel);
+            }
+
             setToolbar();
 
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    loadMoreComment(postModel);
+                    if (postModel != null){
+                        loadMoreLessonPostComment(postModel);
+                    }else if (noticesPostModel != null){
+
+                    }else if (mainPostModel != null){
+
+                    }
+
                 }
             });
-            configureUI(currentUser , postModel);
+         //   configureUI(currentUser , postModel);
         loadMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 swipeRefreshLayout.setRefreshing(true);
-                loadMoreComment(postModel);
+                if (postModel != null){
+                    loadMoreLessonPostComment(postModel);
+                }else if (noticesPostModel != null){
+
+                }else if (mainPostModel != null){
+
+                }
             }
         });
 
@@ -136,19 +161,63 @@ public class CommentActivity extends AppCompatActivity {
         if (text.isEmpty()){
             return;
         }else{
-            CommentService.shared().sendNewComment(currentUser, text, postModel.getPostId(), commentId, new TrueFalse<Boolean>() {
-                @Override
-                public void callBack(Boolean _value) {
-                    if (_value){
-                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
 
+            if (postModel != null){
+                CommentServis.shared().sendNewComment(PostName.lessonPost, currentUser, text, postModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                        CommentNotificationService.shared().sendNewLessonPostCommentNotification(postModel,currentUser,text, MajorPostNotification.type.new_comment);
+                        CommentNotificationService.shared().sendNewLessonPostMentionedComment(postModel,currentUser,text,MajorPostNotification.type.new_mentioned_comment);
                     }
-                }
-            });
+                });
+            }else if (noticesPostModel!=null){
+                CommentServis.shared().sendNewComment(PostName.noticesPost, currentUser, text, noticesPostModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                    }
+                });
+            }else if (mainPostModel != null){
+                CommentServis.shared().sendNewComment(PostName.mainPost, currentUser, text, mainPostModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                    }
+                });
+            }
+
         }
 
     }
 
+
+
+    private void setNoticesViews(CurrentUser currentUser,NoticesMainModel post){
+        commentList = (RecyclerView)findViewById(R.id.commentList);
+        mLayoutManager.setReverseLayout(false);
+        adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this , post);
+
+        commentList.setLayoutManager(mLayoutManager);
+        commentList.setAdapter(adapter);
+    }
+    private void setMainPostView(CurrentUser currentUser,MainPostModel post){
+        commentList = (RecyclerView)findViewById(R.id.commentList);
+        mLayoutManager.setReverseLayout(false);
+        adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this , post);
+
+        commentList.setLayoutManager(mLayoutManager);
+        commentList.setAdapter(adapter);
+    }
+    private void setLessonPostView(CurrentUser currentUser,LessonPostModel post){
+        commentList = (RecyclerView)findViewById(R.id.commentList);
+        mLayoutManager.setReverseLayout(false);
+        adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this , post);
+
+        commentList.setLayoutManager(mLayoutManager);
+        commentList.setAdapter(adapter);
+        getLessonPostComment(post.getPostId());
+    }
     private void configureUI(CurrentUser currentUser , LessonPostModel postModel)
     {
 
@@ -215,7 +284,6 @@ public class CommentActivity extends AppCompatActivity {
             }
         });
 
-        getComment(currentUser , postModel);
 
         final View contentView = commentList;
         contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -251,11 +319,94 @@ public class CommentActivity extends AppCompatActivity {
             recyclerView.scrollToPosition(adapter.getItemCount() - 1);
         }
     }
-    private void getComment(CurrentUser currentUser, LessonPostModel post) {
+
+
+    private void getLessonPostComment(String postId){
+        Query dbNext = FirebaseFirestore.getInstance()
+                .collection("comment")
+                .document(postId).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
+        dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()) {
+
+                }else{
+                    for (DocumentChange item : value.getDocumentChanges()){
+                        if (item.getType().equals(DocumentChange.Type.ADDED))
+                        {
+                            comments.add(item.getDocument().toObject(CommentModel.class));
+
+                            Collections.sort(comments, new Comparator<CommentModel>(){
+                                public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
+
+                                }
+
+                            });
+                            if (adapter!=null){
+
+                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                adapter.notifyDataSetChanged();
+                            }
+                            firstPage = comments.get(0).getCommentId();
+                            loadMoreButton.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
+                }
+            }
+        });
+    }
+
+    private void loadMoreLessonPostComment(LessonPostModel post){
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
+
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment")
+                    .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
+                    .limitToLast(5);
+            dbNext.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+
+        }
+    }
+
+    private void getComment( String postID) {
 
             Query dbNext = FirebaseFirestore.getInstance()
                     .collection("comment")
-                    .document(post.getPostId()).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
+                    .document(postID).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
             dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

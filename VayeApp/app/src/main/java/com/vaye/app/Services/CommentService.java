@@ -70,6 +70,8 @@ public class CommentService {
     }
 
 
+
+
     public void sendNewComment(CurrentUser currentUser , String commentText , String postId , String commentId , TrueFalse<Boolean> val){
         DocumentReference ref = FirebaseFirestore.getInstance()
                 .collection("comment")
