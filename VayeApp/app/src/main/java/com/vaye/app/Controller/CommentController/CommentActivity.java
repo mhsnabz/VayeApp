@@ -87,9 +87,7 @@ public class CommentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
-
-
-
+        setContentView(R.layout.activity_comment);
         loadMoreButton = (Button)findViewById(R.id.loadMoreButton);
         loadMoreButton.setVisibility(View.GONE);
         Bundle extras = getIntent().getExtras();
@@ -98,19 +96,19 @@ public class CommentActivity extends AppCompatActivity {
             swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeAndRefresh);
 
             currentUser = intentIncoming.getParcelableExtra("currentUser");
-
-
-
-
             if (intentIncoming.getParcelableExtra("lessonPost") !=null){
                 postModel = intentIncoming.getParcelableExtra("lessonPost");
                 setLessonPostView(currentUser,postModel);
+                configureRecylerViewDecoration(currentUser);
             }else if (intentIncoming.getParcelableExtra("noticesPost")!=null){
                 noticesPostModel = intentIncoming.getParcelableExtra("noticesPost");
                 setNoticesViews(currentUser,noticesPostModel);
+                configureRecylerViewDecoration(currentUser);
             }else if (intentIncoming.getParcelableExtra("mainPost") != null){
                 mainPostModel = intentIncoming.getParcelableExtra("mainPost");
                 setMainPostView(currentUser,mainPostModel);
+                configureRecylerViewDecoration(currentUser);
+
             }
 
             setToolbar();
@@ -121,9 +119,9 @@ public class CommentActivity extends AppCompatActivity {
                     if (postModel != null){
                         loadMoreLessonPostComment(postModel);
                     }else if (noticesPostModel != null){
-
+                        loadMoreNoticesPostComment(noticesPostModel);
                     }else if (mainPostModel != null){
-
+                        loadMoreMainPostComment(mainPostModel);
                     }
 
                 }
@@ -136,9 +134,9 @@ public class CommentActivity extends AppCompatActivity {
                 if (postModel != null){
                     loadMoreLessonPostComment(postModel);
                 }else if (noticesPostModel != null){
-
+                    loadMoreNoticesPostComment(noticesPostModel);
                 }else if (mainPostModel != null){
-
+                    loadMoreMainPostComment(mainPostModel);
                 }
             }
         });
@@ -199,9 +197,6 @@ public class CommentActivity extends AppCompatActivity {
         }
 
     }
-
-
-
     private void setNoticesViews(CurrentUser currentUser,NoticesMainModel post){
         commentList = (RecyclerView)findViewById(R.id.commentList);
         mLayoutManager.setReverseLayout(false);
@@ -209,6 +204,7 @@ public class CommentActivity extends AppCompatActivity {
 
         commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
+        getNoticesPostComment(post.getPostId());
     }
     private void setMainPostView(CurrentUser currentUser,MainPostModel post){
         commentList = (RecyclerView)findViewById(R.id.commentList);
@@ -217,6 +213,7 @@ public class CommentActivity extends AppCompatActivity {
 
         commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
+        getMainPostComment(post.getPostId());
     }
     private void setLessonPostView(CurrentUser currentUser,LessonPostModel post){
         commentList = (RecyclerView)findViewById(R.id.commentList);
@@ -227,59 +224,44 @@ public class CommentActivity extends AppCompatActivity {
         commentList.setAdapter(adapter);
         getLessonPostComment(post.getPostId());
     }
-    private void configureUI(CurrentUser currentUser , LessonPostModel postModel)
+    private void configureRecylerViewDecoration(CurrentUser currentUser)
     {
-
-        commentList = (RecyclerView)findViewById(R.id.commentList);
-        mLayoutManager.setReverseLayout(false);
-        adapter = new CommentAdapter(comments,currentUser ,CommentActivity.this , postModel);
-        commentList.setLayoutManager(mLayoutManager);
-        commentList.setAdapter(adapter);
-
 
         swipeController = new SwipeController(currentUser.getUid() , comments ,new SwipeControllerActions() {
             @Override
             public void onLeftClicked(int position) {
                 super.onLeftClicked(position);
-                //reply
-                Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
-                i.putExtra("comment",comments.get(position));
-                i.putExtra("currentUser",currentUser);
-                i.putExtra("post",postModel);
-                startActivity(i);
-                Helper.shared().go(CommentActivity.this);
+                replyClick(comments.get(position));
             }
 
             @Override
             public void onRightClicked(int position) {
                 super.onRightClicked(position);
-                //Delete
 
-                deleteComment(comments.get(position).getCommentId() , postModel.getPostId());
-                comments.remove(comments.get(position));
-                adapter.notifyItemRemoved(position);
-                CommentService.shared().getTotalCommentCount(currentUser, postModel.getPostId(), new CallBackCount() {
+                deleteComment(position, new TrueFalse<Boolean>() {
                     @Override
-                    public void callBackCount(long count) {
-                        if (count > 0 ){
-                            ///İSTE/lesson-post/post/1610231975623
-                            postModel.setComment((int) count);
-                            DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                    .document("lesson-post")
-                                    .collection("post")
-                                    .document(postModel.getPostId());
-                            Map<String , Object> map1 = new HashMap<>();
-                            map1.put("comment",count);
-                            db.set(map1 , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            CommentModel deleteComment = comments.get(position);
+                            comments.remove(comments.get(position));
+                            adapter.notifyItemRemoved(position);
+                            CommentServis.shared().getTotalCommentCount(deleteComment.getPostId(), new CallBackCount() {
                                 @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
+                                public void callBackCount(long count) {
+                                    if (noticesPostModel!= null){
+                                        CommentServis.shared().setTotalCommentCount(PostName.noticesPost , currentUser , deleteComment.getPostId(),(int) count);
+                                    }else if (postModel != null){
+                                        CommentServis.shared().setTotalCommentCount(PostName.lessonPost , currentUser , deleteComment.getPostId(),(int) count);
 
+                                    }else if (noticesPostModel != null){
+                                        CommentServis.shared().setTotalCommentCount(PostName.mainPost , currentUser , deleteComment.getPostId(),(int) count);
 
                                     }
+
                                 }
                             });
                         }
+
                     }
                 });
             }
@@ -328,8 +310,84 @@ public class CommentActivity extends AppCompatActivity {
             recyclerView.scrollToPosition(adapter.getItemCount() - 1);
         }
     }
+    private void getMainPostComment(String  postId){
 
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment")
+                    .document(postId).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
+            dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value.isEmpty()) {
 
+                    }else{
+                        for (DocumentChange item : value.getDocumentChanges()){
+                            if (item.getType().equals(DocumentChange.Type.ADDED))
+                            {
+                                comments.add(item.getDocument().toObject(CommentModel.class));
+
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getCommentId().compareTo(obj2.getCommentId());
+
+                                    }
+
+                                });
+                                if (adapter!=null){
+
+                                    //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                    adapter.notifyDataSetChanged();
+                                }
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
+                    }
+                }
+            });
+
+    }
+    private void getNoticesPostComment(String postId) {
+        Query dbNext = FirebaseFirestore.getInstance()
+                .collection("comment")
+                .document(postId).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
+        dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()) {
+
+                }else{
+                    for (DocumentChange item : value.getDocumentChanges()){
+                        if (item.getType().equals(DocumentChange.Type.ADDED))
+                        {
+                            comments.add(item.getDocument().toObject(CommentModel.class));
+
+                            Collections.sort(comments, new Comparator<CommentModel>(){
+                                public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
+
+                                }
+
+                            });
+                            if (adapter!=null){
+
+                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                adapter.notifyDataSetChanged();
+                            }
+                            firstPage = comments.get(0).getCommentId();
+                            loadMoreButton.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
+
+                }
+            }
+        });
+    }
     private void getLessonPostComment(String postId){
         Query dbNext = FirebaseFirestore.getInstance()
                 .collection("comment")
@@ -368,7 +426,88 @@ public class CommentActivity extends AppCompatActivity {
             }
         });
     }
+    private void loadMoreMainPostComment(MainPostModel post){
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
 
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment")
+                    .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
+                    .limitToLast(5);
+            dbNext.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+
+        }
+    }
+    private void loadMoreNoticesPostComment(NoticesMainModel post){
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
+
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment")
+                    .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
+                    .limitToLast(5);
+            dbNext.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+
+        }
+    }
     private void loadMoreLessonPostComment(LessonPostModel post){
         if (lastPage == null){
             swipeRefreshLayout.setRefreshing(false);
@@ -411,90 +550,49 @@ public class CommentActivity extends AppCompatActivity {
         }
     }
 
-    private void getComment( String postID) {
-
-            Query dbNext = FirebaseFirestore.getInstance()
-                    .collection("comment")
-                    .document(postID).collection("comment").limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
-            dbNext.addSnapshotListener(CommentActivity.this, new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if (value.isEmpty()) {
-
-                    }else{
-                        for (DocumentChange item : value.getDocumentChanges()){
-                            if (item.getType().equals(DocumentChange.Type.ADDED))
-                            {
-                                comments.add(item.getDocument().toObject(CommentModel.class));
-
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
-
-                                        return obj1.getCommentId().compareTo(obj2.getCommentId());
-
-                                    }
-
-                                });
-                                if (adapter!=null){
-
-                                 //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                                    adapter.notifyDataSetChanged();
-                                }
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
-
-                    }
-                }
-            });
-
-    }
-
-    private void loadMoreComment(LessonPostModel post){
-
-        if (lastPage == null){
-            swipeRefreshLayout.setRefreshing(false);
-            loadMoreButton.setVisibility(View.GONE);
-
-            return;
-        }else{
-            Query dbNext = FirebaseFirestore.getInstance()
-                    .collection("comment")
-                    .document(post.getPostId()).collection("comment").orderBy("commentId").endBefore(firstPage)
-                    .limitToLast(5);
-            dbNext.get().addOnCompleteListener(CommentActivity.this, new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()){
-                        if (!task.getResult().isEmpty()){
-                            for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                comments.add(item.toObject(CommentModel.class));
-                               Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
-
-                                        return obj1.getTime().compareTo(obj2.getTime());
-
-                                    }
-
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
-                            }
-                        }else{
-                            swipeRefreshLayout.setRefreshing(false);
-                            loadMoreButton.setVisibility(View.GONE);
-                        }
-                    }
-                }
-            });
+    private void replyClick(CommentModel commentModel){
+        if (postModel != null){
+            Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
+            i.putExtra("comment",commentModel);
+            i.putExtra("currentUser",currentUser);
+            i.putExtra("lessonPost",postModel);
+            startActivity(i);
+            Helper.shared().go(CommentActivity.this);
+        }else if (noticesPostModel != null){
+            Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
+            i.putExtra("comment",commentModel);
+            i.putExtra("currentUser",currentUser);
+            i.putExtra("noticesPost",noticesPostModel);
+            startActivity(i);
+            Helper.shared().go(CommentActivity.this);
+        }else if (mainPostModel !=  null){
+            Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
+            i.putExtra("comment",commentModel);
+            i.putExtra("currentUser",currentUser);
+            i.putExtra("mainPost",mainPostModel);
+            startActivity(i);
+            Helper.shared().go(CommentActivity.this);
         }
-
-
     }
+
+    private void deleteComment(int position , TrueFalse<Boolean> callback){
+        String postId = comments.get(position).getPostId();
+        String commentID = comments.get(position).getCommentId();
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
+                .document(postId)
+                .collection("comment")
+                .document(commentID);
+        ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(true);
+                }
+            }
+        });
+    }
+
     private void setToolbar() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -514,18 +612,6 @@ public class CommentActivity extends AppCompatActivity {
                 Helper.shared().back(CommentActivity.this);
             }
         });
-    }
-
-    private void deleteComment(String commentID  ,String postId  ){
-        //  let db = Firestore.firestore().collection(currentUser.short_school).document("lesson-post")
-        //            .collection("post").document(postID).collection("comment").document(commentID)
-        //        db.delete()
-        DocumentReference ref = FirebaseFirestore.getInstance()
-                .collection("comment")
-                .document(postId)
-                .collection("comment")
-                .document(commentID);
-        ref.delete();
     }
 
 

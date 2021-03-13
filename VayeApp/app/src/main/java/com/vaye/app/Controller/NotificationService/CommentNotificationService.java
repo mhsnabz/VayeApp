@@ -1,5 +1,7 @@
 package com.vaye.app.Controller.NotificationService;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -18,6 +20,7 @@ import com.vaye.app.Util.Helper;
 import java.util.Calendar;
 
 public class CommentNotificationService {
+    String TAG = "CommentNotificationService";
     private static final CommentNotificationService instance = new CommentNotificationService();
 
     public static CommentNotificationService shared() {
@@ -40,8 +43,7 @@ public class CommentNotificationService {
             }
         }
     }
-//post : MainPostModel ,
-// commentModel : CommentModel, currentUser : CurrentUser , text : String , type : String
+
     public void likeMainPostComment(MainPostModel post,CommentModel commentModel , CurrentUser currentUser , String text , String type){
         String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         if (commentModel.getSenderUid().equals(currentUser.getUid()))
@@ -53,7 +55,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),null,null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid());
             }
         }
     }
@@ -111,6 +113,22 @@ public class CommentNotificationService {
         }
     }
 
+    public void sendLessonPostCommentLike(LessonPostModel post , CommentModel commentModel , CurrentUser currentUser , String text , String type){
+        String  notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        if (commentModel.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+            if (!currentUser.getSlient().contains(commentModel.getSenderUid())){
+                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                        .document(commentModel.getSenderUid())
+                    .collection("notification")
+                        .document(notificaitonId);
+                db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,null,post.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.comment_like,currentUser.getUid());
+            }
+        }
+    }
+
     //TODO:-main post comment
     public void sendNewMainPostCommentNotification(MainPostModel post , CurrentUser currentUser ,
                                                      String text , String type){
@@ -160,7 +178,21 @@ public class CommentNotificationService {
             });
         }
     }
-
+    public void sendMainPostCommentLike(MainPostModel post , CommentModel commentModel , CurrentUser currentUser , String text , String type){
+        String  notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        if (commentModel.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+            if (!currentUser.getSlient().contains(commentModel.getSenderUid())){
+                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                        .document(commentModel.getSenderUid())
+                        .collection("notification")
+                        .document(notificaitonId);
+                db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid());
+            }
+        }
+    }
 
     //TODO:-notices post comment
     public void sendNewNatoicesPostCommentNotification(NoticesMainModel post , CurrentUser currentUser ,
@@ -198,7 +230,7 @@ public class CommentNotificationService {
                                             .collection("notification")
                                             .document(notificaitonId);
 
-                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,null,post.getPostId(),null,post.getClupName(),null));
+                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notId,null,post.getPostId(),null,post.getClupName(),null));
                                     PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_mentioned_comment,currentUser.getUid());
 
 
@@ -211,5 +243,21 @@ public class CommentNotificationService {
             });
         }
     }
+    public void sendNoticesPostCommentLike(NoticesMainModel post , CommentModel commentModel , CurrentUser currentUser , String text , String type){
+        String  notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        if (commentModel.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+            if (!currentUser.getSlient().contains(commentModel.getSenderUid())){
+                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                        .document(commentModel.getSenderUid())
+                        .collection("notification")
+                        .document(notificaitonId);
+                db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,null,post.getPostId(),null,post.getClupName(),null),SetOptions.merge());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.comment_like,currentUser.getUid());
+            }
+        }
+    }
+
 
 }

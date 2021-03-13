@@ -46,6 +46,8 @@ import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
 import com.vaye.app.Services.NotificaitonService;
@@ -66,9 +68,13 @@ public class ReplyActivity extends AppCompatActivity {
     EditText msgText;
     SocialTextView text;
     CommentModel comment;
+    CommentModel targetCommentModel;
+
     String TAG = "CommentActivity";
     CurrentUser currentUser;
     LessonPostModel postModel;
+    NoticesMainModel noticesPostModel;
+    MainPostModel mainPostModel;
     Toolbar toolbar;
     TextView title;
     Boolean isLoadMore = true;
@@ -80,7 +86,7 @@ public class ReplyActivity extends AppCompatActivity {
     SwipeRefreshLayout swipeRefreshLayout;
     TextView name , username ,time;
     ArrayList<CommentModel> comments = new ArrayList<>();
-    CommentAdapter adapter ;
+    ReplyCommentAdapter adapter ;
     RecyclerView commentList;
     Boolean scrollingToBottom = false;
     LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -104,14 +110,35 @@ public class ReplyActivity extends AppCompatActivity {
             swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeAndRefresh);
 
             currentUser = intentIncoming.getParcelableExtra("currentUser");
-            postModel = intentIncoming.getParcelableExtra("post");
-            comment = intentIncoming.getParcelableExtra("comment");
+            if (intentIncoming.getParcelableExtra("lessonPost") !=null){
+                postModel = intentIncoming.getParcelableExtra("lessonPost");
+                targetCommentModel = intentIncoming.getParcelableExtra("targetComment");
+                setLessonPostView(currentUser, targetCommentModel, postModel);
+                configureRecylerViewDecoration(currentUser);
+            }else if (intentIncoming.getParcelableExtra("noticesPost")!=null){
+                noticesPostModel = intentIncoming.getParcelableExtra("noticesPost");
+                setNoticesViews(currentUser,noticesPostModel,targetCommentModel);
+                configureRecylerViewDecoration(currentUser);
+            }else if (intentIncoming.getParcelableExtra("mainPost") != null){
+                mainPostModel = intentIncoming.getParcelableExtra("mainPost");
+                setMainPostView(currentUser,mainPostModel,targetCommentModel);
+                configureRecylerViewDecoration(currentUser);
+
+            }
+
+
             setToolbar();
 
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    loadMoreComment(postModel);
+                    if (postModel != null){
+                        loadMoreLessonPostComment(postModel);
+                    }else if (noticesPostModel != null){
+                        loadMoreNoticesPostComment(noticesPostModel);
+                    }else if (mainPostModel != null){
+                        loadMoreMainPostComment(mainPostModel);
+                    };
                 }
             });
             configureUI(comment,currentUser , postModel);
@@ -119,10 +146,15 @@ public class ReplyActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     swipeRefreshLayout.setRefreshing(true);
-                    loadMoreComment(postModel);
+                    if (postModel != null){
+                        loadMoreLessonPostComment(postModel);
+                    }else if (noticesPostModel != null){
+                        loadMoreNoticesPostComment(noticesPostModel);
+                    }else if (mainPostModel != null){
+                        loadMoreMainPostComment(mainPostModel);
+                    }
                 }
             });
-
 
             sendMsg = (ImageButton)findViewById(R.id.send);
             msgText = (EditText)findViewById(R.id.msgText);
@@ -137,6 +169,45 @@ public class ReplyActivity extends AppCompatActivity {
         }
     }
 
+    private void loadMoreMainPostComment(MainPostModel mainPostModel) {
+
+    }
+
+    private void loadMoreNoticesPostComment(NoticesMainModel noticesPostModel) {
+
+    }
+
+    private void loadMoreLessonPostComment(LessonPostModel postModel) {
+
+    }
+
+
+    private void configureRecylerViewDecoration(CurrentUser currentUser) {
+
+    }
+
+    private void setLessonPostView(CurrentUser currentUser, CommentModel targetCommentModel,LessonPostModel postModel) {
+        commentList = (RecyclerView)findViewById(R.id.commentList);
+        mLayoutManager.setReverseLayout(false);
+        adapter = new ReplyCommentAdapter(comments,currentUser,ReplyActivity.this,targetCommentModel,postModel);
+        commentList.setLayoutManager(mLayoutManager);
+        commentList.setAdapter(adapter);
+      //  getLessonPostComment(post.getPostId());
+    }
+    private void setMainPostView(CurrentUser currentUser, MainPostModel mainPostModel, CommentModel targetCommentModel) {
+        commentList = (RecyclerView)findViewById(R.id.commentList);
+        mLayoutManager.setReverseLayout(false);
+        adapter = new ReplyCommentAdapter(comments,currentUser,ReplyActivity.this,targetCommentModel,mainPostModel);
+        commentList.setLayoutManager(mLayoutManager);
+        commentList.setAdapter(adapter);
+    }
+    private void setNoticesViews(CurrentUser currentUser, NoticesMainModel noticesPostModel, CommentModel targetCommentModel) {
+        commentList = (RecyclerView)findViewById(R.id.commentList);
+        mLayoutManager.setReverseLayout(false);
+        adapter = new ReplyCommentAdapter(comments,currentUser,ReplyActivity.this,targetCommentModel,noticesPostModel);
+        commentList.setLayoutManager(mLayoutManager);
+        commentList.setAdapter(adapter);
+    }
 
 
 
@@ -272,12 +343,6 @@ public class ReplyActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
 
         }
-        commentList = (RecyclerView)findViewById(R.id.commentList);
-        mLayoutManager.setReverseLayout(false);
-        adapter = new CommentAdapter(comments,currentUser ,ReplyActivity.this , postModel);
-        commentList.setLayoutManager(mLayoutManager);
-        commentList.setAdapter(adapter);
-
 
         swipeController = new SwipeController(currentUser.getUid() , comments ,new SwipeControllerActions() {
             @Override

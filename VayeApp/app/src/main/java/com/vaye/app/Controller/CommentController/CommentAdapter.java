@@ -20,6 +20,10 @@ import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
+import com.vaye.app.Controller.NotificationService.CommentNotificationService;
+import com.vaye.app.Controller.NotificationService.MainPostNotification;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
@@ -28,6 +32,7 @@ import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
+import com.vaye.app.Services.CommentServis;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -89,23 +94,37 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         viewHolder.setProfileImage(model.getSenderImage());
         viewHolder.setMsgText(model.getComment());
         viewHolder.setTime(model.getTime());
-        viewHolder.setLikeBtn(model.getLikes());
+        viewHolder.setLikeBtn(model.getLikes(),currentUser);
         viewHolder.setLikeCount(String.valueOf(model.getLikes().size()));
         viewHolder.setReplyCount(model.getReplies().size());
         viewHolder.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            viewHolder.like_dislike_click(model, new TrueFalse<Boolean>() {
+            viewHolder.like_dislike_click(model,currentUser, new TrueFalse<Boolean>() {
                 @Override
                 public void callBack(Boolean _value) {
                     if (_value){
-                        viewHolder.setLikeBtn(model.getLikes());
+                        viewHolder.setLikeBtn(model.getLikes(),currentUser);
                         notifyDataSetChanged();
-                        CommentService.shared().setCommentLike((Activity) context, currentUser , model , postModel);
+
+                        CommentServis.shared().setCommentLike(model, currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (mainPostModel != null){
+                                    CommentNotificationService.shared().sendMainPostCommentLike(mainPostModel,model,currentUser,model.getComment(), MainPostNotification.type.comment_like);
+                                }else if (noticesPostModel != null){
+                                    CommentNotificationService.shared().sendNoticesPostCommentLike(noticesPostModel,model,currentUser,model.getComment(), NoticesPostNotification.type.comment_like);
+
+                                }else if (postModel != null){
+                                    CommentNotificationService.shared().sendLessonPostCommentLike(postModel,model,currentUser,model.getComment(), MajorPostNotification.type.comment_like);
+
+                                }
+                            }
+                        });
                     }else{
-                        viewHolder.setLikeBtn(model.getLikes());
+                        viewHolder.setLikeBtn(model.getLikes(),currentUser);
                         notifyDataSetChanged();
-                        CommentService.shared().removeCommentLike(currentUser,model,postModel);
+                        CommentServis.shared().removeCommentLike(model,currentUser);
                     }
                 }
             });
@@ -134,84 +153,5 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         super.setHasStableIds(hasStableIds);
     }
 
-    public class CommentViewHolder extends RecyclerView.ViewHolder{
-
-        public CommentViewHolder(@NonNull View itemView) {
-            super(itemView);
-        }
-        CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
-        ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
-        TextView name = (TextView)itemView.findViewById(R.id.name);
-        TextView username = (TextView)itemView.findViewById(R.id.username);
-        TextView time = (TextView)itemView.findViewById(R.id.time);
-        TextView likeCount = (TextView)itemView.findViewById(R.id.likeCount);
-        TextView likeTextButton = (TextView)itemView.findViewById(R.id.likeTextButton);
-        TextView replyTextBtn = (TextView)itemView.findViewById(R.id.replyTextButton);
-        TextView replyCountText = (TextView)itemView.findViewById(R.id.replyCount);
-        ImageButton likeBtn = (ImageButton)itemView.findViewById(R.id.likeBtn);
-        SocialTextView msgText = (SocialTextView)itemView.findViewById(R.id.msgText);
-        RelativeLayout relLayReply = (RelativeLayout)itemView.findViewById(R.id.relLayReply);
-
-
-        public void setName(String _name , String _username){
-            name.setText(_name);
-            username.setText(_username);
-        }
-        public void setTime(Timestamp _time){
-            time.setText(Html.fromHtml("&#8226;")+ Helper.shared().setTimeAgo(_time));
-        }
-        public void setMsgText(String text){
-            msgText.setText(text);
-        }
-        public void setProfileImage(String _url){
-            if (_url != null && !_url.isEmpty()){
-                Picasso.get().load(_url).centerCrop().resize(128,128).placeholder(android.R.color.darker_gray)
-                        .into(profileImage, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                progressBar.setVisibility(View.GONE);
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                progressBar.setVisibility(View.GONE);
-                            }
-                        });
-            }else{
-                profileImage.setImageResource(android.R.color.darker_gray);
-                progressBar.setVisibility(View.GONE);
-            }
-        }
-        public void setLikeCount(String count){
-            likeCount.setText(count);
-        }
-        public void setReplyCount(int replyCount){
-            if (replyCount > 0){
-                relLayReply.setVisibility(View.VISIBLE);
-
-                replyCountText.setText(String.valueOf(replyCount) +" yanıtı gör");
-            }
-        }
-        public void setLikeBtn(ArrayList<String> likes){
-            if (likes.contains(currentUser.getUid())) {
-                likeBtn.setImageResource(R.drawable.like);
-            }else{
-                likeBtn.setImageResource(R.drawable.like_unselected);
-            }
-        }
-
-        public void like_dislike_click(CommentModel model , TrueFalse<Boolean> val){
-            if (model.getLikes().contains(currentUser.getUid())){
-                model.getLikes().remove(currentUser.getUid());
-                val.callBack(false);
-                //like
-            }else {
-                //remove like
-                model.getLikes().add(currentUser.getUid());
-                val.callBack(true);
-            }
-        }
-
-
-    }
+  
 }

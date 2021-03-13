@@ -13,7 +13,10 @@ import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Controller.NotificationService.PostName;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
+import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
+
+import org.w3c.dom.Comment;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -46,7 +49,7 @@ public class CommentServis {
             }
         });
     }
-    private void getTotalCommentCount(String postId , CallBackCount count){
+    public void getTotalCommentCount(String postId , CallBackCount count){
         CollectionReference db = FirebaseFirestore.getInstance().collection("comment")
                 .document(postId)
                 .collection("comment");
@@ -63,7 +66,7 @@ public class CommentServis {
             }
         });
     }
-    private void setTotalCommentCount(String postType , CurrentUser currentUser , String postId , int count){
+    public void setTotalCommentCount(String postType , CurrentUser currentUser , String postId , int count){
         Map<String , Object> map = new HashMap<>();
         map.put("comment",count);
 
@@ -87,7 +90,33 @@ public class CommentServis {
             db.set(map , SetOptions.merge());
         }
     }
-
+    public void setCommentLike(CommentModel commentModel , CurrentUser currentUser , TrueFalse<Boolean> callback){
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
+                .document(commentModel.getPostId())
+                .collection("comment")
+                .document(commentModel.getCommentId());
+        Map<String , Object> map =  new HashMap<>();
+        map.put("likes", FieldValue.arrayUnion(currentUser.getUid()));
+        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    callback.callBack(true);
+                }
+            }
+        });
+    }
+    public void removeCommentLike(CommentModel commentModel , CurrentUser currentUser ){
+        DocumentReference ref = FirebaseFirestore.getInstance()
+                .collection("comment")
+                .document(commentModel.getPostId())
+                .collection("comment")
+                .document(commentModel.getCommentId());
+        Map<String , Object> map =  new HashMap<>();
+        map.put("likes", FieldValue.arrayRemove(currentUser.getUid()));
+        ref.set(map , SetOptions.merge());
+    }
 
     private HashMap<String , Object> map (CurrentUser currentUser, String commentText , String commentId , String postId){
         HashMap<String , Object> map = new HashMap<>();
