@@ -113,6 +113,54 @@ public class CommentNotificationService {
         }
     }
 
+    public void sendLessonPostRepliedComment(CommentModel targetCommentModel, LessonPostModel post , CurrentUser currentUser , String  text , String type){
+        String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        if (targetCommentModel.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+            if (!currentUser.getSlient().contains(targetCommentModel.getSenderUid())){
+                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                        .document(targetCommentModel.getSenderUid())
+                    .collection("notification")
+                        .document(notificaitonId);
+                db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_comment,currentUser.getUid());
+            }
+        }
+    }
+
+    public void sendLessonPostRepliedMentionComment(CommentModel targetCommentModel, LessonPostModel post , CurrentUser currentUser , String  text , String type){
+        String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+
+        for (String  item : Helper.shared().getMentionedUser(text)){
+            String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+
+            if (item.equals(currentUser.getUsername())){
+                return;
+            }else{
+                UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
+                    @Override
+                    public void callback(OtherUser otherUser) {
+                        if (otherUser!=null){
+                            if(otherUser.getShort_school().equals(currentUser.getShort_school())){
+                                if (otherUser.getBolum().equals(currentUser.getBolum())){
+                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                            .document(otherUser.getUid())
+                                            .collection("notification")
+                                            .document(notificaitonId);
+
+                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notId,null,post.getPostId(),post.getLessonName(),null,null));
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid());
+                                }
+                            }
+                        }
+                    }
+                });
+
+            }
+        }
+    }
+
     public void sendLessonPostCommentLike(LessonPostModel post , CommentModel commentModel , CurrentUser currentUser , String text , String type){
         String  notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         if (commentModel.getSenderUid().equals(currentUser.getUid())){
@@ -156,9 +204,7 @@ public class CommentNotificationService {
                 @Override
                 public void callback(OtherUser otherUser) {
                     if (otherUser != null){
-                        if (otherUser.getShort_school().equals(currentUser.getShort_school()))
-                        {
-                            if (otherUser.getBolum().equals(currentUser.getBolum())){
+
                                 if (!currentUser.getUid().equals(otherUser.getUid())){
                                     DocumentReference db = FirebaseFirestore.getInstance().collection("user")
                                             .document(otherUser.getUid())
@@ -173,8 +219,7 @@ public class CommentNotificationService {
 
                             }
                         }
-                    }
-                }
+
             });
         }
     }

@@ -500,7 +500,8 @@ public class ReplyActivity extends AppCompatActivity {
                     public void callBack(Boolean _value) {
                         if (_value){
                             commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                            
+                            CommentNotificationService.shared().sendLessonPostRepliedComment(targetCommentModel,postModel,currentUser,text,MajorPostNotification.type.new_replied_comment);
+                            CommentNotificationService.shared().sendLessonPostRepliedMentionComment(targetCommentModel,postModel,currentUser,text,MajorPostNotification.type.new_replied_mentioned_comment);
                         }
 
                     }
