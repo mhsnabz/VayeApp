@@ -22,6 +22,7 @@ import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdViewHolder;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
@@ -118,7 +119,21 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("noticesPost",menuItem);
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+                itemHolder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("noticesPost",menuItem);
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
                     }
                 });
                 itemHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
@@ -211,18 +226,7 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
                 itemHolder.setTime(menuItem.getPostTime());
 
-                itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //  currentUser = intentIncoming.getParcelableExtra("currentUser");
-                        //            postModel = intentIncoming.getParcelableExtra("post");
-                        Intent i = new Intent(context , SchoolPostCommentActivity.class);
-                        i.putExtra("currentUser",currentUser);
-                        i.putExtra("post",menuItem);
-                        context.startActivity(i);
-                        Helper.shared().go((Activity) context);
-                    }
-                });
+
 
                 itemHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -319,12 +323,20 @@ public class SchoolPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //  currentUser = intentIncoming.getParcelableExtra("currentUser");
-                        //            postModel = intentIncoming.getParcelableExtra("post");
-                        Intent i = new Intent(context , SchoolPostCommentActivity.class);
-                        i.putExtra("currentUser",currentUser);
-                        i.putExtra("post",menuItemData);
-                        context.startActivity(i);
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("noticesPost",menuItemData);
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+                postHolder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("noticesPost",menuItemData);
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });

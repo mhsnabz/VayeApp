@@ -9,6 +9,7 @@ import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
+import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Services.UserService;
@@ -110,5 +111,105 @@ public class CommentNotificationService {
         }
     }
 
+    //TODO:-main post comment
+    public void sendNewMainPostCommentNotification(MainPostModel post , CurrentUser currentUser ,
+                                                     String text , String type){
+        String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        if (post.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+            if (!currentUser.getSlient().contains(post.getSenderUid())){
+                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                        .document(post.getSenderUid())
+                        .collection("notification")
+                        .document(notificaitonId);
+                db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_comment,currentUser.getUid());
+            }
+        }
+    }
+
+    public void sendNewMainPostMentionedComment(MainPostModel post , CurrentUser currentUser ,
+                                                  String text , String type){
+        String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        for (String item : Helper.shared().getMentionedUser(text)){
+            String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+            UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
+                @Override
+                public void callback(OtherUser otherUser) {
+                    if (otherUser != null){
+                        if (otherUser.getShort_school().equals(currentUser.getShort_school()))
+                        {
+                            if (otherUser.getBolum().equals(currentUser.getBolum())){
+                                if (!currentUser.getUid().equals(otherUser.getUid())){
+                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                            .document(otherUser.getUid())
+                                            .collection("notification")
+                                            .document(notificaitonId);
+
+                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,null,post.getPostId(),null,null,post.getPostType()));
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_mentioned_comment,currentUser.getUid());
+
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+
+    //TODO:-notices post comment
+    public void sendNewNatoicesPostCommentNotification(NoticesMainModel post , CurrentUser currentUser ,
+                                                       String text , String type){
+        String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        if (post.getSenderUid().equals(currentUser.getUid())){
+            return;
+        }else{
+            if (!currentUser.getSlient().contains(post.getSenderUid())){
+                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                        .document(post.getSenderUid())
+                        .collection("notification")
+                        .document(notificaitonId);
+                db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,null,post.getPostId(),null,post.getClupName(),null),SetOptions.merge());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_comment,currentUser.getUid());
+            }
+        }
+    }
+
+    public void sendNewNoticesPostMentionedComment(NoticesMainModel post , CurrentUser currentUser ,
+                                                String text , String type){
+        String notificaitonId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        for (String item : Helper.shared().getMentionedUser(text)){
+            String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+            UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
+                @Override
+                public void callback(OtherUser otherUser) {
+                    if (otherUser != null){
+                        if (otherUser.getShort_school().equals(currentUser.getShort_school()))
+                        {
+                            if (otherUser.getBolum().equals(currentUser.getBolum())){
+                                if (!currentUser.getUid().equals(otherUser.getUid())){
+                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                            .document(otherUser.getUid())
+                                            .collection("notification")
+                                            .document(notificaitonId);
+
+                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,null,post.getPostId(),null,post.getClupName(),null));
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_mentioned_comment,currentUser.getUid());
+
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
 
 }

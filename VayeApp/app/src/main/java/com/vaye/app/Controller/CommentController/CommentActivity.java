@@ -33,7 +33,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Controller.NotificationService.CommentNotificationService;
+import com.vaye.app.Controller.NotificationService.MainPostNotification;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
 import com.vaye.app.Controller.NotificationService.PostName;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -96,15 +98,18 @@ public class CommentActivity extends AppCompatActivity {
             swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeAndRefresh);
 
             currentUser = intentIncoming.getParcelableExtra("currentUser");
-            postModel = intentIncoming.getParcelableExtra("lessonPost");
-            noticesPostModel = intentIncoming.getParcelableExtra("noticesPost");
-            mainPostModel = intentIncoming.getParcelableExtra("mainPost");
 
-            if (postModel!=null){
+
+
+
+            if (intentIncoming.getParcelableExtra("lessonPost") !=null){
+                postModel = intentIncoming.getParcelableExtra("lessonPost");
                 setLessonPostView(currentUser,postModel);
-            }else if (noticesPostModel!=null){
+            }else if (intentIncoming.getParcelableExtra("noticesPost")!=null){
+                noticesPostModel = intentIncoming.getParcelableExtra("noticesPost");
                 setNoticesViews(currentUser,noticesPostModel);
-            }else if (mainPostModel != null){
+            }else if (intentIncoming.getParcelableExtra("mainPost") != null){
+                mainPostModel = intentIncoming.getParcelableExtra("mainPost");
                 setMainPostView(currentUser,mainPostModel);
             }
 
@@ -176,6 +181,8 @@ public class CommentActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
                         commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                        CommentNotificationService.shared().sendNewNatoicesPostCommentNotification(noticesPostModel,currentUser,text, MainPostNotification.type.new_comment);
+                        CommentNotificationService.shared().sendNewNoticesPostMentionedComment(noticesPostModel,currentUser,text, NoticesPostNotification.type.new_mentioned_comment);
                     }
                 });
             }else if (mainPostModel != null){
@@ -183,6 +190,8 @@ public class CommentActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
                         commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                        CommentNotificationService.shared().sendNewMainPostCommentNotification(mainPostModel,currentUser,text, MainPostNotification.type.new_comment);
+                        CommentNotificationService.shared().sendNewMainPostMentionedComment(mainPostModel,currentUser,text,MainPostNotification.type.new_mentioned_comment);
                     }
                 });
             }
