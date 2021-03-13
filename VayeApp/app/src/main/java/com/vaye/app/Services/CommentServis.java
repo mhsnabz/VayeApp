@@ -49,6 +49,22 @@ public class CommentServis {
             }
         });
     }
+    public void setRepliedComment(String postId , String targetCommentId , String commentText , CurrentUser currentUser , String commentId ,TrueFalse<Boolean> callback){
+        DocumentReference db = FirebaseFirestore.getInstance().collection("comment")
+                .document(postId)
+                .collection("comment-replied")
+                .document("comment")
+                .collection(targetCommentId)
+                .document(commentId) ;
+            db.set(map(currentUser,commentText,commentId,postId),SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        callback.callBack(true);
+                    }
+                }
+            });
+    }
     public void getTotalCommentCount(String postId , CallBackCount count){
         CollectionReference db = FirebaseFirestore.getInstance().collection("comment")
                 .document(postId)

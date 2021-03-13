@@ -38,7 +38,7 @@ public class CommentViewHolder extends RecyclerView.ViewHolder {
     TextView replyTextBtn = (TextView)itemView.findViewById(R.id.replyTextButton);
     TextView replyCountText = (TextView)itemView.findViewById(R.id.replyCount);
     ImageButton likeBtn = (ImageButton)itemView.findViewById(R.id.likeBtn);
-    SocialTextView msgText = (SocialTextView)itemView.findViewById(R.id.msgText);
+   public SocialTextView msgText = (SocialTextView)itemView.findViewById(R.id.msgText);
     RelativeLayout relLayReply = (RelativeLayout)itemView.findViewById(R.id.relLayReply);
 
     public void setName(String _name , String _username){

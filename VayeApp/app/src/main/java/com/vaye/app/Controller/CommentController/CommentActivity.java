@@ -549,25 +549,24 @@ public class CommentActivity extends AppCompatActivity {
 
         }
     }
-
     private void replyClick(CommentModel commentModel){
         if (postModel != null){
             Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
-            i.putExtra("comment",commentModel);
+            i.putExtra("targetComment",commentModel);
             i.putExtra("currentUser",currentUser);
             i.putExtra("lessonPost",postModel);
             startActivity(i);
             Helper.shared().go(CommentActivity.this);
         }else if (noticesPostModel != null){
             Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
-            i.putExtra("comment",commentModel);
+            i.putExtra("targetComment",commentModel);
             i.putExtra("currentUser",currentUser);
             i.putExtra("noticesPost",noticesPostModel);
             startActivity(i);
             Helper.shared().go(CommentActivity.this);
         }else if (mainPostModel !=  null){
             Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
-            i.putExtra("comment",commentModel);
+            i.putExtra("targetComment",commentModel);
             i.putExtra("currentUser",currentUser);
             i.putExtra("mainPost",mainPostModel);
             startActivity(i);

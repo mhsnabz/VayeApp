@@ -41,6 +41,11 @@ import com.hendraanggrian.appcompat.widget.SocialView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import com.vaye.app.Controller.NotificationService.CommentNotificationService;
+import com.vaye.app.Controller.NotificationService.MainPostNotification;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
+import com.vaye.app.Controller.NotificationService.PostName;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
@@ -50,6 +55,7 @@ import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentService;
+import com.vaye.app.Services.CommentServis;
 import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
@@ -67,7 +73,6 @@ public class ReplyActivity extends AppCompatActivity {
     ImageButton sendMsg;
     EditText msgText;
     SocialTextView text;
-    CommentModel comment;
     CommentModel targetCommentModel;
 
     String TAG = "CommentActivity";
@@ -114,15 +119,16 @@ public class ReplyActivity extends AppCompatActivity {
                 postModel = intentIncoming.getParcelableExtra("lessonPost");
                 targetCommentModel = intentIncoming.getParcelableExtra("targetComment");
                 setLessonPostView(currentUser, targetCommentModel, postModel);
-                configureRecylerViewDecoration(currentUser);
+                configureRecylerViewDecoration(currentUser,targetCommentModel);
             }else if (intentIncoming.getParcelableExtra("noticesPost")!=null){
                 noticesPostModel = intentIncoming.getParcelableExtra("noticesPost");
                 setNoticesViews(currentUser,noticesPostModel,targetCommentModel);
-                configureRecylerViewDecoration(currentUser);
+                configureRecylerViewDecoration(currentUser,targetCommentModel);
             }else if (intentIncoming.getParcelableExtra("mainPost") != null){
                 mainPostModel = intentIncoming.getParcelableExtra("mainPost");
                 setMainPostView(currentUser,mainPostModel,targetCommentModel);
-                configureRecylerViewDecoration(currentUser);
+                configureRecylerViewDecoration(currentUser,targetCommentModel);
+
 
             }
 
@@ -133,25 +139,25 @@ public class ReplyActivity extends AppCompatActivity {
                 @Override
                 public void onRefresh() {
                     if (postModel != null){
-                        loadMoreLessonPostComment(postModel);
+                        loadMoreLessonPostComment(targetCommentModel);
                     }else if (noticesPostModel != null){
-                        loadMoreNoticesPostComment(noticesPostModel);
+                        loadMoreNoticesPostComment(targetCommentModel);
                     }else if (mainPostModel != null){
-                        loadMoreMainPostComment(mainPostModel);
+                        loadMoreMainPostComment(targetCommentModel);
                     };
                 }
             });
-            configureUI(comment,currentUser , postModel);
+
             loadMoreButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     swipeRefreshLayout.setRefreshing(true);
                     if (postModel != null){
-                        loadMoreLessonPostComment(postModel);
+                        loadMoreLessonPostComment(targetCommentModel);
                     }else if (noticesPostModel != null){
-                        loadMoreNoticesPostComment(noticesPostModel);
+                        loadMoreNoticesPostComment(targetCommentModel);
                     }else if (mainPostModel != null){
-                        loadMoreMainPostComment(mainPostModel);
+                        loadMoreMainPostComment(targetCommentModel);
                     }
                 }
             });
@@ -169,20 +175,228 @@ public class ReplyActivity extends AppCompatActivity {
         }
     }
 
-    private void loadMoreMainPostComment(MainPostModel mainPostModel) {
+    private void loadMoreMainPostComment(CommentModel targetCommentModel) {
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
 
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment").document(targetCommentModel.getPostId())
+                    .collection("comment-replied")
+                    .document("comment")
+                    .collection(targetCommentModel.getCommentId()).orderBy("commentId").endBefore(firstPage).limitToLast(5);
+            dbNext.get().addOnCompleteListener(ReplyActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+        }
     }
 
-    private void loadMoreNoticesPostComment(NoticesMainModel noticesPostModel) {
+    private void loadMoreNoticesPostComment(CommentModel targetCommentModel) {
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
 
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment").document(targetCommentModel.getPostId())
+                    .collection("comment-replied")
+                    .document("comment")
+                    .collection(targetCommentModel.getCommentId()).orderBy("commentId").endBefore(firstPage).limitToLast(5);
+            dbNext.get().addOnCompleteListener(ReplyActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+        }
     }
 
-    private void loadMoreLessonPostComment(LessonPostModel postModel) {
+    private void loadMoreLessonPostComment(CommentModel targetCommentModel) {
+        if (lastPage == null){
+            swipeRefreshLayout.setRefreshing(false);
+            loadMoreButton.setVisibility(View.GONE);
 
+            return;
+        }else{
+            Query dbNext = FirebaseFirestore.getInstance()
+                    .collection("comment").document(targetCommentModel.getPostId())
+                    .collection("comment-replied")
+                    .document("comment")
+                    .collection(targetCommentModel.getCommentId()).orderBy("commentId").endBefore(firstPage).limitToLast(5);
+            dbNext.get().addOnCompleteListener(ReplyActivity.this, new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        if (!task.getResult().isEmpty()){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                comments.add(item.toObject(CommentModel.class));
+                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                    public int compare(CommentModel obj1, CommentModel obj2) {
+
+                                        return obj1.getTime().compareTo(obj2.getTime());
+
+                                    }
+
+                                });
+                                adapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                                firstPage = comments.get(0).getCommentId();
+                                loadMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            swipeRefreshLayout.setRefreshing(false);
+                            loadMoreButton.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+        }
     }
 
 
-    private void configureRecylerViewDecoration(CurrentUser currentUser) {
+    private void configureRecylerViewDecoration(CurrentUser currentUser , CommentModel targetCommentModel) {
+        text.setText(targetCommentModel.getComment());
+        for (String item : Helper.shared().getMentionedUser(targetCommentModel.getComment())){
+            Log.d(TAG, "configureUI: "+ item);
+        }
+        name = (TextView)findViewById(R.id.name);
+        username = (TextView)findViewById(R.id.username);
+        time = (TextView)findViewById(R.id.time);
+        likeBtn = (ImageButton)findViewById(R.id.likeBtn);
+
+        time.setText(Html.fromHtml("&#8226;")+ Helper.shared().setTimeAgo(targetCommentModel.getTime()));
+        name.setText(targetCommentModel.getSenderName());
+        username.setText(targetCommentModel.getUsername());
+
+        if (targetCommentModel.getLikes().contains(currentUser.getUid())){
+            likeBtn.setImageResource(R.drawable.like);
+        }else{
+            likeBtn.setImageResource(R.drawable.like_unselected);
+        }
+        profileImage = (CircleImageView)findViewById(R.id.profileImage);
+        progressBar = (ProgressBar)findViewById(R.id.progress);
+        if (targetCommentModel.getSenderImage()!=null && !targetCommentModel.getSenderImage().isEmpty()){
+            Picasso.get().load(targetCommentModel.getSenderUid())
+                    .centerCrop()
+                    .resize(128,128)
+                    .placeholder(android.R.color.darker_gray)
+                    .into(profileImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            progressBar.setVisibility(View.GONE);
+
+                        }
+                    });
+        }else{
+            progressBar.setVisibility(View.GONE);
+
+        }
+
+        swipeController = new SwipeController(currentUser.getUid() , comments ,new SwipeControllerActions() {
+            @Override
+            public void onLeftClicked(int position) {
+                super.onLeftClicked(position);
+                msgText.append(" " + comments.get(position).getUsername() + " ");
+            }
+
+            @Override
+            public void onRightClicked(int position) {
+                super.onRightClicked(position);
+
+                comments.remove(position);
+                adapter.notifyItemRemoved(position);
+
+            }
+        });
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(commentList);
+        commentList.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
+            }
+        });
+
+
+        final View contentView = commentList;
+        contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+                Rect r = new Rect();
+                contentView.getWindowVisibleDisplayFrame(r);
+                int screenHeight = contentView.getRootView().getHeight();
+
+                // r.bottom is the position above soft keypad or device button.
+                // if keypad is shown, the r.bottom is smaller than that before.
+                int keypadHeight = screenHeight - r.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
+                    // keyboard is opened
+                    if (!scrollingToBottom) {
+                        scrollingToBottom = true;
+                        scrollRecyclerViewToBottom(commentList);
+                    }
+                }
+                else {
+                    // keyboard is closed
+                    scrollingToBottom = false;
+                }
+            }
+        });
 
     }
 
@@ -192,7 +406,7 @@ public class ReplyActivity extends AppCompatActivity {
         adapter = new ReplyCommentAdapter(comments,currentUser,ReplyActivity.this,targetCommentModel,postModel);
         commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
-      //  getLessonPostComment(post.getPostId());
+        getComment(targetCommentModel);
     }
     private void setMainPostView(CurrentUser currentUser, MainPostModel mainPostModel, CommentModel targetCommentModel) {
         commentList = (RecyclerView)findViewById(R.id.commentList);
@@ -200,6 +414,7 @@ public class ReplyActivity extends AppCompatActivity {
         adapter = new ReplyCommentAdapter(comments,currentUser,ReplyActivity.this,targetCommentModel,mainPostModel);
         commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
+        getComment(targetCommentModel);
     }
     private void setNoticesViews(CurrentUser currentUser, NoticesMainModel noticesPostModel, CommentModel targetCommentModel) {
         commentList = (RecyclerView)findViewById(R.id.commentList);
@@ -207,16 +422,17 @@ public class ReplyActivity extends AppCompatActivity {
         adapter = new ReplyCommentAdapter(comments,currentUser,ReplyActivity.this,targetCommentModel,noticesPostModel);
         commentList.setLayoutManager(mLayoutManager);
         commentList.setAdapter(adapter);
+        getComment(targetCommentModel);
     }
 
 
 
-    private void getComment(CurrentUser currentUser){
+    private void getComment(CommentModel targetCommentModel){
         Query dbNext = FirebaseFirestore.getInstance()
-                .collection("comment").document(comment.getPostId())
+                .collection("comment").document(targetCommentModel.getPostId())
                 .collection("comment-replied")
                 .document("comment")
-                .collection(comment.getCommentId()).limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
+                .collection(targetCommentModel.getCommentId()).limitToLast(10).orderBy("commentId", Query.Direction.ASCENDING);
         dbNext.addSnapshotListener(ReplyActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -256,151 +472,8 @@ public class ReplyActivity extends AppCompatActivity {
             }
         });
     }
-    private void loadMoreComment(LessonPostModel post) {
-        if (lastPage == null){
-            swipeRefreshLayout.setRefreshing(false);
-            loadMoreButton.setVisibility(View.GONE);
 
-            return;
-        }else{
-            Query dbNext = FirebaseFirestore.getInstance()
-                    .collection("comment").document(comment.getPostId())
-                    .collection("comment-replied")
-                    .document("comment")
-                    .collection(comment.getCommentId()).orderBy("commentId").endBefore(firstPage).limitToLast(5);
-            dbNext.get().addOnCompleteListener(ReplyActivity.this, new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()){
-                        if (!task.getResult().isEmpty()){
-                            for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                comments.add(item.toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
-
-                                    }
-
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
-                            }
-                        }else{
-                            swipeRefreshLayout.setRefreshing(false);
-                            loadMoreButton.setVisibility(View.GONE);
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    @SuppressLint("ResourceAsColor")
-    private void configureUI(CommentModel comment , CurrentUser currentUser , LessonPostModel postModel)
-    {
-
-        text.setText(comment.getComment());
-        for (String item : Helper.shared().getMentionedUser(comment.getComment())){
-            Log.d(TAG, "configureUI: "+ item);
-        }
-        name = (TextView)findViewById(R.id.name);
-        username = (TextView)findViewById(R.id.username);
-        time = (TextView)findViewById(R.id.time);
-        likeBtn = (ImageButton)findViewById(R.id.likeBtn);
-
-        time.setText(Html.fromHtml("&#8226;")+ Helper.shared().setTimeAgo(comment.getTime()));
-        name.setText(comment.getSenderName());
-        username.setText(comment.getUsername());
-
-        if (comment.getLikes().contains(currentUser.getUid())){
-            likeBtn.setImageResource(R.drawable.like);
-        }else{
-            likeBtn.setImageResource(R.drawable.like_unselected);
-        }
-        profileImage = (CircleImageView)findViewById(R.id.profileImage);
-        progressBar = (ProgressBar)findViewById(R.id.progress);
-        if (comment.getSenderImage()!=null && !comment.getSenderImage().isEmpty()){
-            Picasso.get().load(comment.getSenderUid())
-                    .centerCrop()
-                    .resize(128,128)
-                    .placeholder(android.R.color.darker_gray)
-                    .into(profileImage, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            progressBar.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            progressBar.setVisibility(View.GONE);
-
-                        }
-                    });
-        }else{
-            progressBar.setVisibility(View.GONE);
-
-        }
-
-        swipeController = new SwipeController(currentUser.getUid() , comments ,new SwipeControllerActions() {
-            @Override
-            public void onLeftClicked(int position) {
-                super.onLeftClicked(position);
-                msgText.append(" " + comments.get(position).getUsername() + " ");
-            }
-
-            @Override
-            public void onRightClicked(int position) {
-                super.onRightClicked(position);
-                //Delete
-
-               deleteComment(comment , comments.get(position).getCommentId(),currentUser);
-                comments.remove(position);
-                adapter.notifyItemRemoved(position);
-
-            }
-        });
-        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
-        itemTouchhelper.attachToRecyclerView(commentList);
-        commentList.addItemDecoration(new RecyclerView.ItemDecoration() {
-            @Override
-            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-                swipeController.onDraw(c);
-            }
-        });
-
-        getComment(currentUser);
-
-        final View contentView = commentList;
-        contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-
-                Rect r = new Rect();
-                contentView.getWindowVisibleDisplayFrame(r);
-                int screenHeight = contentView.getRootView().getHeight();
-
-                // r.bottom is the position above soft keypad or device button.
-                // if keypad is shown, the r.bottom is smaller than that before.
-                int keypadHeight = screenHeight - r.bottom;
-
-                if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
-                    // keyboard is opened
-                    if (!scrollingToBottom) {
-                        scrollingToBottom = true;
-                        scrollRecyclerViewToBottom(commentList);
-                    }
-                }
-                else {
-                    // keyboard is closed
-                    scrollingToBottom = false;
-                }
-            }
-        });
-
-    }
 
     private void deleteComment(CommentModel comment,String  commentID, CurrentUser currentUser) {
 
@@ -421,21 +494,42 @@ public class ReplyActivity extends AppCompatActivity {
         if (text.isEmpty()){
             return;
         }else{
-
-            CommentService.shared().setRepliedComment(currentUser, comment.getCommentId(), commentId, text, postModel.getPostId(), new TrueFalse<Boolean>() {
-                @Override
-                public void callBack(Boolean _value) {
-                    if (_value){
-                        comment.getReplies().add(commentId);
-                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                        NotificaitonService.shared().sendCommentNotification(postModel ,comment, currentUser , text , Notifications.NotificationType.reply_comment);
-                        for (String item : Helper.shared().getMentionedUser(text)){
-                            NotificaitonService.shared().sendRepliedCommentByMention(ReplyActivity.this ,  item , Notifications.NotificationType.comment_mention,currentUser , text ,postModel);
+            if (postModel != null){
+                CommentServis.shared().setRepliedComment(targetCommentModel.getPostId(), targetCommentModel.getCommentId(), text, currentUser, commentId, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                            
                         }
-                    }
 
-                }
-            });
+                    }
+                });
+            }else if (noticesPostModel!=null){
+                CommentServis.shared().setRepliedComment(targetCommentModel.getPostId(), targetCommentModel.getCommentId(), text, currentUser, commentId, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+
+                        }
+
+                    }
+                });
+            }else if (mainPostModel != null){
+                CommentServis.shared().setRepliedComment(targetCommentModel.getPostId(), targetCommentModel.getCommentId(), text, currentUser, commentId, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+
+
+                        }
+
+                    }
+                });
+            }
+
         }
 
 
