@@ -5,25 +5,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".Controller.NotificationController.NotificationActivity">
-    <RelativeLayout
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/topbar"
-        >
-        <include layout="@layout/top_bar"></include>
-    </RelativeLayout>
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
 
-    <RelativeLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/topbar"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="14dp"
+            android:textColor="@color/black"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title" />
+        <LinearLayout
+            android:weightSum="1"
+            android:orientation="horizontal"
+            android:layout_width="40dp"
 
-        android:layout_marginTop="-241dp">
+            android:layout_gravity="right"
+            android:layout_height="40dp">
 
-        <include layout="@layout/main_viewpager"></include>
-    </RelativeLayout>
+            <ImageButton
+                android:id="@+id/setting"
+                android:visibility="visible"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:src="@drawable/more"
+                ></ImageButton>
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:id="@+id/nestedScroolView"
+            android:layout_below="@id/toolbar"
+            android:layout_marginBottom="56dp"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:id="@+id/majorPost"
+                    android:nestedScrollingEnabled="true"
+                    android:layout_height="match_parent">
 
-    <include layout="@layout/layout_bottom_navigationview"></include>
+                </androidx.recyclerview.widget.RecyclerView>
+                <ProgressBar
+
+                    android:id="@+id/progress"
+                    android:theme="@style/progressBarBlue"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+
+                    ></ProgressBar>
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    <include layout="@layout/layout_bottom_navigationview" android:id="@+id/bottombar"></include>
+
 </RelativeLayout>
