@@ -16,6 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.NotificationService.CommentNotificationService;
+import com.vaye.app.Controller.NotificationService.MainPostNotification;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Interfaces.OtherUserService;
@@ -28,6 +32,7 @@ import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.CommentServis;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
@@ -204,6 +209,21 @@ public class ReplyCommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         if (_value){
                             viewHolder.setLikeBtn(model.getLikes(),currentUser);
                             notifyDataSetChanged();
+                            CommentServis.shared().setRepliedCommentLike(model,targetCommentModel.getCommentId(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (mainPostModel != null){
+                                        CommentNotificationService.shared().setMainPostRepliedCommentLike(model,targetCommentModel,mainPostModel,currentUser,model.getComment(),MainPostNotification.type.replied_comment_like);
+                                    }else if (noticesPostModel != null){
+                                        CommentNotificationService.shared().setLessonPostRepliedCommentLike(model,targetCommentModel,postModel,currentUser,model.getComment(),MajorPostNotification.type.replied_comment_like);
+
+                                    }else if (postModel != null){
+                                        CommentNotificationService.shared().setNoticesPostRepliedCommentLike(model,targetCommentModel,noticesPostModel,currentUser,model.getComment(),NoticesPostNotification.type.replied_comment_like);
+
+                                    }
+                                }
+                            });
+
                         }else{
                             viewHolder.setLikeBtn(model.getLikes(),currentUser);
                             notifyDataSetChanged();

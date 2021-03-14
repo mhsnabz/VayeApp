@@ -23,6 +23,7 @@ import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdViewHolder;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
@@ -121,14 +122,23 @@ public class CampingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });
-
+                itemHolder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
                 itemHolder.setCommentLbl(menuItem.getComment());
                 itemHolder.setName(menuItem.getSenderName());
                 itemHolder.setUserName(menuItem.getUsername());
@@ -479,14 +489,23 @@ public class CampingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });
-
+            postHolder.comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context , CommentActivity.class);
+                    intent.putExtra("mainPost",post.get(i));
+                    intent.putExtra("currentUser",currentUser);
+                    context.startActivity(intent);
+                    Helper.shared().go((Activity) context);
+                }
+            });
                 postHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

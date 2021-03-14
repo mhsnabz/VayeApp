@@ -122,13 +122,14 @@ public class ReplyActivity extends AppCompatActivity {
                 configureRecylerViewDecoration(currentUser,targetCommentModel);
             }else if (intentIncoming.getParcelableExtra("noticesPost")!=null){
                 noticesPostModel = intentIncoming.getParcelableExtra("noticesPost");
+                targetCommentModel = intentIncoming.getParcelableExtra("targetComment");
                 setNoticesViews(currentUser,noticesPostModel,targetCommentModel);
                 configureRecylerViewDecoration(currentUser,targetCommentModel);
             }else if (intentIncoming.getParcelableExtra("mainPost") != null){
                 mainPostModel = intentIncoming.getParcelableExtra("mainPost");
+                targetCommentModel = intentIncoming.getParcelableExtra("targetComment");
                 setMainPostView(currentUser,mainPostModel,targetCommentModel);
                 configureRecylerViewDecoration(currentUser,targetCommentModel);
-
 
             }
 
@@ -512,7 +513,8 @@ public class ReplyActivity extends AppCompatActivity {
                     public void callBack(Boolean _value) {
                         if (_value){
                             commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-
+                            CommentNotificationService.shared().sendNoticesPostRepliedComment(targetCommentModel,noticesPostModel,currentUser,text,NoticesPostNotification.type.new_replied_comment);
+                            CommentNotificationService.shared().sendNoticesPostRepliedMentionComment(targetCommentModel,noticesPostModel,currentUser,text,NoticesPostNotification.type.new_replied_mentioned_comment);
                         }
 
                     }
@@ -523,6 +525,8 @@ public class ReplyActivity extends AppCompatActivity {
                     public void callBack(Boolean _value) {
                         if (_value){
                             commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                            CommentNotificationService.shared().sendMainPostRepliedComment(targetCommentModel,mainPostModel,currentUser,text,MainPostNotification.type.new_replied_comment);
+                            CommentNotificationService.shared().sendMainPostRepliedMentionComment(targetCommentModel,mainPostModel,currentUser,text,MainPostNotification.type.new_replied_mentioned_comment);
 
 
                         }

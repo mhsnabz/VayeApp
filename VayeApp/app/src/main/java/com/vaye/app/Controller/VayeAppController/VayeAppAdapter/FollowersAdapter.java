@@ -23,6 +23,7 @@ import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdViewHolder;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
@@ -161,14 +162,23 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 caping_post_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });
-
+                caping_post_holder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
                 caping_post_holder.setCommentLbl(menuItem.getComment());
                 caping_post_holder.setName(menuItem.getSenderName());
                 caping_post_holder.setUserName(menuItem.getUsername());
@@ -544,8 +554,18 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 camping_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+                camping_post_data_holder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
@@ -812,8 +832,18 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 foodme_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
+                foodme_post_data_holder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
@@ -928,14 +958,23 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 foodme_post_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });
-
+                foodme_post_holder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
                 foodme_post_holder.setCommentLbl(menuItem.getComment());
                 foodme_post_holder.setName(menuItem.getSenderName());
                 foodme_post_holder.setUserName(menuItem.getUsername());
@@ -1152,14 +1191,23 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 buy_sell_post_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });
-
+                buy_sell_post_holder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
                 buy_sell_post_holder.setCommentLbl(menuItem.getComment());
                 buy_sell_post_holder.setName(menuItem.getSenderName());
                 buy_sell_post_holder.setUserName(menuItem.getUsername());
@@ -1529,14 +1577,23 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 buy_sell_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
                     }
                 });
-
+                buy_sell_post_data_holder.comment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
+                        intent.putExtra("currentUser",currentUser);
+                        context.startActivity(intent);
+                        Helper.shared().go((Activity) context);
+                    }
+                });
                 buy_sell_post_data_holder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

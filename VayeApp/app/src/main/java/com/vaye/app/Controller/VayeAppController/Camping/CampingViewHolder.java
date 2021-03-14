@@ -46,7 +46,7 @@ public class CampingViewHolder extends RecyclerView.ViewHolder {
     ImageButton dislike = (ImageButton)itemView.findViewById(R.id.dislike);
     TextView dislikeLbl = (TextView)itemView.findViewById(R.id.dislikeCount);
 
-    ImageButton comment = (ImageButton)itemView.findViewById(R.id.comment);
+   public ImageButton comment = (ImageButton)itemView.findViewById(R.id.comment);
     TextView commentLbl = (TextView)itemView.findViewById(R.id.commentCount);
 
 

@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.NotificationService.PostName;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -106,6 +107,26 @@ public class CommentServis {
             db.set(map , SetOptions.merge());
         }
     }
+
+    public void setRepliedCommentLike(CommentModel commentModel , String targetComment, CurrentUser currentUser , TrueFalse<Boolean> callback){
+        DocumentReference db = FirebaseFirestore.getInstance().collection("comment")
+                .document(commentModel.getPostId())
+            .collection("comment-replied")
+                .document("comment")
+                .collection(targetComment)
+                .document(commentModel.getCommentId());
+        Map<String , Object> map = new HashMap<>();
+        map.put("likes",FieldValue.arrayUnion(currentUser.getUid()));
+                db.update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            callback.callBack(true);
+                        }
+                    }
+                });
+    }
+
     public void setCommentLike(CommentModel commentModel , CurrentUser currentUser , TrueFalse<Boolean> callback){
         DocumentReference ref = FirebaseFirestore.getInstance()
                 .collection("comment")
