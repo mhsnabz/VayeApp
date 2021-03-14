@@ -87,7 +87,7 @@ public class CommentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
-        setContentView(R.layout.activity_comment);
+
         loadMoreButton = (Button)findViewById(R.id.loadMoreButton);
         loadMoreButton.setVisibility(View.GONE);
         Bundle extras = getIntent().getExtras();

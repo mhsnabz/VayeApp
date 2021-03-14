@@ -44,11 +44,21 @@
                 ></ImageButton>
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:background="@color/white"
+    android:layout_below="@id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_marginBottom="56dp"
+    android:id="@+id/swipeAndRefresh"
+    android:layout_height="match_parent">
+    <RelativeLayout
+
+        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:id="@+id/nestedScroolView"
-            android:layout_below="@id/toolbar"
-            android:layout_marginBottom="56dp"
             android:layout_height="match_parent">
             <LinearLayout
                 android:orientation="vertical"
@@ -73,6 +83,12 @@
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
+
+    </RelativeLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+
 
     <include layout="@layout/layout_bottom_navigationview" android:id="@+id/bottombar"></include>
 

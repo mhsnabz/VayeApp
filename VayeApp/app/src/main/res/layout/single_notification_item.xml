@@ -3,6 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:id="@+id/card"
+    android:elevation="1dp"
+    android:layout_marginTop="1dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <RelativeLayout
         android:layout_width="match_parent"
@@ -53,22 +57,26 @@
                         android:fontFamily="@font/nunito_sans_semibold"
                         android:textSize="12sp"
 
-                        android:text="Mahsun Abuzeyitoğlu"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
                     </TextView>
                     <TextView
                         android:id="@+id/username"
-                        android:text=" @mhsnabz"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/nunito_sans_semibold"
+                        android:layout_marginLeft="2dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
                     </TextView>
                     <TextView
                         android:id="@+id/time"
+                        android:textSize="12sp"
                         android:textColor="@android:color/darker_gray"
                         android:text="şimdi"
+                        android:fontFamily="@font/nunito_sans_semibold"
+
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.NotificationModel;
-import com.vaye.app.R;
 
 import java.util.ArrayList;
 
@@ -21,18 +20,13 @@ import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE;
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
-enum ButtonsState {
-    GONE,
-    LEFT_VISIBLE,
-    RIGHT_VISIBLE
-}
-public class SwipeController extends ItemTouchHelper.Callback {
+public class NotifcationSwipeController extends ItemTouchHelper.Callback {
     private boolean swipeBack = false;
 
     private ButtonsState buttonShowedState = ButtonsState.GONE;
     private String currentUserUid;
-    ArrayList<CommentModel> list;
-    ArrayList<NotificationModel> model;
+
+    ArrayList<NotificationModel> list;
     private RectF buttonInstance = null;
 
     private RecyclerView.ViewHolder currentItemViewHolder = null;
@@ -41,7 +35,7 @@ public class SwipeController extends ItemTouchHelper.Callback {
 
     private static final float buttonWidth = 300;
 
-    public SwipeController(String currentUserUid ,ArrayList<CommentModel> list, SwipeControllerActions buttonsActions) {
+    public NotifcationSwipeController(String currentUserUid ,ArrayList<NotificationModel> list, SwipeControllerActions buttonsActions) {
         this.buttonsActions = buttonsActions;
         this.currentUserUid = currentUserUid;
         this.list = list;
@@ -50,11 +44,9 @@ public class SwipeController extends ItemTouchHelper.Callback {
 
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        if (list.get(viewHolder.getAdapterPosition()).getSenderUid().equals(currentUserUid)){
+
             return makeMovementFlags(0, LEFT | RIGHT);
-        }else{
-            return makeMovementFlags(0, RIGHT );
-        }
+
 
     }
 
@@ -82,8 +74,8 @@ public class SwipeController extends ItemTouchHelper.Callback {
         if (actionState == ACTION_STATE_SWIPE) {
             if (buttonShowedState != ButtonsState.GONE) {
 
-                    if (buttonShowedState == ButtonsState.LEFT_VISIBLE) dX = Math.max(dX, buttonWidth);
-                    if (buttonShowedState == ButtonsState.RIGHT_VISIBLE) dX = Math.min(dX, -buttonWidth);
+                if (buttonShowedState == ButtonsState.LEFT_VISIBLE) dX = Math.max(dX, buttonWidth);
+                if (buttonShowedState == ButtonsState.RIGHT_VISIBLE) dX = Math.min(dX, -buttonWidth);
 
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
@@ -105,13 +97,13 @@ public class SwipeController extends ItemTouchHelper.Callback {
                 swipeBack = event.getAction() == MotionEvent.ACTION_CANCEL || event.getAction() == MotionEvent.ACTION_UP;
                 if (swipeBack) {
 
-                        if (dX < -buttonWidth) buttonShowedState = ButtonsState.RIGHT_VISIBLE;
-                        else if (dX > buttonWidth) buttonShowedState  = ButtonsState.LEFT_VISIBLE;
+                    if (dX < -buttonWidth) buttonShowedState = ButtonsState.RIGHT_VISIBLE;
+                    else if (dX > buttonWidth) buttonShowedState  = ButtonsState.LEFT_VISIBLE;
 
-                        if (buttonShowedState != ButtonsState.GONE) {
-                            setTouchDownListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                            setItemsClickable(recyclerView, false);
-                        }
+                    if (buttonShowedState != ButtonsState.GONE) {
+                        setTouchDownListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                        setItemsClickable(recyclerView, false);
+                    }
 
 
                 }
@@ -137,7 +129,7 @@ public class SwipeController extends ItemTouchHelper.Callback {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    SwipeController.super.onChildDraw(c, recyclerView, viewHolder, 0F, dY, actionState, isCurrentlyActive);
+                    NotifcationSwipeController.super.onChildDraw(c, recyclerView, viewHolder, 0F, dY, actionState, isCurrentlyActive);
                     recyclerView.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
@@ -180,7 +172,7 @@ public class SwipeController extends ItemTouchHelper.Callback {
         RectF leftButton = new RectF(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + buttonWidthWithoutPadding, itemView.getBottom());
         p.setColor(Color.parseColor("#528FE9"));
         c.drawRoundRect(leftButton, corners, corners, p);
-        drawText("Cevapla", c, leftButton, p);
+        drawText("Görüldü", c, leftButton, p);
 
         RectF rightButton = new RectF(itemView.getRight() - buttonWidthWithoutPadding, itemView.getTop(), itemView.getRight(), itemView.getBottom());
         p.setColor(Color.RED);
