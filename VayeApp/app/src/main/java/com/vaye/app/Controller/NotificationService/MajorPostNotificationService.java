@@ -1,17 +1,13 @@
 package com.vaye.app.Controller.NotificationService;
 
-import com.google.firebase.database.core.utilities.Utilities;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
-import com.vaye.app.Services.CommentService;
 import com.vaye.app.Util.Helper;
 
 import java.util.Calendar;
-
-import okhttp3.internal.Util;
 
 public class MajorPostNotificationService {
     private static final MajorPostNotificationService instance = new MajorPostNotificationService();

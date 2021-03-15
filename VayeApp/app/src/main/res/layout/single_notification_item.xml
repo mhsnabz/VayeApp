@@ -9,6 +9,8 @@
     android:layout_marginTop="1dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <RelativeLayout
+        android:id="@+id/relView"
+        android:background="@color/mainColorTransparent"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <RelativeLayout
@@ -41,7 +43,7 @@
             android:orientation="vertical"
             android:layout_toEndOf="@id/profileLay"
             android:layout_alignTop="@id/profileLay"
-            android:layout_marginTop="4dp"
+
             >
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -85,8 +87,11 @@
             </RelativeLayout>
             <TextView
                 android:id="@+id/mainText"
+                android:fontFamily="@font/nunito_sans_semibold"
+                android:textSize="12sp"
                 android:layout_marginTop="3dp"
                 android:layout_width="wrap_content"
+                android:layout_marginBottom="3dp"
                 android:layout_height="wrap_content">
 
             </TextView>    </LinearLayout>

@@ -28,6 +28,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.NotificationModel;
 import com.vaye.app.R;
@@ -81,11 +82,11 @@ public class NotificationActivity extends AppCompatActivity {
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    getAllNotificaiton(currentUser);
+                    getAllPost();
                 }
             });
 
-            getAllNotificaiton(currentUser);
+           getAllPost();
             configureRecylerViewDecoration(currentUser);
 
             scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
@@ -107,6 +108,13 @@ public class NotificationActivity extends AppCompatActivity {
 
     }
 
+    private void getAllPost(){
+        swipeRefreshLayout.setRefreshing(true);
+        models = new ArrayList<>();
+        adapter = new NotificationAdapter(models , currentUser , this);
+        postList.setAdapter(adapter);
+        getAllNotificaiton(currentUser);
+    }
 
     private void loadMoreItem(CurrentUser currentUser){
         if (lastPage!=null){
@@ -167,11 +175,12 @@ public class NotificationActivity extends AppCompatActivity {
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
 
                             models.add(item.toObject(NotificationModel.class));
-                            Collections.sort(models, new Comparator<NotificationModel>(){
+
+                           /* Collections.sort(models, new Comparator<NotificationModel>(){
                                 public int compare(NotificationModel obj1, NotificationModel obj2) {
                                     return obj2.getTime().compareTo(obj1.getTime());
                                 }
-                            });
+                            });*/
                             adapter.notifyDataSetChanged();
                             swipeRefreshLayout.setRefreshing(false);
                             progressBar.setVisibility(View.GONE);

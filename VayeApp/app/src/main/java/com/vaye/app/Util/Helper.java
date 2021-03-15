@@ -32,6 +32,11 @@ import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.NotificationService.FollowNotification;
+import com.vaye.app.Controller.NotificationService.MainPostNotification;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
+import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
 import com.vaye.app.Interfaces.CompletionWithValue;
@@ -42,6 +47,7 @@ import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
+import com.vaye.app.Model.NotificationModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.FollowService;
@@ -1052,9 +1058,6 @@ public class Helper {
         return  user;
     }
 
-//postType : String,type : String , text : String , currentUser : CurrentUser
-//                       ,not_id : String , targetCommentId : String?,postId :
-//                       String , lessonName : String? , clupName : String? , vayeAppPostName : String?)
     public HashMap<String , Object> getDictionary( String postType , String  type , String text , CurrentUser currentUser ,String not_id , String targetCommentId,
     String postId , String lessonName , String clupName , String vayeAppPostName ){
         HashMap<String,Object> map = new HashMap<>();
@@ -1065,7 +1068,7 @@ public class Helper {
         map.put( "senderImage",currentUser.getThumb_image());
         map.put( "text",text);
         map.put( "not_id",not_id);
-        map.put( "isRead",false);
+        map.put( "isRead","false");
         map.put( "postId",postId);
         map.put( "username",currentUser.getUsername());
         map.put( "senderName",currentUser.getName());
@@ -1090,6 +1093,87 @@ public class Helper {
         return  map;
     }
 
+
+    public String getMainText(NotificationModel model){
+        String text  = "";
+
+        if (model.getPostType().equals( NotificationPostType.name.lessonPost)){
+            if (model.getType().equals(MajorPostNotification.type.comment_like)){
+                text = MajorPostNotification.descp.comment_like;
+            }else if (model.getType().equals(MajorPostNotification.type.post_like)){
+                text = MajorPostNotification.descp.post_like;
+            }
+            else if (model.getType().equals(MajorPostNotification.type.new_comment)){
+                text = MajorPostNotification.descp.new_comment;
+            }else if (model.getType().equals(MajorPostNotification.type.new_mentioned_comment)){
+                text = MajorPostNotification.descp.new_mentioned_comment;
+            }else if (model.getType().equals(MajorPostNotification.type.new_post)){
+                text = MajorPostNotification.descp.new_post;
+            }else if (model.getType().equals(MajorPostNotification.type.new_mentioned_post)){
+                text = MajorPostNotification.descp.new_mentioned_post;
+            }else if (model.getType().equals(MajorPostNotification.type.new_replied_comment)){
+                text = MajorPostNotification.descp.new_replied_comment;
+            }else if (model.getType().equals(MajorPostNotification.type.new_replied_mentioned_comment)){
+                text = MajorPostNotification.descp.new_replied_mentioned_comment;
+            }else if (model.getType().equals(MajorPostNotification.type.replied_comment_like)){
+                text = MajorPostNotification.descp.replied_comment_like;
+            }
+        }
+        else if (model.getPostType().equals( NotificationPostType.name.notices)){
+
+            if (model.getType().equals(NoticesPostNotification.type.comment_like)){
+                text = NoticesPostNotification.descp.comment_like;
+            }
+            else if (model.getType().equals(NoticesPostNotification.type.post_like)){
+                text = NoticesPostNotification.descp.post_like;
+            }
+            else if (model.getType().equals(NoticesPostNotification.type.new_comment)){
+                 text = NoticesPostNotification.descp.new_comment;
+                Log.d(TAG, "getMainText: "+text);
+            }else if (model.getType().equals(NoticesPostNotification.type.new_mentioned_comment)){
+                text = NoticesPostNotification.descp.new_mentioned_comment;
+            }else if (model.getType().equals(NoticesPostNotification.type.new_post)){
+                text = NoticesPostNotification.descp.new_post;
+            }else if (model.getType().equals(NoticesPostNotification.type.new_mentioned_post)){
+                text = NoticesPostNotification.descp.new_mentioned_post;
+            }else if (model.getType().equals(NoticesPostNotification.type.new_replied_comment)){
+                text = NoticesPostNotification.descp.new_replied_comment;
+            }else if (model.getType().equals(NoticesPostNotification.type.new_replied_mentioned_comment)){
+                text = NoticesPostNotification.descp.new_replied_mentioned_comment;
+            }else if (model.getType().equals(NoticesPostNotification.type.replied_comment_like)){
+                text = NoticesPostNotification.descp.replied_comment_like;
+            }
+        }
+        else if (model.getPostType().equals(NotificationPostType.name.mainPost)){
+            if (model.getType().equals(MainPostNotification.type.comment_like)){
+                text = MainPostNotification.descp.comment_like;
+            }else if (model.getType().equals(MainPostNotification.type.new_comment)){
+                text = MainPostNotification.descp.new_comment;
+            }else if (model.getType().equals(MainPostNotification.type.new_mentioned_comment)){
+                text = MainPostNotification.descp.new_mentioned_comment;
+            }else if (model.getType().equals(MainPostNotification.type.new_post)){
+                text = MainPostNotification.descp.new_post;
+            }else if (model.getType().equals(MainPostNotification.type.new_mentioned_post)){
+                text = MainPostNotification.descp.new_mentioned_post;
+            }else if (model.getType().equals(MainPostNotification.type.new_replied_comment)){
+                text = MainPostNotification.descp.new_replied_comment;
+            }else if (model.getType().equals(MainPostNotification.type.new_replied_mentioned_comment)){
+                text = MainPostNotification.descp.new_replied_mentioned_comment;
+            }else if (model.getType().equals(MainPostNotification.type.replied_comment_like)){
+                text = MainPostNotification.descp.replied_comment_like;
+            }
+            else if (model.getType().equals(MainPostNotification.type.post_like)){
+                text = MainPostNotification.descp.post_like;
+            }
+        }
+        else if (model.getPostType().equals(NotificationPostType.name.follow)){
+            if (model.getType().equals(FollowNotification.type.follow_you)){
+                text = "";
+            }
+        }
+
+        return  text;
+    }
 
 }
 

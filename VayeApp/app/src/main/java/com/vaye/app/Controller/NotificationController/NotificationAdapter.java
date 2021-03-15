@@ -2,12 +2,17 @@ package com.vaye.app.Controller.NotificationController;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -57,8 +62,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             viewHolder.setUsername(model.getUsername());
             viewHolder.setTime(model.getTime());
             viewHolder.setProfileImage(model.getSenderImage());
-             Log.d(TAG, "onBindViewHolder: "+model.getNot_id());
-            viewHolder.setCard(model.getRead());
+            viewHolder.setCard(model.getIsRead());
+            viewHolder.setMainText(model);
+
 
     }
 
@@ -79,15 +85,18 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public TextView username = (TextView)itemView.findViewById(R.id.username);
         public TextView time = (TextView)itemView.findViewById(R.id.time);
         public TextView mainText = (TextView)itemView.findViewById(R.id.mainText);
-        public CardView card = (CardView)itemView.findViewById(R.id.card);
+        public RelativeLayout relView = (RelativeLayout)itemView.findViewById(R.id.relView);
 
-        @SuppressLint("ResourceAsColor")
-        public void setCard(Boolean _isSeen){
-            Log.d(TAG, "setCard: " + _isSeen);
-            if (_isSeen){
-                card.setBackgroundColor(R.color.white);
+        public void setCard(String _isSeen){
+
+            if (_isSeen.equals("true")){
+
+                relView.setBackgroundColor(context.getResources().getColor(R.color.white));
+
             }else{
-                card.setBackgroundColor(R.color.mainColorTransparent);
+                relView.setBackgroundColor(context.getResources().getColor(R.color.mainColorTransparent));
+
+
             }
         }
         public void setName(String _text){
@@ -122,5 +131,17 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 progressBar.setVisibility(View.GONE);
             }
         }
+        public void setMainText(NotificationModel model){
+            String text = Helper.shared().getMainText(model) +" : ";
+            String text2 = text + model.getText() ;
+
+            Spannable spannable = new SpannableString(text2);
+
+            spannable.setSpan(new ForegroundColorSpan(Color.BLACK), text.length(), (text + model.getText()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            mainText.setText(spannable, TextView.BufferType.SPANNABLE);
+
+        }
     }
+
 }

@@ -5,17 +5,16 @@ import android.os.Parcelable;
 
 import com.google.firebase.Timestamp;
 
-public class NotificationModel implements Parcelable {
+public class NotificationModel  {
 
-    Boolean isRead;
-    String lessonName , not_id,postId,senderImage,senderName,senderUid,type,text,username,postType,targetCommentId;
+
+    String lessonName , not_id,postId,senderImage,senderName,senderUid,type,text,username,postType,targetCommentId,isRead;
     Timestamp time;
 
     public NotificationModel() {
     }
 
-    public NotificationModel(Boolean isRead, String lessonName, String not_id, String postId, String senderImage, String senderName, String senderUid, String type, String text, String username, String postType, String targetCommentId, Timestamp time) {
-        this.isRead = isRead;
+    public NotificationModel(String lessonName, String not_id, String postId, String senderImage, String senderName, String senderUid, String type, String text, String username, String postType, String targetCommentId, String isRead, Timestamp time) {
         this.lessonName = lessonName;
         this.not_id = not_id;
         this.postId = postId;
@@ -27,44 +26,8 @@ public class NotificationModel implements Parcelable {
         this.username = username;
         this.postType = postType;
         this.targetCommentId = targetCommentId;
+        this.isRead = isRead;
         this.time = time;
-    }
-
-    protected NotificationModel(Parcel in) {
-        byte tmpIsRead = in.readByte();
-        isRead = tmpIsRead == 0 ? null : tmpIsRead == 1;
-        lessonName = in.readString();
-        not_id = in.readString();
-        postId = in.readString();
-        senderImage = in.readString();
-        senderName = in.readString();
-        senderUid = in.readString();
-        type = in.readString();
-        text = in.readString();
-        username = in.readString();
-        postType = in.readString();
-        targetCommentId = in.readString();
-        time = in.readParcelable(Timestamp.class.getClassLoader());
-    }
-
-    public static final Creator<NotificationModel> CREATOR = new Creator<NotificationModel>() {
-        @Override
-        public NotificationModel createFromParcel(Parcel in) {
-            return new NotificationModel(in);
-        }
-
-        @Override
-        public NotificationModel[] newArray(int size) {
-            return new NotificationModel[size];
-        }
-    };
-
-    public Boolean getRead() {
-        return isRead;
-    }
-
-    public void setRead(Boolean read) {
-        isRead = read;
     }
 
     public String getLessonName() {
@@ -155,33 +118,19 @@ public class NotificationModel implements Parcelable {
         this.targetCommentId = targetCommentId;
     }
 
+    public String getIsRead() {
+        return isRead;
+    }
+
+    public void setIsRead(String isRead) {
+        this.isRead = isRead;
+    }
+
     public Timestamp getTime() {
         return time;
     }
 
     public void setTime(Timestamp time) {
         this.time = time;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeByte((byte) (isRead == null ? 0 : isRead ? 1 : 2));
-        parcel.writeString(lessonName);
-        parcel.writeString(not_id);
-        parcel.writeString(postId);
-        parcel.writeString(senderImage);
-        parcel.writeString(senderName);
-        parcel.writeString(senderUid);
-        parcel.writeString(type);
-        parcel.writeString(text);
-        parcel.writeString(username);
-        parcel.writeString(postType);
-        parcel.writeString(targetCommentId);
-        parcel.writeParcelable(time, i);
     }
 }

@@ -31,7 +31,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Controller.NotificationService.CommentNotificationService;
 import com.vaye.app.Controller.NotificationService.MainPostNotification;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
@@ -45,7 +44,6 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
-import com.vaye.app.Services.CommentService;
 import com.vaye.app.Services.CommentServis;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
@@ -55,8 +53,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class CommentActivity extends AppCompatActivity {
