@@ -39,6 +39,7 @@ import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.NotificationModel;
 import com.vaye.app.R;
@@ -120,6 +121,86 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             }
                         });
 
+                    }
+                    else if (model.getPostType().equals(NotificationPostType.name.mainPost)){
+                        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                                .document("post")
+                                .collection("post")
+                                .document(model.getPostId());
+                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()){
+                                    if (task.getResult().exists()){
+                                        Intent i = new Intent(context, SinglePostActivity.class);
+                                        i.putExtra("currentUser",currentUser);
+                                        i.putExtra("mainPost",task.getResult().toObject(MainPostModel.class));
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity)context);
+                                        PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                                        model.setIsRead("true");
+                                        notifyDataSetChanged();
+                                        WaitDialog.dismiss();
+                                    }else{
+                                        WaitDialog.dismiss();
+                                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                                        TipDialog.dismiss(1000);
+                                    }
+                                }else{
+                                    WaitDialog.dismiss();
+                                    TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                                    TipDialog.dismiss(1000);
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
+                                TipDialog.dismiss(1000);
+                            }
+                        });
+                    }
+                    else if (model.getPostType().equals(NotificationPostType.name.notices)){
+                        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                .document("notices")
+                                .collection("post")
+                                .document(model.getPostId());
+                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()){
+                                    if (task.getResult().exists()){
+                                        Intent i = new Intent(context, SinglePostActivity.class);
+                                        i.putExtra("currentUser",currentUser);
+                                        i.putExtra("noticesPost",task.getResult().toObject(NoticesMainModel.class));
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity)context);
+                                        PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                                        model.setIsRead("true");
+                                        notifyDataSetChanged();
+                                        WaitDialog.dismiss();
+                                    }else{
+                                        WaitDialog.dismiss();
+                                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                                        TipDialog.dismiss(1000);
+                                    }
+                                }else{
+                                    WaitDialog.dismiss();
+                                    TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                                    TipDialog.dismiss(1000);
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
+                                TipDialog.dismiss(1000);
+                            }
+                        });
                     }
                 }
             });

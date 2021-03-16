@@ -32,62 +32,62 @@ public class SchoolPostViewHolder  extends RecyclerView.ViewHolder {
     }
 
 
-    CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
-    ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
-    TextView name = (TextView)itemView.findViewById(R.id.name);
-    TextView userName = (TextView)itemView.findViewById(R.id.username);
-    ImageButton more = (ImageButton)itemView.findViewById(R.id.setting);
-    TextView clupName = (TextView)itemView.findViewById(R.id.clupName);
-    SocialTextView text  = (SocialTextView)itemView.findViewById(R.id.text);
-    ImageButton like = (ImageButton)itemView.findViewById(R.id.like);
-    TextView likeLbl = (TextView)itemView.findViewById(R.id.likeCount);
+   public CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
+    public ProgressBar progressBar = (ProgressBar)itemView.findViewById(R.id.progress);
+    public TextView name = (TextView)itemView.findViewById(R.id.name);
+    public TextView userName = (TextView)itemView.findViewById(R.id.username);
+    public ImageButton more = (ImageButton)itemView.findViewById(R.id.setting);
+    public TextView clupName = (TextView)itemView.findViewById(R.id.clupName);
+    public SocialTextView text  = (SocialTextView)itemView.findViewById(R.id.text);
+    public ImageButton like = (ImageButton)itemView.findViewById(R.id.like);
+    public TextView likeLbl = (TextView)itemView.findViewById(R.id.likeCount);
 
-    ImageButton dislike = (ImageButton)itemView.findViewById(R.id.dislike);
-    TextView dislikeLbl = (TextView)itemView.findViewById(R.id.dislikeCount);
+    public ImageButton dislike = (ImageButton)itemView.findViewById(R.id.dislike);
+    public TextView dislikeLbl = (TextView)itemView.findViewById(R.id.dislikeCount);
 
    public ImageButton comment = (ImageButton)itemView.findViewById(R.id.comment);
-    TextView commentLbl = (TextView)itemView.findViewById(R.id.commentCount);
+    public TextView commentLbl = (TextView)itemView.findViewById(R.id.commentCount);
 
 
-    TextView time = (TextView)itemView.findViewById(R.id.time);
+    public  TextView time = (TextView)itemView.findViewById(R.id.time);
 
-    RelativeLayout one_image = (RelativeLayout)itemView.findViewById(R.id.one_image);
-    RelativeLayout two_image = (RelativeLayout)itemView.findViewById(R.id.two_image);
-    RelativeLayout there_image = (RelativeLayout)itemView.findViewById(R.id.there_image);
-    RelativeLayout four_image = (RelativeLayout)itemView.findViewById(R.id.four_image);
-    RelativeLayout transparentView = (RelativeLayout)itemView.findViewById(R.id.transparentView);
-    TextView textImageCount = (TextView)itemView.findViewById(R.id.textImageCount);
+    public  RelativeLayout one_image = (RelativeLayout)itemView.findViewById(R.id.one_image);
+    public RelativeLayout two_image = (RelativeLayout)itemView.findViewById(R.id.two_image);
+    public RelativeLayout there_image = (RelativeLayout)itemView.findViewById(R.id.there_image);
+    public RelativeLayout four_image = (RelativeLayout)itemView.findViewById(R.id.four_image);
+    public RelativeLayout transparentView = (RelativeLayout)itemView.findViewById(R.id.transparentView);
+    public TextView textImageCount = (TextView)itemView.findViewById(R.id.textImageCount);
 
     //TODO:-layer one images
 
-    RoundedImageView one_image_1 = (RoundedImageView)itemView.findViewById(R.id.image_one_image1);
-    ProgressBar one_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_one_progres1);
+    public RoundedImageView one_image_1 = (RoundedImageView)itemView.findViewById(R.id.image_one_image1);
+    public ProgressBar one_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_one_progres1);
 
 
     //TODO:-layer two images
-    RoundedImageView two_image_1 = (RoundedImageView)itemView.findViewById(R.id.image_two_image1);
-    RoundedImageView two_image_2 = (RoundedImageView)itemView.findViewById(R.id.image_two_image2);
-    ProgressBar two_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_two_progres1);
-    ProgressBar two_progres_2 = (ProgressBar)itemView.findViewById(R.id.image_two_progres2);
+    public RoundedImageView two_image_1 = (RoundedImageView)itemView.findViewById(R.id.image_two_image1);
+    public RoundedImageView two_image_2 = (RoundedImageView)itemView.findViewById(R.id.image_two_image2);
+    public ProgressBar two_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_two_progres1);
+    public ProgressBar two_progres_2 = (ProgressBar)itemView.findViewById(R.id.image_two_progres2);
 
 
     //TODO:-layer there images
-    RoundedImageView there_image_1 = (RoundedImageView)itemView.findViewById(R.id.image_there_image1);
-    RoundedImageView there_image_2 = (RoundedImageView)itemView.findViewById(R.id.image_there_image2);
-    RoundedImageView there_image_3 = (RoundedImageView)itemView.findViewById(R.id.image_there_image3);
-    ProgressBar there_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_there_progres1);
-    ProgressBar there_progres_2 = (ProgressBar)itemView.findViewById(R.id.image_there_progres2);
-    ProgressBar there_progres_3 = (ProgressBar)itemView.findViewById(R.id.image_there_progres3);
+    public RoundedImageView there_image_1 = (RoundedImageView)itemView.findViewById(R.id.image_there_image1);
+    public RoundedImageView there_image_2 = (RoundedImageView)itemView.findViewById(R.id.image_there_image2);
+    public RoundedImageView there_image_3 = (RoundedImageView)itemView.findViewById(R.id.image_there_image3);
+    public ProgressBar there_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_there_progres1);
+    public ProgressBar there_progres_2 = (ProgressBar)itemView.findViewById(R.id.image_there_progres2);
+    public ProgressBar there_progres_3 = (ProgressBar)itemView.findViewById(R.id.image_there_progres3);
 
 
     //TODO:-layer four images
-    RoundedImageView four_image_1 = (RoundedImageView)itemView.findViewById(R.id.image_four_image1);
-    RoundedImageView four_image_2 = (RoundedImageView)itemView.findViewById(R.id.image_four_image2);
-    RoundedImageView four_image_3 = (RoundedImageView)itemView.findViewById(R.id.image_four_image3);
-    RoundedImageView four_image_4 = (RoundedImageView)itemView.findViewById(R.id.image_four_image4);
-    ProgressBar four_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_four_progres1);
-    ProgressBar four_progres_2 = (ProgressBar)itemView.findViewById(R.id.image_four_progres2);
-    ProgressBar four_progres_3 = (ProgressBar)itemView.findViewById(R.id.image_four_progres3);
+    public  RoundedImageView four_image_1 = (RoundedImageView)itemView.findViewById(R.id.image_four_image1);
+    public RoundedImageView four_image_2 = (RoundedImageView)itemView.findViewById(R.id.image_four_image2);
+    public RoundedImageView four_image_3 = (RoundedImageView)itemView.findViewById(R.id.image_four_image3);
+    public RoundedImageView four_image_4 = (RoundedImageView)itemView.findViewById(R.id.image_four_image4);
+    public ProgressBar four_progres_1 = (ProgressBar)itemView.findViewById(R.id.image_four_progres1);
+    public ProgressBar four_progres_2 = (ProgressBar)itemView.findViewById(R.id.image_four_progres2);
+    public ProgressBar four_progres_3 = (ProgressBar)itemView.findViewById(R.id.image_four_progres3);
 
     //TODO-native ads layer
 
