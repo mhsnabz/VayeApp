@@ -35,6 +35,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.rpc.Help;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
+import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -215,11 +216,18 @@ public class NotificationActivity extends AppCompatActivity {
             @Override
             public void onLeftClicked(int position) {
                 super.onLeftClicked(position);
+                PushNotificationService.shared().makeReadLocalNotification(currentUser,models.get(position).getNot_id());
+                models.get(position).setIsRead("true");
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onRightClicked(int position) {
                 super.onRightClicked(position);
+                PushNotificationService.shared().deleteLocalNotification(currentUser,models.get(position).getNot_id());
+                models.remove(position);
+                adapter.notifyDataSetChanged();
+
             }
         });
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
@@ -281,7 +289,7 @@ public class NotificationActivity extends AppCompatActivity {
             }else if (target.equals(CompletionWithValue.delete_all_notification)){
                     models.clear();
                     adapter.notifyDataSetChanged();
-               
+
             }
         }
     };

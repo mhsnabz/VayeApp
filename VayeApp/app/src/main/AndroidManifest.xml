@@ -23,6 +23,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
+        <activity android:name=".Controller.HomeController.SinglePost.SinglePostActivity"></activity>
         <activity android:name=".Controller.MapsController.VayeAppPlacePickerActivity" />
         <activity android:name=".Controller.MapsController.GoogleMapsActivity" />
         <activity android:name=".Controller.MapsController.LocationPermissionActivity" />

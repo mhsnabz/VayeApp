@@ -1,7 +1,9 @@
 package com.vaye.app.Controller.NotificationController;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.text.Html;
 import android.text.Spannable;
@@ -16,14 +18,26 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
+import com.vaye.app.Controller.HomeController.SinglePost.SinglePostActivity;
+import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.NotificationModel;
 import com.vaye.app.R;
@@ -64,7 +78,47 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             viewHolder.setProfileImage(model.getSenderImage());
             viewHolder.setCard(model.getIsRead());
             viewHolder.setMainText(model);
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    WaitDialog.show((AppCompatActivity)context , "");
+                    if (model.getPostType().equals(NotificationPostType.name.lessonPost)){
+                        DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                .document("lesson-post")
+                                .collection("post")
+                                .document(model.getPostId());
+                        reference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()){
+                                    if (task.getResult().exists()){
+                                        Intent i = new Intent(context, SinglePostActivity.class);
+                                        i.putExtra("currentUser",currentUser);
+                                        i.putExtra("lessonPost",task.getResult().toObject(LessonPostModel.class));
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity)context);
+                                        WaitDialog.dismiss();
+                                    }else{
+                                        WaitDialog.dismiss();
+                                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                                        TipDialog.dismiss(1000);
+                                    }
 
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                WaitDialog.dismiss();
+                                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
+                                TipDialog.dismiss(1000);
+
+                            }
+                        });
+
+                    }
+                }
+            });
 
     }
 
