@@ -4,12 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +23,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,11 +33,15 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.rpc.Help;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
+import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.NotificationModel;
 import com.vaye.app.R;
 import com.vaye.app.Util.BottomNavHelper;
+import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.NotifcationSwipeController;
 import com.vaye.app.Util.SwipeController;
 import com.vaye.app.Util.SwipeControllerActions;
@@ -56,6 +65,7 @@ public class NotificationActivity extends AppCompatActivity {
     Boolean isLoadMore = true;
     NestedScrollView scrollView;
     RecyclerView postList;
+    ImageButton setting;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,8 +113,9 @@ public class NotificationActivity extends AppCompatActivity {
                 }
             });
 
-
         }
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("target_choose"));
 
     }
 
@@ -234,6 +245,17 @@ public class NotificationActivity extends AppCompatActivity {
         toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
         options = (ImageButton)toolbar.findViewById(R.id.setting);
         toolbarTitle.setText("Bildirimler");
+        options.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Helper.shared().LocalNotificationBottomSheetLauncher(NotificationActivity.this, currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+
+                    }
+                });
+            }
+        });
     }
 
     private void setupBottomNavBar(CurrentUser currentUser){
@@ -245,4 +267,22 @@ public class NotificationActivity extends AppCompatActivity {
         menuItem.setChecked(true);
         overridePendingTransition(0, 0);
     }
+
+    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String target = intent.getStringExtra("target");
+            if (target.equals(CompletionWithValue.read_all_notificaiton)){
+              for (NotificationModel model : models){
+                    model.setIsRead("true");
+                   adapter.notifyDataSetChanged();
+              }
+            }else if (target.equals(CompletionWithValue.delete_all_notification)){
+                    models.clear();
+                    adapter.notifyDataSetChanged();
+               
+            }
+        }
+    };
 }

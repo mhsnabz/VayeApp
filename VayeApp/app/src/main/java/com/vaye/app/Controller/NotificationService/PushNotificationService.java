@@ -8,14 +8,19 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Interfaces.OtherUserService;
+import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.Services.UserService;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class PushNotificationService {
 
@@ -127,5 +132,55 @@ public class PushNotificationService {
             });
         }
 
+    }
+
+    public void deleteAllLocalNotification(CurrentUser currentUser ){
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid()).collection("notification");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if(task.getResult().isEmpty()){
+                        return;
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            deleteLocalNotification(currentUser,item.getId());
+                        }
+                    }
+                }
+            }
+        });
+    }
+    public void deleteLocalNotification(CurrentUser currentUser , String not_id){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid()).collection("notification").document(not_id);
+        ref.delete();
+    }
+
+    public void makeReadAllLocalNotification(CurrentUser currentUser ){
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid()).collection("notification");
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if(task.getResult().isEmpty()){
+                        return;
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            makeReadLocalNotification(currentUser,item.getId());
+                        }
+                    }
+                }
+            }
+        });
+    }
+    public void makeReadLocalNotification(CurrentUser currentUser , String not_id){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid()).collection("notification").document(not_id);
+        Map<String , String> map  = new HashMap<>();
+        map.put("isRead","true");
+        ref.set(map,SetOptions.merge());
     }
 }

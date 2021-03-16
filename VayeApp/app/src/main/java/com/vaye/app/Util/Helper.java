@@ -999,7 +999,46 @@ public class Helper {
         bottomSheetDialog.setContentView(view);
         bottomSheetDialog.show();
     }
+    public void LocalNotificationBottomSheetLauncher(Activity activity ,CurrentUser currentUser , TrueFalse<Boolean> callback){
+        RecyclerView recyclerView;
+        CardView headerView;
+        Button cancel;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+        ArrayList<String > items = new ArrayList<>();
+        items.add(BottomSheetActionTarget.make_all_notification_read);
+        items.add(BottomSheetActionTarget.delete_all_notification);
 
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(R.drawable.saw);
+        res.add(R.drawable.trash);
+        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.local_notification_setting,res);
+        VayeAppChooseTargetBottomSheetAdapter adapter = new VayeAppChooseTargetBottomSheetAdapter(currentUser , activity , model , bottomSheetDialog);
+        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        adapter.notifyDataSetChanged();
+        headerView = (CardView)view.findViewById(R.id.header);
+        headerView.setVisibility(View.GONE);
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                callback.callBack(true);
+            }
+        });
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
 
     public void ProfileImageSetting(Activity activity , CurrentUser currentUser , TrueFalse<Boolean> callback){
         RecyclerView recyclerView;

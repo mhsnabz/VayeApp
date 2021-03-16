@@ -9,11 +9,14 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
+import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.MainPostFollowers;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostTopicFollower;
@@ -54,58 +57,85 @@ public class VayeAppChooseTargetBottomSheetAdapter extends RecyclerView.Adapter<
         VH_currentuser.title.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.al_sat)){
 
-                    WaitDialog.show((AppCompatActivity)context , null);
-                    MainPostService.shared().getTopicFollowers(BottomSheetActionTarget.sell_buy, new MainPostFollowers() {
-                        @Override
-                        public void getTopicFollower(ArrayList<MainPostTopicFollower> list) {
 
-                            Intent i = new Intent(context , VayeAppNewPostActivity.class);
-                            i.putExtra("followers",list);
-                            i.putExtra("currentUser",currentUser);
-                            i.putExtra("postType",BottomSheetActionTarget.al_sat);
-                            context.startActivity(i);
-                            dialog.dismiss();
-                            Helper.shared().go((Activity) context);
-                            WaitDialog.dismiss();
-                        }
-                    });
+                if (model.getTarget().equals(BottomSheetTarget.vaye_app_current_user_launcher)){
+                    if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.al_sat)){
 
-                }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.yemek)){
-                    WaitDialog.show((AppCompatActivity)context , null);
-                    MainPostService.shared().getTopicFollowers(BottomSheetActionTarget.food_me, new MainPostFollowers() {
-                        @Override
-                        public void getTopicFollower(ArrayList<MainPostTopicFollower> list) {
+                        WaitDialog.show((AppCompatActivity)context , null);
+                        MainPostService.shared().getTopicFollowers(BottomSheetActionTarget.sell_buy, new MainPostFollowers() {
+                            @Override
+                            public void getTopicFollower(ArrayList<MainPostTopicFollower> list) {
 
-                            Intent i = new Intent(context , VayeAppNewPostActivity.class);
-                            i.putExtra("followers",list);
-                            i.putExtra("currentUser",currentUser);
-                            i.putExtra("postType",BottomSheetActionTarget.yemek);
-                            context.startActivity(i);
-                            dialog.dismiss();
-                            Helper.shared().go((Activity) context);
-                            WaitDialog.dismiss();
-                        }
-                    });
+                                Intent i = new Intent(context , VayeAppNewPostActivity.class);
+                                i.putExtra("followers",list);
+                                i.putExtra("currentUser",currentUser);
+                                i.putExtra("postType",BottomSheetActionTarget.al_sat);
+                                context.startActivity(i);
+                                dialog.dismiss();
+                                Helper.shared().go((Activity) context);
+                                WaitDialog.dismiss();
+                            }
+                        });
 
-                }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.kamp)){
-                    WaitDialog.show((AppCompatActivity)context , null);
-                    MainPostService.shared().getTopicFollowers(BottomSheetActionTarget.camping, new MainPostFollowers() {
-                        @Override
-                        public void getTopicFollower(ArrayList<MainPostTopicFollower> list) {
+                    }
+                    else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.yemek)){
+                        WaitDialog.show((AppCompatActivity)context , null);
+                        MainPostService.shared().getTopicFollowers(BottomSheetActionTarget.food_me, new MainPostFollowers() {
+                            @Override
+                            public void getTopicFollower(ArrayList<MainPostTopicFollower> list) {
 
-                            Intent i = new Intent(context , VayeAppNewPostActivity.class);
-                            i.putExtra("followers",list);
-                            i.putExtra("currentUser",currentUser);
-                            i.putExtra("postType",BottomSheetActionTarget.kamp);
-                            context.startActivity(i);
-                            dialog.dismiss();
-                            Helper.shared().go((Activity) context);
-                            WaitDialog.dismiss();
-                        }
-                    });
+                                Intent i = new Intent(context , VayeAppNewPostActivity.class);
+                                i.putExtra("followers",list);
+                                i.putExtra("currentUser",currentUser);
+                                i.putExtra("postType",BottomSheetActionTarget.yemek);
+                                context.startActivity(i);
+                                dialog.dismiss();
+                                Helper.shared().go((Activity) context);
+                                WaitDialog.dismiss();
+                            }
+                        });
+
+                    }
+                    else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.kamp)){
+                        WaitDialog.show((AppCompatActivity)context , null);
+                        MainPostService.shared().getTopicFollowers(BottomSheetActionTarget.camping, new MainPostFollowers() {
+                            @Override
+                            public void getTopicFollower(ArrayList<MainPostTopicFollower> list) {
+
+                                Intent i = new Intent(context , VayeAppNewPostActivity.class);
+                                i.putExtra("followers",list);
+                                i.putExtra("currentUser",currentUser);
+                                i.putExtra("postType",BottomSheetActionTarget.kamp);
+                                context.startActivity(i);
+                                dialog.dismiss();
+                                Helper.shared().go((Activity) context);
+                                WaitDialog.dismiss();
+                            }
+                        });
+                    }
+                }else if (model.getTarget().equals(BottomSheetTarget.local_notification_setting)){
+                    if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.make_all_notification_read))
+                    {
+                        PushNotificationService.shared().makeReadAllLocalNotification(currentUser);
+                        Intent intent = new Intent("target_choose");
+
+                        intent.putExtra("target", CompletionWithValue.read_all_notificaiton);
+
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        dialog.dismiss();
+
+                    }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.delete_all_notification)){
+                        PushNotificationService.shared().deleteAllLocalNotification(currentUser);
+                        Intent intent = new Intent("target_choose");
+
+                        intent.putExtra("target", CompletionWithValue.delete_all_notification);
+
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        dialog.dismiss();
+                    }
                 }
+
             }
         });
     }
@@ -114,4 +144,5 @@ public class VayeAppChooseTargetBottomSheetAdapter extends RecyclerView.Adapter<
     public int getItemCount() {
         return model.getImagesHolder().size();
     }
+
 }

@@ -21,5 +21,7 @@ public interface BottomSheetTarget {
 
     String profile_image_setting = "profile_image_setting";
 
+    String local_notification_setting = "local_notification_setting";
+
 
 }

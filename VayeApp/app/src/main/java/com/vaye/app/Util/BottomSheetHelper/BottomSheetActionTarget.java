@@ -41,6 +41,8 @@ public interface BottomSheetActionTarget {
     String take_new_image = "Yeni Bir Resim Çek";
     String choose_image_from_gallery = "Galeriden Resim Seç";
 
+    String  make_all_notification_read = "Bütün Bildirimleri Okundu Olarak İşaretle";
+    String delete_all_notification = "Bütün Bildirimleri Sil";
 
 
 
