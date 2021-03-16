@@ -36,6 +36,7 @@ import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.SinglePost.SinglePostActivity;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
+import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NoticesMainModel;
@@ -97,6 +98,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                         i.putExtra("lessonPost",task.getResult().toObject(LessonPostModel.class));
                                         context.startActivity(i);
                                         Helper.shared().go((Activity)context);
+                                        PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                                        model.setIsRead("true");
+                                        notifyDataSetChanged();
                                         WaitDialog.dismiss();
                                     }else{
                                         WaitDialog.dismiss();

@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.vaye.app.Controller.NotificationController.NotificationActivity;
+import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
@@ -69,6 +70,8 @@ public class SinglePostActivity extends AppCompatActivity {
             adapter = new SinglePostAdapter(mainPostModel,currentUser,this);
             list.setAdapter(adapter);
         }
+
+
     }
 
     private void setNavigationBar(String title){
@@ -76,13 +79,28 @@ public class SinglePostActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitle("");
         toolbar.setSubtitle("");
+
         if (getSupportActionBar() != null){
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                Helper.shared().back(SinglePostActivity.this);
+            }
+        });
         toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
         toolbarTitle.setText(title);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        Helper.shared().back(SinglePostActivity.this);
     }
 }
