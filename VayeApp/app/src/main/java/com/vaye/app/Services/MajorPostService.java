@@ -1,12 +1,15 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -20,6 +23,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.HomeController.SinglePost.SinglePostActivity;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
 import com.vaye.app.Controller.NotificationService.MajorPostNotificationService;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
@@ -28,6 +32,7 @@ import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
 import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
+import com.vaye.app.Interfaces.SingleLessonPost;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -35,6 +40,7 @@ import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.OtherUser;
+import com.vaye.app.Util.Helper;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -55,6 +61,40 @@ public class MajorPostService {
     private static final MajorPostService instance = new MajorPostService();
     public static MajorPostService shared() {
         return instance;
+    }
+
+
+    public void getPost(Context context , CurrentUser currentUser , String postId , SingleLessonPost post){
+        DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("lesson-post")
+                .collection("post")
+                .document(postId);
+        reference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        post.getPost(task.getResult().toObject(LessonPostModel.class));
+
+                    }else{
+                        post.getPost(null);
+                        WaitDialog.dismiss();
+                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                        TipDialog.dismiss(1000);
+                    }
+
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                post.getPost(null);
+                WaitDialog.dismiss();
+                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
+                TipDialog.dismiss(1000);
+
+            }
+        });
     }
 
     public void setLike(CurrentUser currentUser , LessonPostModel post , TrueFalse<Boolean> result ){

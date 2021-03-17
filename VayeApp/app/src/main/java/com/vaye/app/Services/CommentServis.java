@@ -1,21 +1,30 @@
 package com.vaye.app.Services;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.NotificationService.PostName;
 import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.RepliedCommentModel;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.NoticesMainModel;
 
 import org.w3c.dom.Comment;
 
@@ -28,6 +37,43 @@ public class CommentServis {
 
     public static CommentServis shared() {
         return instance;
+    }
+
+    public void getRepliedComment(Context context,String targetCommentId , String postId , RepliedCommentModel comment){
+        DocumentReference commentData = FirebaseFirestore.getInstance().collection("comment")
+                .document(postId)
+                .collection("comment")
+                .document(targetCommentId);
+        commentData.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        comment.getComment(task.getResult().toObject(CommentModel.class));
+
+
+                    }else{
+                        comment.getComment(null);
+                        WaitDialog.dismiss();
+                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                        TipDialog.dismiss(1000);
+                    }
+                }else{
+                    comment.getComment(null);
+                    WaitDialog.dismiss();
+                    TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                    TipDialog.dismiss(1000);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                comment.getComment(null);
+                WaitDialog.dismiss();
+                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
+                TipDialog.dismiss(1000);
+            }
+        });
     }
 
     public void sendNewComment(String postType , CurrentUser currentUser , String commentText , String postId , String commentId , TrueFalse<Boolean> callback ){
@@ -170,5 +216,8 @@ public class CommentServis {
 
         return  map;
     }
+
+
+
 
 }

@@ -1,6 +1,8 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,9 +22,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.HomeController.SinglePost.SinglePostActivity;
+import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.SingleNoticesPost;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -30,6 +36,7 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.NoticesMainModel;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +47,7 @@ public class SchoolPostService {
     public static SchoolPostService shared() {
         return instance;
     }
+
 
    public String iste_hastag[] = {"Atatürkçü Düşünce Öğrenci Topluluğu","Bağımlılıkla Mücadele Öğrenci Topluluğu","Bilim Kadınları Öğrenci Topluluğu",
             "Bilim Ve Çocuk Öğrenci Topluluğu","Bilimsel Araştırmalar Öğrenci Topluluğu","Bireysel Sporlar Öğrenci Topluluğu"
@@ -76,6 +84,42 @@ public class SchoolPostService {
         String İSTE = "İSTE";
     }
 
+
+    public void getPost(Context context , CurrentUser currentUser , String postId , SingleNoticesPost post){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                .document("notices")
+                .collection("post")
+                .document(postId);
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        post.getPost(task.getResult().toObject(NoticesMainModel.class));
+
+                    }else{
+                        post.getPost(null);
+                        WaitDialog.dismiss();
+                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                        TipDialog.dismiss(1000);
+                    }
+                }else{
+                    post.getPost(null);
+                    WaitDialog.dismiss();
+                    TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
+                    TipDialog.dismiss(1000);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                post.getPost(null);
+                WaitDialog.dismiss();
+                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
+                TipDialog.dismiss(1000);
+            }
+        });
+    }
 
     public void setClupNames(CurrentUser currentUser , String[] list){
         for ( String name :list){

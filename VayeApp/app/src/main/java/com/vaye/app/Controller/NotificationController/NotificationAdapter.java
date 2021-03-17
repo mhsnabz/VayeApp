@@ -1,6 +1,6 @@
 package com.vaye.app.Controller.NotificationController;
 
-import android.annotation.SuppressLint;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -19,30 +19,38 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
+
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
+import com.vaye.app.Controller.CommentController.CommentActivity;
+import com.vaye.app.Controller.CommentController.ReplyActivity;
 import com.vaye.app.Controller.HomeController.SinglePost.SinglePostActivity;
+import com.vaye.app.Controller.NotificationService.MainPostNotification;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
+import com.vaye.app.Interfaces.RepliedCommentModel;
+import com.vaye.app.Interfaces.SingleLessonPost;
+import com.vaye.app.Interfaces.SingleMainPost;
+import com.vaye.app.Interfaces.SingleNoticesPost;
+import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.NotificationModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.CommentServis;
+import com.vaye.app.Services.MainPostService;
+import com.vaye.app.Services.MajorPostService;
+import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -85,122 +93,73 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 public void onClick(View view) {
                     WaitDialog.show((AppCompatActivity)context , "");
                     if (model.getPostType().equals(NotificationPostType.name.lessonPost)){
-                        DocumentReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                .document("lesson-post")
-                                .collection("post")
-                                .document(model.getPostId());
-                        reference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()){
-                                    if (task.getResult().exists()){
-                                        Intent i = new Intent(context, SinglePostActivity.class);
-                                        i.putExtra("currentUser",currentUser);
-                                        i.putExtra("lessonPost",task.getResult().toObject(LessonPostModel.class));
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity)context);
-                                        PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
-                                        model.setIsRead("true");
-                                        notifyDataSetChanged();
-                                        WaitDialog.dismiss();
-                                    }else{
-                                        WaitDialog.dismiss();
-                                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
 
-                                }
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                WaitDialog.dismiss();
-                                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
-                                TipDialog.dismiss(1000);
+                        if (model.getType().equals(MajorPostNotification.type.comment_like) ||
+                                model.getType().equals(MajorPostNotification.type.new_comment)||
+                            model.getType().equals(MajorPostNotification.type.new_mentioned_comment))
+                        {
+                            viewHolder.showComment(model);
+                        }
+                        else if (model.getType().equals(MajorPostNotification.type.new_post)||
+                        model.getType().equals(MajorPostNotification.type.new_mentioned_post)||
+                        model.getType().equals(MajorPostNotification.type.post_like)){
+                            viewHolder.showPost(model);
+                        }else if (model.getType().equals(MajorPostNotification.type.new_replied_comment)||
+                        model.getType().equals(MajorPostNotification.type.new_replied_mentioned_comment)||
+                        model.getType().equals(MajorPostNotification.type.replied_comment_like)){
+                            viewHolder.showRepliedComment(model);
+                        }
 
-                            }
-                        });
 
                     }
                     else if (model.getPostType().equals(NotificationPostType.name.mainPost)){
-                        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
-                                .document("post")
-                                .collection("post")
-                                .document(model.getPostId());
-                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()){
-                                    if (task.getResult().exists()){
-                                        Intent i = new Intent(context, SinglePostActivity.class);
-                                        i.putExtra("currentUser",currentUser);
-                                        i.putExtra("mainPost",task.getResult().toObject(MainPostModel.class));
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity)context);
-                                        PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
-                                        model.setIsRead("true");
-                                        notifyDataSetChanged();
-                                        WaitDialog.dismiss();
-                                    }else{
-                                        WaitDialog.dismiss();
-                                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
-                                }else{
-                                    WaitDialog.dismiss();
-                                    TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
-                                    TipDialog.dismiss(1000);
-                                }
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
 
-                                WaitDialog.dismiss();
-                                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
-                                TipDialog.dismiss(1000);
-                            }
-                        });
+
+                        if (model.getType().equals(MainPostNotification.type.comment_like) ||
+                                model.getType().equals(MainPostNotification.type.new_comment)||
+                                model.getType().equals(MainPostNotification.type.new_mentioned_comment))
+                        {
+
+                            viewHolder.showComment(model);
+                        }
+                        else if (model.getType().equals(MainPostNotification.type.new_post)||
+                                model.getType().equals(MainPostNotification.type.new_mentioned_post)||
+                                model.getType().equals(MainPostNotification.type.post_like))
+                        {
+
+                            viewHolder.showPost(model);
+
+                        }else if (model.getType().equals(MainPostNotification.type.new_replied_comment)||
+                                model.getType().equals(MainPostNotification.type.new_replied_mentioned_comment)||
+                                model.getType().equals(MainPostNotification.type.replied_comment_like)){
+                            viewHolder.showRepliedComment(model);
+                        }
+
+
                     }
                     else if (model.getPostType().equals(NotificationPostType.name.notices)){
-                        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                .document("notices")
-                                .collection("post")
-                                .document(model.getPostId());
-                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()){
-                                    if (task.getResult().exists()){
-                                        Intent i = new Intent(context, SinglePostActivity.class);
-                                        i.putExtra("currentUser",currentUser);
-                                        i.putExtra("noticesPost",task.getResult().toObject(NoticesMainModel.class));
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity)context);
-                                        PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
-                                        model.setIsRead("true");
-                                        notifyDataSetChanged();
-                                        WaitDialog.dismiss();
-                                    }else{
-                                        WaitDialog.dismiss();
-                                        TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
-                                        TipDialog.dismiss(1000);
-                                    }
-                                }else{
-                                    WaitDialog.dismiss();
-                                    TipDialog.show((AppCompatActivity)context,"Gönderi Silinmiş", TipDialog.TYPE.ERROR);
-                                    TipDialog.dismiss(1000);
-                                }
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
 
-                                WaitDialog.dismiss();
-                                TipDialog.show((AppCompatActivity)context,"Hata Oluştu", TipDialog.TYPE.ERROR);
-                                TipDialog.dismiss(1000);
-                            }
-                        });
+
+                        if (model.getType().equals(NoticesPostNotification.type.comment_like) ||
+                                model.getType().equals(NoticesPostNotification.type.new_comment)||
+                                model.getType().equals(NoticesPostNotification.type.new_mentioned_comment))
+                        {
+                            viewHolder.showComment(model);
+                        }
+                        else if (model.getType().equals(NoticesPostNotification.type.new_post)||
+                                model.getType().equals(NoticesPostNotification.type.new_mentioned_post)||
+                                model.getType().equals(NoticesPostNotification.type.post_like))
+                        {
+                           viewHolder.showPost(model);
+
+
+                        }else if (model.getType().equals(NoticesPostNotification.type.new_replied_comment)||
+                                model.getType().equals(NoticesPostNotification.type.new_replied_mentioned_comment)||
+                                model.getType().equals(NoticesPostNotification.type.replied_comment_like)){
+                           viewHolder.showRepliedComment(model);
+                        }
+
+
                     }
                 }
             });
@@ -281,6 +240,197 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mainText.setText(spannable, TextView.BufferType.SPANNABLE);
 
         }
+
+        public void showPost(NotificationModel model){
+            if (model.getPostType().equals(NotificationPostType.name.notices))
+            {
+                SchoolPostService.shared().getPost(context, currentUser, model.getPostId(), new SingleNoticesPost() {
+                    @Override
+                    public void getPost(NoticesMainModel post) {
+                        if (post!=null){
+                            Intent i = new Intent(context, SinglePostActivity.class);
+                            i.putExtra("currentUser",currentUser);
+                            i.putExtra("noticesPost",post);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity)context);
+                            PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                            model.setIsRead("true");
+                            notifyDataSetChanged();
+                            WaitDialog.dismiss();
+                        }
+                    }
+                });
+            }
+            else if (model.getPostType().equals(NotificationPostType.name.lessonPost)){
+                MajorPostService.shared().getPost(context, currentUser, model.getPostId(), new SingleLessonPost() {
+                    @Override
+                    public void getPost(LessonPostModel postModel) {
+                        if (postModel != null){
+                            Intent i = new Intent(context, SinglePostActivity.class);
+                            i.putExtra("currentUser",currentUser);
+                            i.putExtra("lessonPost",postModel);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity)context);
+                            PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                            model.setIsRead("true");
+                            notifyDataSetChanged();
+                            WaitDialog.dismiss();
+                        }
+
+                    }
+                });
+            }else if (model.getPostType().equals(NotificationPostType.name.mainPost))
+            {
+                MainPostService.shared().getMainPost(context, currentUser, model.getPostId(), new SingleMainPost() {
+                    @Override
+                    public void getPost(MainPostModel post) {
+                        if (post!=null){
+                            Intent i = new Intent(context, SinglePostActivity.class);
+                            i.putExtra("currentUser",currentUser);
+                            i.putExtra("mainPost",post);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity)context);
+                            PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                            model.setIsRead("true");
+                            notifyDataSetChanged();
+                            WaitDialog.dismiss();
+                        }
+                    }
+                });
+            }
+            else{
+                WaitDialog.dismiss();
+                return;
+            }
+        }
+
+        public void showComment(NotificationModel model){
+            if (model.getPostType().equals(NotificationPostType.name.notices))
+            {
+                SchoolPostService.shared().getPost(context, currentUser, model.getPostId(), new SingleNoticesPost() {
+                    @Override
+                    public void getPost(NoticesMainModel post) {
+                        if (post!=null){
+                            Intent i = new Intent(context, CommentActivity.class);
+                            i.putExtra("noticesPost",post);
+                            i.putExtra("currentUser",currentUser);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity)context);
+                            WaitDialog.dismiss();
+                        }
+                    }
+                });
+            }
+            else if (model.getPostType().equals(NotificationPostType.name.lessonPost)){
+                MajorPostService.shared().getPost(context, currentUser, model.getPostId(), new SingleLessonPost() {
+                    @Override
+                    public void getPost(LessonPostModel post) {
+                        if (post!=null){
+                            Intent i = new Intent(context, CommentActivity.class);
+                            i.putExtra("lessonPost",post);
+                            i.putExtra("currentUser",currentUser);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity)context);
+                            WaitDialog.dismiss();
+                        }
+                    }
+                });
+            }else if (model.getPostType().equals(NotificationPostType.name.mainPost))
+            {
+                MainPostService.shared().getMainPost(context, currentUser, model.getPostId(), new SingleMainPost() {
+                    @Override
+                    public void getPost(MainPostModel post) {
+                        if (post!=null){
+                            Intent i = new Intent(context, CommentActivity.class);
+                            i.putExtra("mainPost",post);
+                            i.putExtra("currentUser",currentUser);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity)context);
+                            WaitDialog.dismiss();
+                        }
+                    }
+                });
+            }
+            else{
+                WaitDialog.dismiss();
+                return;
+            }
+        }
+        public void showRepliedComment(NotificationModel model ){
+            if (model.getTargetCommentId()==null&&model.getTargetCommentId().isEmpty()){
+                WaitDialog.dismiss();
+                TipDialog.show((AppCompatActivity)context,"Gönderiye Ulaşılamıyor", TipDialog.TYPE.ERROR);
+                TipDialog.dismiss(1000);
+                return;
+            }
+            if (model.getPostType().equals(NotificationPostType.name.notices))
+            {
+                SchoolPostService.shared().getPost(context, currentUser, model.getPostId(), new SingleNoticesPost() {
+                    @Override
+                    public void getPost(NoticesMainModel post) {
+                      CommentServis.shared().getRepliedComment(context, model.getTargetCommentId(), model.getPostId(), new RepliedCommentModel() {
+                          @Override
+                          public void getComment(CommentModel comment) {
+                              if (comment!=null){
+                                  Intent i = new Intent(context,ReplyActivity.class);
+                                  i.putExtra("currentUser",currentUser);
+                                  i.putExtra("targetComment",comment);
+                                  i.putExtra("noticesPost",post);
+                                  context.startActivity(i);
+                                  Helper.shared().go((Activity)context);
+                                  WaitDialog.dismiss();
+                              }
+                          }
+                      });
+                    }
+                });
+            }else if (model.getPostType().equals(NotificationPostType.name.lessonPost)){
+                MajorPostService.shared().getPost(context, currentUser, model.getPostId(), new SingleLessonPost() {
+                    @Override
+                    public void getPost(LessonPostModel post) {
+                        CommentServis.shared().getRepliedComment(context, model.getTargetCommentId(), model.getPostId(), new RepliedCommentModel() {
+                            @Override
+                            public void getComment(CommentModel comment) {
+                                if (comment!=null){
+                                    Intent i = new Intent(context,ReplyActivity.class);
+                                    i.putExtra("currentUser",currentUser);
+                                    i.putExtra("targetComment",comment);
+                                    i.putExtra("noticesPost",post);
+                                    context.startActivity(i);
+                                    Helper.shared().go((Activity)context);
+                                    WaitDialog.dismiss();
+                                }
+                            }
+                        });
+                    }
+                });
+            }else if (model.getPostType().equals(NotificationPostType.name.mainPost)){
+                MainPostService.shared().getMainPost(context, currentUser, model.getPostId(), new SingleMainPost() {
+                    @Override
+                    public void getPost(MainPostModel post) {
+                        CommentServis.shared().getRepliedComment(context, model.getTargetCommentId(), model.getPostId(), new RepliedCommentModel() {
+                            @Override
+                            public void getComment(CommentModel comment) {
+                                if (comment!=null){
+                                    Intent i = new Intent(context,ReplyActivity.class);
+                                    i.putExtra("currentUser",currentUser);
+                                    i.putExtra("targetComment",comment);
+                                    i.putExtra("noticesPost",post);
+                                    context.startActivity(i);
+                                    Helper.shared().go((Activity)context);
+                                    WaitDialog.dismiss();
+                                }
+                            }
+                        });
+                    }
+                });
+            }else{
+                WaitDialog.dismiss();
+            }
+        }
     }
+
+
+
 
 }
