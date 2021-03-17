@@ -30,7 +30,6 @@ import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.Camping.CampingViewHolder;
-import com.vaye.app.Controller.VayeAppController.CommentController.MainPostCommentActivity;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;

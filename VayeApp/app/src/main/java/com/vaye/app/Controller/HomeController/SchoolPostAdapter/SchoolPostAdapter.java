@@ -26,7 +26,6 @@ import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdViewHolder;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
-import com.vaye.app.Controller.HomeController.School.SchoolPostComment.SchoolPostCommentActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Interfaces.OtherUserService;

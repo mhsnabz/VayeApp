@@ -21,6 +21,8 @@ import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.SinglePost.SinglePostActivity;
 import com.vaye.app.Controller.NotificationService.CommentNotificationService;
+import com.vaye.app.Controller.NotificationService.MainPostNotification;
+import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.MainPostFollowers;
@@ -176,7 +178,7 @@ public class MainPostService {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()){
-                        MainPostNS.shared().setPostLikeNotification(currentUser,post , text , type);
+                        MainPostNS.shared().setPostLikeNotification(currentUser, NotificationPostType.name.mainPost,post,post.getText(), MainPostNotification.type.post_like);
                     }
                 }
             });
@@ -218,91 +220,9 @@ public class MainPostService {
         }
     }
 
-    public void setCommentLike(CommentModel comment ,String type , String text, MainPostModel post , CurrentUser currentUser , TrueFalse<Boolean> callback){
-       // let db = Firestore.firestore().collection("main-post")
-        //                .document("post")
-        //                .collection("post")
-        //                .document(post.postId)
-        //                .collection("comment").document(comment.commentId!)
 
-        DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
-                .document("post").collection("post").document(post.getPostId())
-                .collection("comment").document(comment.getCommentId());
 
-        if (!comment.getLikes().contains(currentUser.getUid())){
-            comment.getLikes().add(currentUser.getUid());
-            callback.callBack(true);
-         Map<String , Object> map = new HashMap<>();
-         map.put("likes", FieldValue.arrayUnion(currentUser.getUid()));
-         ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-             @Override
-             public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                   // MainPostNS.shared().setCommentLikeNotification(post , comment , currentUser ,type , text );
-                    CommentNotificationService.shared().likeMainPostComment(post,comment,currentUser,text,type);
-                }
-             }
-         });
-        }
-    }
 
-    public void setNewComment(CurrentUser currentUser , String commentText , String commentId , String postId , TrueFalse<Boolean> callback){
-        DocumentReference ref  = FirebaseFirestore.getInstance().collection("main-post")
-                .document("post")
-                .collection("post")
-                .document(postId).collection("comment").document(commentId);
-
-        Map<String , Object> map = new HashMap<>();
-        map.put("senderName",currentUser.getName());
-        map.put("senderUid",currentUser.getUid());
-        map.put("username",currentUser.getUsername());
-        map.put("time",FieldValue.serverTimestamp());
-        map.put("comment",commentText);
-        map.put("commentId",commentId);
-        map.put("postId",postId);
-        map.put("likes",FieldValue.arrayUnion());
-        map.put("replies",FieldValue.arrayUnion());
-        map.put("senderImage",currentUser.getThumb_image());
-        ref.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    callback.callBack(true);
-                getTotalCommentCount(postId, new CallBackCount() {
-                    @Override
-                    public void callBackCount(long count) {
-                        DocumentReference commentCountRef  = FirebaseFirestore.getInstance().collection("main-post")
-                                .document("post")
-                                .collection("post")
-                                .document(postId);
-                        Map<String , Object> map1 = new HashMap<>();
-                        map1.put("comment", count);
-                        commentCountRef.set(map1 , SetOptions.merge());
-                    }
-                });
-                }
-            }
-        });
-    }
-
-    private void getTotalCommentCount(String postId , CallBackCount count){
-        CollectionReference ref  = FirebaseFirestore.getInstance().collection("main-post")
-                .document("post")
-                .collection("post")
-                .document(postId).collection("comment");
-        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()){
-                        if (task.getResult().isEmpty()){
-                            count.callBackCount(0);
-                        }else{
-                            count.callBackCount(task.getResult().getDocuments().size());
-                        }
-                    }
-            }
-        });
-    }
 
     public void getTopicFollowers(String topic , MainPostFollowers list){
         ArrayList<MainPostTopicFollower> followers = new ArrayList<>();

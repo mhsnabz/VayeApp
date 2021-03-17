@@ -378,6 +378,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                   i.putExtra("noticesPost",post);
                                   context.startActivity(i);
                                   Helper.shared().go((Activity)context);
+                                  PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                                  model.setIsRead("true");
+                                  notifyDataSetChanged();
                                   WaitDialog.dismiss();
                               }
                           }
@@ -388,20 +391,26 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 MajorPostService.shared().getPost(context, currentUser, model.getPostId(), new SingleLessonPost() {
                     @Override
                     public void getPost(LessonPostModel post) {
-                        CommentServis.shared().getRepliedComment(context, model.getTargetCommentId(), model.getPostId(), new RepliedCommentModel() {
-                            @Override
-                            public void getComment(CommentModel comment) {
-                                if (comment!=null){
-                                    Intent i = new Intent(context,ReplyActivity.class);
-                                    i.putExtra("currentUser",currentUser);
-                                    i.putExtra("targetComment",comment);
-                                    i.putExtra("noticesPost",post);
-                                    context.startActivity(i);
-                                    Helper.shared().go((Activity)context);
-                                    WaitDialog.dismiss();
+                        if (post!=null){
+                            CommentServis.shared().getRepliedComment(context, model.getTargetCommentId(), model.getPostId(), new RepliedCommentModel() {
+                                @Override
+                                public void getComment(CommentModel comment) {
+                                    if (comment!=null){
+                                        Intent i = new Intent(context,ReplyActivity.class);
+                                        i.putExtra("currentUser",currentUser);
+                                        i.putExtra("targetComment",comment);
+                                        i.putExtra("lessonPost",post);
+                                        context.startActivity(i);
+                                        Helper.shared().go((Activity)context);
+                                        PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                                        model.setIsRead("true");
+                                        notifyDataSetChanged();;
+                                        WaitDialog.dismiss();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
+
                     }
                 });
             }else if (model.getPostType().equals(NotificationPostType.name.mainPost)){
@@ -415,9 +424,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                     Intent i = new Intent(context,ReplyActivity.class);
                                     i.putExtra("currentUser",currentUser);
                                     i.putExtra("targetComment",comment);
-                                    i.putExtra("noticesPost",post);
+                                    i.putExtra("mainPost",post);
                                     context.startActivity(i);
                                     Helper.shared().go((Activity)context);
+                                    PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                                    model.setIsRead("true");
+                                    notifyDataSetChanged();
                                     WaitDialog.dismiss();
                                 }
                             }

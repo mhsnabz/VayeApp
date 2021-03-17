@@ -269,7 +269,7 @@ public class CommentNotificationService {
                         .document(comment.getSenderUid())
                     .collection("notification")
                         .document(notificaitonId);
-                db.update(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,null,post.getPostType()));
+                db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,null,post.getPostType()),SetOptions.merge());
                 PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid());
 
             }

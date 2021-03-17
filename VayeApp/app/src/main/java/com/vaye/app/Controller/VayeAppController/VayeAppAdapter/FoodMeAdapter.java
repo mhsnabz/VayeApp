@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -25,27 +24,24 @@ import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.hendraanggrian.appcompat.widget.SocialView;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.UnifiedNativeAdViewHolder;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
-import com.vaye.app.Controller.VayeAppController.CommentController.MainPostCommentActivity;
 import com.vaye.app.Controller.VayeAppController.FoodMe.FoodMeViewHolder;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
+import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
-import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
-import com.vaye.app.Services.FoodMeService;
 
-import com.vaye.app.Services.MainPostNS;
 import com.vaye.app.Services.MainPostService;
-import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Services.UserService;
 
 import com.vaye.app.Util.Helper;
@@ -130,8 +126,8 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
@@ -491,8 +487,8 @@ public class FoodMeAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , MainPostCommentActivity.class);
-                        intent.putExtra("post",post.get(i));
+                        Intent intent = new Intent(context , CommentActivity.class);
+                        intent.putExtra("mainPost",post.get(i));
                         intent.putExtra("currentUser",currentUser);
                         context.startActivity(intent);
                         Helper.shared().go((Activity) context);
