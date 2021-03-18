@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "790320844872-gfsg56he5qiau3p6effrbl2mp612p3ik.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vaye.app",
+            "certificate_hash": "4d344025f308304689e16fd156fc390d86016cfa"
+          }
+        },
+        {
           "client_id": "790320844872-0or0qea26vvqi3rsddg97kouoq19ccbq.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -39,7 +47,8 @@
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-1362663023819993~8945028058"
     }
   ],
   "configuration_version": "1"

@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,13 +39,16 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -95,6 +99,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
+import q.rorbin.badgeview.QBadgeView;
 
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
@@ -373,8 +378,36 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         MenuItem menuItem = menu.getItem(0);
         menuItem.setChecked(true);
         overridePendingTransition(0, 0);
+        getBadgeCount();
     }
+    private void getBadgeCount(){
+        BottomNavigationView view;
+        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) view.getChildAt(0);
+        final QBadgeView badge = new QBadgeView(this);
+        final View v = bottomNavigationMenuView.getChildAt(2);
 
+        Query ref =  FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("notification").whereEqualTo("isRead","false");
+
+        ref.addSnapshotListener(this,new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (documentSnapshot.isEmpty()){
+                    badge.hide(true);
+                }else{
+                    badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                            .setBadgeBackgroundColor(Color.RED).setBadgeNumber(documentSnapshot.getDocuments().size());;
+                    if (documentSnapshot.getDocuments().size() < 1){
+                        badge.hide(true);
+                    }
+                }
+            }
+        });
+
+    }
 
     private void addLesson(){
         if (currentUser.getPriority().equals("teacher")){

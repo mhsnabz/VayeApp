@@ -1,6 +1,7 @@
 package com.vaye.app.Controller.NotificationController;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
@@ -15,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -28,9 +30,15 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.rpc.Help;
@@ -50,6 +58,8 @@ import com.vaye.app.Util.SwipeControllerActions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import q.rorbin.badgeview.QBadgeView;
 
 public class NotificationActivity extends AppCompatActivity {
     CurrentUser currentUser;
@@ -274,6 +284,10 @@ public class NotificationActivity extends AppCompatActivity {
         MenuItem menuItem = menu.getItem(2);
         menuItem.setChecked(true);
         overridePendingTransition(0, 0);
+       getBadgeCount();
+
+
+
     }
 
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -293,4 +307,47 @@ public class NotificationActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void getNotificaitonCount(){
+        CollectionReference ref = (CollectionReference) FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("notification").whereEqualTo("isRead","false");
+        ref.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value.isEmpty()){
+
+                    }
+            }
+        });
+    }
+
+    private void getBadgeCount(){
+        BottomNavigationView view;
+        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) view.getChildAt(0);
+        final QBadgeView badge = new QBadgeView(this);
+        final View v = bottomNavigationMenuView.getChildAt(2);
+
+        Query ref =  FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("notification").whereEqualTo("isRead","false");
+
+        ref.addSnapshotListener(this,new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (documentSnapshot.isEmpty()){
+                    badge.hide(true);
+                }else{
+                    badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                            .setBadgeBackgroundColor(Color.RED).setBadgeNumber(documentSnapshot.getDocuments().size());;
+                    if (documentSnapshot.getDocuments().size() < 1){
+                        badge.hide(true);
+                    }
+                }
+            }
+        });
+
+    }
 }

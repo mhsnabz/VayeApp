@@ -1207,7 +1207,7 @@ public class Helper {
         }
         else if (model.getPostType().equals(NotificationPostType.name.follow)){
             if (model.getType().equals(FollowNotification.type.follow_you)){
-                text = "";
+                text = FollowNotification.desp.follow_you;
             }
         }
 

@@ -19,6 +19,8 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Interfaces.TrueFalse;
+import com.vaye.app.Services.UserService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,21 +51,28 @@ public class VayeApp  extends Application {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user!=null){
-
-
-                    String tokenID = FirebaseInstanceId.getInstance().getToken();
-                    final Map<String,Object> map=new HashMap<>();
-                    map.put("tokenID",tokenID);
-                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                            .document(user.getUid());
-                    db.get().addOnSuccessListener( new OnSuccessListener<DocumentSnapshot>() {
+                    UserService.shared().isUserExist(user.getUid(), new TrueFalse<Boolean>() {
                         @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()){
-                                db.set(map , SetOptions.merge());
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                String tokenID = FirebaseInstanceId.getInstance().getToken();
+                                final Map<String,Object> map=new HashMap<>();
+                                map.put("tokenID",tokenID);
+                                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                        .document(user.getUid());
+                                db.get().addOnSuccessListener( new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()){
+                                            db.set(map , SetOptions.merge());
+                                        }
+                                    }
+                                });
+
                             }
                         }
                     });
+
 
                 }
             }

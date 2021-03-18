@@ -31,11 +31,14 @@ import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.CommentController.ReplyActivity;
 import com.vaye.app.Controller.HomeController.SinglePost.SinglePostActivity;
+import com.vaye.app.Controller.NotificationService.FollowNotification;
 import com.vaye.app.Controller.NotificationService.MainPostNotification;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
 import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
+import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.RepliedCommentModel;
 import com.vaye.app.Interfaces.SingleLessonPost;
 import com.vaye.app.Interfaces.SingleMainPost;
@@ -46,11 +49,13 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.Model.NotificationModel;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentServis;
 import com.vaye.app.Services.MainPostService;
 import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Services.SchoolPostService;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -160,6 +165,29 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         }
 
 
+                    }
+                    else if (model.getPostType().equals(NotificationPostType.name.follow)){
+                        if (model.getType().equals(FollowNotification.type.follow_you)){
+                            UserService.shared().getOtherUser((Activity) context, model.getSenderUid(), new OtherUserService() {
+                                @Override
+                                public void callback(OtherUser user) {
+                                    if (user!=null){
+                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                        i.putExtra("currentUser",currentUser);
+                                        i.putExtra("otherUser",user);
+                                        context.startActivity(i);
+                                        PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                                        model.setIsRead("true");
+                                        notifyDataSetChanged();
+                                        Helper.shared().go((Activity)context);
+                                        WaitDialog.dismiss();
+
+                                    }
+
+                                }
+                            });
+
+                        }
                     }
                 }
             });
@@ -316,6 +344,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             i.putExtra("currentUser",currentUser);
                             context.startActivity(i);
                             Helper.shared().go((Activity)context);
+                            PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                            model.setIsRead("true");
+                            notifyDataSetChanged();
                             WaitDialog.dismiss();
                         }
                     }
@@ -331,6 +362,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             i.putExtra("currentUser",currentUser);
                             context.startActivity(i);
                             Helper.shared().go((Activity)context);
+                            PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                            model.setIsRead("true");
+                            notifyDataSetChanged();
                             WaitDialog.dismiss();
                         }
                     }
@@ -346,6 +380,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             i.putExtra("currentUser",currentUser);
                             context.startActivity(i);
                             Helper.shared().go((Activity)context);
+                            PushNotificationService.shared().makeReadLocalNotification(currentUser,model.getNot_id());
+                            model.setIsRead("true");
+                            notifyDataSetChanged();
                             WaitDialog.dismiss();
                         }
                     }

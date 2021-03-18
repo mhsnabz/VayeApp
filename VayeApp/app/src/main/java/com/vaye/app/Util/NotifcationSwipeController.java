@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.fonts.FontStyle;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.NotificationModel;
+import com.vaye.app.R;
 
 import java.util.ArrayList;
 
@@ -172,13 +174,12 @@ public class NotifcationSwipeController extends ItemTouchHelper.Callback {
         RectF leftButton = new RectF(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + buttonWidthWithoutPadding, itemView.getBottom());
         p.setColor(Color.parseColor("#528FE9"));
         c.drawRoundRect(leftButton, corners, corners, p);
-        drawText("Görüldü", c, leftButton, p);
+        draw_Text("Okundu Olarak İşaretle", c, leftButton, p);
 
         RectF rightButton = new RectF(itemView.getRight() - buttonWidthWithoutPadding, itemView.getTop(), itemView.getRight(), itemView.getBottom());
         p.setColor(Color.RED);
         c.drawRoundRect(rightButton, corners, corners, p);
         drawText("Sil", c, rightButton, p);
-
 
 
         buttonInstance = null;
@@ -189,10 +190,20 @@ public class NotifcationSwipeController extends ItemTouchHelper.Callback {
             buttonInstance = rightButton;
         }
     }
-
-    private void drawText(String text, Canvas c, RectF button, Paint p) {
-        float textSize = 60;
+    private void draw_Text(String text, Canvas c, RectF button, Paint p) {
+        float textSize = 20;
         p.setColor(Color.WHITE);
+
+        p.setAntiAlias(true);
+        p.setTextSize(textSize);
+
+        float textWidth = p.measureText(text);
+        c.drawText(text, button.centerX()-(textWidth/2), button.centerY()+(textSize/2), p);
+    }
+    private void drawText(String text, Canvas c, RectF button, Paint p) {
+        float textSize = 30;
+        p.setColor(Color.WHITE);
+
         p.setAntiAlias(true);
         p.setTextSize(textSize);
 

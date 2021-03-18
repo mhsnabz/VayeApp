@@ -86,5 +86,9 @@ dependencies {
     implementation 'com.google.android.libraries.places:places:2.4.0'
     implementation 'com.google.maps.android:android-maps-utils:0.6.2'
     implementation 'com.google.firebase:firebase-messaging-directboot:20.2.0'
+    implementation 'q.rorbin:badgeview:1.1.3'
+
+
+
 
 }

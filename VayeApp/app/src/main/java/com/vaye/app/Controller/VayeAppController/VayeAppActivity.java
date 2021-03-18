@@ -1,10 +1,12 @@
 package com.vaye.app.Controller.VayeAppController;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -14,7 +16,13 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.VayeAppController.BuySell.BuySellFragment;
 import com.vaye.app.Controller.VayeAppController.Camping.CampingFragment;
 import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
@@ -23,6 +31,8 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.Helper;
+
+import q.rorbin.badgeview.QBadgeView;
 
 public class VayeAppActivity extends AppCompatActivity {
     CurrentUser currentUser;
@@ -161,6 +171,35 @@ public class VayeAppActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(false);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+
+        getBadgeCount();
+    }
+    private void getBadgeCount(){
+        BottomNavigationView view;
+        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) view.getChildAt(0);
+        final QBadgeView badge = new QBadgeView(this);
+        final View v = bottomNavigationMenuView.getChildAt(2);
+
+        Query ref =  FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("notification").whereEqualTo("isRead","false");
+
+        ref.addSnapshotListener(this,new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (documentSnapshot.isEmpty()){
+                    badge.hide(true);
+                }else{
+                    badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                            .setBadgeBackgroundColor(Color.RED).setBadgeNumber(documentSnapshot.getDocuments().size());;
+                    if (documentSnapshot.getDocuments().size() < 1){
+                        badge.hide(true);
+                    }
+                }
+            }
+        });
 
     }
     private void changeTabs(int postion){

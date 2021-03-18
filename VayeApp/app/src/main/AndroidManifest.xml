@@ -83,14 +83,15 @@
             </intent-filter>
         </activity>
 
+
         <service
-            android:name=".FCM.MessagingService"
-            android:directBootAware="true"
-            android:exported="false">
+            android:name=".FCM.MessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+
         <service android:name=".Util.DownloadHelper.DownloadService" />
 
         <meta-data

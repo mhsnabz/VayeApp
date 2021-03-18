@@ -267,8 +267,30 @@ public class UserService {
                 }
             }
         });
+
     }
 
+    public void isUserExist(String uid , TrueFalse<Boolean> callback){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(uid);
+        ref.get().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.callBack(false);
+            }
+        }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        callback.callBack(true);
+                    }else{
+                        callback.callBack(false);
+                    }
+                }
+            }
+        });
+    }
 
     public void getOtherUserById(String otherUserUid , OtherUserService user){
 
