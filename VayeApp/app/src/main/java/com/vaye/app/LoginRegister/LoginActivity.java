@@ -3,6 +3,7 @@ package com.vaye.app.LoginRegister;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -50,7 +51,9 @@ public class LoginActivity extends AppCompatActivity {
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent i =new Intent(LoginActivity.this,ChooseSchoolActivity.class);
+                startActivity(i);
+                Helper.shared().go(LoginActivity.this);
             }
         });
 

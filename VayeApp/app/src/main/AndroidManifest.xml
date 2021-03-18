@@ -23,7 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.HomeController.SinglePost.SinglePostActivity"></activity>
+        <activity android:name=".LoginRegister.ChooseSchoolActivity"></activity>
+        <activity android:name=".LoginRegister.RegisterActivity" />
+        <activity android:name=".Controller.HomeController.SinglePost.SinglePostActivity" />
         <activity android:name=".Controller.MapsController.VayeAppPlacePickerActivity" />
         <activity android:name=".Controller.MapsController.GoogleMapsActivity" />
         <activity android:name=".Controller.MapsController.LocationPermissionActivity" />
@@ -83,15 +85,11 @@
             </intent-filter>
         </activity>
 
-
-        <service
-            android:name=".FCM.MessagingService">
+        <service android:name=".FCM.MessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-
         <service android:name=".Util.DownloadHelper.DownloadService" />
 
         <meta-data
