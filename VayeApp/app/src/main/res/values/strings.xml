@@ -18,4 +18,14 @@
     <string name="error_gif">hata</string>
     <string name="map_api_key">AIzaSyC2yPEvNrQQOnuBr7MGaByxk8PEwzrsG1I</string>
     <string name="default_notification_channel_id">vaye.app</string>
+
+    <string-array name="unvan">
+        <item>Ünvan Seçiniz</item>
+        <item>Asistan</item>
+        <item>Araştırma Görevlisi</item>
+        <item>Öğretim Görevlisi</item>
+        <item>Doktor</item>
+        <item>Doçent Doktor</item>
+        <item>Profesör Doktor</item>
+    </string-array>
 </resources>

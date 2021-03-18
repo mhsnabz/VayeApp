@@ -1,11 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".LoginRegister.StudentSignUp">
 
-  
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/number"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:hint="Okul Numaran"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="14dp"
+        android:inputType="number"
+
+        app:met_floatingLabel="normal"
+
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        />
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/email"
+        android:layout_below="@id/number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:hint="E-posta Adresiniz(Kurumsal E-Posta Adresi)"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="14dp"
+
+        android:inputType="textEmailAddress"
+        app:met_floatingLabel="normal"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        />
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_below="@id/email"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:hint="Şifrenizi Giriniz"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="14dp"
+        android:inputType="textPassword"
+        app:met_floatingLabel="normal"
+        />
+    <Button
+
+        android:id="@+id/login"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/password"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/login_button_back"
+        android:fontFamily="@font/nunito_sans_semibold"
+        android:text="Hesap Oluştur"
+        android:textAllCaps="false"
+        android:textColor="#fff"
+        android:textSize="18dp"
+
+        ></Button>
+    <LinearLayout
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/text"
+        android:layout_marginBottom="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Devam ederek "
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textSize="12dp"
+            ></TextView>
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Hizmet Şartları"
+            android:textAllCaps="false"
+            android:textColor="@color/mainColor"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="12dp"
+
+            ></TextView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" ve "
+            android:fontFamily="@font/nunito_semibold"
+            android:textColor="@color/black"
+            android:textSize="12dp"
+            ></TextView>
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Gizlilik Politikası"
+            android:textAllCaps="false"
+            android:textColor="@color/mainColor"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="12dp"
+
+            ></TextView>
+    </LinearLayout>
+    <TextView
+
+        android:layout_marginBottom="30dp"
+        android:id="@+id/text"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/fprgetPass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hükümlerimizi kabul ettiğinizi bildirirsiniz. "
+        android:fontFamily="@font/nunito_semibold"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        ></TextView>
+    <LinearLayout
+        android:id="@+id/fprgetPass"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:fontFamily="@font/nunito_semibold"
+            android:text="Zaten Bir Hesabım Var!"
+            android:textAlignment="textEnd"
+            android:textAllCaps="false"
+            android:textColor="@android:color/darker_gray"></TextView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:fontFamily="@font/nunito_semibold"
+            android:text=" Giriş Yap"
+            android:textAlignment="textEnd"
+            android:textAllCaps="false"
+            android:textColor="@color/mainColor"></TextView>
+    </LinearLayout>
 
 </RelativeLayout>
