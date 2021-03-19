@@ -226,7 +226,7 @@ public class TeacherSignUp extends Fragment {
                                                                 Button okey = (Button)v.findViewById(R.id.okey);
 
                                                                 headerTitle.setText("Kayıt Tamamlandı");
-                                                                String text = "task.getResult().getUser().getEmail()" + " ";
+                                                                String text = task.getResult().getUser().getEmail() + " ";
                                                                 String text2 = text + "adresine Bir Tane Doğrulama E-Postası Gönderdik. Lütfen E-Posta Adresinizi Doğrulayınız" ;
 
                                                                 Spannable spannable = new SpannableString(text2);
@@ -251,7 +251,7 @@ public class TeacherSignUp extends Fragment {
                                                                                 TextView mainText = (TextView)v.findViewById(R.id.mainText);
                                                                                 Button okey = (Button)v.findViewById(R.id.okey);
 
-                                                                                headerTitle.setText("Sayın "+"unvan" + "name");
+                                                                                headerTitle.setText("Sayın "+ getShort_unvan(unvan) + _name);
 
 
                                                                                 SpannableStringBuilder builder = new SpannableStringBuilder();
@@ -261,7 +261,7 @@ public class TeacherSignUp extends Fragment {
                                                                                 redSpannable.setSpan(new ForegroundColorSpan(Color.GRAY), 0, text1.length(), 0);
                                                                                 builder.append(redSpannable);
 
-                                                                                String textName =  _name ;
+                                                                                String textName = "'"+getShort_unvan(unvan) + _name +"'";
                                                                                 SpannableString textNameSpannable= new SpannableString(textName);
                                                                                 textNameSpannable.setSpan(new ForegroundColorSpan(Color.BLUE), 0, textName.length(), 0);
                                                                                 builder.append(textNameSpannable);
