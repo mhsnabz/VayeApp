@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -30,68 +29,69 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kongzue.dialog.v3.WaitDialog;
-import com.vaye.app.Controller.Profile.EditProfileActivity;
-import com.vaye.app.LoginRegister.Adapter.FakulteAdapter;
-import com.vaye.app.Model.SchoolModel;
+import com.vaye.app.LoginRegister.Adapter.BolumAdapter;
+import com.vaye.app.Model.BolumModel;
 import com.vaye.app.Model.TaskUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
+import java.util.Map;
 
-public class SetFakulteActivity extends AppCompatActivity {
+public class SetBolumActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView toolbarTitle;
     TaskUser taskUser;
     RecyclerView list;
-    FakulteAdapter adapter;
-    ArrayList<String> fakulteList = new ArrayList<>();
+    BolumAdapter adapter ;
+    String fakulte;
+    ArrayList<BolumModel> bolumList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_set_fakulte);
+        setContentView(R.layout.activity_set_bolum);
         setToolbar();
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
             taskUser = intentIncoming.getParcelableExtra("taskUser");
 
-            configureUI(taskUser);
-            getFakulte();
 
+            getBolum(intentIncoming.getStringExtra("fakulteName"));
+            configureUI(taskUser,intentIncoming.getStringExtra("fakulteName"));
         }
     }
-    private void getFakulte(){
+    private void getBolum(String fakulteName){
 
-        WaitDialog.show(SetFakulteActivity.this,"");
-        CollectionReference db = FirebaseFirestore.getInstance().collection(taskUser.getShort_school())
-                .document("fakulte").collection("fakulte");
-        db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        WaitDialog.show(SetBolumActivity.this,"");
+        DocumentReference db = FirebaseFirestore.getInstance().collection(taskUser.getShort_school())
+                .document("fakulte").collection("fakulte").document(fakulteName);
+        db.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()){
-                    if (task.getResult().getDocuments().isEmpty()){
-                        return;
-                    }else{
-                        for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            fakulteList.add(item.getId());
-                            adapter.notifyDataSetChanged();
-                        }
+                    WaitDialog.dismiss();
+                    Map<String, Object> map = task.getResult().getData();
+                    for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        String k = entry.getKey();
 
-                        WaitDialog.dismiss();
+                        System.out.println("Key: " + k + ", Value: " + entry.getValue().toString());
+                        bolumList.add(new BolumModel(entry.getKey(),entry.getValue().toString()));
+                        adapter.notifyDataSetChanged();
                     }
                 }
             }
         });
+
     }
 
-    private void configureUI(TaskUser taskUser){
+    private void configureUI(TaskUser taskUser,String fakulte){
 
         list = (RecyclerView)findViewById(R.id.list);
         list.setHasFixedSize(true);
         list.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new FakulteAdapter(fakulteList,this,taskUser);
-        list.setAdapter(adapter);
+        adapter = new BolumAdapter(fakulte,bolumList,this,taskUser);
+       list.setAdapter(adapter);
 
     }
     private void setToolbar(){
@@ -103,7 +103,7 @@ public class SetFakulteActivity extends AppCompatActivity {
         toolbar.setTitle("");
         toolbar.setSubtitle("");
         toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbar_title);
-        toolbarTitle.setText("Fakulteni Seç");
+        toolbarTitle.setText("Bölümünü Seç");
 
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -114,7 +114,7 @@ public class SetFakulteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-                Helper.shared().back(SetFakulteActivity.this);
+                Helper.shared().back(SetBolumActivity.this);
             }
         });
     }
@@ -128,7 +128,7 @@ public class SetFakulteActivity extends AppCompatActivity {
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
         searchView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        searchView.setQueryHint("Fakulte Adı Giriniz");
+        searchView.setQueryHint("Bölüm Adı Giriniz");
         searchView.setInputType(InputType.TYPE_CLASS_TEXT);
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
@@ -141,10 +141,10 @@ public class SetFakulteActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 Log.d("TAG", "onQueryTextChange: " + newText);
 
-                ArrayList<String> filtred = new ArrayList<>();
+                ArrayList<BolumModel> filtred = new ArrayList<>();
 
-                for (String item : fakulteList){
-                    if (item.toLowerCase().contains(newText.toLowerCase())){
+                for (BolumModel item : bolumList){
+                    if (item.getValue().toLowerCase().contains(newText.toLowerCase())){
                         filtred.add(item);
                     }
                 }
@@ -162,6 +162,6 @@ public class SetFakulteActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-        Helper.shared().back(SetFakulteActivity.this);
+        Helper.shared().back(SetBolumActivity.this);
     }
 }

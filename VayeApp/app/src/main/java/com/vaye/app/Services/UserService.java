@@ -54,9 +54,9 @@ public class UserService {
                 if (task.isSuccessful()){
                     if (task.getResult().exists()){
                         result.onCallback(task.getResult().toObject(CurrentUser.class));
+                    }else{
+                        result.onCallback(null);
                     }
-                }else{
-                    result.onCallback(null);
                 }
             }
         }).addOnFailureListener( new OnFailureListener() {

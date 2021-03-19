@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -15,12 +16,16 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.SchoolModel;
+import com.vaye.app.Model.TaskUser;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class StudentSignUpService {
     private static final StudentSignUpService instance = new StudentSignUpService();
@@ -138,11 +143,11 @@ public class StudentSignUpService {
         });
     }
 
-    public void setStatus(Context context,String uid , TrueFalse<Boolean> callback){
+    public void setStatus(Context context,String uid ,Boolean val, TrueFalse<Boolean> callback){
         DocumentReference ref = FirebaseFirestore.getInstance().collection("status")
                 .document(uid);
         HashMap<String ,Object > map = new HashMap<>();
-        map.put("status",false);
+        map.put("status",val);
         ref.set(map, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -187,6 +192,164 @@ public class StudentSignUpService {
                             callback.callBack(true);
                         }
                     }
+                }
+            }
+        });
+    }
+
+
+    public void setSetStudentNumber(TaskUser taskUser , TrueFalse<Boolean> callback){
+        DocumentReference number = FirebaseFirestore.getInstance().collection(taskUser.getShort_school())
+                .document("students").collection("student-number").document(taskUser.getNumber());
+
+        Map<String , Object> map = new HashMap<>();
+        map.put("name",taskUser.getName());
+        map.put("short_school",taskUser.getShort_school());
+        map.put("uid",taskUser.getUid());
+        map.put("email",taskUser.getEmail());
+        number.set(map,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(true);
+                }
+            }
+        });
+    }
+    public void deleteTaskUser(TaskUser taskUser ,TrueFalse<Boolean> callback){
+        DocumentReference db = FirebaseFirestore.getInstance().collection("task-user")
+                .document(taskUser.getUid());
+        db.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    String tokenID = FirebaseInstanceId.getInstance().getToken();
+                    final Map<String,Object> map=new HashMap<>();
+                    map.put("tokenID",tokenID);
+                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                            .document(taskUser.getUid());
+                    db.get().addOnSuccessListener( new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()){
+                                db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()){
+                                            setSetStudentNumber(taskUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    if (_value){
+
+                                                        callback.callBack(true);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    public void completeSignUp(Context context,TaskUser taskUser , String bolum ,String bolum_key, String fakulte , TrueFalse<Boolean> callback){
+
+        Map<String , Object> map = new HashMap<>();
+        map.put("name",taskUser.getName());
+        map.put("slient",FieldValue.arrayUnion());
+        map.put("uid",taskUser.getUid());
+        map.put("profileImage","");
+        map.put("thumb_image","");
+        map.put("mention",true);
+        map.put("like",true);
+        map.put("comment",true);
+        map.put("follow",true);
+        map.put("lessonNotices",true);
+        map.put("friendList",FieldValue.arrayUnion());
+        map.put("email",taskUser.getEmail());
+        map.put("priority","student");
+        map.put("bolum",bolum);
+        map.put("fakulte",fakulte);
+        map.put("bolum_key",bolum_key);
+        map.put("short_school",taskUser.getShort_school());
+        map.put("schoolName",taskUser.getSchoolName());
+        map.put("username",taskUser.getUsername());
+        map.put("instagram","");
+        map.put("twitter","");
+        map.put("github","");
+        map.put("linkedin","");
+        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                .document(taskUser.getUid());
+        db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+
+
+
+                    Map<String , Object> usernameMap = new HashMap<>();
+                    usernameMap.put("username",taskUser.getUsername());
+                    usernameMap.put("uid",taskUser.getUid());
+                    usernameMap.put("email",taskUser.getEmail());
+                    DocumentReference refUsername = FirebaseFirestore.getInstance().collection("username")
+                            .document(taskUser.getUsername());
+                    refUsername.set(usernameMap,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    setPriority(context, taskUser.getUid(), "student", new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                setStatus(context, taskUser.getUid(),true, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            DocumentReference dbTask = FirebaseFirestore.getInstance().collection("user")
+                                                                    .document(taskUser.getUid()).collection("saved-task")
+                                                                    .document("task");
+                                                            Map<String , Object> savedTask = new HashMap<>();
+                                                                    savedTask.put("task",FieldValue.arrayUnion());
+                                                                    dbTask.set(savedTask, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            if (task.isSuccessful()){
+                                                                                deleteTaskUser(taskUser, new TrueFalse<Boolean>() {
+                                                                                    @Override
+                                                                                    public void callBack(Boolean _value) {
+                                                                                        if (_value){
+                                                                                            DocumentReference dbc = FirebaseFirestore.getInstance().collection("priority").document(taskUser.getUid());
+                                                                                            HashMap<String ,String> priorityMap = new HashMap<>();
+                                                                                            priorityMap.put("priority","student");
+                                                                                            dbc.set(priorityMap,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                @Override
+                                                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                                                    if (task.isSuccessful()){
+                                                                                                        callback.callBack(true);
+                                                                                                    }
+                                                                                                }
+                                                                                            });
+
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                        }
+                                                                    });
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+
+                                }
+                        }
+                    });
                 }
             }
         });

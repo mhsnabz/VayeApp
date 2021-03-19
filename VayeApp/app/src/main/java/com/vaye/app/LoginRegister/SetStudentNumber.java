@@ -155,6 +155,7 @@ public class SetStudentNumber extends AppCompatActivity {
                                                     i.putExtra("taskUser",taskUser);
                                                     startActivity(i);
                                                     Helper.shared().go(SetStudentNumber.this);
+                                                    WaitDialog.dismiss();
                                                 }
                                             });
                                         }else{

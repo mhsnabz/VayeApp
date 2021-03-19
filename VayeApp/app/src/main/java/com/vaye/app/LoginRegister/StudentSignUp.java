@@ -151,7 +151,7 @@ public class StudentSignUp extends Fragment {
                                                 @Override
                                                 public void callBack(Boolean _value) {
                                                     if (_value){
-                                                        StudentSignUpService.shared().setStatus(getContext(), task.getResult().getUser().getUid(), new TrueFalse<Boolean>() {
+                                                        StudentSignUpService.shared().setStatus(getContext(), task.getResult().getUser().getUid(),false, new TrueFalse<Boolean>() {
                                                             @Override
                                                             public void callBack(Boolean _value) {
                                                                 if (_value){
