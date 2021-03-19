@@ -331,6 +331,10 @@ public class TeacherSignUp extends Fragment {
                             }
                         });
 
+                    }else{
+                        WaitDialog.dismiss();
+                        TipDialog.show((AppCompatActivity)getContext(),"HATA OLUŞTU\nTekrar Deneyin", TipDialog.TYPE.ERROR);
+                        TipDialog.dismiss(750);
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {

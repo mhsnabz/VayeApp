@@ -11,7 +11,6 @@
         android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:hint="Okul Numaran"
         android:textAlignment="center"
         android:fontFamily="@font/nunito_semibold"
@@ -58,7 +57,7 @@
         />
     <Button
 
-        android:id="@+id/login"
+        android:id="@+id/signUp"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@id/password"

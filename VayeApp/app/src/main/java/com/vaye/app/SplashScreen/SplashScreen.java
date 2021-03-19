@@ -22,6 +22,8 @@ import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.TaskUserHandler;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.LoginRegister.LoginActivity;
+import com.vaye.app.LoginRegister.SetStudentNumber;
+import com.vaye.app.LoginRegister.SetTeacherActivity;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.TaskUser;
 import com.vaye.app.R;
@@ -117,6 +119,14 @@ public class SplashScreen extends AppCompatActivity {
                                         @Override
                                         public void onCallback(TaskUser user) {
                                             //TODO: student registiration
+                                            if (user!=null){
+                                                Intent i = new Intent(SplashScreen.this, SetStudentNumber.class);
+                                                i.putExtra("taskUser",user);
+                                                startActivity(i);
+                                                finish();
+                                            }else{
+
+                                            }
                                         }
                                     });
                                 }else{
@@ -128,7 +138,10 @@ public class SplashScreen extends AppCompatActivity {
                         UserService.shared().getTaskUser(uid, new TaskUserHandler() {
                             @Override
                             public void onCallback(TaskUser user) {
-                                //TODO: student registiration
+                                Intent i = new Intent(SplashScreen.this, SetTeacherActivity.class);
+                                i.putExtra("taskUser",user);
+                                startActivity(i);
+                                finish();
                             }
                         });
                     }

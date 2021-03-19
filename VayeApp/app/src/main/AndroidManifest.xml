@@ -23,7 +23,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".LoginRegister.ChooseSchoolActivity"></activity>
+        <activity android:name=".LoginRegister.SetFakulteActivity"></activity>
+        <activity android:name=".LoginRegister.SetTeacherActivity" />
+        <activity android:name=".LoginRegister.SetStudentNumber" />
+        <activity android:name=".LoginRegister.ChooseSchoolActivity" />
         <activity android:name=".LoginRegister.RegisterActivity" />
         <activity android:name=".Controller.HomeController.SinglePost.SinglePostActivity" />
         <activity android:name=".Controller.MapsController.VayeAppPlacePickerActivity" />

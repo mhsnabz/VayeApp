@@ -18,10 +18,17 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.GizlilikActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.HizmetActivity;
+import com.vaye.app.Interfaces.CurrentUserService;
+import com.vaye.app.Interfaces.TaskUserHandler;
+import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.TaskUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.SplashScreen.SplashScreen;
@@ -89,10 +96,49 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    Intent i = new Intent(LoginActivity.this , SplashScreen.class);
-                    startActivity(i);
-                    WaitDialog.dismiss();
-                    finish();
+
+                    if (task.getResult().getUser() != null){
+                        UserService.shared().getCurrentUser(task.getResult().getUser().getUid(), new CurrentUserService() {
+                            @Override
+                            public void onCallback(CurrentUser user) {
+                                if (user!=null){
+                                    Intent i = new Intent(LoginActivity.this , SplashScreen.class);
+                                    startActivity(i);
+                                    WaitDialog.dismiss();
+                                    finish();
+                                }else{
+                                    DocumentReference getPriority = FirebaseFirestore.getInstance().collection("priority")
+                                            .document(task.getResult().getUser().getUid());
+                                    getPriority.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> _task) {
+                                            if (task.isSuccessful()){
+                                                if (_task.getResult().exists()){
+                                                    if (_task.getResult().getString("priority")!=null){
+                                                        if (_task.getResult().getString("priority").equals("teacher")){
+
+                                                        }else if (_task.getResult().getString("priority").equals("student")){
+                                                            UserService.shared().getTaskUser(task.getResult().getUser().getUid(), new TaskUserHandler() {
+                                                                @Override
+                                                                public void onCallback(TaskUser user) {
+                                                                    Intent i = new Intent(LoginActivity.this , SplashScreen.class);
+                                                                    startActivity(i);
+                                                                    WaitDialog.dismiss();
+                                                                    finish();
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+
                 }
             }
         }).addOnFailureListener(this, new OnFailureListener() {

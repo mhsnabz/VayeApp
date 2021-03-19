@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginRegister.SetStudentNumber">
+    <include layout="@layout/toolbar_layout" android:id="@+id/toolbar"></include>
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/name"
+        android:layout_below="@id/toolbar"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Adınız ve Soyadınız"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="14dp"
+        android:inputType="text"
+
+        app:met_floatingLabel="normal"
+
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        />
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/username"
+        android:layout_below="@id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:hint=" @kullanıcıAdı seçiniz"
+        android:digits="0123456789qwertzuiopasdfghjklyxcvbnm._-"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="14dp"
+        android:inputType="text"
+        app:met_floatingLabel="normal"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        />
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:layout_below="@id/username"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:id="@+id/number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:hint="Okul Numaranızı Giriniz"
+        android:textAlignment="center"
+        android:fontFamily="@font/nunito_semibold"
+        android:textSize="14dp"
+        android:inputType="number"
+        app:met_floatingLabel="normal"
+        />
+    <Button
+
+        android:id="@+id/signUp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/number"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/login_button_back"
+        android:fontFamily="@font/nunito_sans_semibold"
+        android:text="Kaydet ve Devam Et"
+        android:textAllCaps="false"
+        android:textColor="#fff"
+        android:textSize="18dp"
+
+        ></Button>
+</RelativeLayout>
