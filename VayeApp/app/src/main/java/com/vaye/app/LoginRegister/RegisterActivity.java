@@ -37,7 +37,16 @@ public class RegisterActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
-            model = intentIncoming.getParcelableExtra("schoolModel");
+
+          model =  intentIncoming.getParcelableExtra("schoolModel");
+
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("schoolModel",model);
+
+            TeacherSignUp fragobj = new TeacherSignUp();
+            fragobj.setArguments(bundle);
+            StudentSignUp studentSignUp = new StudentSignUp();
+            studentSignUp.setArguments(bundle);
             setToolbar(model);
             configureUI();
         }
@@ -72,8 +81,8 @@ public class RegisterActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
         adapter = new ProfileViewPager(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 
-        adapter.addFrag(new StudentSignUp(),"Öğrenci");
-        adapter.addFrag(new TeacherSignUp(),"Öğretim Görevlisi");
+        adapter.addFrag(new StudentSignUp(model),"Öğrenci");
+        adapter.addFrag(new TeacherSignUp(model),"Öğretim Görevlisi");
 
         viewPager.setAdapter(adapter);
     }

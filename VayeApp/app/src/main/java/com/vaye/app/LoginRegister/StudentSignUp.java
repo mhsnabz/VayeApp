@@ -8,11 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.vaye.app.Model.SchoolModel;
 import com.vaye.app.R;
 
 
 public class StudentSignUp extends Fragment {
 
+    SchoolModel model;
+
+    public StudentSignUp(SchoolModel model) {
+        this.model = model;
+    }
 
     public StudentSignUp() {
         // Required empty public constructor
