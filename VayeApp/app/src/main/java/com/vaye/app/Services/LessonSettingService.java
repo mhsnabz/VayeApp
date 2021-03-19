@@ -2,6 +2,7 @@ package com.vaye.app.Services;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LessonSettingService {
+    String TAG = "LessonSettingService";
     private static final LessonSettingService instance = new LessonSettingService();
     public static LessonSettingService shared() {
         return instance;
@@ -146,21 +148,20 @@ public class LessonSettingService {
     }
     private void getAllPost(CurrentUser currentUser, String lessonName ,Activity activity, StringArrayListInterface list){
         ArrayList<String> postId = new ArrayList<>();
-        //let db = Firestore.firestore().collection(currentUser.short_school)
-            //    .document("lesson-post").collection("post").whereField("lessonName", isEqualTo: lessonName)
-
         Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("lesson-post")
                 .collection("post")
-                .whereEqualTo("lessonName" , lessonName).limit(10);
+                .whereEqualTo("lessonName" , lessonName).orderBy("postId").limitToLast(40);
         db.get().addOnCompleteListener(activity, new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.getResult().isEmpty()){
                     list.getArrayList(postId);
+
                 }else {
                     for (DocumentSnapshot id : task.getResult().getDocuments()){
                         postId.add(id.getId());
+                        Log.d(TAG, "onComplete: " + id.getId());
                     }
                     list.getArrayList(postId);
                 }

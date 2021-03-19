@@ -288,9 +288,6 @@ public class StudentSignUpService {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-
-
-
                     Map<String , Object> usernameMap = new HashMap<>();
                     usernameMap.put("username",taskUser.getUsername());
                     usernameMap.put("uid",taskUser.getUid());

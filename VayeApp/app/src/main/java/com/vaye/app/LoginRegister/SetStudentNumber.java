@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SetStudentNumber extends AppCompatActivity {
+    String TAG = "SetStudentNumber";
     Toolbar toolbar;
     TaskUser taskUser;
     TextView toolbarTitle;
@@ -152,10 +154,16 @@ public class SetStudentNumber extends AppCompatActivity {
                                                 @Override
                                                 public void onCallback(TaskUser user) {
                                                     Intent i = new Intent(SetStudentNumber.this,SetFakulteActivity.class);
-                                                    i.putExtra("taskUser",taskUser);
+                                                    taskUser.setNumber(_number);
+                                                    taskUser.setUsername(_username);
+                                                    taskUser.setName(_name);
+                                                    Log.d(TAG, "onCallback: " + user.getUsername());
+                                                    Log.d(TAG, "onCallback: " + user.getName());
+                                                    Log.d(TAG, "onCallback: " + user.getNumber());
+                                                    i.putExtra("taskUser",user);
                                                     startActivity(i);
                                                     Helper.shared().go(SetStudentNumber.this);
-                                                    WaitDialog.dismiss();
+
                                                 }
                                             });
                                         }else{
