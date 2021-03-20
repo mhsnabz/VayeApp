@@ -39,6 +39,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity;
+import com.vaye.app.Controller.HomeController.TeacherNewPost.TeacherChooseLesson;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
@@ -388,10 +389,18 @@ public class BolumFragment extends Fragment {
     }
 
     private void setNewPost(){
-        Intent i = new Intent(getActivity(),StudentChooseLessonActivity.class);
-        i.putExtra("currentUser",currentUser);
-        getActivity().startActivity(i);
-        Helper.shared().go(getActivity());
+        if (currentUser.getPriority().equals("student")){
+            Intent i = new Intent(getActivity(),StudentChooseLessonActivity.class);
+            i.putExtra("currentUser",currentUser);
+            getActivity().startActivity(i);
+            Helper.shared().go(getActivity());
+        }else if (currentUser.getPriority().equals("teacher")){
+            Intent i = new Intent(getActivity(), TeacherChooseLesson.class);
+            i.putExtra("currentUser",currentUser);
+            getActivity().startActivity(i);
+            Helper.shared().go(getActivity());
+        }
+
     }
     private void getPostId(CurrentUser currentUser , StringArrayListInterface result){
         postIds = new ArrayList<>();

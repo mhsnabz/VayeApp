@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Controller.HomeController.TeacherNewPost.TeacherChooseLesson">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="14dp"
+            android:textColor="@color/black"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title" />
+        <LinearLayout
+            android:weightSum="1"
+            android:orientation="horizontal"
+            android:layout_width="80dp"
+            android:layout_marginRight="12sp"
+            android:layout_gravity="right"
+            android:layout_height="30dp">
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/devamEt"
+                android:background="@drawable/button_drive_back"
+                android:text="Devam Et"
+                android:textSize="12sp"
+                android:fontFamily="@font/nunito_sans_semibold"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                ></Button>
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_below="@id/toolbar"
+        android:layout_height="match_parent"
+        android:id="@+id/lessonList"
+        ></androidx.recyclerview.widget.RecyclerView>
+</RelativeLayout>
