@@ -36,7 +36,6 @@ public class LessonSettingService {
         return instance;
     }
     public void getFollowersCont(String lessonName , CurrentUser currentUser ,  CallBackCount count){
-//İSTE/lesson/Bilgisayar Mühendisliği/Bilgisayar Programlama/fallowers
         CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("lesson")
                 .collection(currentUser.getBolum())

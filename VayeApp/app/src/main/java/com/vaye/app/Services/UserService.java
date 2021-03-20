@@ -121,6 +121,28 @@ public class UserService {
     }
 
 
+    public void getTaskTeacher(String uid , TaskUserHandler result){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("task-teacher")
+                .document(uid);
+        ref.get().addOnCompleteListener( new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().exists()){
+                        result.onCallback(task.getResult().toObject(TaskUser.class));
+                    }else{
+                        result.onCallback(null);
+                    }
+                }
+            }
+        }).addOnFailureListener( new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+    }
+
     public void getTaskUser(String uid , TaskUserHandler result){
         DocumentReference ref = FirebaseFirestore.getInstance().collection("task-user")
                 .document(uid);

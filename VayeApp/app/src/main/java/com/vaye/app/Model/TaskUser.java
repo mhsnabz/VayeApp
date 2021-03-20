@@ -8,11 +8,12 @@ import java.util.ArrayList;
 public class TaskUser implements Parcelable {
       String email , name , number ,   priority ,profileImage ,thumb_image ,schoolName  ,short_school  ,bolum  ,fakulte  ,uid  ,username ,linkedin ,instagram,twitter,github,unvan;
         ArrayList<String> slientUser;
+        Boolean isValid;
 
     public TaskUser() {
     }
 
-    public TaskUser(String email, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, String unvan, ArrayList<String> slientUser) {
+    public TaskUser(String email, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, String unvan, ArrayList<String> slientUser, Boolean isValid) {
         this.email = email;
         this.name = name;
         this.number = number;
@@ -31,6 +32,7 @@ public class TaskUser implements Parcelable {
         this.github = github;
         this.unvan = unvan;
         this.slientUser = slientUser;
+        this.isValid = isValid;
     }
 
     protected TaskUser(Parcel in) {
@@ -52,6 +54,8 @@ public class TaskUser implements Parcelable {
         github = in.readString();
         unvan = in.readString();
         slientUser = in.createStringArrayList();
+        byte tmpIsValid = in.readByte();
+        isValid = tmpIsValid == 0 ? null : tmpIsValid == 1;
     }
 
     public static final Creator<TaskUser> CREATOR = new Creator<TaskUser>() {
@@ -70,144 +74,152 @@ public class TaskUser implements Parcelable {
         return email;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public String getPriority() {
-        return priority;
-    }
-
-    public String getProfileImage() {
-        return profileImage;
-    }
-
-    public String getThumb_image() {
-        return thumb_image;
-    }
-
-    public String getSchoolName() {
-        return schoolName;
-    }
-
-    public String getShort_school() {
-        return short_school;
-    }
-
-    public String getBolum() {
-        return bolum;
-    }
-
-    public String getFakulte() {
-        return fakulte;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getLinkedin() {
-        return linkedin;
-    }
-
-    public String getInstagram() {
-        return instagram;
-    }
-
-    public String getTwitter() {
-        return twitter;
-    }
-
-    public String getGithub() {
-        return github;
-    }
-
-    public String getUnvan() {
-        return unvan;
-    }
-
-    public ArrayList<String> getSlientUser() {
-        return slientUser;
-    }
-
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getNumber() {
+        return number;
+    }
+
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public String getPriority() {
+        return priority;
     }
 
     public void setPriority(String priority) {
         this.priority = priority;
     }
 
+    public String getProfileImage() {
+        return profileImage;
+    }
+
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public String getThumb_image() {
+        return thumb_image;
     }
 
     public void setThumb_image(String thumb_image) {
         this.thumb_image = thumb_image;
     }
 
+    public String getSchoolName() {
+        return schoolName;
+    }
+
     public void setSchoolName(String schoolName) {
         this.schoolName = schoolName;
+    }
+
+    public String getShort_school() {
+        return short_school;
     }
 
     public void setShort_school(String short_school) {
         this.short_school = short_school;
     }
 
+    public String getBolum() {
+        return bolum;
+    }
+
     public void setBolum(String bolum) {
         this.bolum = bolum;
+    }
+
+    public String getFakulte() {
+        return fakulte;
     }
 
     public void setFakulte(String fakulte) {
         this.fakulte = fakulte;
     }
 
+    public String getUid() {
+        return uid;
+    }
+
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
+    public String getLinkedin() {
+        return linkedin;
+    }
+
     public void setLinkedin(String linkedin) {
         this.linkedin = linkedin;
+    }
+
+    public String getInstagram() {
+        return instagram;
     }
 
     public void setInstagram(String instagram) {
         this.instagram = instagram;
     }
 
+    public String getTwitter() {
+        return twitter;
+    }
+
     public void setTwitter(String twitter) {
         this.twitter = twitter;
+    }
+
+    public String getGithub() {
+        return github;
     }
 
     public void setGithub(String github) {
         this.github = github;
     }
 
+    public String getUnvan() {
+        return unvan;
+    }
+
     public void setUnvan(String unvan) {
         this.unvan = unvan;
     }
 
+    public ArrayList<String> getSlientUser() {
+        return slientUser;
+    }
+
     public void setSlientUser(ArrayList<String> slientUser) {
         this.slientUser = slientUser;
+    }
+
+    public Boolean getValid() {
+        return isValid;
+    }
+
+    public void setValid(Boolean valid) {
+        isValid = valid;
     }
 
     @Override
@@ -235,5 +247,6 @@ public class TaskUser implements Parcelable {
         parcel.writeString(github);
         parcel.writeString(unvan);
         parcel.writeStringList(slientUser);
+        parcel.writeByte((byte) (isValid == null ? 0 : isValid ? 1 : 2));
     }
 }

@@ -256,7 +256,7 @@ public class StudentSignUpService {
         });
     }
 
-    public void completeSignUp(Context context,TaskUser taskUser , String bolum ,String bolum_key, String fakulte , TrueFalse<Boolean> callback){
+    public void completeSignUp(Context context,TaskUser taskUser ,String priority, String bolum ,String bolum_key, String fakulte , TrueFalse<Boolean> callback){
 
         Map<String , Object> map = new HashMap<>();
         map.put("name",taskUser.getName());
@@ -270,11 +270,13 @@ public class StudentSignUpService {
         map.put("follow",true);
         map.put("lessonNotices",true);
         map.put("friendList",FieldValue.arrayUnion());
+        map.put("slientChatUser",FieldValue.arrayUnion());
         map.put("email",taskUser.getEmail());
-        map.put("priority","student");
+        map.put("priority",priority);
         map.put("bolum",bolum);
         map.put("fakulte",fakulte);
         map.put("bolum_key",bolum_key);
+        map.put("number",taskUser.getNumber());
         map.put("short_school",taskUser.getShort_school());
         map.put("schoolName",taskUser.getSchoolName());
         map.put("username",taskUser.getUsername());
@@ -298,7 +300,7 @@ public class StudentSignUpService {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
-                                    setPriority(context, taskUser.getUid(), "student", new TrueFalse<Boolean>() {
+                                    setPriority(context, taskUser.getUid(), priority, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -321,7 +323,7 @@ public class StudentSignUpService {
                                                                                         if (_value){
                                                                                             DocumentReference dbc = FirebaseFirestore.getInstance().collection("priority").document(taskUser.getUid());
                                                                                             HashMap<String ,String> priorityMap = new HashMap<>();
-                                                                                            priorityMap.put("priority","student");
+                                                                                            priorityMap.put("priority",priority);
                                                                                             dbc.set(priorityMap,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                                                 @Override
                                                                                                 public void onComplete(@NonNull Task<Void> task) {
