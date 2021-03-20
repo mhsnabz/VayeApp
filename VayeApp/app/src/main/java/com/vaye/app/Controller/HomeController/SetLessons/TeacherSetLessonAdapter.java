@@ -84,12 +84,22 @@ public class TeacherSetLessonAdapter extends RecyclerView.Adapter<RecyclerView.V
         teacherSetLessonViewHolder.remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                model.setTeacherEmail("empty");
-                model.setTeacherId("empty");
-                model.setTeacherName("empty");
-                teacherSetLessonViewHolder.setLessonName(list.get(position).getLessonName());
-                teacherSetLessonViewHolder.setTeacherName(list.get(position).getTeacherName());
-                notifyDataSetChanged();
+                WaitDialog.show((AppCompatActivity)context,"Ders Siliniyor");
+                LessonSettingService.shared().removeTeacheronLesson(context,currentUser, model.getLessonName(), new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            model.setTeacherEmail("empty");
+                            model.setTeacherId("empty");
+                            model.setTeacherName("empty");
+                            teacherSetLessonViewHolder.setLessonName(list.get(position).getLessonName());
+                            teacherSetLessonViewHolder.setTeacherName(list.get(position).getTeacherName());
+                            notifyDataSetChanged();
+
+                        }
+                    }
+                });
+
             }
         });
     }

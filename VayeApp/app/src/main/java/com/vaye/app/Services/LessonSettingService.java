@@ -1,6 +1,7 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -383,6 +384,7 @@ public class LessonSettingService {
                                                             for (DocumentSnapshot item : task.getResult().getDocuments()) {
                                                                 Map<String  , String > lessonMap = new HashMap<>();
                                                                 lessonMap.put("postId",item.getId());
+                                                                lessonMap.put("lessonName",lessonName);
                                                                 dbLesson.document(item.getId()).set(lessonMap,SetOptions.merge());
                                                             }
                                                             callback.callBack(true);
@@ -418,4 +420,61 @@ public class LessonSettingService {
             }
         });
     }
+    public void removeTeacheronLesson(Context context, CurrentUser currentUser , String lessonName , TrueFalse<Boolean> callbaclk){
+        Map<String , Object> map = new HashMap<>();
+        map.put("teacherName","empty");
+        map.put("teacherId","empty");
+        map.put("teacherEmail","empty");
+        map.put("lessonName",lessonName);
+
+        DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school()).document("lesson")
+                .collection(currentUser.getBolum())
+                .document(lessonName);
+        db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                          removeNotificationGetterList(currentUser, lessonName, new TrueFalse<Boolean>() {
+                              @Override
+                              public void callBack(Boolean _value) {
+                                  getUserLessonPostId(currentUser, lessonName, new StringArrayListInterface() {
+                                      @Override
+                                      public void getArrayList(ArrayList<String> list) {
+                                          removeAllPostId(currentUser, list, new TrueFalse<Boolean>() {
+                                              @Override
+                                              public void callBack(Boolean _value) {
+                                                  if (_value){
+                                                      removeNotificationGetterList(currentUser, lessonName, new TrueFalse<Boolean>() {
+                                                          @Override
+                                                          public void callBack(Boolean _value) {
+                                                              if (_value){
+                                                                  DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                                                          .document(currentUser.getUid())
+                                                                          .collection("lesson")
+                                                                          .document(lessonName);
+                                                                  ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                      @Override
+                                                                      public void onComplete(@NonNull Task<Void> task) {
+                                                                          if (task.isSuccessful()){
+                                                                              WaitDialog.dismiss();
+                                                                              callbaclk.callBack(true);
+                                                                          }
+                                                                      }
+                                                                  });
+
+                                                              }
+                                                          }
+                                                      });
+                                                  }
+                                              }
+                                          });
+                                      }
+                                  });
+                              }
+                          });
+                }
+            }
+        });
+    }
+
 }
