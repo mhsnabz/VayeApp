@@ -1,13 +1,13 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -18,7 +18,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
-import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivity;
 import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -335,5 +334,88 @@ public class LessonSettingService {
             }
         });
 
+    }
+
+
+    public void addTeacherOnLesson(CurrentUser currentUser , String lessonName , TrueFalse<Boolean> callback){
+        Map<String , Object> map = new HashMap<>();
+        map.put("teacherName",currentUser.getName());
+        map.put("teacherId",currentUser.getUid());
+        map.put("teacherEmail",currentUser.getEmail());
+        map.put("lessonName",lessonName);
+
+        DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school()).document("lesson")
+                .collection(currentUser.getBolum())
+                .document(lessonName);
+        db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    setNotificationGetter(currentUser, lessonName, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                //user/2YZzIIAdcUfMFHnreosXZOTLZat1/lesson/Bilgisayar Programlama
+                                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                        .document(currentUser.getUid())
+                                        .collection("lesson")
+                                        .document(lessonName);
+                                db.set(map,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()){
+                                            Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                                    .document("lesson")
+                                                    .collection(currentUser.getBolum())
+                                                    .document(lessonName)
+                                                    .collection("lesson-post").limitToLast(30).orderBy("postId");
+                                            ////user/2YZzIIAdcUfMFHnreosXZOTLZat1/lesson/Bilgisayar Programlama
+                                            CollectionReference dbLesson = FirebaseFirestore.getInstance().collection("user")
+                                                    .document(currentUser.getUid())
+                                                    .collection("lesson-post");
+                                            db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()){
+                                                        if (task.getResult().getDocuments().isEmpty()){
+                                                            callback.callBack(true);
+                                                        }else{
+                                                            for (DocumentSnapshot item : task.getResult().getDocuments()) {
+                                                                Map<String  , String > lessonMap = new HashMap<>();
+                                                                lessonMap.put("postId",item.getId());
+                                                                dbLesson.document(item.getId()).set(lessonMap,SetOptions.merge());
+                                                            }
+                                                            callback.callBack(true);
+                                                        }
+                                                    }
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    callback.callBack(false);
+                                                }
+                                            });
+
+                                        }
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        callback.callBack(false);
+                                    }
+                                });
+
+                            }
+                        }
+                    });
+
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.callBack(false);
+            }
+        });
     }
 }

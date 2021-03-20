@@ -50,7 +50,7 @@ public class StudentSetLessonActivity extends AppCompatActivity {
     RecyclerView lessonList;
     String TAG = "StudentSetLessonActivity";
     ArrayList <LessonModel> model = new ArrayList<>();
-      StudentLessonAdapter adapter = new StudentLessonAdapter(model , currentUser , StudentSetLessonActivity.this);
+    StudentLessonAdapter adapter = new StudentLessonAdapter(model , currentUser , StudentSetLessonActivity.this);
 
     public StudentLessonAdapter getAdapter() {
         return adapter;

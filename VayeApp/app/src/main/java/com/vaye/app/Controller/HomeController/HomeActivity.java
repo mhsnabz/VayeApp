@@ -70,6 +70,7 @@ import com.vaye.app.Controller.HomeController.PagerAdapter.PagerViewApadater;
 import com.vaye.app.Controller.HomeController.School.SchoolFragment;
 import com.vaye.app.Controller.HomeController.School.SchoolPostNotificationActivity;
 import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivity;
+import com.vaye.app.Controller.HomeController.SetLessons.TeacherSetLessonActivity;
 import com.vaye.app.Controller.HomeController.SettingController.SettingActivity;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
@@ -411,7 +412,10 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
 
     private void addLesson(){
         if (currentUser.getPriority().equals("teacher")){
-
+            Intent i = new Intent(HomeActivity.this , TeacherSetLessonActivity.class);
+            i.putExtra("currentUser",currentUser);
+            startActivity(i);
+            Helper.shared().go(HomeActivity.this);
         }else if (currentUser.getPriority().equals("student")){
             Intent i = new Intent(HomeActivity.this , StudentSetLessonActivity.class);
             i.putExtra("currentUser",currentUser);

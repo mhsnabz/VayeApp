@@ -23,7 +23,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".LoginRegister.SetBolumActivity"></activity>
+        <activity android:name=".LoginRegister.SetBolumActivity" />
         <activity android:name=".LoginRegister.SetFakulteActivity" />
         <activity android:name=".LoginRegister.SetTeacherActivity" />
         <activity android:name=".LoginRegister.SetStudentNumber" />

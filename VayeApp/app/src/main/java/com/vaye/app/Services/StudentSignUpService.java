@@ -56,7 +56,6 @@ public class StudentSignUpService {
             }
         });
     }
-
     public void setTaskStudent(Context context, String name, String email ,String  number, String uid , String priority , SchoolModel model , TrueFalse<Boolean> callback){
         HashMap<String , Object> map = new HashMap<>();
         map.put("number",number);
