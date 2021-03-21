@@ -2,6 +2,7 @@ package com.vaye.app.Controller.HomeController.TeacherNewPost;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.ChooseLessonAdapter;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonUserList;
 import com.vaye.app.R;
@@ -34,9 +36,11 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
     ArrayList<LessonModel> list;
     CurrentUser currentUser;
     Context context;
-
-    ArrayList<LessonUserList> users = new ArrayList<>();
-
+        String TAG = "TeacherChooseLessonAdapter";
+    ArrayList<LessonFallowerUser> users = new ArrayList<>();
+    int times = 0;
+    String lesson_name;
+    String lesson_key;
     public TeacherChooseLessonAdapter(ArrayList<LessonModel> list, CurrentUser currentUser, Context context) {
         this.list = list;
         this.currentUser = currentUser;
@@ -60,7 +64,9 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                viewHolder.getFollowers(model.getLessonName());
+                viewHolder.getFollowers(model);
+                list.remove(model);
+                notifyItemRemoved(position);
             }
         });
     }
@@ -80,28 +86,37 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
         public void setLessonName(String text){
             lessonName.setText(text);
         }
-        public void getFollowers(String lessonName){
+        public void getFollowers(LessonModel model){
             WaitDialog.show((AppCompatActivity)context,null);
 
             CollectionReference reference = FirebaseFirestore.getInstance().collection(currentUser.getShort_school()).document("lesson")
-                    .collection(currentUser.getBolum()).document(lessonName).collection("fallowers");
+                    .collection(currentUser.getBolum()).document(model.getLessonName()).collection("fallowers");
             reference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()){
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            for (LessonUserList list : users){
-                                if (!list.getUid().equals(item.getString("uid"))){
-                                    users.add(item.toObject(LessonUserList.class));
-                                }
-                            }
+                            users.add(item.toObject(LessonFallowerUser.class));
                         }
+                        lesson_name  = model.getLessonName();
+
+                        times = times + 1;
 
                         Intent intent = new Intent("users");
+                        if (times == 1){
+                            intent.putExtra("lessonname",lesson_name);
+                            intent.putExtra("list", users);
+                            intent.putExtra("times",times);
+                            intent.putExtra("lesson_key",model.getLesson_key());
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }else if (times > 1){
+                            intent.putExtra("lessonname",lesson_name);
+                            intent.putExtra("list", users);
+                            intent.putExtra("times",times);
+                            intent.putExtra("lesson_key","genel_duyuru");
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        }
 
-                        intent.putExtra("list", users);
-
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                     }
                 }
             });

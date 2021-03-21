@@ -23,7 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Controller.HomeController.TeacherNewPost.TeacherSetNewPost"></activity>
+        <activity android:name=".Controller.HomeController.TeacherNewPost.UserList"></activity>
+        <activity android:name=".Controller.HomeController.TeacherNewPost.TeacherNewPostActivity" />
+        <activity android:name=".Controller.HomeController.TeacherNewPost.TeacherSetNewPost" />
         <activity android:name=".Controller.HomeController.TeacherNewPost.TeacherChooseLesson" />
         <activity android:name=".LoginRegister.SetBolumActivity" />
         <activity android:name=".LoginRegister.SetFakulteActivity" />

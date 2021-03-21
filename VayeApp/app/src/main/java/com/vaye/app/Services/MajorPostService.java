@@ -460,6 +460,9 @@ public class MajorPostService {
                 });
     }
 
+
+
+
     public void setNewPost( String  lesson_key , String  link , CurrentUser currentUser , long postId , ArrayList<LessonFallowerUser> lessonFallowerUsers
     , String msgText , ArrayList<NewPostDataModel> datas , String lessonName , TrueFalse<Boolean> val){
 

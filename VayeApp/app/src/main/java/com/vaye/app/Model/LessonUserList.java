@@ -77,5 +77,17 @@ String email,name,number,thumb_image,username,uid;
         parcel.writeString(username);
         parcel.writeString(uid);
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof LessonUserList))
+            return false;
+
+        return uid.equals(((LessonUserList) obj).getUid());
+    }
+
+    @Override
+    public int hashCode() {
+        return (uid == null) ? 0 : uid.hashCode();
+    }
 }
 

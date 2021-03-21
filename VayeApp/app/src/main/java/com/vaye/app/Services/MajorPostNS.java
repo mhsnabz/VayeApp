@@ -21,6 +21,7 @@ import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.LessonUserList;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.Util.Helper;
@@ -70,9 +71,20 @@ public class MajorPostNS {
                 }
             }
         });
+    }
 
-
-
+    public void teacherNewPostNotification(ArrayList<LessonUserList> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId){
+        String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        for (LessonUserList item : notificationGetter){
+            if (!item.getUid().equals(currentUser.getUid())){
+                DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user")
+                        .document(item.getUid())
+                        .collection("notification")
+                        .document(String.valueOf(notId));
+                ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
+                PushNotificationService.shared().sendPushNotification(notId,item.getUid(),null, PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text, MajorPostNotification.descp.new_post,currentUser.getUid());
+            }
+        }
 
     }
 

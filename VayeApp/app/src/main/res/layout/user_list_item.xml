@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:background="@color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp">
+    <RelativeLayout
+        android:layout_alignParentStart="true"
+        android:layout_marginRight="8dp"
+        android:id="@+id/imageLayout"
+        android:layout_width="50dp"
+        android:layout_height="50dp">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_centerInParent="true"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:id="@+id/profileImage"
+            ></de.hdodenhof.circleimageview.CircleImageView>
+        <ProgressBar
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/progress"
+            android:layout_centerInParent="true"
+            ></ProgressBar>
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_centerVertical="true"
+        android:layout_marginRight="12sp"
+        android:layout_marginLeft="8dp"
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/imageLayout"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_weight="2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/name"
+
+                android:textColor="@color/black"
+                android:fontFamily="@font/nunito_sans_semibold"
+                android:textSize="12sp"
+                ></TextView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/username"
+
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_sans_semibold"
+                android:textSize="12sp"
+                ></TextView>
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/number"
+
+
+            android:fontFamily="@font/nunito_sans_semibold"
+            android:textSize="12sp"
+            ></TextView>
+    </LinearLayout>
+<RelativeLayout
+    android:layout_alignParentBottom="true"
+    android:layout_width="match_parent"
+    android:layout_height="0.4dp"
+    android:background="@color/ligthGray"
+    ></RelativeLayout>
+</RelativeLayout>
