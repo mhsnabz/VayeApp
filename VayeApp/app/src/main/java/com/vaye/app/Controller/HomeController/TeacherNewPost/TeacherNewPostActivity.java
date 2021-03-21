@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -15,7 +14,6 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -50,7 +48,6 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.NewPostAdapter;
-import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
@@ -58,14 +55,11 @@ import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.DriveLinkNames;
-import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonFallowerUser;
-import com.vaye.app.Model.LessonModel;
-import com.vaye.app.Model.LessonUserList;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
@@ -86,7 +80,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -100,12 +93,13 @@ import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class TeacherNewPostActivity extends AppCompatActivity {
     String TAG = "TeacherNewPostActivity";
-    ArrayList<LessonUserList> userLists;
+    ArrayList<LessonFallowerUser> userLists;
     CurrentUser currentUser;
     String selectedLesson ;
     TextView showList;
     Toolbar toolbar;
     String lesson_key;
+    int studentCount;
     TextView title;
     ImageButton rigthBarButton;
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
@@ -149,13 +143,13 @@ public class TeacherNewPostActivity extends AppCompatActivity {
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             selectedLesson = intentIncoming.getStringExtra("selectedLesson");
-            lessonFallowerUsers = intentIncoming.getParcelableArrayListExtra("userList");
+           // lessonFallowerUsers = intentIncoming.getParcelableArrayListExtra("userList");
             lesson_key = intentIncoming.getStringExtra("lesson_key");
 
             setToolbar(selectedLesson);
             showList = (TextView)findViewById(R.id.userList);
 
-            showList.setText("("+userLists.size() + ") Öğrenci Listesini Gör");
+            showList.setText("("+intentIncoming.getIntExtra("studentCount",0) + ") Öğrenci Listesini Gör");
             showList.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

@@ -102,4 +102,16 @@ public class LessonFallowerUser implements Parcelable {
         parcel.writeString(email);
         parcel.writeString(uid);
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof LessonUserList))
+            return false;
+
+        return uid.equals(((LessonUserList) obj).getUid());
+    }
+
+    @Override
+    public int hashCode() {
+        return (uid == null) ? 0 : uid.hashCode();
+    }
 }

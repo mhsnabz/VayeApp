@@ -7,13 +7,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity;
 import com.vaye.app.Model.CurrentUser;
-import com.vaye.app.Model.LessonUserList;
+
+import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
 
@@ -23,7 +22,7 @@ public class UserList extends AppCompatActivity {
         String TAG = "UserList";
     Toolbar toolbar;
     TextView title;
-    ArrayList<LessonUserList> userLists;
+    ArrayList<LessonFallowerUser> userLists;
     CurrentUser currentUser;
     RecyclerView list;
     UserListAdapter adapter;
@@ -35,7 +34,7 @@ public class UserList extends AppCompatActivity {
         Intent intentIncoming = getIntent();
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
-            userLists = intentIncoming.getParcelableArrayListExtra("userList");
+           // userLists = intentIncoming.getParcelableArrayListExtra("userList");
             setToolbar();
             setView(currentUser,userLists);
         }else {
@@ -43,7 +42,7 @@ public class UserList extends AppCompatActivity {
         }
     }
 
-    private void setView(CurrentUser currentUser, ArrayList<LessonUserList> userLists) {
+    private void setView(CurrentUser currentUser, ArrayList<LessonFallowerUser> userLists) {
         list = (RecyclerView)findViewById(R.id.userList);
         list.setHasFixedSize(true);
         list.setLayoutManager(new LinearLayoutManager(this));

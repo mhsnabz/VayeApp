@@ -15,28 +15,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.vaye.app.Controller.HomeController.LessonPostEdit.PostDataAdaptar;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Model.CurrentUser;
-import com.vaye.app.Model.LessonUserList;
+
+import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    ArrayList<LessonUserList> lists;
+    ArrayList<LessonFallowerUser> lists;
     Context context;
     CurrentUser currentUser;
 
-    public UserListAdapter(ArrayList<LessonUserList> lists, Context context, CurrentUser currentUser) {
+    public UserListAdapter(ArrayList<LessonFallowerUser> lists, Context context, CurrentUser currentUser) {
         this.lists = lists;
         this.context = context;
         this.currentUser = currentUser;
@@ -54,7 +52,7 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             UserListViewHolder userListViewHolder = (UserListViewHolder) holder;
-            LessonUserList model = lists.get(position);
+        LessonFallowerUser model = lists.get(position);
             userListViewHolder.setProfilImage(model.getThumb_image());
             userListViewHolder.setName(model.getName());
             userListViewHolder.setUsername(model.getUsername());

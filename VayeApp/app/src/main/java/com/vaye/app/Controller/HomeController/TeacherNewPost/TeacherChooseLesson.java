@@ -26,34 +26,31 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
-import com.vaye.app.Controller.HomeController.SetLessons.TeacherSetLessonActivity;
-import com.vaye.app.Controller.HomeController.StudentSetNewPost.ChooseLessonAdapter;
-import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity;
-import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonModel;
-import com.vaye.app.Model.LessonUserList;
+
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class TeacherChooseLesson extends AppCompatActivity {
+public class TeacherChooseLesson extends AppCompatActivity implements StringArrayListInterface {
     String TAG = "TeacherChooseLesson";
     Toolbar toolbar;
     TextView title;
     CurrentUser currentUser;
     RecyclerView lessonList;
     Button devamEt;
+    int size = 0;
     TeacherChooseLessonAdapter adapter;
     String selectedLesson;
-    String lesson_key;
     ArrayList<LessonModel> lessons  = new ArrayList<>();
-    ArrayList<LessonFallowerUser> lstContacts = new ArrayList<>();
+    ArrayList<LessonFallowerUser> lstContacts ;
+    ArrayList<LessonFallowerUser> lessonFallowerUsers;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +69,7 @@ public class TeacherChooseLesson extends AppCompatActivity {
     private void setView(CurrentUser currentUser)
     {
         lessonList = (RecyclerView)findViewById(R.id.lessonList);
-        adapter = new TeacherChooseLessonAdapter(lessons,currentUser,this);
+        adapter = new TeacherChooseLessonAdapter(lessons,currentUser,this,this);
         lessonList.setHasFixedSize(true);
         lessonList.setLayoutManager(new LinearLayoutManager(TeacherChooseLesson.this));
         lessonList.setAdapter(adapter);
@@ -121,13 +118,13 @@ public class TeacherChooseLesson extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent i = new Intent(TeacherChooseLesson.this, TeacherNewPostActivity.class);
+               /* Intent i = new Intent(TeacherChooseLesson.this, TeacherNewPostActivity.class);
                 i.putExtra("userList",lstContacts);
                 i.putExtra("currentUser",currentUser);
                 i.putExtra("selectedLesson",selectedLesson);
-                i.putExtra("lesson_key",lesson_key);
                 startActivity(i);
-                Helper.shared().go(TeacherChooseLesson.this);
+                Helper.shared().go(TeacherChooseLesson.this);*/
+
 
             }
         });
@@ -151,16 +148,15 @@ public class TeacherChooseLesson extends AppCompatActivity {
             ArrayList<LessonFallowerUser> target = intent.getParcelableArrayListExtra("list");
             Set<LessonFallowerUser> unique = new LinkedHashSet<LessonFallowerUser>(target);
             lstContacts = new ArrayList<LessonFallowerUser>(unique);
+
             if (intent.getIntExtra("times",0) == 1){
                 title.setText(intent.getStringExtra("lessonname"));
                 selectedLesson = intent.getStringExtra("lessonname");
-                lesson_key = intent.getStringExtra("lesson_key");
             }else{
                 selectedLesson = "Genel Duyuru";
                 title.setText("Genel Duyuru");
-                lesson_key = intent.getStringExtra("lesson_key");
-
             }
+            size = lstContacts.size();
             WaitDialog.dismiss();
             TipDialog.show(TeacherChooseLesson.this,lstContacts.size()+" Öğrenci Seçildi", TipDialog.TYPE.SUCCESS);
             TipDialog.dismiss(1000);
@@ -173,5 +169,10 @@ public class TeacherChooseLesson extends AppCompatActivity {
         finish();
         Helper.shared().back(TeacherChooseLesson.this);
 
+    }
+
+    @Override
+    public void getArrayList(ArrayList<String> list) {
+        Log.d(TAG, "getArrayList: " + list.size());
     }
 }

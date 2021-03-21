@@ -11,19 +11,14 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.google.rpc.Help;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
-import com.vaye.app.Interfaces.Notifications;
-import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
-import com.vaye.app.Model.LessonPostModel;
-import com.vaye.app.Model.LessonUserList;
-import com.vaye.app.Model.MainPostModel;
-import com.vaye.app.Model.OtherUser;
+
+import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -73,9 +68,9 @@ public class MajorPostNS {
         });
     }
 
-    public void teacherNewPostNotification(ArrayList<LessonUserList> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId){
+    public void teacherNewPostNotification(ArrayList<LessonFallowerUser> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId){
         String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-        for (LessonUserList item : notificationGetter){
+        for (LessonFallowerUser item : notificationGetter){
             if (!item.getUid().equals(currentUser.getUid())){
                 DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user")
                         .document(item.getUid())

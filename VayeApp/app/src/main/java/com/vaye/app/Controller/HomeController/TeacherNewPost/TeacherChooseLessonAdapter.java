@@ -19,10 +19,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
-import com.vaye.app.Controller.HomeController.StudentSetNewPost.ChooseLessonAdapter;
-import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonModel;
@@ -30,7 +28,6 @@ import com.vaye.app.Model.LessonUserList;
 import com.vaye.app.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     ArrayList<LessonModel> list;
@@ -39,12 +36,15 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
         String TAG = "TeacherChooseLessonAdapter";
     ArrayList<LessonFallowerUser> users = new ArrayList<>();
     int times = 0;
+    ArrayList<String> studentLis = new ArrayList<>();
+    StringArrayListInterface callback;
     String lesson_name;
     String lesson_key;
-    public TeacherChooseLessonAdapter(ArrayList<LessonModel> list, CurrentUser currentUser, Context context) {
+    public TeacherChooseLessonAdapter(ArrayList<LessonModel> list, CurrentUser currentUser, Context context ,StringArrayListInterface callback) {
         this.list = list;
         this.currentUser = currentUser;
         this.context = context;
+        this.callback = callback;
     }
 
     @NonNull
@@ -96,8 +96,10 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()){
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            users.add(item.toObject(LessonFallowerUser.class));
+                            studentLis.add(item.getString("uid"));
+
                         }
+                        callback.getArrayList(studentLis);
                         lesson_name  = model.getLessonName();
 
                         times = times + 1;
@@ -105,7 +107,7 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
                         Intent intent = new Intent("users");
                         if (times == 1){
                             intent.putExtra("lessonname",lesson_name);
-                            intent.putExtra("list", users);
+                            intent.putExtra("list", studentLis);
                             intent.putExtra("times",times);
                             intent.putExtra("lesson_key",model.getLesson_key());
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
