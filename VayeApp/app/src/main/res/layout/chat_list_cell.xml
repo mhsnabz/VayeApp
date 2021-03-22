@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="60dp">
+<RelativeLayout
+    android:id="@+id/imageLayout"
+    android:layout_width="60dp"
+    android:layout_height="60dp"
+    android:layout_alignParentStart="true"
+    android:layout_marginLeft="12sp">
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:id="@+id/profileImage"
+        ></de.hdodenhof.circleimageview.CircleImageView>
+    <ProgressBar
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/progress"
+        android:layout_centerInParent="true"
+        ></ProgressBar>
+
+</RelativeLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:weightSum="2"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@id/imageLayout"
+        >
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:id="@+id/name"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/nunito_sans_semibold"
+
+                ></TextView>
+            <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:id="@+id/username"
+                android:textSize="12sp"
+                android:layout_toEndOf="@id/name"
+                android:layout_alignBottom="@id/name"
+                android:layout_marginLeft="4dp"
+                android:fontFamily="@font/nunito_sans_semibold"
+
+
+                ></TextView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/time"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="1 h"
+                android:fontFamily="@font/nunito_sans_semibold"
+                android:textSize="10sp"
+                ></TextView>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_marginBottom="1dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+            <ImageView
+                android:layout_centerVertical="true"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:visibility="visible"
+
+                android:id="@+id/lastMsgImage"
+                ></ImageView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:id="@+id/lastMsg"
+                android:textSize="12sp"
+                android:fontFamily="@font/nunito_sans_semibold"
+                android:layout_toEndOf="@id/lastMsgImage"
+                android:layout_toStartOf="@id/badgeRel"
+
+                android:layout_marginRight="3dp"
+                android:layout_marginLeft="8dp"
+
+                ></TextView>
+            <RelativeLayout
+                android:id="@+id/badgeRel"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bagde_view"
+                >
+                <TextView
+                    android:padding="4dp"
+                    android:id="@+id/badgeCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:textColor="@color/white"
+                    android:text="10"
+                    android:fontFamily="@font/nunito_sans_semibold"
+                    android:textStyle="bold"
+                    android:textSize="10sp"
+                    ></TextView>
+            </RelativeLayout>
+        </RelativeLayout>
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/ligthGray"
+        android:layout_alignParentBottom="true"
+        ></RelativeLayout>
+</RelativeLayout>
