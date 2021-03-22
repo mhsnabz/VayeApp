@@ -70,6 +70,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
     Boolean isFollowing = false;
     private Handler mHandler = new Handler();
 
+
     CircleImageView profileImage;
     ProgressBar progressBar;
     TextView name , school , major , followingCount,followingLbl , followerCount , followerLbl;
@@ -444,6 +445,7 @@ public class OtherUserProfileActivity extends AppCompatActivity {
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.htab_collapse_toolbar);
 
         tabLayout = findViewById(R.id.htab_tabs);
+
         tabLayout.setupWithViewPager(viewPager);
         if (currentUser.getShort_school().equals(otherUser.getShort_school())){
             if (currentUser.getBolum().equals(otherUser.getBolum())){
@@ -595,6 +597,8 @@ public class OtherUserProfileActivity extends AppCompatActivity {
                 }
             }
         });
+
+
     }
 
     private void setToolbar(OtherUser otherUser) {
