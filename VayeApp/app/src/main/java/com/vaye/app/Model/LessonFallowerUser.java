@@ -104,10 +104,10 @@ public class LessonFallowerUser implements Parcelable {
     }
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof LessonUserList))
+        if (!(obj instanceof LessonFallowerUser))
             return false;
 
-        return uid.equals(((LessonUserList) obj).getUid());
+        return uid.equals(((LessonFallowerUser) obj).getUid());
     }
 
     @Override

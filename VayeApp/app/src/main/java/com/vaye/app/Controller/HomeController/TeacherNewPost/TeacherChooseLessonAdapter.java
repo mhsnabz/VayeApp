@@ -39,7 +39,7 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
     ArrayList<String> studentLis = new ArrayList<>();
     StringArrayListInterface callback;
     String lesson_name;
-    String lesson_key;
+
     public TeacherChooseLessonAdapter(ArrayList<LessonModel> list, CurrentUser currentUser, Context context ,StringArrayListInterface callback) {
         this.list = list;
         this.currentUser = currentUser;
@@ -97,7 +97,7 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
                     if (task.isSuccessful()){
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
                             studentLis.add(item.getString("uid"));
-
+                            users.add(item.toObject(LessonFallowerUser.class));
                         }
                         callback.getArrayList(studentLis);
                         lesson_name  = model.getLessonName();
@@ -107,7 +107,7 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
                         Intent intent = new Intent("users");
                         if (times == 1){
                             intent.putExtra("lessonname",lesson_name);
-                            intent.putExtra("list", studentLis);
+                            intent.putExtra("list", users);
                             intent.putExtra("times",times);
                             intent.putExtra("lesson_key",model.getLesson_key());
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

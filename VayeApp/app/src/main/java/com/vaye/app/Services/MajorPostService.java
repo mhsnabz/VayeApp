@@ -29,6 +29,7 @@ import com.vaye.app.Controller.NotificationService.MajorPostNotificationService;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
+import com.vaye.app.Interfaces.LessonFallowersCallback;
 import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserOptionsCompletion;
@@ -461,7 +462,67 @@ public class MajorPostService {
     }
 
 
+    public void teacherSetNewPost(String  lesson_key , String  link , CurrentUser currentUser , long postId , ArrayList<String> lessonFallowerUsers
+            , String msgText , ArrayList<NewPostDataModel> datas , String lessonName , TrueFalse<Boolean> val){
+        Map<String , Object> map = new HashMap<>();
 
+        if (datas.isEmpty()){
+            map.put("type","post");
+            map.put("data",FieldValue.arrayUnion());
+            map.put("thumb_data",FieldValue.arrayUnion());
+        }else{
+
+        }
+
+        map.put("postTime",FieldValue.serverTimestamp());
+        map.put("senderName",currentUser.getName());
+        map.put("text",msgText);
+        map.put("lessonName",lessonName);
+        map.put("lesson_key",lesson_key);
+        map.put("likes",FieldValue.arrayUnion());
+        map.put("favori", FieldValue.arrayUnion());
+        map.put("postId",String.valueOf(postId));
+        map.put("senderUid",currentUser.getUid());
+        map.put("silent",FieldValue.arrayUnion());
+        map.put("comment",0);
+        map.put("dislike",FieldValue.arrayUnion());
+        map.put("post_ID",postId);
+        map.put("username",currentUser.getUsername());
+        map.put("thumb_image",currentUser.getThumb_image());
+        if (link == null || link.isEmpty()){
+            map.put("link","");
+        }else{
+            map.put("link",link);
+        }
+
+
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid()).collection("my-post").document(String.valueOf(postId));
+        Map<String , String> myPost = new HashMap<>();
+        myPost.put("postId",String.valueOf(postId));
+        ref.set(myPost,SetOptions.merge());
+
+        setPostForLesson(datas,currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+                    setPostForLessonFollower(currentUser.getUid(),lessonFallowerUsers, String.valueOf(postId), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                    .document(currentUser.getUid()).collection("lesson-post").document(String.valueOf(postId));
+                            HashMap<String , Object> stringObjectHashMap = new HashMap<>();
+                            stringObjectHashMap.put("postId",String.valueOf(postId));
+                            stringObjectHashMap.put("lessonName",lessonName);
+                            ref.set(stringObjectHashMap,SetOptions.merge());
+                            val.callBack(true);
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     public void setNewPost( String  lesson_key , String  link , CurrentUser currentUser , long postId , ArrayList<LessonFallowerUser> lessonFallowerUsers
     , String msgText , ArrayList<NewPostDataModel> datas , String lessonName , TrueFalse<Boolean> val){
@@ -540,6 +601,7 @@ public class MajorPostService {
                         .document(postId);
                 Map<String , String > postMap = new HashMap<>();
                 postMap.put("postId",postId);
+                postMap.put("lessonName",lessonName);
                 reference.set(postMap,SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -566,6 +628,23 @@ public class MajorPostService {
         }
     }
 
+    public void setPostForLessonFollower(String currentUserUid,ArrayList<String> userId , String postId , TrueFalse<Boolean> val){
+        Map<String  , String> map = new HashMap<>();
+        map.put("postId",postId);
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("user")  ;
+        for (String user : userId){
+            ref.document(user)
+                    .collection("lesson-post")
+                    .document(postId).set(map , SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    val.callBack(true);
+
+                }
+            });
+
+        }
+    }
   public void getLessonFallower(CurrentUser currentUser , String lessonName , MajorPostFallower completion){
         ArrayList<LessonFallowerUser> list = new ArrayList<>();
 //let db = Firestore.firestore().collection(sorthSchoolName)
@@ -672,6 +751,7 @@ public class MajorPostService {
         }
 
   }
+
 
 
 

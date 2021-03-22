@@ -30,11 +30,11 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    ArrayList<LessonFallowerUser> lists;
+    ArrayList<OtherUser> lists;
     Context context;
     CurrentUser currentUser;
 
-    public UserListAdapter(ArrayList<LessonFallowerUser> lists, Context context, CurrentUser currentUser) {
+    public UserListAdapter(ArrayList<OtherUser> lists, Context context, CurrentUser currentUser) {
         this.lists = lists;
         this.context = context;
         this.currentUser = currentUser;
@@ -52,7 +52,7 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             UserListViewHolder userListViewHolder = (UserListViewHolder) holder;
-        LessonFallowerUser model = lists.get(position);
+        OtherUser model = lists.get(position);
             userListViewHolder.setProfilImage(model.getThumb_image());
             userListViewHolder.setName(model.getName());
             userListViewHolder.setUsername(model.getUsername());

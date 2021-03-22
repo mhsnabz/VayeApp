@@ -26,12 +26,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Interfaces.LessonFallowersCallback;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.LessonModel;
 
 import com.vaye.app.R;
+import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -45,12 +47,13 @@ public class TeacherChooseLesson extends AppCompatActivity implements StringArra
     CurrentUser currentUser;
     RecyclerView lessonList;
     Button devamEt;
+    String lesson_key;
     int size = 0;
     TeacherChooseLessonAdapter adapter;
     String selectedLesson;
     ArrayList<LessonModel> lessons  = new ArrayList<>();
     ArrayList<LessonFallowerUser> lstContacts ;
-    ArrayList<LessonFallowerUser> lessonFallowerUsers;
+    ArrayList<String > userUidList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,12 +121,15 @@ public class TeacherChooseLesson extends AppCompatActivity implements StringArra
             @Override
             public void onClick(View view) {
 
-               /* Intent i = new Intent(TeacherChooseLesson.this, TeacherNewPostActivity.class);
-                i.putExtra("userList",lstContacts);
+                Intent i = new Intent(TeacherChooseLesson.this, TeacherNewPostActivity.class);
+                i.putExtra("userList",userUidList);
                 i.putExtra("currentUser",currentUser);
                 i.putExtra("selectedLesson",selectedLesson);
+                i.putExtra("lesson_key",lesson_key);
                 startActivity(i);
-                Helper.shared().go(TeacherChooseLesson.this);*/
+                Helper.shared().go(TeacherChooseLesson.this);
+                Log.d(TAG, "onClick: list " + userUidList.size());
+
 
 
             }
@@ -152,9 +158,11 @@ public class TeacherChooseLesson extends AppCompatActivity implements StringArra
             if (intent.getIntExtra("times",0) == 1){
                 title.setText(intent.getStringExtra("lessonname"));
                 selectedLesson = intent.getStringExtra("lessonname");
+                lesson_key = intent.getStringExtra("lesson_key");
             }else{
                 selectedLesson = "Genel Duyuru";
                 title.setText("Genel Duyuru");
+                lesson_key = "genel_duyuru";
             }
             size = lstContacts.size();
             WaitDialog.dismiss();
@@ -174,5 +182,10 @@ public class TeacherChooseLesson extends AppCompatActivity implements StringArra
     @Override
     public void getArrayList(ArrayList<String> list) {
         Log.d(TAG, "getArrayList: " + list.size());
+        for (String item : list){
+            if (!userUidList.contains(item)){
+                userUidList.add(item);
+            }
+        }
     }
 }

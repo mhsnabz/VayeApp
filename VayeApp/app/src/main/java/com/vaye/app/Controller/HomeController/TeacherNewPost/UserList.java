@@ -10,22 +10,26 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Model.CurrentUser;
 
 import com.vaye.app.Model.LessonFallowerUser;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 
 public class UserList extends AppCompatActivity {
-        String TAG = "UserList";
+    String TAG = "UserList";
     Toolbar toolbar;
     TextView title;
-    ArrayList<LessonFallowerUser> userLists;
+    ArrayList<String> userLists;
     CurrentUser currentUser;
     RecyclerView list;
     UserListAdapter adapter;
+    ArrayList<OtherUser> lessonFollower = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,21 +38,36 @@ public class UserList extends AppCompatActivity {
         Intent intentIncoming = getIntent();
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
-           // userLists = intentIncoming.getParcelableArrayListExtra("userList");
+           userLists = intentIncoming.getStringArrayListExtra("userList");
             setToolbar();
             setView(currentUser,userLists);
+            getList(userLists);
         }else {
             finish();
         }
     }
 
-    private void setView(CurrentUser currentUser, ArrayList<LessonFallowerUser> userLists) {
+    private void setView(CurrentUser currentUser, ArrayList<String> userLists) {
         list = (RecyclerView)findViewById(R.id.userList);
         list.setHasFixedSize(true);
         list.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new UserListAdapter(userLists,this,currentUser);
+        adapter = new UserListAdapter(lessonFollower,this,currentUser);
         list.setAdapter(adapter);
 
+    }
+
+    private void getList(ArrayList<String> list){
+        for (String item : list){
+            UserService.shared().getOtherUserList(item, new OtherUserService() {
+                @Override
+                public void callback(OtherUser user) {
+                    if (user!=null){
+                        lessonFollower.add(user);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
+        }
     }
 
     private void setToolbar()

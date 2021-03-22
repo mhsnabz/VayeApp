@@ -68,16 +68,16 @@ public class MajorPostNS {
         });
     }
 
-    public void teacherNewPostNotification(ArrayList<LessonFallowerUser> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId){
+    public void teacherNewPostNotification(ArrayList<String> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId){
         String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-        for (LessonFallowerUser item : notificationGetter){
-            if (!item.getUid().equals(currentUser.getUid())){
+        for (String item : notificationGetter){
+            if (!item.equals(currentUser.getUid())){
                 DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user")
-                        .document(item.getUid())
+                        .document(item)
                         .collection("notification")
                         .document(String.valueOf(notId));
                 ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(notId,item.getUid(),null, PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text, MajorPostNotification.descp.new_post,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(notId,item,null, PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text, MajorPostNotification.descp.new_post,currentUser.getUid());
             }
         }
 

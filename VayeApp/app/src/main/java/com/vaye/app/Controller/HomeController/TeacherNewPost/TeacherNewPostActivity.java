@@ -59,7 +59,6 @@ import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
-import com.vaye.app.Model.LessonFallowerUser;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
@@ -93,12 +92,12 @@ import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class TeacherNewPostActivity extends AppCompatActivity {
     String TAG = "TeacherNewPostActivity";
-    ArrayList<LessonFallowerUser> userLists;
+
     CurrentUser currentUser;
     String selectedLesson ;
     TextView showList;
     Toolbar toolbar;
-    String lesson_key;
+
     int studentCount;
     TextView title;
     ImageButton rigthBarButton;
@@ -115,7 +114,7 @@ public class TeacherNewPostActivity extends AppCompatActivity {
 
     String selectedLink = "";
 
-    ArrayList<LessonFallowerUser> lessonFallowerUsers;
+
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int gallery_request =400;
     private static final int image_pick_request =600;
@@ -132,7 +131,7 @@ public class TeacherNewPostActivity extends AppCompatActivity {
     String mimeType = "";
     long postDate = Calendar.getInstance().getTimeInMillis();
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
-
+    ArrayList<String> lessonFallowerUsers = new ArrayList<>();
     NewPostAdapter adapter ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,25 +142,22 @@ public class TeacherNewPostActivity extends AppCompatActivity {
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             selectedLesson = intentIncoming.getStringExtra("selectedLesson");
-           // lessonFallowerUsers = intentIncoming.getParcelableArrayListExtra("userList");
-            lesson_key = intentIncoming.getStringExtra("lesson_key");
-
-            setToolbar(selectedLesson);
+            lessonFallowerUsers = intentIncoming.getStringArrayListExtra("userList");
             showList = (TextView)findViewById(R.id.userList);
-
-            showList.setText("("+intentIncoming.getIntExtra("studentCount",0) + ") Öğrenci Listesini Gör");
+            showList.setText("("+lessonFallowerUsers.size() + ") Öğrenci Listesini Gör");
             showList.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent i = new Intent(TeacherNewPostActivity.this,UserList.class);
                     i.putExtra("currentUser",currentUser);
-                    i.putExtra("userList",userLists);
+                    i.putExtra("userList",lessonFallowerUsers);
                     startActivity(i);
                     Helper.shared().go(TeacherNewPostActivity.this);
 
                 }
             });
             setView(currentUser,selectedLesson);
+            setToolbar(selectedLesson);
         }
         hud = KProgressHUD.create(this)
                 .setStyle(KProgressHUD.Style.ANNULAR_DETERMINATE)
@@ -202,7 +198,8 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                     return;
                 }else {
                     WaitDialog.show(TeacherNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
-                    MajorPostNS.shared().teacherNewPostNotification(userLists,NotificationPostType.name.lessonPost,currentUser,lessonName,text.getText().toString(), MajorPostNotification.type.new_post,String.valueOf(postDate));
+                    Log.d(TAG, "onClick: " + lessonFallowerUsers.size());
+                   MajorPostNS.shared().teacherNewPostNotification(lessonFallowerUsers,NotificationPostType.name.lessonPost,currentUser,lessonName,text.getText().toString(), MajorPostNotification.type.new_post,String.valueOf(postDate));
                     for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
                         String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
                         UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
@@ -228,7 +225,7 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                             }
                         });
                     }
-                    MajorPostService.shared().setNewPost(lesson_key, link, currentUser, postDate, lessonFallowerUsers
+                    MajorPostService.shared().teacherSetNewPost(selectedLesson, link, currentUser, postDate, lessonFallowerUsers
                             , msgText, dataModel, lessonName, new TrueFalse<Boolean>() {
                                 @Override
                                 public void callBack(Boolean _value) {
@@ -583,12 +580,12 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                         String mimeType = DataTypes.mimeType.image;
                         String  contentType = DataTypes.contentType.image;
                         dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
-                        saveDatasToDataBase(DataTypes.contentType.image,DataTypes.mimeType.image,this, lesson_key, String.valueOf(postDate), currentUser, "image", file,
+                        saveDatasToDataBase(DataTypes.contentType.image,DataTypes.mimeType.image,this, selectedLesson, String.valueOf(postDate), currentUser, "image", file,
                                 new StringCompletion() {
                                     @Override
                                     public void getString(String url) {
                                         try {
-                                            setThumbData(DataTypes.contentType.image,TeacherNewPostActivity.this, lesson_key, String.valueOf(postDate),DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
+                                            setThumbData(DataTypes.contentType.image,TeacherNewPostActivity.this, selectedLesson, String.valueOf(postDate),DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
                                                 @Override
                                                 public void getString(String thumb_url) {
                                                     updateImages(TeacherNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
@@ -640,12 +637,12 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                         }
 
                         dataModel.add(new NewPostDataModel(fileName,fileUri,null,null,mimeType,contentType));
-                        saveDatasToDataBase(contentType, mimeType, this,lesson_key, String.valueOf(postDate),
+                        saveDatasToDataBase(contentType, mimeType, this, selectedLesson, String.valueOf(postDate),
                                 currentUser, "file", file, new StringCompletion() {
                                     @Override
                                     public void getString(String url) {
                                         try {
-                                            setThumbData(contentType, TeacherNewPostActivity.this, lesson_key, String.valueOf(postDate), mimeType, currentUser,
+                                            setThumbData(contentType, TeacherNewPostActivity.this, selectedLesson, String.valueOf(postDate), mimeType, currentUser,
                                                     "file", file, new StringCompletion() {
                                                         @Override
                                                         public void getString(String thumb_url) {
