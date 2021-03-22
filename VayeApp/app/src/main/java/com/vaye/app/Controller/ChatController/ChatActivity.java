@@ -45,7 +45,6 @@ public class ChatActivity extends AppCompatActivity {
         Intent intentIncoming = getIntent();
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
-
             Bundle bundle = new Bundle();
             bundle.putParcelable("currentUser",intentIncoming.getParcelableExtra("currentUser"));
             setupBottomNavBar(currentUser);
