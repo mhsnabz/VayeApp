@@ -1,5 +1,6 @@
 package com.vaye.app.Controller.ChatController;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
@@ -16,6 +17,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.ChatController.ChatPagerAdapter.ChatViewPagerAdapter;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.PagerAdapter.PagerViewApadater;
@@ -37,6 +45,7 @@ public class ChatActivity extends AppCompatActivity {
     TextView sohbetlerLbl , arkadaslarLbl , isteklerLbl;
     RelativeLayout line1,line2,line3;
     ChatViewPagerAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +99,7 @@ public class ChatActivity extends AppCompatActivity {
         line2  = (RelativeLayout)findViewById(R.id.line2);
         line3  = (RelativeLayout)findViewById(R.id.line3);
         viewPager = (ViewPager)findViewById(R.id.mainPager);
-        adapter = new ChatViewPagerAdapter(getSupportFragmentManager(),currentUser);
+        adapter = new ChatViewPagerAdapter(getSupportFragmentManager(),currentUser,this);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -134,6 +143,22 @@ public class ChatActivity extends AppCompatActivity {
 
     private void setBadgeCount(){
         new QBadgeView(ChatActivity.this).bindTarget(sohbetlerLbl).setBadgeGravity(Gravity.CENTER | Gravity.START).setBadgeNumber(5);
+
+        Query db = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("msg-request").whereGreaterThan("badgeCount",0);
+
+        db.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value.isEmpty()){
+                      //  requestCount.hide(true);
+                    }else{
+                        //requestCount.bindTarget(isteklerLbl).setBadgeGravity(Gravity.CENTER | Gravity.START).setBadgeNumber(value.getDocuments().size());
+                    }
+             }
+        });
+
     }
 
 

@@ -1,6 +1,8 @@
 package com.vaye.app.Controller.ChatController.ChatList;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +12,23 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.Timestamp;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.ChatController.Conservation.ConservationController;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.LoginRegister.MessageType;
 import com.vaye.app.Model.ChatListModel;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 
@@ -52,6 +62,28 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         chatListViewHolder.setname(model.getName(),model.getUsername());
         chatListViewHolder.setLastMsg(model.getType(),model.getLastMsg());
         chatListViewHolder.setProfileImage(model.getThumbImage());
+        chatListViewHolder.setTime(model.getTime());
+
+        chatListViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WaitDialog.show((AppCompatActivity)context,null);
+                UserService.shared().getOtherUserById(model.getUid(), new OtherUserService() {
+                    @Override
+                    public void callback(OtherUser user) {
+                        if (user!=null){
+                            Intent i = new Intent(context, ConservationController.class);
+                            i.putExtra("currentUser",currentUser);
+                            i.putExtra("otherUser",user);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity)context);
+                            WaitDialog.dismiss();
+                        }
+                    }
+                });
+
+            }
+        });
 
     }
 
@@ -73,6 +105,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public TextView badgeCount =(TextView)itemView.findViewById(R.id.badgeCount);
         public RelativeLayout badgeRel =(RelativeLayout)itemView.findViewById(R.id.badgeRel);
         public ImageView lastMsgImage = (ImageView)itemView.findViewById(R.id.lastMsgImage);
+        public TextView time =(TextView)itemView.findViewById(R.id.time);
+        public void setTime(Timestamp _time){
+            time.setText(Helper.shared().setTimeAgo(_time));
+        }
 
         public void setProfileImage(String _url){
             if (_url!=null && !_url.isEmpty()){
@@ -105,7 +141,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (_badgeCount > 0){
                 badgeRel.setVisibility(View.VISIBLE);
                 if (_badgeCount > 9){
-                    badgeCount.setText("+"+String.valueOf(_badgeCount));
+                    badgeCount.setText("+9");
                 }else{
                     badgeCount.setText(String.valueOf(_badgeCount));
                 }

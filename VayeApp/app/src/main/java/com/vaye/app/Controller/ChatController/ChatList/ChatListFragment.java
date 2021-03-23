@@ -1,5 +1,6 @@
 package com.vaye.app.Controller.ChatController.ChatList;
 
+import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -39,8 +40,10 @@ public class ChatListFragment extends Fragment {
     ArrayList<ChatListModel> chatListModels;
     ChatListAdapter adapter;
     private ListenerRegistration registration;
-    public ChatListFragment(CurrentUser currentUser) {
+    Activity activity;
+    public ChatListFragment(CurrentUser currentUser , Activity activity) {
         this.currentUser = currentUser;
+        this.activity = activity;
     }
 
     public ChatListFragment() {
@@ -63,10 +66,11 @@ public class ChatListFragment extends Fragment {
     }
 
     public void getMsgList(){
+
         Query db =  FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
-                .collection("msg-list").orderBy("time", Query.Direction.ASCENDING);
-        registration =  db.addSnapshotListener( new EventListener<QuerySnapshot>() {
+                .collection("msg-list");
+          registration = db.addSnapshotListener( new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (!value.isEmpty()){
@@ -126,16 +130,16 @@ public class ChatListFragment extends Fragment {
 
     }
 
+
     @Override
     public void onStop() {
         super.onStop();
-        registration.remove();
+        Log.d(TAG, "onStop: " + "on stop");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        registration.remove();
 
     }
 
@@ -143,6 +147,13 @@ public class ChatListFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         registration.remove();
+        Log.d(TAG, "onDestroy: " + "on destroy");
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
 
     }
 }

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/groupDate"
+
+        android:paddingRight="4dp"
+        android:paddingLeft="4dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+
+        android:textColor="@color/dark_gray"
+        android:textSize="10sp"
+        android:fontFamily="@font/nunito_semibold"
+        android:layout_marginTop="3dp"
+        ></TextView>
+    <RelativeLayout
+        android:layout_below="@id/groupDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:id="@+id/msgTextRel"
+        android:background="@drawable/received_text_bg"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="60dp"
+        android:padding="10dp"
+        >
+
+        <com.hendraanggrian.appcompat.widget.SocialTextView
+            android:id="@+id/msgText"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nunito_sans_semibold"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            app:hyperlinkColor="@color/linkColor"
+            app:mentionColor="@color/mainColor"></com.hendraanggrian.appcompat.widget.SocialTextView>
+    </RelativeLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/msgTextRel"
+        android:layout_toEndOf="@id/profileLay"
+        android:textSize="8sp"
+        android:layout_marginLeft="8dp"
+        android:textStyle="bold"
+        android:fontFamily="@font/nunito_semibold"
+        android:layout_marginTop="3dp"
+        android:id="@+id/time"
+
+        ></TextView>
+    <RelativeLayout
+        android:id="@+id/profileLay"
+        android:layout_alignParentStart="true"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_below="@id/msgTextRel"
+        android:layout_marginTop="-20dp"
+        android:layout_marginLeft="4dp"
+
+        >
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/profileImage"
+            ></de.hdodenhof.circleimageview.CircleImageView>
+        <ProgressBar
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/progress"
+            ></ProgressBar>
+    </RelativeLayout>
+</RelativeLayout>
