@@ -26,6 +26,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kongzue.dialog.interfaces.OnDismissListener;
 import com.kongzue.dialog.v3.CustomDialog;
+import com.vaye.app.Application.OnClearFromRecentService;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.TaskUserHandler;
@@ -48,6 +49,7 @@ public class SplashScreen extends AppCompatActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+        startService(new Intent(SplashScreen.this, OnClearFromRecentService.class));
         logo = (ImageView)findViewById(R.id.logo);
         Animation animation = AnimationUtils.loadAnimation(this,R.anim.mytransistion);
         logo.startAnimation(animation);

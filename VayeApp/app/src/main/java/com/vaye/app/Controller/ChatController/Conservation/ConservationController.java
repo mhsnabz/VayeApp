@@ -22,28 +22,34 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.FCM.MessagingService;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.MessageService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConservationController extends AppCompatActivity {
-
+    Boolean isOnline = false;
     CircleImageView profileImage;
     ProgressBar progressBar;
     TextView title;
@@ -60,13 +66,14 @@ public class ConservationController extends AppCompatActivity {
     Boolean scrollingToBottom = false;
     String  firstPage;
     SwipeRefreshLayout swipeRefreshLayout;
+    ImageButton sendButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conservation_controller);
         mediaLayout = (LinearLayout)findViewById(R.id.mediaLayout);
         mediaLayout.setVisibility(View.VISIBLE);
-
+        sendButton = (ImageButton)findViewById(R.id.send);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
@@ -237,4 +244,61 @@ public class ConservationController extends AppCompatActivity {
 
     }
 
+    private void sendMsg(){
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(otherUser.getUid());
+        ref.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.exists()){
+                    otherUser = value.toObject(OtherUser.class);
+
+                }
+            }
+        });
+
+        MessageService.shared().setCurrentUserOnline(currentUser,otherUser,true);
+        MessageService.shared().deleteBadge(currentUser,otherUser);
+
+        DocumentReference isOnlineDb = FirebaseFirestore.getInstance().collection("user")
+                .document(otherUser.getUid())
+                .collection("msg-list")
+                .document(currentUser.getUid());
+
+        isOnlineDb.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.exists()){
+                    isOnline = value.getBoolean("isOnline");
+                }
+            }
+        });
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        DocumentReference setCurrentUserOnline =  FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("msg-list")
+                .document(otherUser.getUid());
+        Map<String , Object> map = new HashMap<>();
+        map.put("isOnline",false);
+        map.put("badgeCount",0);
+        setCurrentUserOnline.set(map, SetOptions.merge());
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(ConservationController.this,"Destroy",Toast.LENGTH_LONG).show();
+    }
 }

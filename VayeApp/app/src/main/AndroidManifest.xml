@@ -23,6 +23,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
         android:usesCleartextTraffic="true">
+        <service android:name=".Application.OnClearFromRecentService" android:stopWithTask="false" />
+
         <activity android:name=".Controller.ChatController.Conservation.ConservationController"></activity>
         <activity android:name=".Controller.HomeController.TeacherNewPost.UserList" />
         <activity android:name=".Controller.HomeController.TeacherNewPost.TeacherNewPostActivity" />
