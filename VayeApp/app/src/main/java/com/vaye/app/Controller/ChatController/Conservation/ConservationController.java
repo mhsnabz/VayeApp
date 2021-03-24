@@ -13,6 +13,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -33,6 +35,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.FCM.MessagingService;
+import com.vaye.app.LoginRegister.MessageType;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
 import com.vaye.app.Model.OtherUser;
@@ -41,6 +44,7 @@ import com.vaye.app.Services.MessageService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -67,6 +71,8 @@ public class ConservationController extends AppCompatActivity {
     String  firstPage;
     SwipeRefreshLayout swipeRefreshLayout;
     ImageButton sendButton;
+    TextInputEditText msg_edittex;
+    String filename = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +80,13 @@ public class ConservationController extends AppCompatActivity {
         mediaLayout = (LinearLayout)findViewById(R.id.mediaLayout);
         mediaLayout.setVisibility(View.VISIBLE);
         sendButton = (ImageButton)findViewById(R.id.send);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMsg();
+            }
+        });
+        msg_edittex = (TextInputEditText)findViewById(R.id.msgText);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
@@ -245,7 +258,16 @@ public class ConservationController extends AppCompatActivity {
     }
 
     private void sendMsg(){
+        String msg = msg_edittex.getText().toString();
+        long time = Calendar.getInstance().getTimeInMillis();
+        msg_edittex.setText("");
+        if (msg.isEmpty()){
+            return;
+        }else{
+            String messageId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+            MessageService.shared().sendTextMsg(currentUser,otherUser,filename,isOnline,time,null,0,0f,0f,msg,messageId, MessageType.text);
 
+        }
     }
 
     @Override

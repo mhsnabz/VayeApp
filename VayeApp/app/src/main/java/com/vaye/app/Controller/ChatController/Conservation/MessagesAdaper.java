@@ -79,25 +79,45 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
             MessagesModel pm = messagesModels.get(i-1);
             previousTs = pm.getDate().getSeconds();
         }
-        Log.d(TAG, "onBindViewHolder: " + previousTs);
-        Log.d(TAG, "onBindViewHolder: " + model.getDate().getSeconds());
+
         switch (viewType) {
 
             case SEND_TEXT_MSG:
                 SendTextMsgViewHolder send_text = (SendTextMsgViewHolder)holder;
                 send_text.setMsgLbl(model.getContent());
                 send_text.setProfileImage(currentUser.getProfileImage());
-                setTimeAgo(model.getDate().getSeconds(),send_text.time);
-                if (i>0)
-                setTimeTextVisibility(i,model.getDate(), messagesModels.get(i-1).getDate(), send_text.groupDate);
+                if (model.getDate()!= null){
+                    setTimeAgo(model.getDate().getSeconds(),send_text.time);
+
+                }else {
+                    setTimeAgo(Calendar.getInstance().getTimeInMillis(),send_text.time);
+                }
+
+                if (i>0){
+                    if (model.getDate()!=null){
+                        setTimeTextVisibility(i,model.getDate(), messagesModels.get(i-1).getDate(), send_text.groupDate);
+                    }
+
+                }
+
                 break;
             case RECEIVED_TEXT_MSG:
                 ReceivedTextMsgViewHolder received_text = (ReceivedTextMsgViewHolder)holder;
                 received_text.setMsgLbl(model.getContent());
                 received_text.setProfileImage(otherUser.getProfileImage());
-                setTimeAgo(model.getDate().getSeconds(),received_text.time);
-                if (i>0)
-                setTimeTextVisibility(i,model.getDate(), messagesModels.get(i-1).getDate(), received_text.groupDate);
+                if (model.getDate()!= null){
+                    setTimeAgo(model.getDate().getSeconds(),received_text.time);
+
+                }else {
+                    setTimeAgo(Calendar.getInstance().getTimeInMillis(),received_text.time);
+                }
+                if (i>0){
+                    if (model.getDate()!=null){
+                        setTimeTextVisibility(i,model.getDate(), messagesModels.get(i-1).getDate(), received_text.groupDate);
+                    }
+
+                }
+
             break;
             default:
                 throw new IllegalStateException("Unexpected value: " + viewType);

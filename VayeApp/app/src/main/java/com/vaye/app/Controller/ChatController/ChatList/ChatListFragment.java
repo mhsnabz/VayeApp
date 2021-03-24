@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,10 +22,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Model.ChatListModel;
 import com.vaye.app.Model.CurrentUser;
-import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ListIterator;
@@ -97,9 +96,13 @@ public class ChatListFragment extends Fragment {
                                    }
                                    Collections.sort(chatListModels, new Comparator<ChatListModel>(){
                                        public int compare(ChatListModel obj1, ChatListModel obj2) {
-                                           return obj2.getTime().compareTo(obj1.getTime());
-                                       }
+                                           if (obj2.getTime()==null){
+                                               return Calendar.getInstance().getTime().compareTo(obj1.getTime().toDate());
+                                           }else{
+                                               return obj2.getTime().compareTo(obj1.getTime());
+                                           }
 
+                                       }
                                    });
 
                                    adapter.notifyDataSetChanged();

@@ -29,6 +29,18 @@ public class PushNotificationService {
         return instance;
     }
     String TAG =  "PushNotificationService";
+
+    public void sendMsgPushNotification(String not_id , String getterUid , OtherUser otherUser , String  target
+            , String senderName , String mainText , String type , String senderUid){
+        String title = senderName;
+        String text = type + " : "+mainText;
+        HashMap<String , Object> map = new HashMap<>();
+        map.put("title",title);
+        map.put("text",text);
+        map.put("senderUid",senderUid);
+        map.put("not_id",not_id);
+    }
+
     public void  sendPushNotification(String not_id , String getterUid , OtherUser otherUser , String  target
     , String senderName , String mainText , String type , String senderUid){
         DocumentReference db = FirebaseFirestore.getInstance().collection("notification").document(not_id);
