@@ -13,8 +13,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -40,7 +42,7 @@ public class ChatListFragment extends Fragment {
     ChatListAdapter adapter;
     private ListenerRegistration registration;
     Activity activity;
-    public ChatListFragment(CurrentUser currentUser , Activity activity) {
+    public ChatListFragment(CurrentUser currentUser ) {
         this.currentUser = currentUser;
         this.activity = activity;
     }
@@ -78,7 +80,15 @@ public class ChatListFragment extends Fragment {
                                     chatListModels.add(item.getDocument().toObject(ChatListModel.class));
                                    Collections.sort(chatListModels, new Comparator<ChatListModel>(){
                                        public int compare(ChatListModel obj1, ChatListModel obj2) {
-                                           return obj2.getTime().compareTo(obj1.getTime());
+                                           if (obj1.getTime() != null && obj2.getTime()!=null){
+                                               return obj2.getTime().compareTo(obj1.getTime());
+                                           }else{
+                                              obj1.setTime(Timestamp.now());
+                                              obj2.setTime(Timestamp.now());
+                                              adapter.notifyDataSetChanged();
+                                              return obj2.getTime().compareTo(obj1.getTime());
+                                           }
+
                                        }
 
                                    });
@@ -135,28 +145,10 @@ public class ChatListFragment extends Fragment {
 
 
     @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop: " + "on stop");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         registration.remove();
         Log.d(TAG, "onDestroy: " + "on destroy");
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
 
     }
 }

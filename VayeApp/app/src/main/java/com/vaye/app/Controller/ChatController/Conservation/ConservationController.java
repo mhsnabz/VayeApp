@@ -280,7 +280,6 @@ public class ConservationController extends AppCompatActivity {
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (value.exists()){
                     otherUser = value.toObject(OtherUser.class);
-
                 }
             }
         });
@@ -301,6 +300,8 @@ public class ConservationController extends AppCompatActivity {
                 }
             }
         });
+
+        scrollRecyclerViewToBottom(list);
 
     }
 

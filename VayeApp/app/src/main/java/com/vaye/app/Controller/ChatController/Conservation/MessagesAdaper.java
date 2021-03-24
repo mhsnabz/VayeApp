@@ -77,44 +77,32 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         long previousTs = 0;
         if(i>1){
             MessagesModel pm = messagesModels.get(i-1);
-            previousTs = pm.getDate().getSeconds();
+            previousTs = pm.getTime();
         }
 
         switch (viewType) {
 
             case SEND_TEXT_MSG:
+
                 SendTextMsgViewHolder send_text = (SendTextMsgViewHolder)holder;
                 send_text.setMsgLbl(model.getContent());
                 send_text.setProfileImage(currentUser.getProfileImage());
-                if (model.getDate()!= null){
-                    setTimeAgo(model.getDate().getSeconds(),send_text.time);
-
-                }else {
-                    setTimeAgo(Calendar.getInstance().getTimeInMillis(),send_text.time);
-                }
+                setTimeAgo(model.getTime(),send_text.time);
 
                 if (i>0){
-                    if (model.getDate()!=null){
-                        setTimeTextVisibility(i,model.getDate(), messagesModels.get(i-1).getDate(), send_text.groupDate);
-                    }
-
+                    setTimeTextVisibility(model.getTime(), previousTs, send_text.groupDate);
                 }
 
                 break;
             case RECEIVED_TEXT_MSG:
+
                 ReceivedTextMsgViewHolder received_text = (ReceivedTextMsgViewHolder)holder;
                 received_text.setMsgLbl(model.getContent());
                 received_text.setProfileImage(otherUser.getProfileImage());
-                if (model.getDate()!= null){
-                    setTimeAgo(model.getDate().getSeconds(),received_text.time);
+                setTimeAgo(model.getTime(),received_text.time);
 
-                }else {
-                    setTimeAgo(Calendar.getInstance().getTimeInMillis(),received_text.time);
-                }
                 if (i>0){
-                    if (model.getDate()!=null){
-                        setTimeTextVisibility(i,model.getDate(), messagesModels.get(i-1).getDate(), received_text.groupDate);
-                    }
+                    setTimeTextVisibility(model.getTime(), previousTs, received_text.groupDate);
 
                 }
 
@@ -123,41 +111,43 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 throw new IllegalStateException("Unexpected value: " + viewType);
         }
     }
-    private void setTimeTextVisibility( int i,Timestamp ts1, Timestamp ts2, TextView timeText){
-        Log.d(TAG, "setTimeTextVisibility: " + i);
-            if (i == 0){
-                timeText.setVisibility(View.GONE);
-                timeText.setText(getDate(ts1.getSeconds()));
-                Log.d(TAG, "setTimeTextVisibility: gone");
-            }else {
-                boolean sameMonth = ts1.toDate().getYear() == ts2.toDate().getYear() &&
-                        ts1.toDate().getDay() == ts2.toDate().getDay()  &&
-                        ts1.toDate().getMonth()  == ts2.toDate().getDay() &&
-                        ts1.toDate().getYear() ==   ts2.toDate().getYear();
 
-                if(sameMonth){
-                    timeText.setVisibility(View.GONE);
-                    timeText.setText("");
-                }else {
-                    timeText.setVisibility(View.VISIBLE);
-                    timeText.setText(getDate(ts1.getSeconds()));
-                }
+    private void setTimeTextVisibility(long ts1, long ts2, TextView timeText){
+
+        if(ts2==0){
+            timeText.setVisibility(View.VISIBLE);
+            timeText.setText(getDate(ts1));
+          
+        }else {
+            Calendar cal1 = Calendar.getInstance();
+            Calendar cal2 = Calendar.getInstance();
+            cal1.setTimeInMillis(ts1);
+            cal2.setTimeInMillis(ts2);
+
+            boolean sameMonth = cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                    cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH) &&cal1.get(Calendar.WEEK_OF_MONTH) == cal2.get(Calendar.WEEK_OF_MONTH)&& cal1.get(Calendar.DAY_OF_WEEK) == cal2.get(Calendar.DAY_OF_WEEK);
+
+            if(sameMonth){
+                timeText.setVisibility(View.GONE);
+                timeText.setText("");
+            }else {
+                timeText.setVisibility(View.VISIBLE);
+                timeText.setText(getDate(ts1));
             }
 
-
-
-
+        }
     }
+
     private String getDate(long time) {
         Calendar cal = Calendar.getInstance(Locale.getDefault());
         cal.setTimeInMillis(time * 1000);
-        String date = DateFormat.format("EEE, d MMM yyyy", cal).toString();
+        String date = DateFormat.format("EEE, d MMM yyyy", time).toString();
         return date;
     }
     private void setTimeAgo(long timeAgo, TextView textView){
         Calendar cal = Calendar.getInstance(Locale.getDefault());
         cal.setTimeInMillis(timeAgo * 1000);
-        String date = DateFormat.format("EEE, d MMM  HH:mm:ss", cal).toString();
+        String date = DateFormat.format("EEE, d MMM  HH:mm", timeAgo).toString();
         textView.setText(date);
     }
     @Override
@@ -171,9 +161,12 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 
         if (model.getType().equals(MessageType.text)){
-            if (model.getSenderUid().equals(currentUser)){
+            if (model.getSenderUid().equals(currentUser.getUid())){
+
+
                 return SEND_TEXT_MSG;
             }else{
+
                 return RECEIVED_TEXT_MSG;
             }
         }else{

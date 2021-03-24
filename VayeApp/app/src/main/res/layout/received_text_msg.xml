@@ -16,10 +16,10 @@
         android:paddingLeft="4dp"
         android:paddingTop="2dp"
         android:paddingBottom="2dp"
-
-        android:textColor="@color/dark_gray"
+        android:background="@drawable/date_group"
+        android:textColor="@color/white"
         android:textSize="10sp"
-        android:fontFamily="@font/nunito_semibold"
+        android:textStyle="bold"
         android:layout_marginTop="3dp"
         ></TextView>
     <RelativeLayout
@@ -54,7 +54,7 @@
         android:textSize="8sp"
         android:layout_marginLeft="8dp"
         android:textStyle="bold"
-        android:fontFamily="@font/nunito_semibold"
+        android:textColor="@color/ligthGray"
         android:layout_marginTop="3dp"
         android:id="@+id/time"
 

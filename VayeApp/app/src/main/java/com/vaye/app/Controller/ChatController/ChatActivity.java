@@ -99,7 +99,7 @@ public class ChatActivity extends AppCompatActivity {
         line2  = (RelativeLayout)findViewById(R.id.line2);
         line3  = (RelativeLayout)findViewById(R.id.line3);
         viewPager = (ViewPager)findViewById(R.id.mainPager);
-        adapter = new ChatViewPagerAdapter(getSupportFragmentManager(),currentUser,this);
+        adapter = new ChatViewPagerAdapter(getSupportFragmentManager(),currentUser);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
