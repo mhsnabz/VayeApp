@@ -117,7 +117,7 @@ public class ConservationController extends AppCompatActivity {
             otherUser = intentIncoming.getParcelableExtra("otherUser");
             setToolbar(otherUser);
             configureUI(otherUser);
-            getAllMessages();
+
             swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeAndRefresh);
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
@@ -273,7 +273,8 @@ public class ConservationController extends AppCompatActivity {
         }
     }
     private void getAllMessages(){
-
+        messagesList.clear();
+        adaper.notifyDataSetChanged();
        Query db = FirebaseFirestore.getInstance().collection("messages")
                 .document(currentUser.getUid())
                 .collection(otherUser.getUid()).limitToLast(10).orderBy("id", Query.Direction.ASCENDING);
@@ -314,7 +315,9 @@ public class ConservationController extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        getAllMessages();
         targetChooser();
+
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid());
         ref.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
@@ -325,9 +328,18 @@ public class ConservationController extends AppCompatActivity {
                 }
             }
         });
-
-        MessageService.shared().setCurrentUserOnline(currentUser,otherUser,true);
-        MessageService.shared().deleteBadge(currentUser,otherUser);
+        DocumentReference refCurrentUser = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid());
+        refCurrentUser.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.exists()){
+                    currentUser = value.toObject(CurrentUser.class);
+                }
+            }
+        });
+       MessageService.shared().setCurrentUserOnline(currentUser,otherUser,true);
+       MessageService.shared().deleteBadge(currentUser,otherUser);
 
         DocumentReference isOnlineDb = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid())
@@ -351,13 +363,13 @@ public class ConservationController extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         DocumentReference setCurrentUserOnline =  FirebaseFirestore.getInstance().collection("user")
-                .document(currentUser.getUid())
+                .document(otherUser.getUid())
                 .collection("msg-list")
-                .document(otherUser.getUid());
+                .document(currentUser.getUid());
         Map<String , Object> map = new HashMap<>();
         map.put("isOnline",false);
         map.put("badgeCount",0);
-        setCurrentUserOnline.set(map, SetOptions.merge());
+        setCurrentUserOnline.set(map,SetOptions.merge());
         Log.d(TAG, "onStop: onStop");
     }
 
@@ -382,6 +394,12 @@ public class ConservationController extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        Helper.shared().back(ConservationController.this);
+    }
 
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 
@@ -439,13 +457,20 @@ public class ConservationController extends AppCompatActivity {
                         geoPoint = new GeoPoint(intent.getDoubleExtra("lat",-45),intent.getDoubleExtra("longLat",45));
                         Log.d(TAG, "getLocation: "+geoPoint.getLongitude());
                         Log.d(TAG, "getLocation: "+geoPoint.getLatitude());
+                        if (intent.getIntExtra("count",1) == 1){
+                            sendLocationMessage(new GeoPoint(geoPoint.getLatitude(),geoPoint.getLongitude()));
+
+                        }
                     }
                 }
             };
 
 
     private void sendLocationMessage(GeoPoint geoPoint){
-      //  MessageService.shared().sendTextMsg(currentUser,otherUser,null,isOnline,Calendar.getInstance().getTimeInMillis(),geoPoint,0,200f,200f,);
+        String msgID = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        long time = Calendar.getInstance().getTimeInMillis();
+        MessageService.shared().sendTextMsg(currentUser,otherUser,filename,isOnline,time,geoPoint,0,200f,200f,"Konum",msgID,MessageType.location);
     }
+
 
 }

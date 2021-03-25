@@ -37,9 +37,9 @@ public class MessageService {
 
     public void setCurrentUserOnline(CurrentUser currentUser , OtherUser otherUser , Boolean bool){
         DocumentReference ref =  FirebaseFirestore.getInstance().collection("user")
-                .document(currentUser.getUid())
+                .document(otherUser.getUid())
                 .collection("msg-list")
-                .document(otherUser.getUid());
+                .document(currentUser.getUid());
         Map<String , Object> map = new HashMap<>();
         map.put("isOnline",bool);
         ref.set(map, SetOptions.merge());
@@ -96,9 +96,9 @@ public class MessageService {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                    .document(currentUser.getUid())
+                                    .document(otherUser.getUid())
                                     .collection("msg-list")
-                                    .document(otherUser.getUid());
+                                    .document(currentUser.getUid());
                             db.set(dicGetterLastMessage(msg,currentUser,type),SetOptions.merge());
                         }
                     }

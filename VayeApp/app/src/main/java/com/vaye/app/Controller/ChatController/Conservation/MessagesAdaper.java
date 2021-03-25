@@ -1,6 +1,8 @@
 package com.vaye.app.Controller.ChatController.Conservation;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -130,6 +132,14 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 SendLocationMsgViewHolder send_location = (SendLocationMsgViewHolder)holder;
                 send_location.setLocaitonView(model.getGeoPoint());
                 send_location.setProfileImage(currentUser.getProfileImage());
+
+                send_location.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getLocationUrl(model.getGeoPoint())));
+                        context.startActivity(intent);
+                    }
+                });
                 setTimeAgo(model.getTime(),send_location.time);
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, send_location.groupDate);
@@ -139,12 +149,18 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case RECEIVED_LOCATION_MSG:
                 ReceivedLocaitonMsgViewHolder received_location = (ReceivedLocaitonMsgViewHolder)holder;
                 received_location.setLocaitonView(model.getGeoPoint());
-                received_location.setProfileImage(currentUser.getProfileImage());
+                received_location.setProfileImage(otherUser.getProfileImage());
                 setTimeAgo(model.getTime(),received_location.time);
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, received_location.groupDate);
                 }
-
+                received_location.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getLocationUrl(model.getGeoPoint())));
+                        context.startActivity(intent);
+                    }
+                });
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + viewType);
@@ -177,6 +193,12 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
+    private String getLocationUrl(GeoPoint geoPoint){
+        String latEiffelTower = String.valueOf(geoPoint.getLatitude());
+        String lngEiffelTower = String.valueOf(geoPoint.getLongitude());
+        return  "http://maps.google.com/maps/api/staticmap?center=" + latEiffelTower + "," + lngEiffelTower + "&zoom=14&size=300x300&sensor=false&key=AIzaSyC2yPEvNrQQOnuBr7MGaByxk8PEwzrsG1I";
+
+    }
     private String getDate(long time) {
         Calendar cal = Calendar.getInstance(Locale.getDefault());
         cal.setTimeInMillis(time * 1000);
@@ -197,7 +219,6 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public int getItemViewType(int position) {
         MessagesModel model  =messagesModels.get(position);
-
 
         if (model.getType().equals(MessageType.text)){
             if (model.getSenderUid().equals(currentUser.getUid())){
@@ -276,11 +297,8 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         public void setLocaitonView(GeoPoint geoPoint){
             if (geoPoint!=null){
-                String latEiffelTower = String.valueOf(geoPoint.getLatitude());
-                String lngEiffelTower = String.valueOf(geoPoint.getLongitude());
-                String url = "http://maps.google.com/maps/api/staticmap?center=" + latEiffelTower + "," + lngEiffelTower + "&zoom=14&size=200x200&sensor=false&key=AIzaSyC2yPEvNrQQOnuBr7MGaByxk8PEwzrsG1I";
-                Log.d(TAG, "setLocaitonView: "+url);
-                Picasso.get().load(url).resize(600,450).centerCrop().placeholder(android.R.color.darker_gray).into(locaitonView);
+
+                Picasso.get().load(getLocationUrl(geoPoint)).resize(600,450).centerCrop().placeholder(android.R.color.darker_gray).into(locaitonView);
             }
         }
 
@@ -362,11 +380,8 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         public void setLocaitonView(GeoPoint geoPoint){
             if (geoPoint!=null){
-                String latEiffelTower = String.valueOf(geoPoint.getLatitude());
-                String lngEiffelTower = String.valueOf(geoPoint.getLongitude());
-                String url = "http://maps.google.com/maps/api/staticmap?center=" + latEiffelTower + "," + lngEiffelTower + "&zoom=14&size=200x200&sensor=false&key=AIzaSyC2yPEvNrQQOnuBr7MGaByxk8PEwzrsG1I";
-                Log.d(TAG, "setLocaitonView: "+url);
-                Picasso.get().load(url).resize(200,200).centerCrop().placeholder(android.R.color.darker_gray).into(locaitonView);
+
+                Picasso.get().load(getLocationUrl(geoPoint)).resize(200,200).centerCrop().placeholder(android.R.color.darker_gray).into(locaitonView);
             }
         }
 

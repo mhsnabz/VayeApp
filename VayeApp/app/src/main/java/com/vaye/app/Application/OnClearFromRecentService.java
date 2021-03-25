@@ -45,6 +45,7 @@ public class OnClearFromRecentService extends Service {
         Map<String , Object> map = new HashMap<>();
         map.put("isOnline",false);
         map.put("badgeCount",0);
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("user");
         CollectionReference setCurrentUserOnline =  FirebaseFirestore.getInstance().collection("user")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .collection("msg-list");
@@ -54,8 +55,9 @@ public class OnClearFromRecentService extends Service {
                 if (task.isSuccessful()){
                     if (!task.getResult().getDocuments().isEmpty()){
                              for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                 setCurrentUserOnline.document(item.getId()).set(map, SetOptions.merge());
+                                 reference.document(item.getId()).collection("msg-list").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update(map);
                                  Log.e("ClearFromRecentService","set offline");
+
                              }
                     }
                 }

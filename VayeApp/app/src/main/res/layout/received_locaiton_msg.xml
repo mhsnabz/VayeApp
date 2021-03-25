@@ -25,14 +25,14 @@
     <com.makeramen.roundedimageview.RoundedImageView
         android:layout_below="@id/groupDate"
 
-        android:layout_width="200dp"
+        android:layout_width="150dp"
         app:riv_corner_radius="10dp"
         android:layout_marginLeft="40dp"
         android:layout_marginTop="4dp"
 
         android:padding="2dp"
         android:scaleType="fitXY"
-        android:layout_height="200dp"
+        android:layout_height="175dp"
         android:id="@+id/locaitonView"
         android:layout_alignParentStart="true"
         ></com.makeramen.roundedimageview.RoundedImageView>

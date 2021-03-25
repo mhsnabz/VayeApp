@@ -310,12 +310,4 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
 
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-        Helper.shared().back(VayeAppPlacePickerActivity.this);
-    }
-
-
 }

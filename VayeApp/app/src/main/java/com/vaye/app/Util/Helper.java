@@ -173,9 +173,10 @@ public class Helper {
           bottomSheetDialog.show();
 
     }
-
+    int count = 0;
     public void LocationPickDialog(Activity activity , String _title , String _address , Double lat , Double longLat, LocationCallback locationCallback, TrueFalse<Boolean> callback){
         TextView title , address ;
+
         Button selecteButton,dismiss;
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
         View view = LayoutInflater.from(activity.getApplicationContext())
@@ -196,12 +197,13 @@ public class Helper {
 
 
                 Intent chat = new Intent("locaiton_manager");
-
+                count = count + 1;
                 chat.putExtra("target",CompletionWithValue.get_locaiton);
                 Log.d("ConservationController", "onClick: " + CompletionWithValue.get_locaiton);
                 chat.putExtra("lat",lat);
                 chat.putExtra("longLat",longLat);
                 chat.putExtra("locationName",_title);
+                chat.putExtra("count",count);
                 LocalBroadcastManager.getInstance(activity).sendBroadcast(chat);
                 bottomSheetDialog.dismiss();
             }

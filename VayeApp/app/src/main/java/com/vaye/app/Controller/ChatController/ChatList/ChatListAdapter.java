@@ -3,6 +3,7 @@ package com.vaye.app.Controller.ChatController.ChatList;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     ArrayList<ChatListModel> chatList;
     Context context;
     CurrentUser currentUser;
-
+    String TAG  = "ChatListAdapter";
     public ChatListAdapter(ArrayList<ChatListModel> chatList, Context context, CurrentUser currentUser) {
         this.chatList = chatList;
         this.context = context;
@@ -153,7 +154,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public void setLastMsg(String type , String _lastMsg){
             lastMsg.setText(_lastMsg);
-            if (type.equals(MessageType.text)){
+            Log.d(TAG, "setLastMsg: " + _lastMsg);
+         if (type.equals(MessageType.text)){
                 lastMsgImage.setImageDrawable(context.getResources().getDrawable(R.drawable.font));
             }else if (type.equals(MessageType.audio)){
                 lastMsgImage.setImageDrawable(context.getResources().getDrawable(R.drawable.audio_waves));
