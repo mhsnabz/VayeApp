@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.vaye.app.Controller.ChatController.ChatActivity;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.FriendListModel;
 import com.vaye.app.R;
@@ -33,9 +34,7 @@ public class FriendListFragment extends Fragment {
     FriendListAdapter adapter;
     ArrayList<FriendListModel> friendList = new ArrayList<>();
     ListenerRegistration registration;
-    public FriendListFragment(CurrentUser currentUser) {
-        this.currentUser = currentUser;
-    }
+
 
     public FriendListFragment() {
         // Required empty public constructor
@@ -52,6 +51,8 @@ public class FriendListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_friend_list, container, false);
+        ChatActivity activity = (ChatActivity) getActivity();
+        currentUser = activity.getIntent().getParcelableExtra("currentUser");
         configureUI();
         return rootView;
     }

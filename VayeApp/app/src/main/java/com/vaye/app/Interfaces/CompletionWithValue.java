@@ -11,4 +11,9 @@ public interface CompletionWithValue {
 
     String read_all_notificaiton = "read_all_notificaiton";
     String delete_all_notification = "delete_all_notification";
+
+
+    String send_image = "send_image";
+    String send_location = "send_location";
+    String send_document = "send_document";
 }

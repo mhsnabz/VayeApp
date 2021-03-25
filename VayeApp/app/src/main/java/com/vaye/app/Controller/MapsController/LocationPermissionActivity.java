@@ -14,6 +14,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -23,15 +24,21 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import com.vaye.app.R;
 
 public class LocationPermissionActivity extends AppCompatActivity {
-
+    private LottieAnimationView anim;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_permission);
+
+        anim = (LottieAnimationView) findViewById(R.id.anim);
+        anim.setAnimation(R.raw.location_pin);
+        anim.playAnimation();
+
         if (ContextCompat.checkSelfPermission(LocationPermissionActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
         ContextCompat.checkSelfPermission(LocationPermissionActivity.this , Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             Intent i = new Intent(LocationPermissionActivity.this,VayeAppPlacePickerActivity.class);
             startActivity(i);
+
 
             finish();
             return;

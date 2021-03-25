@@ -15,11 +15,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
+import com.vaye.app.Controller.NotificationService.MajorPostNotification;
+import com.vaye.app.Controller.NotificationService.MsgNotification;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
+import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
+import com.vaye.app.LoginRegister.MessageType;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
 import com.vaye.app.Model.OtherUser;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -100,6 +105,22 @@ public class MessageService {
                 });
                 getBadgeCount(currentUser,"msg-list",isOnline,otherUser);
                 setBadgeCount(currentUser,isOnline,otherUser,"msg-list");
+
+                if (!isOnline) {
+                    if (type.equals(MessageType.text)){
+                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_msg,currentUser.getName(),msg, MsgNotification.descp.new_msg,currentUser.getUid());
+
+                    }else if (type.equals(MessageType.photo)){
+                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_image,currentUser.getName(),"Resim Gönderdi", MsgNotification.descp.new_image,currentUser.getUid());
+
+                    }else if (type.equals(MessageType.audio)){
+                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_record,currentUser.getName(),"Ses Kaydı Gönderdi", MsgNotification.descp.new_record,currentUser.getUid());
+
+                    }else if (type.equals(MessageType.location)){
+                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_location,currentUser.getName(),"Konum Gönderdi", MsgNotification.descp.new_location,currentUser.getUid());
+
+                    }
+                }
             }else{
                 DocumentReference dbSender = FirebaseFirestore.getInstance().collection("messages")
                         .document(currentUser.getUid())
@@ -138,9 +159,11 @@ public class MessageService {
                 getBadgeCount(currentUser,"msg-request",isOnline,otherUser);
                 setBadgeCount(currentUser,isOnline,otherUser,"msg-request");
 
-                if (!isOnline){
-                 //   PushNotificationService.shared().sendPushNotification();
-                }
+
+                    if (!isOnline) {
+                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_rqst,currentUser.getName(),"Size Mesaj Göndermek İstiyor", MsgNotification.descp.new_rqst,currentUser.getUid());
+                    }
+
             }
     }
 

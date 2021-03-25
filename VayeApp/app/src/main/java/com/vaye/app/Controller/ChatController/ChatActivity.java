@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
@@ -24,13 +25,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.vaye.app.Controller.ChatController.ChatList.ChatListFragment;
 import com.vaye.app.Controller.ChatController.ChatPagerAdapter.ChatViewPagerAdapter;
+import com.vaye.app.Controller.ChatController.FriendList.FriendListFragment;
+import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.PagerAdapter.PagerViewApadater;
+import com.vaye.app.Controller.HomeController.School.SchoolFragment;
 import com.vaye.app.Controller.HomeController.School.SchoolPostNotificationActivity;
 import com.vaye.app.Controller.Profile.ProfileViewPager;
+import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.Helper;
 
@@ -54,12 +61,22 @@ public class ChatActivity extends AppCompatActivity {
         Intent intentIncoming = getIntent();
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("currentUser",intentIncoming.getParcelableExtra("currentUser"));
+
             setupBottomNavBar(currentUser);
             setToolbar();
             setView(currentUser);
+            setTabBar();
+            setBadgeCount();
 
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("currentUser",intentIncoming.getParcelableExtra("currentUser"));
+
+            ChatListFragment chatListFragment = new ChatListFragment();
+            chatListFragment.setArguments(bundle);
+            FriendListFragment friendListFragment = new FriendListFragment();
+            friendListFragment.setArguments(bundle);
+            RequestListFragment requestListFragment = new RequestListFragment();
+            requestListFragment.setArguments(bundle);
         }
 
     }
@@ -92,14 +109,9 @@ public class ChatActivity extends AppCompatActivity {
         title.setText("Sohbetler");
     }
     private void setView(CurrentUser currentUser){
-        sohbetlerLbl = (TextView)findViewById(R.id.text1);
-        arkadaslarLbl = (TextView)findViewById(R.id.text2);
-        isteklerLbl = (TextView)findViewById(R.id.text3);
-        line1  = (RelativeLayout)findViewById(R.id.line1);
-        line2  = (RelativeLayout)findViewById(R.id.line2);
-        line3  = (RelativeLayout)findViewById(R.id.line3);
+
         viewPager = (ViewPager)findViewById(R.id.mainPager);
-        adapter = new ChatViewPagerAdapter(getSupportFragmentManager(),currentUser);
+        adapter = new ChatViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -118,25 +130,8 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        sohbetlerLbl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                changeTabs(0);
-            }
-        });
-        arkadaslarLbl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                changeTabs(1);
-            }
-        });
-        isteklerLbl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                changeTabs(2);
-            }
-        });
-        setBadgeCount();
+
+
     }
 
 
@@ -196,6 +191,52 @@ public class ChatActivity extends AppCompatActivity {
             sohbetlerLbl.setTextSize(12);
             arkadaslarLbl.setTextSize(12);
             isteklerLbl.setTextSize(16);
+        }
+    }
+
+
+    private void setTabBar(){
+        sohbetlerLbl = (TextView)findViewById(R.id.text1);
+        arkadaslarLbl = (TextView)findViewById(R.id.text2);
+        isteklerLbl = (TextView)findViewById(R.id.text3);
+        line1  = (RelativeLayout)findViewById(R.id.line1);
+        line2  = (RelativeLayout)findViewById(R.id.line2);
+        line3  = (RelativeLayout)findViewById(R.id.line3);
+        sohbetlerLbl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeTabs(0);
+            }
+        });
+        arkadaslarLbl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeTabs(1);
+            }
+        });
+        isteklerLbl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeTabs(2);
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (currentUser!=null){
+            setView(currentUser);
+        }else{
+            if (FirebaseAuth.getInstance().getCurrentUser().getUid() != null){
+                UserService.shared().getCurrentUser(FirebaseAuth.getInstance().getCurrentUser().getUid(), new CurrentUserService() {
+                    @Override
+                    public void onCallback(CurrentUser user) {
+                        setView(user);
+                    }
+                });
+            }
+
         }
     }
 }

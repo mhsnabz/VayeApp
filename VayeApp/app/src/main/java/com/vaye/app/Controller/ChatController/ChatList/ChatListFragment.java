@@ -22,6 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.vaye.app.Controller.ChatController.ChatActivity;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Model.ChatListModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
@@ -42,10 +44,7 @@ public class ChatListFragment extends Fragment {
     ChatListAdapter adapter;
     private ListenerRegistration registration;
     Activity activity;
-    public ChatListFragment(CurrentUser currentUser ) {
-        this.currentUser = currentUser;
-        this.activity = activity;
-    }
+
 
     public ChatListFragment() {
         // Required empty public constructor
@@ -61,6 +60,8 @@ public class ChatListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_chat_list, container, false);
+        ChatActivity activity = (ChatActivity) getActivity();
+        currentUser = activity.getIntent().getParcelableExtra("currentUser");
         configureUI();
         getMsgList();
         return rootView;

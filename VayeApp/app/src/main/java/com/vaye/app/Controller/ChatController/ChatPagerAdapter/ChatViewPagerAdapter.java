@@ -17,9 +17,9 @@ public class ChatViewPagerAdapter extends FragmentPagerAdapter {
     CurrentUser currentUser;
     Activity activity;
 
-    public ChatViewPagerAdapter(@NonNull FragmentManager fm, CurrentUser currentUser ) {
+    public ChatViewPagerAdapter(@NonNull FragmentManager fm ) {
         super(fm);
-        this.currentUser = currentUser;
+
 
     }
 
@@ -29,14 +29,14 @@ public class ChatViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case  0 :
-                ChatListFragment chatListFragment = new ChatListFragment(currentUser);
+                ChatListFragment chatListFragment = new ChatListFragment();
                 return chatListFragment;
 
             case  1:
-                FriendListFragment friendListFragment = new FriendListFragment(currentUser);
+                FriendListFragment friendListFragment = new FriendListFragment();
                 return  friendListFragment;
             case 2:
-                RequestListFragment requestListFragment = new RequestListFragment(currentUser);
+                RequestListFragment requestListFragment = new RequestListFragment();
                 return requestListFragment;
             default: return null;
         }

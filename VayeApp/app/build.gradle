@@ -73,7 +73,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:annotations:4.6.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
 
-    implementation 'com.airbnb.android:lottie:2.8.0'
+    implementation "com.airbnb.android:lottie:3.0.3"
 
   //  implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
     //implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'

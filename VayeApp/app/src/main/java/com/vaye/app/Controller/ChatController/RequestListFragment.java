@@ -17,9 +17,7 @@ public class RequestListFragment extends Fragment {
 
     CurrentUser currentUser;
 
-    public RequestListFragment(CurrentUser currentUser) {
-        this.currentUser = currentUser;
-    }
+
 
     public RequestListFragment() {
         // Required empty public constructor
@@ -33,7 +31,9 @@ public class RequestListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
+        ChatActivity activity = (ChatActivity) getActivity();
+        currentUser = activity.getIntent().getParcelableExtra("currentUser");
         return inflater.inflate(R.layout.fragment_request_list, container, false);
     }
 }

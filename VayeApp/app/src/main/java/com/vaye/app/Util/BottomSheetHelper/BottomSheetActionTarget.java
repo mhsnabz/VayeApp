@@ -45,6 +45,10 @@ public interface BottomSheetActionTarget {
     String delete_all_notification = "Bütün Bildirimleri Sil";
 
 
+    String send_image = "Resim Gönder";
+    String send_location = "Konum Paylaş";
+    String send_document = "Belge Gönder";
+
 
 
 

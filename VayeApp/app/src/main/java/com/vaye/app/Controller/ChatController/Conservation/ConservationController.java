@@ -4,13 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
@@ -20,6 +26,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -34,7 +42,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
+import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
 import com.vaye.app.FCM.MessagingService;
+import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.LoginRegister.MessageType;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
@@ -53,6 +65,8 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConservationController extends AppCompatActivity {
+    String TAG = "ConservationController";
+    private static final int ERROR_DIALOG_REQUEST = 9001;
     Boolean isOnline = false;
     CircleImageView profileImage;
     ProgressBar progressBar;
@@ -60,6 +74,7 @@ public class ConservationController extends AppCompatActivity {
     Toolbar toolbar;
     ImageButton options;
     LinearLayout mediaLayout;
+    ImageButton mediaItem , soundRecorder;
     CurrentUser currentUser;
     OtherUser otherUser;
     ArrayList<MessagesModel> messagesList = new ArrayList<>();
@@ -80,6 +95,11 @@ public class ConservationController extends AppCompatActivity {
         mediaLayout = (LinearLayout)findViewById(R.id.mediaLayout);
         mediaLayout.setVisibility(View.VISIBLE);
         sendButton = (ImageButton)findViewById(R.id.send);
+
+        mediaItem = (ImageButton)findViewById(R.id.media);
+        soundRecorder = (ImageButton)findViewById(R.id.audio);
+
+
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,8 +122,25 @@ public class ConservationController extends AppCompatActivity {
                     loadMoreMessages();
                 }
             });
-        }
+            mediaItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Helper.shared().MessageMediaLauncher(ConservationController.this,otherUser, currentUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
 
+                        }
+                    });
+                }
+            });
+        }
+        targetChooser();
+    }
+
+    private void targetChooser(){
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("media_item_target"));
     }
 
     private void setToolbar(OtherUser otherUser) {
@@ -322,6 +359,51 @@ public class ConservationController extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Toast.makeText(ConservationController.this,"Destroy",Toast.LENGTH_LONG).show();
+
+    }
+
+    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String target = intent.getStringExtra("target");
+            if (target.equals(CompletionWithValue.send_image)){
+             sendImage();
+            }else if (target.equals(CompletionWithValue.send_location)){
+                    sendLocation();
+            }else if(target.equals(CompletionWithValue.send_document)){
+
+            }
+        }
+    };
+
+
+    private void sendImage(){
+
+    }
+    private void sendDocument(){
+
+    }
+    private void sendLocation(){
+        if (isServicesOk()){
+            Intent i = new Intent(ConservationController.this , LocationPermissionActivity.class);
+            startActivity(i);
+        }
+    }
+
+    public boolean isServicesOk(){
+        Log.d(TAG, "isServicesOk: " +"check google service version");
+        int avabile = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ConservationController.this);
+        if (avabile == ConnectionResult.SUCCESS){
+            return true;
+        }else if (GoogleApiAvailability.getInstance().isUserResolvableError(avabile))
+        {
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(ConservationController.this ,avabile,ERROR_DIALOG_REQUEST);
+            dialog.show();
+            return  false;
+        }else{
+
+        }
+        return  false;
     }
 }

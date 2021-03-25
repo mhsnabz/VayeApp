@@ -39,6 +39,8 @@ public class PushNotificationService {
         map.put("text",text);
         map.put("senderUid",senderUid);
         map.put("not_id",not_id);
+
+
     }
 
     public void  sendPushNotification(String not_id , String getterUid , OtherUser otherUser , String  target

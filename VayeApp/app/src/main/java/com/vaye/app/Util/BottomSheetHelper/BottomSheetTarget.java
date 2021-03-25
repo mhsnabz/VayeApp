@@ -23,5 +23,6 @@ public interface BottomSheetTarget {
 
     String local_notification_setting = "local_notification_setting";
 
+    String media_item = "media_item";
 
 }

@@ -2,7 +2,7 @@ package com.vaye.app.Controller.NotificationService;
 
 public interface MsgNotification {
     interface  type{
-            String  new_msg ="new_msg";
+        String  new_msg ="new_msg";
         String new_rqst = "new_rqst";
         String new_image="new_image";
         String new_doc="new_doc";

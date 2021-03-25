@@ -60,6 +60,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetLinkAdapter;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.BottomSheetHelper.MajorPostBottomAdapter;
+import com.vaye.app.Util.BottomSheetHelper.MessageMediaAdapter;
 import com.vaye.app.Util.BottomSheetHelper.ProfileImageSettingAdapter;
 import com.vaye.app.Util.BottomSheetHelper.SchoolPostBottomSheetAdapter;
 import com.vaye.app.Util.BottomSheetHelper.VayeAppBottomSheet;
@@ -1040,6 +1041,52 @@ public class Helper {
         bottomSheetDialog.show();
     }
 
+    public void MessageMediaLauncher(Activity activity ,OtherUser otherUser, CurrentUser currentUser , TrueFalse<Boolean> callback){
+        RecyclerView recyclerView;
+        CardView headerView;
+        Button cancel;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+
+
+        ArrayList<String > items = new ArrayList<>();
+        items.add(BottomSheetActionTarget.send_image);
+        items.add(BottomSheetActionTarget.send_location);
+        items.add(BottomSheetActionTarget.send_document);
+
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(R.drawable.gallery_btn);
+        res.add(R.drawable.orange_location);
+        res.add(R.drawable.belge);
+        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.media_item,res);
+
+        MessageMediaAdapter adapter = new MessageMediaAdapter(otherUser,currentUser , activity , model , bottomSheetDialog);
+        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        adapter.notifyDataSetChanged();
+        headerView = (CardView)view.findViewById(R.id.header);
+        headerView.setVisibility(View.GONE);
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                callback.callBack(true);
+            }
+        });
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
+
     public void ProfileImageSetting(Activity activity , CurrentUser currentUser , TrueFalse<Boolean> callback){
         RecyclerView recyclerView;
         CardView headerView;
@@ -1057,6 +1104,7 @@ public class Helper {
         res.add(R.drawable.trash);
         res.add(R.drawable.camera);
         res.add(R.drawable.gallery_btn);
+
         BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.profile_image_setting,res);
         ProfileImageSettingAdapter adapter = new ProfileImageSettingAdapter(currentUser , activity , model , bottomSheetDialog);
         recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
@@ -1213,6 +1261,8 @@ public class Helper {
 
         return  text;
     }
+
+
 
 }
 
