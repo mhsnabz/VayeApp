@@ -1,5 +1,7 @@
 package com.vaye.app.Services;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -45,6 +47,8 @@ public class MessageService {
         ref.set(map, SetOptions.merge());
     }
     public void deleteBadge(CurrentUser currentUser , OtherUser otherUser){
+        Log.d(TAG, "deleteBadge: start delete badge");
+
         Query deleteBadgeDb = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("msg-list")
@@ -59,6 +63,7 @@ public class MessageService {
                 if (task.isSuccessful()){
                     if (!task.getResult().getDocuments().isEmpty()){
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            Log.d(TAG, "onComplete: get badgeid" + item.getId());
                             dbc.document(item.getId()).delete();
                         }
                     }

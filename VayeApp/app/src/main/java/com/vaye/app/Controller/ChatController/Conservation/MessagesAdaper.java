@@ -37,6 +37,7 @@ import java.util.Locale;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+
     private static String TAG = "MessagesAdaper";
 
 
@@ -47,6 +48,8 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private static final int RECEIVED_LOCATION_MSG = 3  ;
     private static final int SEND_LOCATION_MSG = 4;
+    private static final int RECEIVED_IMAGE_MSG = 5;
+    private static final int SEND_IMAGE_MSG= 6;
 
     CurrentUser currentUser;
     OtherUser otherUser;
@@ -87,6 +90,18 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             return new ReceivedLocaitonMsgViewHolder(itemView);
         }
+        else if (viewType == RECEIVED_IMAGE_MSG){
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.image_receive_msg, parent, false);
+
+            return new ReceivedImageMsgViewHolder(itemView);
+        }
+        else if (viewType == SEND_IMAGE_MSG){
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.image_send_message, parent, false);
+
+            return new SendImageMsgViewHolder(itemView);
+        }
         return  null;
     }
 
@@ -102,6 +117,29 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         switch (viewType) {
 
+
+            case SEND_IMAGE_MSG:
+                SendImageMsgViewHolder send_image = (SendImageMsgViewHolder)holder;
+                send_image.setMsg_image(model.getContent());
+                send_image.setProfileImage(currentUser.getProfileImage());
+                setTimeAgo(model.getTime(),send_image.time);
+
+                if (i>0){
+                    setTimeTextVisibility(model.getTime(), previousTs, send_image.groupDate);
+                }
+
+                break;
+            case RECEIVED_IMAGE_MSG:
+                ReceivedImageMsgViewHolder received_image = (ReceivedImageMsgViewHolder)holder;
+                received_image.setMsg_image(model.getContent());
+                received_image.setProfileImage(otherUser.getProfileImage());
+                setTimeAgo(model.getTime(),received_image.time);
+
+                if (i>0){
+                    setTimeTextVisibility(model.getTime(), previousTs, received_image.groupDate);
+                }
+
+                break;
             case SEND_TEXT_MSG:
 
                 SendTextMsgViewHolder send_text = (SendTextMsgViewHolder)holder;
@@ -237,6 +275,15 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 return RECEIVED_LOCATION_MSG;
             }
 
+        }else if (model.getType().equals(MessageType.photo)){
+            if (model.getSenderUid().equals(currentUser.getUid())){
+
+                return SEND_IMAGE_MSG;
+            }else{
+
+                return RECEIVED_IMAGE_MSG;
+            }
+
         }
 
         return super.getItemViewType(position);
@@ -326,6 +373,65 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
     }
+    public class SendImageMsgViewHolder extends RecyclerView.ViewHolder{
+
+        public SendImageMsgViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        public TextView groupDate = (TextView)itemView.findViewById(R.id.groupDate);
+        public ProgressBar progressBar =(ProgressBar)itemView.findViewById(R.id.progress);
+        public CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
+        public TextView time = (TextView)itemView.findViewById(R.id.time);
+        public RoundedImageView msg_image = (RoundedImageView)itemView.findViewById(R.id.imageView);
+        public ProgressBar imageProgress = (ProgressBar)itemView.findViewById(R.id.progressImage);
+        public void setMsg_image(String url)
+        {
+            if (url!=null && !url.isEmpty()){
+                Picasso.get().load(url)
+                        .resize(400,500)
+                        .centerCrop()
+                        .placeholder(android.R.color.darker_gray)
+                        .into(msg_image, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                imageProgress.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                msg_image.setImageResource(android.R.color.darker_gray);
+                                imageProgress.setVisibility(View.GONE);
+                            }
+                        });
+            }else{
+                msg_image.setImageResource(android.R.color.darker_gray);
+                imageProgress.setVisibility(View.GONE);
+            }
+        }
+        public void setProfileImage(String url){
+            if (url!=null && !url.isEmpty()){
+                Picasso.get().load(url)
+                        .resize(200,200)
+                        .centerCrop()
+                        .placeholder(android.R.color.darker_gray)
+                        .into(profileImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                profileImage.setImageResource(android.R.color.darker_gray);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+            }else{
+                profileImage.setImageResource(android.R.color.darker_gray);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+    }
     public  class ReceivedTextMsgViewHolder extends RecyclerView.ViewHolder{
 
         public ReceivedTextMsgViewHolder(@NonNull View itemView) {
@@ -385,6 +491,66 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
 
+        public void setProfileImage(String url){
+            if (url!=null && !url.isEmpty()){
+                Picasso.get().load(url)
+                        .resize(200,200)
+                        .centerCrop()
+                        .placeholder(android.R.color.darker_gray)
+                        .into(profileImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                profileImage.setImageResource(android.R.color.darker_gray);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+            }else{
+                profileImage.setImageResource(android.R.color.darker_gray);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+
+    }
+    public class ReceivedImageMsgViewHolder extends RecyclerView.ViewHolder{
+
+        public ReceivedImageMsgViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        public TextView groupDate = (TextView)itemView.findViewById(R.id.groupDate);
+        public ProgressBar progressBar =(ProgressBar)itemView.findViewById(R.id.progress);
+        public CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
+        public TextView time = (TextView)itemView.findViewById(R.id.time);
+        public RoundedImageView msg_image = (RoundedImageView)itemView.findViewById(R.id.imageView);
+        public ProgressBar imageProgress = (ProgressBar)itemView.findViewById(R.id.progressImage);
+        public void setMsg_image(String url)
+        {
+            if (url!=null && !url.isEmpty()){
+                Picasso.get().load(url)
+                        .resize(400,500)
+                        .centerCrop()
+                        .placeholder(android.R.color.darker_gray)
+                        .into(msg_image, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                imageProgress.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                msg_image.setImageResource(android.R.color.darker_gray);
+                                imageProgress.setVisibility(View.GONE);
+                            }
+                        });
+            }else{
+                msg_image.setImageResource(android.R.color.darker_gray);
+                imageProgress.setVisibility(View.GONE);
+            }
+        }
         public void setProfileImage(String url){
             if (url!=null && !url.isEmpty()){
                 Picasso.get().load(url)

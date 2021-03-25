@@ -4,17 +4,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +36,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentChange;
@@ -41,22 +49,38 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
+import com.kaopiz.kprogresshud.KProgressHUD;
+import com.kongzue.dialog.v3.TipDialog;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
 import com.vaye.app.FCM.MessagingService;
 import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.LocationCallback;
+import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.LoginRegister.MessageType;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
+import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MessageService;
 import com.vaye.app.Util.Helper;
+import com.vincent.filepicker.Constant;
+import com.vincent.filepicker.activity.ImagePickActivity;
+import com.vincent.filepicker.filter.entity.ImageFile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -65,6 +89,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class ConservationController extends AppCompatActivity {
     String TAG = "ConservationController";
@@ -91,6 +117,11 @@ public class ConservationController extends AppCompatActivity {
     TextInputEditText msg_edittex;
     String filename = "";
     GeoPoint geoPoint = null;
+    ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
+    String storagePermission[];
+    KProgressHUD hud;
+    private static final int gallery_request =400;
+    StorageTask<UploadTask.TaskSnapshot> uploadTask;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +132,10 @@ public class ConservationController extends AppCompatActivity {
 
         mediaItem = (ImageButton)findViewById(R.id.media);
         soundRecorder = (ImageButton)findViewById(R.id.audio);
-
+        hud = KProgressHUD.create(ConservationController.this)
+                .setStyle(KProgressHUD.Style.ANNULAR_DETERMINATE)
+                .setLabel("Dosya Gönderiliyor")
+                .setMaxProgress(100);
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -340,7 +374,7 @@ public class ConservationController extends AppCompatActivity {
         });
        MessageService.shared().setCurrentUserOnline(currentUser,otherUser,true);
        MessageService.shared().deleteBadge(currentUser,otherUser);
-
+        Log.d("MessageService", "onStart: badge delete");
         DocumentReference isOnlineDb = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid())
                 .collection("msg-list")
@@ -363,9 +397,9 @@ public class ConservationController extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         DocumentReference setCurrentUserOnline =  FirebaseFirestore.getInstance().collection("user")
-                .document(otherUser.getUid())
+                .document(currentUser.getUid())
                 .collection("msg-list")
-                .document(currentUser.getUid());
+                .document(otherUser.getUid());
         Map<String , Object> map = new HashMap<>();
         map.put("isOnline",false);
         map.put("badgeCount",0);
@@ -420,7 +454,10 @@ public class ConservationController extends AppCompatActivity {
 
 
     private void sendImage(){
-
+        if (!checkGalleryPermissions()){
+            requestStoragePermission();
+        }
+        else{ pickGallery();}
     }
     private void sendDocument(){
 
@@ -473,4 +510,103 @@ public class ConservationController extends AppCompatActivity {
     }
 
 
+    private boolean checkGalleryPermissions() {
+        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+    private void requestStoragePermission() {
+        ActivityCompat.requestPermissions(this,storagePermission,gallery_request);
+
+    }
+    private void pickGallery() {
+        Intent intent1 = new Intent(this, ImagePickActivity.class);
+        intent1.putExtra(IS_NEED_CAMERA, false);
+        intent1.putExtra(Constant.MAX_NUMBER, 1);
+        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case Constant.REQUEST_CODE_PICK_IMAGE:
+                if (resultCode == RESULT_OK){
+                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
+                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
+                    String fileName = list.get(0).getName();
+                    Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
+                    String mimeType = DataTypes.mimeType.image;
+                    String  contentType = DataTypes.contentType.image;
+                    dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(new File(file.getPath()).getAbsolutePath(), options);
+                    float imageHeight = options.outHeight;
+                    float imageWidth = options.outWidth;
+                    Log.d(TAG, "imageWidth: "+imageWidth);
+                    Log.d(TAG, "imageHeight: "+imageHeight);
+                    saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
+                        @Override
+                        public void getString(String url) {
+                            Log.d(TAG, "getString: url : "+ url);
+                            MessageService.shared().sendTextMsg(currentUser,otherUser,url,isOnline,Calendar.getInstance().getTimeInMillis(),geoPoint,0,imageWidth,imageHeight,url,String.valueOf(Calendar.getInstance().getTimeInMillis()),MessageType.photo);
+                            TipDialog.show(ConservationController.this , "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
+                            TipDialog.dismiss(500);
+                        }
+                    });
+                }
+            break;
+
+        }
+    }
+    //TODO:: upload images
+    private void saveDatasToDataBase(String contentType, String mimeType, Activity activity ,OtherUser otherUser , CurrentUser currentUser , Uri data,
+                                     StringCompletion completion ){
+        hud.show();
+
+        String dataName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType(contentType)
+                .build();
+        StorageReference ref = FirebaseStorage.getInstance().getReference().child("messages")
+                .child(currentUser.getUid())
+                .child(otherUser.getUid())
+                .child(dataName + mimeType);
+
+        uploadTask =  ref.putFile(data , metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()){
+
+                    task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String  url = uri.toString();
+                            Log.d(TAG, "onComplete: "+ url);
+                            hud.dismiss();
+
+                            completion.getString(url);
+
+
+                        }
+                    });
+
+                }
+
+            }
+
+        });
+
+        uploadTask.addOnProgressListener(activity, new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                hud.setProgress((int) progress);
+                Log.d(TAG, "onProgress: " + progress);
+            }
+        });
+
+    }
 }
