@@ -37,6 +37,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -46,6 +47,7 @@ import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
 import com.vaye.app.FCM.MessagingService;
 import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.LocationCallback;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.LoginRegister.MessageType;
 import com.vaye.app.Model.CurrentUser;
@@ -88,6 +90,7 @@ public class ConservationController extends AppCompatActivity {
     ImageButton sendButton;
     TextInputEditText msg_edittex;
     String filename = "";
+    GeoPoint geoPoint = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,13 +137,14 @@ public class ConservationController extends AppCompatActivity {
                 }
             });
         }
-        targetChooser();
+
     }
 
     private void targetChooser(){
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter("media_item_target"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("media_item_target"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocaitonReciver, new IntentFilter("locaiton_manager"));
+
     }
 
     private void setToolbar(OtherUser otherUser) {
@@ -310,6 +314,7 @@ public class ConservationController extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        targetChooser();
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid());
         ref.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
@@ -353,8 +358,23 @@ public class ConservationController extends AppCompatActivity {
         map.put("isOnline",false);
         map.put("badgeCount",0);
         setCurrentUserOnline.set(map, SetOptions.merge());
+        Log.d(TAG, "onStop: onStop");
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onStop: onPause");
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onStop: onResume");
+
+
+    }
 
     @Override
     protected void onDestroy() {
@@ -362,20 +382,23 @@ public class ConservationController extends AppCompatActivity {
 
     }
 
+
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String target = intent.getStringExtra("target");
-            if (target.equals(CompletionWithValue.send_image)){
+            Log.d(TAG, "onReceive: "+ target);
+            if (target != null && target.equals(CompletionWithValue.send_image)){
              sendImage();
-            }else if (target.equals(CompletionWithValue.send_location)){
+            }else if (target != null && target.equals(CompletionWithValue.send_location)){
                     sendLocation();
-            }else if(target.equals(CompletionWithValue.send_document)){
-
+            }else if(target != null && target.equals(CompletionWithValue.send_document)){
+                sendDocument();
             }
         }
     };
+
 
 
     private void sendImage(){
@@ -406,4 +429,23 @@ public class ConservationController extends AppCompatActivity {
         }
         return  false;
     }
+    public BroadcastReceiver mLocaitonReciver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String target = intent.getStringExtra("target");
+            Log.d(TAG, "mLocaitonReciver: " + target);
+        if ( target != null && target.equals(CompletionWithValue.get_locaiton)){
+                        geoPoint = new GeoPoint(intent.getDoubleExtra("lat",-45),intent.getDoubleExtra("longLat",45));
+                        Log.d(TAG, "getLocation: "+geoPoint.getLongitude());
+                        Log.d(TAG, "getLocation: "+geoPoint.getLatitude());
+                    }
+                }
+            };
+
+
+    private void sendLocationMessage(GeoPoint geoPoint){
+      //  MessageService.shared().sendTextMsg(currentUser,otherUser,null,isOnline,Calendar.getInstance().getTimeInMillis(),geoPoint,0,200f,200f,);
+    }
+
 }

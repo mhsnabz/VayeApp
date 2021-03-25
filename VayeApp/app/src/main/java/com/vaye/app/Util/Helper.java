@@ -28,6 +28,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
@@ -40,6 +41,7 @@ import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
 import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.LocationCallback;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -172,7 +174,7 @@ public class Helper {
 
     }
 
-    public void LocationPickDialog(Activity activity , String _title , String _address , Double lat , Double longLat , TrueFalse<Boolean> callback){
+    public void LocationPickDialog(Activity activity , String _title , String _address , Double lat , Double longLat, LocationCallback locationCallback, TrueFalse<Boolean> callback){
         TextView title , address ;
         Button selecteButton,dismiss;
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
@@ -190,6 +192,17 @@ public class Helper {
                 intent.putExtra("longLat",longLat);
                 intent.putExtra("locationName",_title);
                 LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
+
+
+
+                Intent chat = new Intent("locaiton_manager");
+
+                chat.putExtra("target",CompletionWithValue.get_locaiton);
+                Log.d("ConservationController", "onClick: " + CompletionWithValue.get_locaiton);
+                chat.putExtra("lat",lat);
+                chat.putExtra("longLat",longLat);
+                chat.putExtra("locationName",_title);
+                LocalBroadcastManager.getInstance(activity).sendBroadcast(chat);
                 bottomSheetDialog.dismiss();
             }
         });

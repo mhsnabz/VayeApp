@@ -16,4 +16,5 @@ public interface CompletionWithValue {
     String send_image = "send_image";
     String send_location = "send_location";
     String send_document = "send_document";
+    String get_locaiton = "get_locaiton";
 }

@@ -46,6 +46,7 @@ import com.google.rpc.Help;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Application.VayeApp;
+import com.vaye.app.Interfaces.LocationCallback;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
@@ -56,7 +57,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnMapReadyCallback , LocationListener {
+public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnMapReadyCallback , LocationListener   {
     private static final float DEFAULT_ZOOM = 16f;
     private static final String TAG = "PlacePicker";
     private GoogleMap mMap;
@@ -66,12 +67,14 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
     Double lat ,longLat;
     String locaitonName;
     Marker prevMarker;
-    Location currentLocation;
+    Location currentLocation ;
+    LocationCallback callback;
     private FusedLocationProviderClient locationProviderClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vaye_app_place_picker);
+
         initMap();
 
 
@@ -139,7 +142,7 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
             @Override
             public void onInfoWindowClick(Marker arg0) {
                     WaitDialog.show(VayeAppPlacePickerActivity.this,null);
-                Helper.shared().LocationPickDialog(VayeAppPlacePickerActivity.this, arg0.getTitle(), getCompleteAddressString(arg0.getPosition().latitude,arg0.getPosition().longitude),arg0.getPosition().latitude, arg0.getPosition().longitude, new TrueFalse<Boolean>() {
+                Helper.shared().LocationPickDialog(VayeAppPlacePickerActivity.this, arg0.getTitle(), getCompleteAddressString(arg0.getPosition().latitude,arg0.getPosition().longitude),arg0.getPosition().latitude, arg0.getPosition().longitude,callback, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
 
@@ -279,6 +282,7 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
         Log.d(TAG,"Min: "+Double.toString(minLat)+","+Double.toString(minLong));
         Log.d(TAG,"Max: "+Double.toString(maxLat)+","+Double.toString(maxLong));
 
+
     }
     @Override
     public void onLocationChanged(@NonNull Location location) {
@@ -312,4 +316,6 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
         finish();
         Helper.shared().back(VayeAppPlacePickerActivity.this);
     }
+
+
 }

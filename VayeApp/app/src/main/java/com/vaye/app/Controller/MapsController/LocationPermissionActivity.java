@@ -120,4 +120,13 @@ public class LocationPermissionActivity extends AppCompatActivity {
                     }
                 }).check();
     }
+
+    public void dismiss(View view) {
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }

@@ -59,7 +59,7 @@
             ></Button>
     <Button
         android:layout_below="@id/permission"
-        android:onClick="permission"
+        android:onClick="dismiss"
         android:layout_width="140dp"
         android:layout_height="30dp"
         android:layout_marginTop="20dp"
