@@ -55,6 +55,7 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
+import com.google.rpc.Help;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
@@ -141,6 +142,12 @@ public class ConservationController extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sendMsg();
+            }
+        });
+        soundRecorder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Helper.shared().RecorderBottomSheet(ConservationController.this);
             }
         });
         msg_edittex = (TextInputEditText)findViewById(R.id.msgText);

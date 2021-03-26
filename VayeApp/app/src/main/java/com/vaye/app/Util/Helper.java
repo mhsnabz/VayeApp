@@ -1,5 +1,8 @@
 package com.vaye.app.Util;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,6 +24,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieComposition;
+import com.airbnb.lottie.LottieOnCompositionLoadedListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -42,6 +48,7 @@ import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.LocationCallback;
+import com.vaye.app.Interfaces.LottieFrames;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -246,7 +253,7 @@ public class Helper {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(activity,"Cancel Click",Toast.LENGTH_SHORT).show();
+
                 bottomSheetDialog.dismiss();
             }
         });
@@ -255,6 +262,170 @@ public class Helper {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
                 val.callBack(true);
+            }
+        });
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
+    Boolean isPlaying = false;
+    Boolean isRecording = false;
+    public void RecorderBottomSheet(Activity activity ){
+        LottieAnimationView record , play_pause,send;
+        Button cancel;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.sound_record_bottom_sheet,(RelativeLayout)activity.findViewById(R.id.dialog));
+
+
+        record = (LottieAnimationView)view.findViewById(R.id.recoedAnim);
+        play_pause = (LottieAnimationView)view.findViewById(R.id.playAnim);
+        send = (LottieAnimationView)view.findViewById(R.id.sendAnim);
+
+        record.setAnimation(R.raw.record);
+        play_pause.setAnimation(R.raw.play_pause);
+        send.setAnimation(R.raw.send);
+
+        play_pause.setMinFrame(10);
+        play_pause.playAnimation();
+        play_pause.pauseAnimation();
+
+        play_pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isPlaying){
+                    play_pause.playAnimation();
+                    play_pause.removeAllAnimatorListeners();
+                    play_pause.addAnimatorListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            play_pause.reverseAnimationSpeed();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+
+                    isPlaying = false;
+                    Log.d(TAG, "onClick: not Recording ");
+                }else{
+
+                    play_pause.playAnimation();
+                    Log.d(TAG, "onClick: isRecording ");
+                    isPlaying = true;
+                    play_pause.removeAllAnimatorListeners();
+                    play_pause.addAnimatorListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            play_pause.reverseAnimationSpeed();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+
+
+                }
+            }
+        });
+        record.pauseAnimation();
+        record.setSpeed(1.5f);
+        record.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isRecording){
+                    record.playAnimation();
+                    record.removeAllAnimatorListeners();
+                    record.addAnimatorListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            record.reverseAnimationSpeed();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+
+                    isRecording = false;
+                    Log.d(TAG, "onClick: not Recording ");
+                }else{
+
+                    record.playAnimation();
+                    Log.d(TAG, "onClick: isRecording ");
+                    isRecording = true;
+                    record.removeAllAnimatorListeners();
+                    record.addAnimatorListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            record.reverseAnimationSpeed();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+
+
+                }
+
+            }
+        });
+
+
+
+
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(activity,"Cancel Click",Toast.LENGTH_SHORT).show();
+                bottomSheetDialog.dismiss();
             }
         });
         bottomSheetDialog.setContentView(view);
