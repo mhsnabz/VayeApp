@@ -8,7 +8,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -50,6 +52,8 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int SEND_LOCATION_MSG = 4;
     private static final int RECEIVED_IMAGE_MSG = 5;
     private static final int SEND_IMAGE_MSG= 6;
+    private static final int SEND_AUDIO_MSG= 7;
+    private static final int RECEIVED_AUDIO_MSG= 8;
 
     CurrentUser currentUser;
     OtherUser otherUser;
@@ -101,6 +105,16 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     .inflate(R.layout.image_send_message, parent, false);
 
             return new SendImageMsgViewHolder(itemView);
+        }else if (viewType == SEND_AUDIO_MSG){
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.msg_audio_send, parent, false);
+
+            return new SendAudioMsgHolder(itemView);
+        }else if (viewType == RECEIVED_AUDIO_MSG){
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.msg_audio_received, parent, false);
+
+            return new ReceivedAudioMsgHolder(itemView);
         }
         return  null;
     }
@@ -116,8 +130,22 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
         switch (viewType) {
-
-
+            case SEND_AUDIO_MSG:
+                SendAudioMsgHolder send_audio = (SendAudioMsgHolder)holder;
+                send_audio.setProfileImage(currentUser.getProfileImage());
+                setTimeAgo(model.getTime(),send_audio.time);
+                if (i>0){
+                    setTimeTextVisibility(model.getTime(), previousTs, send_audio.groupDate);
+                }
+                break;
+            case RECEIVED_AUDIO_MSG:
+                ReceivedAudioMsgHolder received_audio = (ReceivedAudioMsgHolder)holder;
+                received_audio.setProfileImage(otherUser.getProfileImage());
+                setTimeAgo(model.getTime(),received_audio.time);
+                if (i>0){
+                    setTimeTextVisibility(model.getTime(), previousTs, received_audio.groupDate);
+                }
+                break;
             case SEND_IMAGE_MSG:
                 SendImageMsgViewHolder send_image = (SendImageMsgViewHolder)holder;
                 send_image.setMsg_image(model.getContent());
@@ -284,6 +312,12 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 return RECEIVED_IMAGE_MSG;
             }
 
+        }else if (model.getType().equals(MessageType.audio)){
+            if (model.getSenderUid().equals(currentUser.getUid())){
+                return SEND_AUDIO_MSG;
+            }else{
+                return RECEIVED_AUDIO_MSG;
+            }
         }
 
         return super.getItemViewType(position);
@@ -576,4 +610,76 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
     }
+
+    public class ReceivedAudioMsgHolder extends  RecyclerView.ViewHolder{
+
+        public ReceivedAudioMsgHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        public TextView groupDate = (TextView)itemView.findViewById(R.id.groupDate);
+        public ProgressBar progressBar =(ProgressBar)itemView.findViewById(R.id.progress);
+        public CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
+        public TextView time = (TextView)itemView.findViewById(R.id.time);
+        public ImageButton play_pause = (ImageButton)itemView.findViewById(R.id.playButton);
+        public SeekBar seekBar = (SeekBar) itemView.findViewById(R.id.seekBar);
+        public void setProfileImage(String url){
+            if (url!=null && !url.isEmpty()){
+                Picasso.get().load(url)
+                        .resize(200,200)
+                        .centerCrop()
+                        .placeholder(android.R.color.darker_gray)
+                        .into(profileImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                profileImage.setImageResource(android.R.color.darker_gray);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+            }else{
+                profileImage.setImageResource(android.R.color.darker_gray);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+    }
+    public class SendAudioMsgHolder extends  RecyclerView.ViewHolder{
+
+        public SendAudioMsgHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        public TextView groupDate = (TextView)itemView.findViewById(R.id.groupDate);
+        public ProgressBar progressBar =(ProgressBar)itemView.findViewById(R.id.progress);
+        public CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
+        public TextView time = (TextView)itemView.findViewById(R.id.time);
+        public ImageButton play_pause = (ImageButton)itemView.findViewById(R.id.playButton);
+        public SeekBar seekBar = (SeekBar) itemView.findViewById(R.id.seekBar);
+        public void setProfileImage(String url){
+            if (url!=null && !url.isEmpty()){
+                Picasso.get().load(url)
+                        .resize(200,200)
+                        .centerCrop()
+                        .placeholder(android.R.color.darker_gray)
+                        .into(profileImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                profileImage.setImageResource(android.R.color.darker_gray);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+            }else{
+                profileImage.setImageResource(android.R.color.darker_gray);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+    }
+
 }
