@@ -7,7 +7,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,6 +79,8 @@ import com.vaye.app.Util.BottomSheetHelper.SchoolPostBottomSheetAdapter;
 import com.vaye.app.Util.BottomSheetHelper.VayeAppBottomSheet;
 import com.vaye.app.Util.BottomSheetHelper.VayeAppChooseTargetBottomSheetAdapter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -269,13 +275,19 @@ public class Helper {
     }
     Boolean isPlaying = false;
     Boolean isRecording = false;
-    public void RecorderBottomSheet(Activity activity ){
+    MediaRecorder mRecorder;
+    MediaPlayer mPlayer;
+    File soundName;
+    public void RecorderBottomSheet(Activity activity, final String fileName ) throws IOException {
+
+        Log.d(TAG, "RecorderBottomSheet: " + fileName);
         LottieAnimationView record , play_pause,send;
         Button cancel;
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
         View view = LayoutInflater.from(activity.getApplicationContext())
                 .inflate(R.layout.sound_record_bottom_sheet,(RelativeLayout)activity.findViewById(R.id.dialog));
-
+        File sampleDir = Environment.getExternalStorageDirectory();
+        soundName = File.createTempFile("sound", ".m4a", sampleDir);
 
         record = (LottieAnimationView)view.findViewById(R.id.recoedAnim);
         play_pause = (LottieAnimationView)view.findViewById(R.id.playAnim);
@@ -293,6 +305,9 @@ public class Helper {
             @Override
             public void onClick(View view) {
                 if (isPlaying){
+
+
+
                     play_pause.playAnimation();
                     play_pause.removeAllAnimatorListeners();
                     play_pause.addAnimatorListener(new Animator.AnimatorListener() {
@@ -347,8 +362,21 @@ public class Helper {
                         }
                     });
 
+                        mPlayer = new MediaPlayer();
+                        try {
+                            mPlayer.setDataSource(soundName.getAbsolutePath());
+                            mPlayer.prepare();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        mPlayer.start();
+                    //  mPlayer.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
+
+                        Toast.makeText(activity, "Recording Started Playing", Toast.LENGTH_LONG).show();
 
                 }
+
+
             }
         });
         record.pauseAnimation();
@@ -383,6 +411,15 @@ public class Helper {
 
                     isRecording = false;
                     Log.d(TAG, "onClick: not Recording ");
+
+                    try {
+                        mRecorder.stop();
+                        mRecorder.release();
+                    } catch(RuntimeException stopException) {
+                        Log.d(TAG, "error recordin: "+ stopException.getLocalizedMessage());
+                    }
+                    mRecorder = null;
+                    Log.d(TAG, "onClick: "+ Uri.parse(fileName));
                 }else{
 
                     record.playAnimation();
@@ -410,6 +447,22 @@ public class Helper {
 
                         }
                     });
+
+                    try {
+
+                        mRecorder = new MediaRecorder();
+                        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+
+                        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                        mRecorder.setOutputFile(soundName.getAbsolutePath());
+                        mRecorder.prepare();
+                        mRecorder.start();
+                    } catch (IOException e) {
+                        Log.e(TAG, "sdcard access error");
+                        return;
+                    }
+
 
 
                 }

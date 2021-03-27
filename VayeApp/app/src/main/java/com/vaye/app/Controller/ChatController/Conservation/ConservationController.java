@@ -23,6 +23,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -82,6 +83,7 @@ import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -91,11 +93,14 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class ConservationController extends AppCompatActivity {
     String TAG = "ConservationController";
     private static final int ERROR_DIALOG_REQUEST = 9001;
+    private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
     Boolean isOnline = false;
     CircleImageView profileImage;
     ProgressBar progressBar;
@@ -122,11 +127,14 @@ public class ConservationController extends AppCompatActivity {
     String storagePermission[];
     KProgressHUD hud;
     private static final int gallery_request =400;
+   String fileName = "";
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conservation_controller);
+        filename  = Environment.getExternalStorageDirectory().getAbsolutePath();
+        fileName +="/"+String.valueOf(Calendar.getInstance().getTimeInMillis()) +".3gp";;
         mediaLayout = (LinearLayout)findViewById(R.id.mediaLayout);
         mediaLayout.setVisibility(View.VISIBLE);
         sendButton = (ImageButton)findViewById(R.id.send);
@@ -147,7 +155,17 @@ public class ConservationController extends AppCompatActivity {
         soundRecorder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Helper.shared().RecorderBottomSheet(ConservationController.this);
+                if (!CheckPermissions()){
+                    RequestPermissions();
+                }else{
+
+                    try {
+                        Helper.shared().RecorderBottomSheet(ConservationController.this,Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         });
         msg_edittex = (TextInputEditText)findViewById(R.id.msgText);
@@ -518,7 +536,7 @@ public class ConservationController extends AppCompatActivity {
 
 
     private boolean checkGalleryPermissions() {
-        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        boolean result = ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
         return result;
     }
     private void requestStoragePermission() {
@@ -615,5 +633,34 @@ public class ConservationController extends AppCompatActivity {
             }
         });
 
+    }
+    public boolean CheckPermissions() {
+        int result = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
+        int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
+        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+    }
+    private void RequestPermissions() {
+        ActivityCompat.requestPermissions(ConservationController.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_AUDIO_PERMISSION_CODE:
+                if (grantResults.length> 0) {
+                    boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
+                    if (permissionToRecord && permissionToStore) {
+                        try {
+                            Helper.shared().RecorderBottomSheet(ConservationController.this,Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(),"Permission Denied",Toast.LENGTH_LONG).show();
+                    }
+                }
+                break;
+        }
     }
 }

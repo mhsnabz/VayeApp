@@ -543,6 +543,21 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     protected void onStart() {
         super.onStart();
         requestStoragePermission();
+        FirebaseFirestore.getInstance().collection("user").orderBy("username").whereGreaterThanOrEqualTo("username","@a").whereLessThanOrEqualTo("username","@a"+'\uf8ff').get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments().isEmpty()){
+                        Log.d(TAG, "onComplete: null" );
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            Log.d(TAG, "onComplete: " + item.getString("name"));
+                        }
+                    }
+                }
+            }
+        });
+
     }
 
     @Override
