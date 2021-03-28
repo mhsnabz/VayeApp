@@ -173,10 +173,10 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 send_audio.play_pause.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-
+                        mOnItemClickListener.onItemClick(send_audio.play_pause,send_audio.seekBar,send_audio.timer,view,model,i);
                     }
                 });
+
                 break;
             case RECEIVED_AUDIO_MSG:
                 ReceivedAudioMsgHolder received_audio = (ReceivedAudioMsgHolder)holder;

@@ -1,5 +1,9 @@
 package com.vaye.app.Services;
 
+import android.app.DownloadManager;
+import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,9 +30,18 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
 import com.vaye.app.Model.OtherUser;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class MessageService {
     private static final String TAG = "MessageService";
@@ -248,6 +261,130 @@ public class MessageService {
             map.put("badge","badge");
             db.add(map);
 
+        }
+    }
+
+
+    public void downloadService(Context context, String fileUrl , String fileName){
+        DownloadManager downloadmanager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
+        Uri uri = Uri.parse(fileUrl);
+
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        request.setTitle("My File");
+        request.setDescription("Downloading");
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setVisibleInDownloadsUi(false);
+        request.setDestinationUri(Uri.parse("file://" + "vayeApp"));
+
+        downloadmanager.enqueue(request);
+    }
+
+
+    public void downloadAudio(Context context, String fileUrl , String fileName){
+        
+
+        File direct = new File(Environment.getExternalStorageDirectory()
+                + "vayeapp");
+        if (!direct.exists()) {
+            direct.mkdirs();
+        }
+        File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_MUSIC) + "/vayeapp/" + fileName);
+        if (!ExistingFile.exists()){
+            DownloadManager mgr = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            Uri downloadUri = Uri.parse(fileUrl);
+            DownloadManager.Request request = new DownloadManager.Request(
+                    downloadUri);
+
+            request.setAllowedNetworkTypes(
+                    DownloadManager.Request.NETWORK_WIFI
+                            | DownloadManager.Request.NETWORK_MOBILE)
+                    .setAllowedOverRoaming(false)
+                    .setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC,"vayeapp/"+ fileName);
+            mgr.enqueue(request);
+        }
+
+    }
+    public  boolean isFilePresent(String fileName) {
+        return getFilePath(fileName).isFile();
+    }
+    public  File getFilePath(String fileName){
+        String extStorageDirectory = Environment.DIRECTORY_MUSIC.toString();
+        File folder = new File(extStorageDirectory, "vayeapp");
+        File filePath = new File(folder + "/" + fileName);
+        return filePath;
+    }
+    public void down(Context context, String fileUrl , String fileName){
+        Uri uri = Uri.parse(fileUrl);
+        DownloadManager.Request r = new DownloadManager.Request(uri);
+
+// This put the download in the same Download dir the browser uses
+        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+
+// When downloading music and videos they will be listed in the player
+// (Seems to be available since Honeycomb only)
+        r.allowScanningByMediaScanner();
+
+// Notify user when download is completed
+// (Seems to be available since Honeycomb only)
+        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+// Start download
+        DownloadManager dm = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
+        dm.enqueue(r);
+    }
+    public void downloadAudioFile(String dwnload_file_path, String fileName,
+                                  String pathToSave){
+        Log.d(TAG, "downloadAudioFile: start to download "+ fileName);
+        int downloadedSize = 0;
+        int totalSize = 0;
+        try{
+            URL url = new URL(dwnload_file_path);
+            HttpURLConnection urlConnection = (HttpURLConnection) url
+                    .openConnection();
+
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setDoOutput(true);
+
+            // connect
+            urlConnection.connect();
+
+            File myDir;
+            myDir = new File(pathToSave);
+            myDir.mkdirs();
+
+            String mFileName = fileName;
+            File file = new File(myDir, mFileName);
+
+            FileOutputStream fileOutput = new FileOutputStream(file);
+
+            InputStream inputStream = urlConnection.getInputStream();
+
+
+            totalSize = urlConnection.getContentLength();
+
+            byte[] buffer = new byte[4096];
+            int bufferLength = 0;
+
+            while ((bufferLength = inputStream.read(buffer)) > 0) {
+                fileOutput.write(buffer, 0, bufferLength);
+                downloadedSize += bufferLength;
+
+            }
+            Log.d(TAG, "downloadAudioFile: download complete" );
+            inputStream.close();
+            fileOutput.close();
+
+
+        }catch (final MalformedURLException e) {
+            Log.d(TAG, "MalformedURLException: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (final IOException e) {
+            Log.d(TAG, "IOException: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (final Exception e) {
+            if (e!=null)
+            Log.d(TAG, "Exception: " + e.getLocalizedMessage());
         }
     }
 }

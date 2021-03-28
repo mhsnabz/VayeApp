@@ -26,9 +26,11 @@ import android.media.Image;
 import android.media.MediaParser;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -89,7 +91,12 @@ import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -110,6 +117,8 @@ public class ConservationController extends AppCompatActivity implements Message
     String TAG = "ConservationController";
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+    String SDCardRoot = Environment.getExternalStorageDirectory()
+            .toString();
     MessagesAdaper.OnItemClickListener onItemClickListener;
     Boolean isOnline = false;
     CircleImageView profileImage;
@@ -140,6 +149,7 @@ public class ConservationController extends AppCompatActivity implements Message
     String fileName = "";
     MediaPlayer mediaPlayer;
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
+    int lastPostion = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -277,12 +287,7 @@ public class ConservationController extends AppCompatActivity implements Message
         list.setLayoutManager(mLayoutManager);
         list.setHasFixedSize(true);
         adaper = new MessagesAdaper(currentUser, otherUser, this, messagesList, this::onItemClick);
-        adaper.mOnItemClickListener = new MessagesAdaper.OnItemClickListener() {
-            @Override
-            public void onItemClick(ImageButton b, SeekBar seekBar, TextView timer, View view, MessagesModel model, int position) {
-                Log.d(TAG, "onItemClick: " + model.getSenderUid());
-            }
-        };
+
         list.setAdapter(adaper);
         final View contentView = list;
         contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -355,6 +360,7 @@ public class ConservationController extends AppCompatActivity implements Message
     }
 
     private void getAllMessages() {
+        final DownloadTask downloadTask = new DownloadTask(ConservationController.this);
         messagesList.clear();
         adaper.notifyDataSetChanged();
         Query db = FirebaseFirestore.getInstance().collection("messages")
@@ -368,6 +374,13 @@ public class ConservationController extends AppCompatActivity implements Message
                         if (item.getType().equals(DocumentChange.Type.ADDED)) {
                             messagesList.add(item.getDocument().toObject(MessagesModel.class));
                             adaper.notifyDataSetChanged();
+                            if (item.getDocument().getString("type").equals(MessageType.audio)){
+                                if (item.getDocument().getString("fileName")!=null){
+                                    MessageService.shared().downloadAudio(ConservationController.this,item.getDocument().getString("content"),item.getDocument().getString("fileName"));
+
+                                }
+
+                            }
                             if (item.getDocument().getString("senderUid").equals(currentUser.getUid())) {
                                 scrollRecyclerViewToBottom(list);
                             }
@@ -697,7 +710,82 @@ public class ConservationController extends AppCompatActivity implements Message
 
     @Override
     public void onItemClick(ImageButton b, SeekBar seekBar, TextView timer, View view, MessagesModel model, int position) {
-        //    playVoice(model,b,seekBar,timer);
+        Log.d(TAG, "onItemClick: " + lastPostion);
+        Log.d(TAG, "onItemClick: " + position);
+        if (lastPostion == -1){
+            lastPostion = position;
+            try {
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.setDataSource(model.getContent());
+                mediaPlayer.prepareAsync();
+
+                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        mediaPlayer.start();
+                        b.setImageResource(R.drawable.pause);
+                        if (mediaPlayer != null) {
+                            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                    if (fromUser) {
+                                        mediaPlayer.seekTo(progress);
+                                    }
+                                }
+
+                                @Override
+                                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                                }
+
+                                @Override
+                                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                                }
+                            });
+                        }
+
+
+                        new Timer().scheduleAtFixedRate(new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                                        timer.setText(miliSecondToTimer(mediaPlayer.getCurrentPosition()));
+                                    }
+                                });
+                            }
+                        }, 0, 1000);
+
+                    }
+                });
+
+
+
+            }catch (Exception ex){
+                Log.d(TAG, "onItemClick: " + ex.getStackTrace());
+            }
+            //play sound
+        }else if (lastPostion == position){
+
+            if (mediaPlayer != null){
+
+                if (mediaPlayer.isPlaying()){
+                    mediaPlayer.pause();
+                    b.setImageResource(R.drawable.play_button);
+                }else{
+                    b.setImageResource(R.drawable.pause);
+                    mediaPlayer.start();
+                }
+
+            }
+            if (lastPostion != position){
+                //playsounf
+                lastPostion = position;
+            }
+        }
     }
 
     private String miliSecondToTimer(long miliSecond) {
