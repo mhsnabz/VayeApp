@@ -15,11 +15,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.media.Image;
@@ -31,6 +33,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -374,13 +377,7 @@ public class ConservationController extends AppCompatActivity implements Message
                         if (item.getType().equals(DocumentChange.Type.ADDED)) {
                             messagesList.add(item.getDocument().toObject(MessagesModel.class));
                             adaper.notifyDataSetChanged();
-                            if (item.getDocument().getString("type").equals(MessageType.audio)){
-                                if (item.getDocument().getString("fileName")!=null){
-                                    MessageService.shared().downloadAudio(ConservationController.this,item.getDocument().getString("content"),item.getDocument().getString("fileName"));
 
-                                }
-
-                            }
                             if (item.getDocument().getString("senderUid").equals(currentUser.getUid())) {
                                 scrollRecyclerViewToBottom(list);
                             }
@@ -707,62 +704,62 @@ public class ConservationController extends AppCompatActivity implements Message
         }
     }
 
-
+    private Handler mHandler = new Handler();
     @Override
-    public void onItemClick(ImageButton b, SeekBar seekBar, TextView timer, View view, MessagesModel model, int position) {
-        Log.d(TAG, "onItemClick: " + lastPostion);
-        Log.d(TAG, "onItemClick: " + position);
+    public void onItemClick(ImageButton b, SeekBar seekBar, TextView timer,ProgressBar waitProgress, View view, MessagesModel model, int position) {
+
         if (lastPostion == -1){
             lastPostion = position;
             try {
                 mediaPlayer = new MediaPlayer();
-                mediaPlayer.setDataSource(model.getContent());
-                mediaPlayer.prepareAsync();
-
-                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mediaPlayer) {
-                        mediaPlayer.start();
-                        b.setImageResource(R.drawable.pause);
-                        if (mediaPlayer != null) {
-                            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                                @Override
-                                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                    if (fromUser) {
-                                        mediaPlayer.seekTo(progress);
-                                    }
-                                }
-
-                                @Override
-                                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                                }
-
-                                @Override
-                                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                                }
-                            });
-                        }
-
-
-                        new Timer().scheduleAtFixedRate(new TimerTask() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                                        timer.setText(miliSecondToTimer(mediaPlayer.getCurrentPosition()));
-                                    }
-                                });
+                File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_MUSIC) + "/vayeapp/" + model.getFileName());
+                if (ExistingFile.exists()){
+                    mediaPlayer.setDataSource(ExistingFile.getAbsolutePath());
+                }else{
+                    waitProgress.setVisibility(View.VISIBLE);
+                    b.setVisibility(View.INVISIBLE);
+                    downloadAudio( model.getContent(), model.getFileName(), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            Log.d(TAG, "callBack: " + _value);
+                            if (_value){
+                                waitProgress.setVisibility(View.GONE);
+                                b.setVisibility(View.VISIBLE);
                             }
-                        }, 0, 1000);
 
+
+
+                        }
+                    });
+                   // mediaPlayer.setDataSource(model.getContent());
+                }
+
+
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                b.setImageResource(R.drawable.pause);
+
+                ConservationController.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if(mediaPlayer != null){
+                            int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                            seekBar.setProgress(mCurrentPosition);
+                        }
+                        mHandler.postDelayed(this, 1000);
                     }
                 });
-
-
+                mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                    @Override
+                    public void onSeekComplete(MediaPlayer arg0) {
+                        Log.d(TAG, "onSeekComplete() current pos : " + arg0.getCurrentPosition());
+                        mediaPlayer.seekTo(arg0.getCurrentPosition());
+                        SystemClock.sleep(200);
+                        mediaPlayer.start();
+                    }
+                });
 
             }catch (Exception ex){
                 Log.d(TAG, "onItemClick: " + ex.getStackTrace());
@@ -775,15 +772,96 @@ public class ConservationController extends AppCompatActivity implements Message
                 if (mediaPlayer.isPlaying()){
                     mediaPlayer.pause();
                     b.setImageResource(R.drawable.play_button);
+                    ConservationController.this.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if(mediaPlayer != null){
+                                int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                                seekBar.setProgress(mCurrentPosition);
+                            }
+                            mHandler.postDelayed(this, 1000);
+                        }
+
+                    });
+                    mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                        @Override
+                        public void onSeekComplete(MediaPlayer arg0) {
+                            Log.d(TAG, "onSeekComplete() current pos : " + arg0.getCurrentPosition());
+                            mediaPlayer.seekTo(arg0.getCurrentPosition());
+                            SystemClock.sleep(200);
+                            mediaPlayer.start();
+                        }
+                    });
+
                 }else{
                     b.setImageResource(R.drawable.pause);
                     mediaPlayer.start();
                 }
 
             }
-            if (lastPostion != position){
-                //playsounf
-                lastPostion = position;
+
+        }else if (position != lastPostion){
+            ImageButton imageButton = (ImageButton)list.findViewHolderForAdapterPosition(lastPostion).itemView.findViewById(R.id.playButton);
+            imageButton.setImageResource(R.drawable.play_button);
+            lastPostion = position;
+            if (mediaPlayer!=null){
+                mediaPlayer.release();
+            }
+            try {
+                mediaPlayer = new MediaPlayer();
+                File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_MUSIC) + "/vayeapp/" + model.getFileName());
+                if (ExistingFile.exists()){
+                    mediaPlayer.setDataSource(ExistingFile.getAbsolutePath());
+                }else{
+                    waitProgress.setVisibility(View.VISIBLE);
+                    b.setVisibility(View.INVISIBLE);
+                    downloadAudio( model.getContent(), model.getFileName(), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            Log.d(TAG, "callBack: " + _value);
+                            if (_value){
+                                waitProgress.setVisibility(View.GONE);
+                                b.setVisibility(View.VISIBLE);
+                            }
+
+
+
+                        }
+                    });
+
+                   // mediaPlayer.setDataSource(model.getContent());
+                }
+
+
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                b.setImageResource(R.drawable.pause);
+                ConservationController.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if(mediaPlayer != null){
+                            int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                            seekBar.setProgress(mCurrentPosition);
+                        }
+                        mHandler.postDelayed(this, 1000);
+                    }
+                });
+                mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                    @Override
+                    public void onSeekComplete(MediaPlayer arg0) {
+                        Log.d(TAG, "onSeekComplete() current pos : " + arg0.getCurrentPosition());
+                        mediaPlayer.seekTo(arg0.getCurrentPosition());
+                        SystemClock.sleep(200);
+                        mediaPlayer.start();
+                    }
+                });
+
+
+            }catch (Exception ex){
+                Log.d(TAG, "onItemClick: " + ex.getStackTrace());
             }
         }
     }
@@ -807,82 +885,82 @@ public class ConservationController extends AppCompatActivity implements Message
         return timerString;
     }
 
-    private void playVoice(MessagesModel message, final ImageButton playBtn, final SeekBar seekBar, final TextView timer) {
+     void downloadAudio( String fileUrl , String fileName , TrueFalse<Boolean> callback){
 
 
-        try {
-            if (mediaPlayer != null) {
-                playBtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.play_button, null));
-                seekBar.setProgress(0);
-                mediaPlayer.stop();
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                File direct = new File(Environment.getExternalStorageDirectory()
+                        + "vayeapp");
+                if (!direct.exists()) {
+                    direct.mkdirs();
+                }
+                File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_MUSIC) + "/vayeapp/" + fileName);
+               if (ExistingFile.exists()){
+                   return;
+               }else {
+                   if (!ExistingFile.exists()){
+                       DownloadManager mgr = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                       Uri downloadUri = Uri.parse(fileUrl);
+                       DownloadManager.Request request = new DownloadManager.Request(
+                               downloadUri);
+
+                       request.setAllowedNetworkTypes(
+                               DownloadManager.Request.NETWORK_WIFI
+                                       | DownloadManager.Request.NETWORK_MOBILE)
+                               .setAllowedOverRoaming(false)
+
+                               .setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC,"vayeapp/"+ fileName);
+
+
+                       final long downloadId = mgr.enqueue(request);
+                       final Handler handler=new Handler();
+                       new Thread(new Runnable() {
+                           @Override
+                           public void run() {
+                               handler.post(new Runnable() {
+                                   @Override
+                                   public void run() {
+                                       boolean downloading = true;
+                                       while (downloading) {
+                                           DownloadManager.Query q = new DownloadManager.Query();
+                                           q.setFilterById(downloadId);
+                                           Cursor cursor = mgr.query(q);
+                                           cursor.moveToFirst();
+                                           int bytes_downloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                           int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                                           if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                                               downloading = false;
+                                           }
+                                           if (!downloading){
+                                               Log.d(TAG, "run: download complete");
+                                               callback.callBack(true);
+                                           }else {
+                                               callback.callBack(false);
+                                           }
+                                           cursor.close();
+                                       }
+                                   }
+
+                               });
+                           }
+
+                       }).start();
+                     //  mgr.enqueue(request);
+
+
+                   }
+               }
+
+
+
 
             }
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(message.getContent());
-            mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    if (mp.isPlaying()) {
-                        mp.pause();
-                        mediaPlayer = null;
+        });
 
-                        playBtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.play_button, null));
-                    } else {
-                        mp.start();
-                        playBtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.pause, null));
-
-                    }
-
-                    timer.setText(String.valueOf(miliSecondToTimer(message.getDuration() * 60)));
-                    seekBar.setMax(mediaPlayer.getDuration());
-                    if (mediaPlayer != null) {
-                        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                            @Override
-                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                if (fromUser) {
-                                    mediaPlayer.seekTo(progress);
-                                }
-                            }
-
-                            @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) {
-
-                            }
-
-                            @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) {
-
-                            }
-                        });
-                    }
-
-
-                    new Timer().scheduleAtFixedRate(new TimerTask() {
-                        @Override
-                        public void run() {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                                    timer.setText(miliSecondToTimer(mediaPlayer.getCurrentPosition()));
-                                }
-                            });
-                        }
-                    }, 0, 1000);
-                }
-            });
-
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-
-                    playBtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.play_button, null));
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }

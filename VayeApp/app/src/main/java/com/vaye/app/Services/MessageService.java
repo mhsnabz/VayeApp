@@ -1,9 +1,14 @@
 package com.vaye.app.Services;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,6 +30,7 @@ import com.vaye.app.Controller.NotificationService.MajorPostNotification;
 import com.vaye.app.Controller.NotificationService.MsgNotification;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.LoginRegister.MessageType;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
@@ -280,29 +286,69 @@ public class MessageService {
     }
 
 
-    public void downloadAudio(Context context, String fileUrl , String fileName){
+    public void downloadAudio(Context context, String fileUrl , String fileName , TrueFalse<Boolean> callback){
         
 
-        File direct = new File(Environment.getExternalStorageDirectory()
-                + "vayeapp");
-        if (!direct.exists()) {
-            direct.mkdirs();
-        }
-        File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_MUSIC) + "/vayeapp/" + fileName);
-        if (!ExistingFile.exists()){
-            DownloadManager mgr = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            Uri downloadUri = Uri.parse(fileUrl);
-            DownloadManager.Request request = new DownloadManager.Request(
-                    downloadUri);
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
 
-            request.setAllowedNetworkTypes(
-                    DownloadManager.Request.NETWORK_WIFI
-                            | DownloadManager.Request.NETWORK_MOBILE)
-                    .setAllowedOverRoaming(false)
-                    .setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC,"vayeapp/"+ fileName);
-            mgr.enqueue(request);
-        }
+                File direct = new File(Environment.getExternalStorageDirectory()
+                        + "vayeapp");
+                if (!direct.exists()) {
+                    direct.mkdirs();
+                }
+                File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_MUSIC) + "/vayeapp/" + fileName);
+                if (!ExistingFile.exists()){
+                    DownloadManager mgr = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                    Uri downloadUri = Uri.parse(fileUrl);
+                    DownloadManager.Request request = new DownloadManager.Request(
+                            downloadUri);
+
+                    request.setAllowedNetworkTypes(
+                            DownloadManager.Request.NETWORK_WIFI
+                                    | DownloadManager.Request.NETWORK_MOBILE)
+                            .setAllowedOverRoaming(false)
+
+                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC,"vayeapp/"+ fileName);
+
+
+                    final long downloadId = mgr.enqueue(request);
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean downloading = true;
+                            while (downloading) {
+                                DownloadManager.Query q = new DownloadManager.Query();
+                                q.setFilterById(downloadId);
+                                Cursor cursor = mgr.query(q);
+                                cursor.moveToFirst();
+                                int bytes_downloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                                    downloading = false;
+                                }
+                                if (!downloading){
+                                    Log.d(TAG, "run: download complete");
+                                    callback.callBack(true);
+                                }else {
+                                    callback.callBack(false);
+                                }
+                                cursor.close();
+                            }
+
+                        }
+                    }).start();
+
+                    mgr.enqueue(request);
+                }
+
+
+
+            }
+        });
 
     }
     public  boolean isFilePresent(String fileName) {

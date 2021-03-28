@@ -52,7 +52,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public interface OnItemClickListener {
-        void onItemClick(ImageButton b ,SeekBar seekBar , TextView timer, View view, MessagesModel model, int position);
+        void onItemClick(ImageButton b ,SeekBar seekBar , TextView timer,ProgressBar progressBar, View view, MessagesModel model, int position);
     }
 
     private MediaPlayer mediaPlayer;
@@ -169,11 +169,11 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, send_audio.groupDate);
                 }
-
+                send_audio.waitProgres.setVisibility(View.GONE);
                 send_audio.play_pause.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mOnItemClickListener.onItemClick(send_audio.play_pause,send_audio.seekBar,send_audio.timer,view,model,i);
+                        mOnItemClickListener.onItemClick(send_audio.play_pause,send_audio.seekBar,send_audio.timer,send_audio.waitProgres,view,model,i);
                     }
                 });
 
@@ -183,7 +183,7 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 received_audio.setProfileImage(otherUser.getProfileImage());
                 setTimeAgo(model.getTime(),received_audio.time);
                 received_audio.seekBar.setMax(100);
-
+                received_audio.waitProgres.setVisibility(View.GONE);
                 Log.d(TAG, "onBindViewHolder: postion " + i);
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, received_audio.groupDate);
@@ -192,7 +192,7 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 received_audio.play_pause.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mOnItemClickListener.onItemClick(received_audio.play_pause,received_audio.seekBar,received_audio.timer,view,model,i);
+                        mOnItemClickListener.onItemClick(received_audio.play_pause,received_audio.seekBar,received_audio.timer,received_audio.waitProgres,view,model,i);
                     }
                 });
 
@@ -674,6 +674,7 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public ImageButton play_pause = (ImageButton)itemView.findViewById(R.id.playButton);
         public SeekBar seekBar = (SeekBar) itemView.findViewById(R.id.seekBar);
         public TextView timer = (TextView)itemView.findViewById(R.id.timer);
+        public ProgressBar waitProgres = (ProgressBar)itemView.findViewById(R.id.waitProgress);
         public void setProfileImage(String url){
             if (url!=null && !url.isEmpty()){
                 Picasso.get().load(url)
@@ -714,7 +715,7 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public ImageButton play_pause = (ImageButton)itemView.findViewById(R.id.playButton);
         public SeekBar seekBar = (SeekBar) itemView.findViewById(R.id.seekBar);
         public TextView timer = (TextView)itemView.findViewById(R.id.timer);
-
+        public ProgressBar waitProgres = (ProgressBar)itemView.findViewById(R.id.waitProgress);
 
 
         public void setProfileImage(String url){
