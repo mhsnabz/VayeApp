@@ -1,8 +1,12 @@
 package com.vaye.app.Controller.ChatController.Conservation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
+import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,8 +18,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.internal.ads.zzako;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 import com.hendraanggrian.appcompat.widget.SocialTextView;
@@ -32,19 +38,34 @@ import com.vaye.app.R;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+
+
 public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
-    private static String TAG = "MessagesAdaper";
+    public interface OnItemClickListener {
+        void onItemClick(ImageButton b ,SeekBar seekBar , TextView timer, View view, MessagesModel model, int position);
+    }
 
+    private MediaPlayer mediaPlayer;
+    private Handler handler = new Handler();
+
+    private boolean isPlaying = false;
+    View senderMSg;
+    View getterMsg;
+    private static String TAG = "MessagesAdaper";
+    private Runnable updater;
 
     private static final int SEND_TEXT_MSG = 1;
-
+    Timer timerClass ;
 
     private static final int RECEIVED_TEXT_MSG = 2;
 
@@ -59,12 +80,14 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
     OtherUser otherUser;
     Context context;
     ArrayList<MessagesModel> messagesModels;
-
-    public MessagesAdaper(CurrentUser currentUser, OtherUser otherUser, Context context, ArrayList<MessagesModel> messagesModels) {
+    OnItemClickListener mOnItemClickListener;
+    public MessagesAdaper(CurrentUser currentUser, OtherUser otherUser, Context context, ArrayList<MessagesModel> messagesModels ,OnItemClickListener onItemClickListener ) {
         this.currentUser = currentUser;
         this.otherUser = otherUser;
         this.context = context;
         this.messagesModels = messagesModels;
+        this.mOnItemClickListener = onItemClickListener;
+
     }
 
     @NonNull
@@ -108,17 +131,24 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }else if (viewType == SEND_AUDIO_MSG){
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.msg_audio_send, parent, false);
-
+            senderMSg = itemView;
             return new SendAudioMsgHolder(itemView);
         }else if (viewType == RECEIVED_AUDIO_MSG){
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.msg_audio_received, parent, false);
-
+            getterMsg = itemView;
             return new ReceivedAudioMsgHolder(itemView);
         }
         return  null;
     }
 
+
+
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
         int viewType = getItemViewType(i);
@@ -134,17 +164,38 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 SendAudioMsgHolder send_audio = (SendAudioMsgHolder)holder;
                 send_audio.setProfileImage(currentUser.getProfileImage());
                 setTimeAgo(model.getTime(),send_audio.time);
+
+                send_audio.seekBar.setMax(100);
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, send_audio.groupDate);
                 }
+
+                send_audio.play_pause.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+
+                    }
+                });
                 break;
             case RECEIVED_AUDIO_MSG:
                 ReceivedAudioMsgHolder received_audio = (ReceivedAudioMsgHolder)holder;
                 received_audio.setProfileImage(otherUser.getProfileImage());
                 setTimeAgo(model.getTime(),received_audio.time);
+                received_audio.seekBar.setMax(100);
+
+                Log.d(TAG, "onBindViewHolder: postion " + i);
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, received_audio.groupDate);
                 }
+
+                received_audio.play_pause.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mOnItemClickListener.onItemClick(received_audio.play_pause,received_audio.seekBar,received_audio.timer,view,model,i);
+                    }
+                });
+
                 break;
             case SEND_IMAGE_MSG:
                 SendImageMsgViewHolder send_image = (SendImageMsgViewHolder)holder;
@@ -622,6 +673,7 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public TextView time = (TextView)itemView.findViewById(R.id.time);
         public ImageButton play_pause = (ImageButton)itemView.findViewById(R.id.playButton);
         public SeekBar seekBar = (SeekBar) itemView.findViewById(R.id.seekBar);
+        public TextView timer = (TextView)itemView.findViewById(R.id.timer);
         public void setProfileImage(String url){
             if (url!=null && !url.isEmpty()){
                 Picasso.get().load(url)
@@ -646,10 +698,14 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
     }
+    public interface CustomOnClickListener{
+        void onClick(int position);
+    }
     public class SendAudioMsgHolder extends  RecyclerView.ViewHolder{
 
         public SendAudioMsgHolder(@NonNull View itemView) {
             super(itemView);
+
         }
         public TextView groupDate = (TextView)itemView.findViewById(R.id.groupDate);
         public ProgressBar progressBar =(ProgressBar)itemView.findViewById(R.id.progress);
@@ -657,6 +713,10 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public TextView time = (TextView)itemView.findViewById(R.id.time);
         public ImageButton play_pause = (ImageButton)itemView.findViewById(R.id.playButton);
         public SeekBar seekBar = (SeekBar) itemView.findViewById(R.id.seekBar);
+        public TextView timer = (TextView)itemView.findViewById(R.id.timer);
+
+
+
         public void setProfileImage(String url){
             if (url!=null && !url.isEmpty()){
                 Picasso.get().load(url)
@@ -680,6 +740,7 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 progressBar.setVisibility(View.GONE);
             }
         }
+
     }
 
 }

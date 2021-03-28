@@ -49,7 +49,7 @@
             android:thumbTint="@color/white"
             android:backgroundTint="@color/black"
             android:progressTint="@color/black"
-            android:progress="10"
+
             android:id="@+id/seekBar"
             ></SeekBar>
         <TextView

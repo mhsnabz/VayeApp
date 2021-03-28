@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,9 +22,13 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.media.Image;
+import android.media.MediaParser;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -31,6 +36,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -90,6 +96,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.PrimitiveIterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -97,10 +106,11 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
-public class ConservationController extends AppCompatActivity {
+public class ConservationController extends AppCompatActivity implements MessagesAdaper.OnItemClickListener {
     String TAG = "ConservationController";
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+    MessagesAdaper.OnItemClickListener onItemClickListener;
     Boolean isOnline = false;
     CircleImageView profileImage;
     ProgressBar progressBar;
@@ -108,7 +118,7 @@ public class ConservationController extends AppCompatActivity {
     Toolbar toolbar;
     ImageButton options;
     LinearLayout mediaLayout;
-    ImageButton mediaItem , soundRecorder;
+    ImageButton mediaItem, soundRecorder;
     CurrentUser currentUser;
     OtherUser otherUser;
     ArrayList<MessagesModel> messagesList = new ArrayList<>();
@@ -117,7 +127,7 @@ public class ConservationController extends AppCompatActivity {
     DocumentSnapshot lastPage;
     LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
     Boolean scrollingToBottom = false;
-    String  firstPage;
+    String firstPage;
     SwipeRefreshLayout swipeRefreshLayout;
     ImageButton sendButton;
     TextInputEditText msg_edittex;
@@ -126,21 +136,24 @@ public class ConservationController extends AppCompatActivity {
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
     String storagePermission[];
     KProgressHUD hud;
-    private static final int gallery_request =400;
-   String fileName = "";
+    private static final int gallery_request = 400;
+    String fileName = "";
+    MediaPlayer mediaPlayer;
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conservation_controller);
-        filename  = Environment.getExternalStorageDirectory().getAbsolutePath();
-        fileName +="/"+String.valueOf(Calendar.getInstance().getTimeInMillis()) +".3gp";;
-        mediaLayout = (LinearLayout)findViewById(R.id.mediaLayout);
+        filename = Environment.getExternalStorageDirectory().getAbsolutePath();
+        fileName += "/" + String.valueOf(Calendar.getInstance().getTimeInMillis()) + ".3gp";
+        ;
+        mediaLayout = (LinearLayout) findViewById(R.id.mediaLayout);
         mediaLayout.setVisibility(View.VISIBLE);
-        sendButton = (ImageButton)findViewById(R.id.send);
+        sendButton = (ImageButton) findViewById(R.id.send);
 
-        mediaItem = (ImageButton)findViewById(R.id.media);
-        soundRecorder = (ImageButton)findViewById(R.id.audio);
+        mediaItem = (ImageButton) findViewById(R.id.media);
+        soundRecorder = (ImageButton) findViewById(R.id.audio);
         hud = KProgressHUD.create(ConservationController.this)
                 .setStyle(KProgressHUD.Style.ANNULAR_DETERMINATE)
                 .setLabel("Dosya Gönderiliyor")
@@ -155,12 +168,12 @@ public class ConservationController extends AppCompatActivity {
         soundRecorder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!CheckPermissions()){
+                if (!CheckPermissions()) {
                     RequestPermissions();
-                }else{
+                } else {
 
                     try {
-                        Helper.shared().RecorderBottomSheet(ConservationController.this,Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
+                        Helper.shared().RecorderBottomSheet(ConservationController.this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -168,16 +181,16 @@ public class ConservationController extends AppCompatActivity {
 
             }
         });
-        msg_edittex = (TextInputEditText)findViewById(R.id.msgText);
+        msg_edittex = (TextInputEditText) findViewById(R.id.msgText);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
-        if (extras != null){
+        if (extras != null) {
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             otherUser = intentIncoming.getParcelableExtra("otherUser");
             setToolbar(otherUser);
             configureUI(otherUser);
 
-            swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeAndRefresh);
+            swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeAndRefresh);
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
@@ -187,7 +200,7 @@ public class ConservationController extends AppCompatActivity {
             mediaItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Helper.shared().MessageMediaLauncher(ConservationController.this,otherUser, currentUser, new TrueFalse<Boolean>() {
+                    Helper.shared().MessageMediaLauncher(ConservationController.this, otherUser, currentUser, new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
 
@@ -199,7 +212,7 @@ public class ConservationController extends AppCompatActivity {
 
     }
 
-    private void targetChooser(){
+    private void targetChooser() {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("media_item_target"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocaitonReciver, new IntentFilter("locaiton_manager"));
@@ -213,12 +226,12 @@ public class ConservationController extends AppCompatActivity {
         toolbar.setTitle("");
         toolbar.setSubtitle("");
         title.setText(otherUser.getName());
-        profileImage = (CircleImageView)toolbar.findViewById(R.id.profileImage);
-        progressBar = (ProgressBar)toolbar.findViewById(R.id.progress);
-        options = (ImageButton)toolbar.findViewById(R.id.options);
-        if (otherUser.getThumb_image()!=null && !otherUser.getThumb_image().isEmpty()){
+        profileImage = (CircleImageView) toolbar.findViewById(R.id.profileImage);
+        progressBar = (ProgressBar) toolbar.findViewById(R.id.progress);
+        options = (ImageButton) toolbar.findViewById(R.id.options);
+        if (otherUser.getThumb_image() != null && !otherUser.getThumb_image().isEmpty()) {
             Picasso.get().load(otherUser.getThumb_image())
-                    .resize(256,256)
+                    .resize(256, 256)
                     .centerCrop()
                     .placeholder(android.R.color.darker_gray)
                     .into(profileImage, new Callback() {
@@ -226,24 +239,25 @@ public class ConservationController extends AppCompatActivity {
                         public void onSuccess() {
                             progressBar.setVisibility(View.GONE);
                         }
+
                         @Override
                         public void onError(Exception e) {
                             progressBar.setVisibility(View.GONE);
                             profileImage.setImageResource(android.R.color.darker_gray);
                         }
                     });
-        }else{
+        } else {
             progressBar.setVisibility(View.GONE);
             profileImage.setImageResource(android.R.color.darker_gray);
         }
         options.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(ConservationController.this,"Options Click",Toast.LENGTH_SHORT).show();
+                Toast.makeText(ConservationController.this, "Options Click", Toast.LENGTH_SHORT).show();
             }
         });
 
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -256,12 +270,19 @@ public class ConservationController extends AppCompatActivity {
             }
         });
     }
-    private void configureUI(OtherUser otherUser){
-        list = (RecyclerView)findViewById(R.id.msgList);
+
+    private void configureUI(OtherUser otherUser) {
+        list = (RecyclerView) findViewById(R.id.msgList);
         mLayoutManager.setReverseLayout(false);
         list.setLayoutManager(mLayoutManager);
         list.setHasFixedSize(true);
-        adaper = new MessagesAdaper(currentUser,otherUser,this,messagesList);
+        adaper = new MessagesAdaper(currentUser, otherUser, this, messagesList, this::onItemClick);
+        adaper.mOnItemClickListener = new MessagesAdaper.OnItemClickListener() {
+            @Override
+            public void onItemClick(ImageButton b, SeekBar seekBar, TextView timer, View view, MessagesModel model, int position) {
+                Log.d(TAG, "onItemClick: " + model.getSenderUid());
+            }
+        };
         list.setAdapter(adaper);
         final View contentView = list;
         contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -282,37 +303,38 @@ public class ConservationController extends AppCompatActivity {
                         scrollingToBottom = true;
                         scrollRecyclerViewToBottom(list);
                     }
-                }
-                else {
+                } else {
                     // keyboard is closed
                     scrollingToBottom = false;
                 }
             }
         });
     }
-    private  void scrollRecyclerViewToBottom(RecyclerView recyclerView) {
+
+    private void scrollRecyclerViewToBottom(RecyclerView recyclerView) {
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         if (adapter != null && adapter.getItemCount() > 0) {
             recyclerView.scrollToPosition(adapter.getItemCount() - 1);
         }
     }
-    private void loadMoreMessages(){
-        if (lastPage == null){
+
+    private void loadMoreMessages() {
+        if (lastPage == null) {
             swipeRefreshLayout.setRefreshing(false);
             return;
-        }else{
-            Query dbNext =  FirebaseFirestore.getInstance().collection("messages")
+        } else {
+            Query dbNext = FirebaseFirestore.getInstance().collection("messages")
                     .document(currentUser.getUid())
                     .collection(otherUser.getUid()).orderBy("id").endBefore(firstPage)
                     .limitToLast(5);
             dbNext.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()){
-                        if (!task.getResult().getDocuments().isEmpty()){
-                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().getDocuments().isEmpty()) {
+                            for (DocumentSnapshot item : task.getResult().getDocuments()) {
                                 messagesList.add(item.toObject(MessagesModel.class));
-                                Collections.sort(messagesList, new Comparator<MessagesModel>(){
+                                Collections.sort(messagesList, new Comparator<MessagesModel>() {
                                     public int compare(MessagesModel obj1, MessagesModel obj2) {
                                         return obj1.getId().compareTo(obj2.getId());
                                     }
@@ -323,7 +345,7 @@ public class ConservationController extends AppCompatActivity {
                             swipeRefreshLayout.setRefreshing(false);
                             firstPage = messagesList.get(0).getId();
 
-                        }else{
+                        } else {
                             swipeRefreshLayout.setRefreshing(false);
                         }
                     }
@@ -331,21 +353,22 @@ public class ConservationController extends AppCompatActivity {
             });
         }
     }
-    private void getAllMessages(){
+
+    private void getAllMessages() {
         messagesList.clear();
         adaper.notifyDataSetChanged();
-       Query db = FirebaseFirestore.getInstance().collection("messages")
+        Query db = FirebaseFirestore.getInstance().collection("messages")
                 .document(currentUser.getUid())
                 .collection(otherUser.getUid()).limitToLast(10).orderBy("id", Query.Direction.ASCENDING);
-       db.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
-           @Override
-           public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (!value.isEmpty()){
-                    for (DocumentChange item : value.getDocumentChanges()){
-                        if (item.getType().equals(DocumentChange.Type.ADDED)){
+        db.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (!value.isEmpty()) {
+                    for (DocumentChange item : value.getDocumentChanges()) {
+                        if (item.getType().equals(DocumentChange.Type.ADDED)) {
                             messagesList.add(item.getDocument().toObject(MessagesModel.class));
                             adaper.notifyDataSetChanged();
-                            if (item.getDocument().getString("senderUid").equals(currentUser.getUid())){
+                            if (item.getDocument().getString("senderUid").equals(currentUser.getUid())) {
                                 scrollRecyclerViewToBottom(list);
                             }
                         }
@@ -353,20 +376,20 @@ public class ConservationController extends AppCompatActivity {
                     }
                     lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
                 }
-           }
-       });
+            }
+        });
 
     }
 
-    private void sendMsg(){
+    private void sendMsg() {
         String msg = msg_edittex.getText().toString();
         long time = Calendar.getInstance().getTimeInMillis();
         msg_edittex.setText("");
-        if (msg.isEmpty()){
+        if (msg.isEmpty()) {
             return;
-        }else{
+        } else {
             String messageId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-            MessageService.shared().sendTextMsg(currentUser,otherUser,filename,isOnline,time,null,0,0f,0f,msg,messageId, MessageType.text);
+            MessageService.shared().sendTextMsg(currentUser, otherUser, filename, isOnline, time, null, 0, 0f, 0f, msg, messageId, MessageType.text);
 
         }
     }
@@ -382,7 +405,7 @@ public class ConservationController extends AppCompatActivity {
         ref.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (value.exists()){
+                if (value.exists()) {
                     otherUser = value.toObject(OtherUser.class);
                 }
             }
@@ -392,13 +415,13 @@ public class ConservationController extends AppCompatActivity {
         refCurrentUser.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (value.exists()){
+                if (value.exists()) {
                     currentUser = value.toObject(CurrentUser.class);
                 }
             }
         });
-       MessageService.shared().setCurrentUserOnline(currentUser,otherUser,true);
-       MessageService.shared().deleteBadge(currentUser,otherUser);
+        MessageService.shared().setCurrentUserOnline(currentUser, otherUser, true);
+        MessageService.shared().deleteBadge(currentUser, otherUser);
         Log.d("MessageService", "onStart: badge delete");
         DocumentReference isOnlineDb = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid())
@@ -408,7 +431,7 @@ public class ConservationController extends AppCompatActivity {
         isOnlineDb.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (value.exists()){
+                if (value.exists()) {
                     isOnline = value.getBoolean("isOnline");
                 }
             }
@@ -421,14 +444,14 @@ public class ConservationController extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        DocumentReference setCurrentUserOnline =  FirebaseFirestore.getInstance().collection("user")
+        DocumentReference setCurrentUserOnline = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("msg-list")
                 .document(otherUser.getUid());
-        Map<String , Object> map = new HashMap<>();
-        map.put("isOnline",false);
-        map.put("badgeCount",0);
-        setCurrentUserOnline.set(map,SetOptions.merge());
+        Map<String, Object> map = new HashMap<>();
+        map.put("isOnline", false);
+        map.put("badgeCount", 0);
+        setCurrentUserOnline.set(map, SetOptions.merge());
         Log.d(TAG, "onStop: onStop");
     }
 
@@ -465,73 +488,75 @@ public class ConservationController extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String target = intent.getStringExtra("target");
-            Log.d(TAG, "onReceive: "+ target);
-            if (target != null && target.equals(CompletionWithValue.send_image)){
-             sendImage();
-            }else if (target != null && target.equals(CompletionWithValue.send_location)){
-                    sendLocation();
-            }else if(target != null && target.equals(CompletionWithValue.send_document)){
+            Log.d(TAG, "onReceive: " + target);
+            if (target != null && target.equals(CompletionWithValue.send_image)) {
+                sendImage();
+            } else if (target != null && target.equals(CompletionWithValue.send_location)) {
+                sendLocation();
+            } else if (target != null && target.equals(CompletionWithValue.send_document)) {
                 sendDocument();
             }
         }
     };
 
 
-
-    private void sendImage(){
-        if (!checkGalleryPermissions()){
+    private void sendImage() {
+        if (!checkGalleryPermissions()) {
             requestStoragePermission();
+        } else {
+            pickGallery();
         }
-        else{ pickGallery();}
     }
-    private void sendDocument(){
+
+    private void sendDocument() {
 
     }
-    private void sendLocation(){
-        if (isServicesOk()){
-            Intent i = new Intent(ConservationController.this , LocationPermissionActivity.class);
+
+    private void sendLocation() {
+        if (isServicesOk()) {
+            Intent i = new Intent(ConservationController.this, LocationPermissionActivity.class);
             startActivity(i);
         }
     }
 
-    public boolean isServicesOk(){
-        Log.d(TAG, "isServicesOk: " +"check google service version");
+    public boolean isServicesOk() {
+        Log.d(TAG, "isServicesOk: " + "check google service version");
         int avabile = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ConservationController.this);
-        if (avabile == ConnectionResult.SUCCESS){
+        if (avabile == ConnectionResult.SUCCESS) {
             return true;
-        }else if (GoogleApiAvailability.getInstance().isUserResolvableError(avabile))
-        {
-            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(ConservationController.this ,avabile,ERROR_DIALOG_REQUEST);
+        } else if (GoogleApiAvailability.getInstance().isUserResolvableError(avabile)) {
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(ConservationController.this, avabile, ERROR_DIALOG_REQUEST);
             dialog.show();
-            return  false;
-        }else{
+            return false;
+        } else {
 
         }
-        return  false;
+        return false;
     }
+
     public BroadcastReceiver mLocaitonReciver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String target = intent.getStringExtra("target");
             Log.d(TAG, "mLocaitonReciver: " + target);
-        if ( target != null && target.equals(CompletionWithValue.get_locaiton)){
-                        geoPoint = new GeoPoint(intent.getDoubleExtra("lat",-45),intent.getDoubleExtra("longLat",45));
-                        Log.d(TAG, "getLocation: "+geoPoint.getLongitude());
-                        Log.d(TAG, "getLocation: "+geoPoint.getLatitude());
-                        if (intent.getIntExtra("count",1) == 1){
-                            sendLocationMessage(new GeoPoint(geoPoint.getLatitude(),geoPoint.getLongitude()));
+            if (target != null && target.equals(CompletionWithValue.get_locaiton)) {
+                geoPoint = new GeoPoint(intent.getDoubleExtra("lat", -45), intent.getDoubleExtra("longLat", 45));
+                Log.d(TAG, "getLocation: " + geoPoint.getLongitude());
+                Log.d(TAG, "getLocation: " + geoPoint.getLatitude());
+                if (intent.getIntExtra("count", 1) == 1) {
+                    sendLocationMessage(new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude()));
 
-                        }
-                    }
                 }
-            };
+            }
+        }
+    };
 
 
-    private void sendLocationMessage(GeoPoint geoPoint){
+    private void sendLocationMessage(GeoPoint geoPoint) {
         String msgID = String.valueOf(Calendar.getInstance().getTimeInMillis());
         long time = Calendar.getInstance().getTimeInMillis();
-        MessageService.shared().sendTextMsg(currentUser,otherUser,filename,isOnline,time,geoPoint,0,200f,200f,"Konum",msgID,MessageType.location);
+        MessageService.shared().sendTextMsg(currentUser, otherUser, filename, isOnline, time, geoPoint, 0, 200f, 200f, "Konum", msgID, MessageType.location);
     }
 
 
@@ -539,10 +564,12 @@ public class ConservationController extends AppCompatActivity {
         boolean result = ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
         return result;
     }
+
     private void requestStoragePermission() {
-        ActivityCompat.requestPermissions(this,storagePermission,gallery_request);
+        ActivityCompat.requestPermissions(this, storagePermission, gallery_request);
 
     }
+
     private void pickGallery() {
         Intent intent1 = new Intent(this, ImagePickActivity.class);
         intent1.putExtra(IS_NEED_CAMERA, false);
@@ -554,40 +581,41 @@ public class ConservationController extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
+        switch (requestCode) {
             case Constant.REQUEST_CODE_PICK_IMAGE:
-                if (resultCode == RESULT_OK){
+                if (resultCode == RESULT_OK) {
                     ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
                     Uri file = Uri.fromFile(new File(list.get(0).getPath()));
                     String fileName = list.get(0).getName();
                     Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
                     String mimeType = DataTypes.mimeType.image;
-                    String  contentType = DataTypes.contentType.image;
-                    dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
+                    String contentType = DataTypes.contentType.image;
+                    dataModel.add(new NewPostDataModel(fileName, fileUri, null, null, mimeType, contentType));
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
                     BitmapFactory.decodeFile(new File(file.getPath()).getAbsolutePath(), options);
                     float imageHeight = options.outHeight;
                     float imageWidth = options.outWidth;
-                    Log.d(TAG, "imageWidth: "+imageWidth);
-                    Log.d(TAG, "imageHeight: "+imageHeight);
+                    Log.d(TAG, "imageWidth: " + imageWidth);
+                    Log.d(TAG, "imageHeight: " + imageHeight);
                     saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
                         @Override
                         public void getString(String url) {
-                            Log.d(TAG, "getString: url : "+ url);
-                            MessageService.shared().sendTextMsg(currentUser,otherUser,url,isOnline,Calendar.getInstance().getTimeInMillis(),geoPoint,0,imageWidth,imageHeight,url,String.valueOf(Calendar.getInstance().getTimeInMillis()),MessageType.photo);
-                            TipDialog.show(ConservationController.this , "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
+                            Log.d(TAG, "getString: url : " + url);
+                            MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, imageWidth, imageHeight, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
+                            TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
                             TipDialog.dismiss(500);
                         }
                     });
                 }
-            break;
+                break;
 
         }
     }
+
     //TODO:: upload images
-    private void saveDatasToDataBase(String contentType, String mimeType, Activity activity ,OtherUser otherUser , CurrentUser currentUser , Uri data,
-                                     StringCompletion completion ){
+    private void saveDatasToDataBase(String contentType, String mimeType, Activity activity, OtherUser otherUser, CurrentUser currentUser, Uri data,
+                                     StringCompletion completion) {
         hud.show();
 
         String dataName = String.valueOf(Calendar.getInstance().getTimeInMillis());
@@ -599,16 +627,16 @@ public class ConservationController extends AppCompatActivity {
                 .child(otherUser.getUid())
                 .child(dataName + mimeType);
 
-        uploadTask =  ref.putFile(data , metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        uploadTask = ref.putFile(data, metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
 
                     task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            String  url = uri.toString();
-                            Log.d(TAG, "onComplete: "+ url);
+                            String url = uri.toString();
+                            Log.d(TAG, "onComplete: " + url);
                             hud.dismiss();
 
                             completion.getString(url);
@@ -634,11 +662,13 @@ public class ConservationController extends AppCompatActivity {
         });
 
     }
+
     public boolean CheckPermissions() {
         int result = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
         return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
     }
+
     private void RequestPermissions() {
         ActivityCompat.requestPermissions(ConservationController.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
     }
@@ -647,20 +677,124 @@ public class ConservationController extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_AUDIO_PERMISSION_CODE:
-                if (grantResults.length> 0) {
+                if (grantResults.length > 0) {
                     boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
+                    boolean permissionToStore = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     if (permissionToRecord && permissionToStore) {
                         try {
-                            Helper.shared().RecorderBottomSheet(ConservationController.this,Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
+                            Helper.shared().RecorderBottomSheet(ConservationController.this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     } else {
-                        Toast.makeText(getApplicationContext(),"Permission Denied",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_LONG).show();
                     }
                 }
                 break;
         }
     }
+
+
+    @Override
+    public void onItemClick(ImageButton b, SeekBar seekBar, TextView timer, View view, MessagesModel model, int position) {
+        //    playVoice(model,b,seekBar,timer);
+    }
+
+    private String miliSecondToTimer(long miliSecond) {
+        String timerString = "";
+        String secondString = "";
+        int hours = (int) (miliSecond / (1000 * 60 * 60));
+        int minutes = (int) (miliSecond % (1000 * 60 * 60) / (1000 * 60));
+        int second = (int) (miliSecond % (1000 * 60 * 60) / (1000 * 60) / 1000);
+        if (hours > 0) {
+
+            timerString = hours + ":";
+        }
+        if (second < 10) {
+            secondString = "0" + second;
+        } else {
+            secondString = "" + second;
+        }
+        timerString = timerString + minutes + ":" + secondString;
+        return timerString;
+    }
+
+    private void playVoice(MessagesModel message, final ImageButton playBtn, final SeekBar seekBar, final TextView timer) {
+
+
+        try {
+            if (mediaPlayer != null) {
+                playBtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.play_button, null));
+                seekBar.setProgress(0);
+                mediaPlayer.stop();
+
+            }
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(message.getContent());
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    if (mp.isPlaying()) {
+                        mp.pause();
+                        mediaPlayer = null;
+
+                        playBtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.play_button, null));
+                    } else {
+                        mp.start();
+                        playBtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.pause, null));
+
+                    }
+
+                    timer.setText(String.valueOf(miliSecondToTimer(message.getDuration() * 60)));
+                    seekBar.setMax(mediaPlayer.getDuration());
+                    if (mediaPlayer != null) {
+                        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                if (fromUser) {
+                                    mediaPlayer.seekTo(progress);
+                                }
+                            }
+
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar) {
+
+                            }
+
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar) {
+
+                            }
+                        });
+                    }
+
+
+                    new Timer().scheduleAtFixedRate(new TimerTask() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                                    timer.setText(miliSecondToTimer(mediaPlayer.getCurrentPosition()));
+                                }
+                            });
+                        }
+                    }, 0, 1000);
+                }
+            });
+
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+
+                    playBtn.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.play_button, null));
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
