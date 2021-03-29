@@ -23,6 +23,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VayeApp"
+
         android:usesCleartextTraffic="true">
         <service android:name=".Application.OnClearFromRecentService" android:stopWithTask="false" />
 

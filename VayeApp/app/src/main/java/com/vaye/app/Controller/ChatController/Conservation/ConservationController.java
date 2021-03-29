@@ -150,7 +150,6 @@ public class ConservationController extends AppCompatActivity implements Message
     KProgressHUD hud;
     private static final int gallery_request = 400;
     String fileName = "";
-    MediaPlayer mediaPlayer;
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
     int lastPostion = -1;
 
@@ -705,92 +704,134 @@ public class ConservationController extends AppCompatActivity implements Message
     }
 
     private Handler mHandler = new Handler();
+    static MediaPlayer mediaPlayer = new MediaPlayer();
+    private Runnable runnable;
     @Override
     public void onItemClick(ImageButton b, SeekBar seekBar, TextView timer,ProgressBar waitProgress, View view, MessagesModel model, int position) {
+        if (runnable !=null){
+            mHandler.removeCallbacks(runnable);
+        }
+
 
         if (lastPostion == -1){
+            if (mediaPlayer!=null){
+
+                mediaPlayer.stop();
+
+                mediaPlayer.reset();
+                mediaPlayer = null;
+            }
             lastPostion = position;
             try {
-                mediaPlayer = new MediaPlayer();
+                mediaPlayer= new MediaPlayer();
+
                 File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_MUSIC) + "/vayeapp/" + model.getFileName());
                 if (ExistingFile.exists()){
                     mediaPlayer.setDataSource(ExistingFile.getAbsolutePath());
+                    Log.d(TAG, "file name: "+ExistingFile.getAbsolutePath());
                 }else{
                     waitProgress.setVisibility(View.VISIBLE);
                     b.setVisibility(View.INVISIBLE);
                     downloadAudio( model.getContent(), model.getFileName(), new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
-                            Log.d(TAG, "callBack: " + _value);
                             if (_value){
                                 waitProgress.setVisibility(View.GONE);
                                 b.setVisibility(View.VISIBLE);
                             }
-
-
-
                         }
                     });
-                   // mediaPlayer.setDataSource(model.getContent());
+
                 }
 
-
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-                b.setImageResource(R.drawable.pause);
-
-                ConservationController.this.runOnUiThread(new Runnable() {
-
+                //mediaPlayer.prepare();
+                mediaPlayer.prepareAsync();
+                mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                     @Override
-                    public void run() {
-                        if(mediaPlayer != null){
-                            int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
-                            seekBar.setProgress(mCurrentPosition);
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
+                        Log.e(TAG, "onError: " + what);
+                        return false;
+                    }
+                });
+
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        Log.i(TAG, "onCompletion: Completed");
+                        b.setImageResource(R.drawable.play_button);
+
+                        seekBar.setProgress(0);
+                        lastPostion = -1;
+                        mediaPlayer.stop();
+                        mediaPlayer.release();
+                        mediaPlayer = null;
+                    }
+                });
+
+                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        Log.i(TAG, "onPrepared: Prepared MediaPlayer");
+                        if (mediaPlayer.isPlaying()){
+                            mediaPlayer.stop();
+                            mediaPlayer.start();
+                            runnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mediaPlayer!=null){
+                                        int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                                        seekBar.setProgress(mCurrentPosition);
+                                    }
+                                    mHandler.postDelayed(runnable,1000);
+                                }
+                            };
+                            runnable.run();
+                        }else{
+                            mediaPlayer.start();
+                            runnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mediaPlayer!=null){
+                                        int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                                        seekBar.setProgress(mCurrentPosition);
+                                    }
+                                  mHandler.postDelayed(runnable,1000);
+                                }
+                            };
+                            runnable.run();
                         }
-                        mHandler.postDelayed(this, 1000);
+
+                        b.setImageResource(R.drawable.pause);
+
+
+
                     }
                 });
-                mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-                    @Override
-                    public void onSeekComplete(MediaPlayer arg0) {
-                        Log.d(TAG, "onSeekComplete() current pos : " + arg0.getCurrentPosition());
-                        mediaPlayer.seekTo(arg0.getCurrentPosition());
-                        SystemClock.sleep(200);
-                        mediaPlayer.start();
-                    }
-                });
+
 
             }catch (Exception ex){
-                Log.d(TAG, "onItemClick: " + ex.getStackTrace());
+                Log.d(TAG, "exception : " + ex.getLocalizedMessage());
+                Log.d(TAG, "exception : " + ex.getCause());
             }
             //play sound
         }else if (lastPostion == position){
 
             if (mediaPlayer != null){
-
                 if (mediaPlayer.isPlaying()){
                     mediaPlayer.pause();
                     b.setImageResource(R.drawable.play_button);
-                    ConservationController.this.runOnUiThread(new Runnable() {
+                    b.setImageResource(R.drawable.play_button);
 
-                        @Override
-                        public void run() {
-                            if(mediaPlayer != null){
-                                int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
-                                seekBar.setProgress(mCurrentPosition);
-                            }
-                            mHandler.postDelayed(this, 1000);
-                        }
 
-                    });
-                    mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
-                        public void onSeekComplete(MediaPlayer arg0) {
-                            Log.d(TAG, "onSeekComplete() current pos : " + arg0.getCurrentPosition());
-                            mediaPlayer.seekTo(arg0.getCurrentPosition());
-                            SystemClock.sleep(200);
-                            mediaPlayer.start();
+                        public void onCompletion(MediaPlayer mp) {
+                            Log.i(TAG, "onCompletion: Completed");
+                            b.setImageResource(R.drawable.play_button);
+                            seekBar.setProgress(0);
+                            lastPostion = -1;
                         }
                     });
 
@@ -802,88 +843,113 @@ public class ConservationController extends AppCompatActivity implements Message
             }
 
         }else if (position != lastPostion){
+            if (mediaPlayer.isPlaying()){
+                b.setImageResource(R.drawable.play_button);
+                mediaPlayer.stop();
+                seekBar.setProgress(0);
+            }
             ImageButton imageButton = (ImageButton)list.findViewHolderForAdapterPosition(lastPostion).itemView.findViewById(R.id.playButton);
             imageButton.setImageResource(R.drawable.play_button);
-            lastPostion = position;
-            if (mediaPlayer!=null){
-                mediaPlayer.release();
-            }
-            try {
-                mediaPlayer = new MediaPlayer();
-                File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_MUSIC) + "/vayeapp/" + model.getFileName());
-                if (ExistingFile.exists()){
-                    mediaPlayer.setDataSource(ExistingFile.getAbsolutePath());
-                }else{
-                    waitProgress.setVisibility(View.VISIBLE);
-                    b.setVisibility(View.INVISIBLE);
-                    downloadAudio( model.getContent(), model.getFileName(), new TrueFalse<Boolean>() {
-                        @Override
-                        public void callBack(Boolean _value) {
-                            Log.d(TAG, "callBack: " + _value);
-                            if (_value){
-                                waitProgress.setVisibility(View.GONE);
-                                b.setVisibility(View.VISIBLE);
+            SeekBar mainSeekBar = (SeekBar)list.findViewHolderForAdapterPosition(position).itemView.findViewById(R.id.seekBar);
+            lastPostion = -1;
+
+            mHandler.removeCallbacks(runnable);
+            return;
+           /*if (mediaPlayer!=null){
+                try{
+                    mediaPlayer.pause();
+                    mediaPlayer.reset();
+                    mediaPlayer.stop();
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                    Log.d(TAG, "release: relase");
+                }catch (Exception exception){
+                    Log.d(TAG, "release: "+exception.getCause());
+                    Log.d(TAG, "release: "+exception.getLocalizedMessage());
+                }
+                try {
+                    mediaPlayer = new MediaPlayer();
+                    File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_MUSIC) + "/vayeapp/" + model.getFileName());
+                    if (ExistingFile.exists()){
+                        mediaPlayer.setDataSource(ExistingFile.getAbsolutePath());
+                    }else{
+                        waitProgress.setVisibility(View.VISIBLE);
+                        b.setVisibility(View.INVISIBLE);
+                        downloadAudio( model.getContent(), model.getFileName(), new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                Log.d(TAG, "callBack: " + _value);
+                                if (_value){
+                                    waitProgress.setVisibility(View.GONE);
+                                    b.setVisibility(View.VISIBLE);
+                                }
                             }
+                        });
 
+                        // mediaPlayer.setDataSource(model.getContent());
+                    }
 
+                    mediaPlayer.prepareAsync();
+                    mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                        @Override
+                        public boolean onError(MediaPlayer mp, int what, int extra) {
+                            Log.e(TAG, "onError: " + what);
+                            return false;
+                        }
+                    });
+
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            Log.i(TAG, "onCompletion: Completed");
+                            b.setImageResource(R.drawable.play_button);
+                            seekBar.setProgress(0);
+                            lastPostion = -1;
+                        }
+                    });
+
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            Log.i(TAG, "other song: Prepared MediaPlayer");
+                            mp.start();
+                            b.setImageResource(R.drawable.pause);
+
+                            runnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mediaPlayer!=null){
+                                        int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                                        seekBar.setProgress(mCurrentPosition);
+                                    }
+
+                                    mHandler.postDelayed(this::run,1000);
+                                }
+                            };
+                            runnable.run();
+                            mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                                @Override
+                                public void onSeekComplete(MediaPlayer arg0) {
+                                    Log.d(TAG, "onSeekComplete() current pos : " + arg0.getCurrentPosition());
+                                    mediaPlayer.seekTo(arg0.getCurrentPosition());
+                                    SystemClock.sleep(200);
+                                    mediaPlayer.start();
+                                }
+                            });
 
                         }
                     });
 
-                   // mediaPlayer.setDataSource(model.getContent());
+                }catch (Exception ex){
+                    Log.d(TAG, "onItemClick: " + ex.getStackTrace());
                 }
+            }*/
 
 
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-                b.setImageResource(R.drawable.pause);
-                ConservationController.this.runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if(mediaPlayer != null){
-                            int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
-                            seekBar.setProgress(mCurrentPosition);
-                        }
-                        mHandler.postDelayed(this, 1000);
-                    }
-                });
-                mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-                    @Override
-                    public void onSeekComplete(MediaPlayer arg0) {
-                        Log.d(TAG, "onSeekComplete() current pos : " + arg0.getCurrentPosition());
-                        mediaPlayer.seekTo(arg0.getCurrentPosition());
-                        SystemClock.sleep(200);
-                        mediaPlayer.start();
-                    }
-                });
-
-
-            }catch (Exception ex){
-                Log.d(TAG, "onItemClick: " + ex.getStackTrace());
-            }
         }
     }
 
-    private String miliSecondToTimer(long miliSecond) {
-        String timerString = "";
-        String secondString = "";
-        int hours = (int) (miliSecond / (1000 * 60 * 60));
-        int minutes = (int) (miliSecond % (1000 * 60 * 60) / (1000 * 60));
-        int second = (int) (miliSecond % (1000 * 60 * 60) / (1000 * 60) / 1000);
-        if (hours > 0) {
-
-            timerString = hours + ":";
-        }
-        if (second < 10) {
-            secondString = "0" + second;
-        } else {
-            secondString = "" + second;
-        }
-        timerString = timerString + minutes + ":" + secondString;
-        return timerString;
-    }
 
      void downloadAudio( String fileUrl , String fileName , TrueFalse<Boolean> callback){
 
@@ -949,15 +1015,9 @@ public class ConservationController extends AppCompatActivity implements Message
                            }
 
                        }).start();
-                     //  mgr.enqueue(request);
-
 
                    }
                }
-
-
-
-
             }
         });
 

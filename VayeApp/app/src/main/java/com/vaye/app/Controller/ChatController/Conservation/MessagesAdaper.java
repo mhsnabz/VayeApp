@@ -164,8 +164,8 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 SendAudioMsgHolder send_audio = (SendAudioMsgHolder)holder;
                 send_audio.setProfileImage(currentUser.getProfileImage());
                 setTimeAgo(model.getTime(),send_audio.time);
-
-                send_audio.seekBar.setMax(100);
+                send_audio.timer.setText(secToTime(model.getDuration()));
+                send_audio.seekBar.setMax(model.getDuration());
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, send_audio.groupDate);
                 }
@@ -182,9 +182,10 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ReceivedAudioMsgHolder received_audio = (ReceivedAudioMsgHolder)holder;
                 received_audio.setProfileImage(otherUser.getProfileImage());
                 setTimeAgo(model.getTime(),received_audio.time);
-                received_audio.seekBar.setMax(100);
+                received_audio.seekBar.setMax(model.getDuration());
                 received_audio.waitProgres.setVisibility(View.GONE);
-                Log.d(TAG, "onBindViewHolder: postion " + i);
+                received_audio.timer.setText(secToTime(model.getDuration()));
+
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, received_audio.groupDate);
                 }
@@ -331,6 +332,16 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public int getItemCount() {
         return messagesModels.size();
+    }
+    String secToTime(int sec) {
+        int second = sec % 60;
+        int minute = sec / 60;
+        if (minute >= 60) {
+            int hour = minute / 60;
+            minute %= 60;
+            return hour + ":" + (minute < 10 ? "0" + minute : minute) + ":" + (second < 10 ? "0" + second : second);
+        }
+        return minute + ":" + (second < 10 ? "0" + second : second);
     }
 
     @Override

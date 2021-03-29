@@ -57,11 +57,12 @@
             android:src="@drawable/play_button"
             ></ImageButton>
         <SeekBar
-            android:layout_width="200dp"
+            android:layout_width="wrap_content"
+            android:layout_toStartOf="@id/timer"
             android:layout_height="4dp"
             android:layout_toEndOf="@id/playButton"
             android:layout_centerVertical="true"
-            android:layout_marginRight="26dp"
+
             android:layout_marginLeft="2dp"
             android:thumbTint="@color/white"
             android:backgroundTint="@color/black"
@@ -75,11 +76,11 @@
             android:id="@+id/timer"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:text="04:12"
-            android:textSize="8sp"
+            android:text="--:--"
+            android:textSize="12sp"
             android:fontFamily="@font/nunito_semibold"
             android:textColor="@color/black"
-            android:layout_marginRight="2dp"
+            android:layout_marginRight="8dp"
 
             ></TextView>
     </RelativeLayout>
