@@ -838,6 +838,17 @@ public class ConservationController extends AppCompatActivity implements Message
                 }else{
                     b.setImageResource(R.drawable.pause);
                     mediaPlayer.start();
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mediaPlayer!=null){
+                                int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
+                                seekBar.setProgress(mCurrentPosition);
+                            }
+                            mHandler.postDelayed(runnable,1000);
+                        }
+                    };
+                    runnable.run();
                 }
 
             }
