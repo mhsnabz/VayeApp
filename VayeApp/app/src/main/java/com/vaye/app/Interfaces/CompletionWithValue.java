@@ -17,4 +17,10 @@ public interface CompletionWithValue {
     String send_location = "send_location";
     String send_document = "send_document";
     String get_locaiton = "get_locaiton";
+
+
+    String remove_chat = "remove_chat";
+    String remove_from_friend_list = "remove_from_friend_list";
+    String make_slient_chat_friend = "make_slient_chat_friend";
+    String report_chat_user = "report_chat_user";
 }

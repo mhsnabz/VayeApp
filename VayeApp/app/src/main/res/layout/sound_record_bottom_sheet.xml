@@ -17,7 +17,7 @@
         android:textAlignment="center"
         android:textSize="12sp"
         android:fontFamily="@font/nunito_semibold"
-        android:textColor="@color/black"
+
         android:text="Yeni Bir Kayıt Yapmak İçin Kayıt Butonuna Basın"
         android:id="@+id/text"
         ></TextView>

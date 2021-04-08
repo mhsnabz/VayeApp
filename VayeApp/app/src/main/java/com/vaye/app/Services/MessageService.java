@@ -433,4 +433,10 @@ public class MessageService {
             Log.d(TAG, "Exception: " + e.getLocalizedMessage());
         }
     }
+
+
+    public void  removeChat(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+        callback.callBack(true);
+    }
+
 }

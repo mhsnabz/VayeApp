@@ -115,7 +115,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
     KProgressHUD hud;
     LessonModel lessonModel;
     String selectedLink = "";
-
+    ImageButton addImage, addDoc , addPdf , addLink;
     ArrayList<LessonFallowerUser> lessonFallowerUsers;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int gallery_request =400;
@@ -125,10 +125,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
     private int MAX_ATTACHMENT_COUNT = 10;
     private ArrayList<String> photoPaths = new ArrayList<>();
     private ArrayList<Uri> docPaths = new ArrayList<>();
-
     String storagePermission[];
-    //Stackview
-    ImageButton addImage, addDoc , addPdf , addLink;
     String contentType = "";
     String mimeType = "";
     long postDate = Calendar.getInstance().getTimeInMillis();

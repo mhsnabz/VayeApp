@@ -80,7 +80,6 @@ public class TeacherSignUp extends Fragment {
     }
 
 
-
     private void configureUI(){
         spinner = (Spinner)rootView.findViewById(R.id.spinner);
         name = (MaterialEditText)rootView.findViewById(R.id.name);

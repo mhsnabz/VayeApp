@@ -7,11 +7,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,6 +60,7 @@ import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.LocationCallback;
 import com.vaye.app.Interfaces.LottieFrames;
 import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.RecordedAudioCallback;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
@@ -72,6 +79,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetAdapter;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetLinkAdapter;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
+import com.vaye.app.Util.BottomSheetHelper.ChatOptionAdapter;
 import com.vaye.app.Util.BottomSheetHelper.MajorPostBottomAdapter;
 import com.vaye.app.Util.BottomSheetHelper.MessageMediaAdapter;
 import com.vaye.app.Util.BottomSheetHelper.ProfileImageSettingAdapter;
@@ -81,6 +89,7 @@ import com.vaye.app.Util.BottomSheetHelper.VayeAppChooseTargetBottomSheetAdapter
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -278,10 +287,39 @@ public class Helper {
     MediaRecorder mRecorder;
     MediaPlayer mPlayer;
     File soundName;
-    public void RecorderBottomSheet(Activity activity, final String fileName ) throws IOException {
 
+    private Spannable getSpannableText (String text1 , String text2 , String text3){
+
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+
+
+        SpannableString redSpannable= new SpannableString(text1);
+        redSpannable.setSpan(new ForegroundColorSpan(Color.BLACK), 0, text1.length(), 0);
+
+        builder.append(redSpannable);
+
+
+        SpannableString text2Spannable= new SpannableString(text2);
+        text2Spannable.setSpan(new ForegroundColorSpan(Color.RED), 0, text2.length(), 0);
+
+        builder.append(text2Spannable);
+
+
+        SpannableString text3Spanable= new SpannableString(text3);
+        text3Spanable.setSpan(new ForegroundColorSpan(Color.BLACK), 0, text3.length(), 0);
+        builder.append(text3Spanable);
+
+
+        return  builder;
+
+
+    }
+
+    public void RecorderBottomSheet(Activity activity, final String fileName  , RecordedAudioCallback callback) throws IOException {
+        // mainText.setText(builder,TextView.BufferType.SPANNABLE);
         Log.d(TAG, "RecorderBottomSheet: " + fileName);
         LottieAnimationView record , play_pause,send;
+        TextView textView;
         Button cancel;
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
         View view = LayoutInflater.from(activity.getApplicationContext())
@@ -292,11 +330,13 @@ public class Helper {
         record = (LottieAnimationView)view.findViewById(R.id.recoedAnim);
         play_pause = (LottieAnimationView)view.findViewById(R.id.playAnim);
         send = (LottieAnimationView)view.findViewById(R.id.sendAnim);
-
+        textView = (TextView)view.findViewById(R.id.text);
+        textView.setText(getSpannableText("Yeni Bir "," KAYIT"," Yapmak İçin Kayıt Butonuna Basın"),TextView.BufferType.SPANNABLE);
         record.setAnimation(R.raw.record);
         play_pause.setAnimation(R.raw.play_pause);
         send.setAnimation(R.raw.send);
-
+        play_pause.setVisibility(View.INVISIBLE);
+        send.setVisibility(View.INVISIBLE);
         play_pause.setMinFrame(10);
         play_pause.playAnimation();
         play_pause.pauseAnimation();
@@ -381,11 +421,16 @@ public class Helper {
         });
         record.pauseAnimation();
         record.setSpeed(1.5f);
+        send.setSpeed(2f);
+
         record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isRecording){
+
+
                     record.playAnimation();
+
                     record.removeAllAnimatorListeners();
                     record.addAnimatorListener(new Animator.AnimatorListener() {
                         @Override
@@ -395,6 +440,9 @@ public class Helper {
 
                         @Override
                         public void onAnimationEnd(Animator animator) {
+                            textView.setText(getSpannableText("Yeni Bir "," KAYIT"," Yapmak İçin Kayıt Butonuna Basın"),TextView.BufferType.SPANNABLE);
+                            play_pause.setVisibility(View.VISIBLE);
+                            send.setVisibility(View.VISIBLE);
                             record.reverseAnimationSpeed();
                         }
 
@@ -421,6 +469,9 @@ public class Helper {
                     mRecorder = null;
                     Log.d(TAG, "onClick: "+ Uri.parse(fileName));
                 }else{
+                    play_pause.setVisibility(View.INVISIBLE);
+                    send.setVisibility(View.INVISIBLE);
+                    textView.setText(getSpannableText("","KAYIT YAPILIYOR",""),TextView.BufferType.SPANNABLE);
 
                     record.playAnimation();
                     Log.d(TAG, "onClick: isRecording ");
@@ -470,19 +521,52 @@ public class Helper {
             }
         });
 
+    send.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            send.playAnimation();
+            send.addAnimatorListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animator) {
 
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animator) {
+
+                    bottomSheetDialog.dismiss();
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+
+                }
+            });
+        }
+    });
 
 
         cancel = (Button)view.findViewById(R.id.dismis);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(activity,"Cancel Click",Toast.LENGTH_SHORT).show();
+
                 bottomSheetDialog.dismiss();
             }
         });
         bottomSheetDialog.setContentView(view);
         bottomSheetDialog.show();
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                callback.callback(soundName);
+            }
+        });
     }
     public void NewPostBottomSheetAddLink(Activity activity, String  target,String link , CurrentUser currentUser , BottomSheetModel model  , CompletionWithValue val){
         RecyclerView recyclerView;
@@ -520,6 +604,57 @@ public class Helper {
         bottomSheetDialog.show();
     }
 
+    public void MessageOptionsBottomSheetLauncaher(Activity activity , CurrentUser currentUser , OtherUser otherUser ){
+        RecyclerView recyclerView;
+        CardView headerView;
+        Button cancel;
+
+        View view = LayoutInflater.from(activity.getApplicationContext())
+                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
+
+        ArrayList<String > items = new ArrayList<>();
+        items.add(BottomSheetActionTarget.delete_conservation);
+        items.add(BottomSheetActionTarget.remove_from_friendList);
+        items.add(BottomSheetActionTarget.make_chat_slient);
+        items.add(BottomSheetActionTarget.report_chat_friend);
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(R.drawable.trash);
+        res.add(R.drawable.dismis);
+        res.add(R.drawable.slient);
+        res.add(R.drawable.red_report);
+        headerView = (CardView)view.findViewById(R.id.header);
+        headerView.setVisibility(View.GONE);
+
+        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.conservation_options,res);
+
+
+        ChatOptionAdapter adapter = new ChatOptionAdapter(currentUser,model,bottomSheetDialog,otherUser,activity);
+        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        adapter.notifyDataSetChanged();
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+
+            }
+        });
+
+        cancel = (Button)view.findViewById(R.id.dismis);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+
+    }
     public void SchoolPostCurrentUserBottomSheetLauncher(ArrayList<NoticesMainModel> allPost, Activity activity , CurrentUser currentUser , NoticesMainModel post , TrueFalse<Boolean> callback){
         RecyclerView recyclerView;
         CardView headerView;

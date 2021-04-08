@@ -50,6 +50,12 @@ public interface BottomSheetActionTarget {
     String send_document = "Belge Gönder";
 
 
+    String delete_conservation = "Sohbeti Sil";
+    String remove_from_friendList = "Arkdaşlarımın Arasından Kaldır";
+    String make_chat_slient = "Sessize Al";
+    String report_chat_friend = "Kullanıcıyı Şikayet Et";
+
+
 
 
 }

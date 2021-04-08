@@ -153,19 +153,20 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         public void setLastMsg(String type , String _lastMsg){
-            lastMsg.setText(_lastMsg);
+
             Log.d(TAG, "setLastMsg: " + _lastMsg);
          if (type.equals(MessageType.text)){
                 lastMsgImage.setImageDrawable(context.getResources().getDrawable(R.drawable.font));
+             lastMsg.setText(_lastMsg);
             }else if (type.equals(MessageType.audio)){
                 lastMsgImage.setImageDrawable(context.getResources().getDrawable(R.drawable.audio_waves));
-
+             lastMsg.setText("Ses Kaydı");
             }else if (type.equals(MessageType.location)){
                 lastMsgImage.setImageDrawable(context.getResources().getDrawable(R.drawable.orange_location));
-
+             lastMsg.setText("Konum");
             }else if (type.equals(MessageType.photo)){
                 lastMsgImage.setImageDrawable(context.getResources().getDrawable(R.drawable.gallery_btn));
-
+             lastMsg.setText("Resim");
             }
         }
 

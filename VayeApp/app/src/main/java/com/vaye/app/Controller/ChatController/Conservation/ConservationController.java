@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.media.Image;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaParser;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -51,6 +52,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.database.core.utilities.Utilities;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -61,6 +63,7 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.installations.Utils;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
@@ -79,6 +82,8 @@ import com.vaye.app.FCM.MessagingService;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.LocationCallback;
+import com.vaye.app.Interfaces.RecordedAudioCallback;
+import com.vaye.app.Interfaces.SavedAudioFileUrl;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.LoginRegister.MessageType;
@@ -185,7 +190,23 @@ public class ConservationController extends AppCompatActivity implements Message
                 } else {
 
                     try {
-                        Helper.shared().RecorderBottomSheet(ConservationController.this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
+                        Helper.shared().RecorderBottomSheet(ConservationController.this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp", new RecordedAudioCallback() {
+                            @Override
+                            public void callback(File filePath) {
+                                Uri uri = Uri.fromFile(filePath);
+                                int duration = (int) ((getDuration(filePath) % (1000 * 60 * 60)) % (1000 * 60) / 1000);
+                                saveDatasToDataBaseAudio(DataTypes.mimeType.audio,
+                                        DataTypes.contentType.audio, ConservationController.this, otherUser, currentUser, uri, new SavedAudioFileUrl() {
+                                            @Override
+                                            public void callback(String url, String filename) {
+                                                MessageService.shared().sendTextMsg(currentUser,otherUser,filename,isOnline,Calendar.getInstance().getTimeInMillis(),null,duration,0f,0f,url,String.valueOf(Calendar.getInstance().getTimeInMillis()),MessageType.audio);
+                                            }
+
+
+                                        });
+                            }
+
+                        });
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -228,6 +249,7 @@ public class ConservationController extends AppCompatActivity implements Message
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("media_item_target"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocaitonReciver, new IntentFilter("locaiton_manager"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocaitonReciver, new IntentFilter("chat_option"));
 
     }
 
@@ -265,7 +287,7 @@ public class ConservationController extends AppCompatActivity implements Message
         options.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(ConservationController.this, "Options Click", Toast.LENGTH_SHORT).show();
+              Helper.shared().MessageOptionsBottomSheetLauncaher(ConservationController.this, currentUser, otherUser);
             }
         });
 
@@ -504,9 +526,32 @@ public class ConservationController extends AppCompatActivity implements Message
                 sendLocation();
             } else if (target != null && target.equals(CompletionWithValue.send_document)) {
                 sendDocument();
+            }else if (target !=null && target.equals(CompletionWithValue.remove_chat)){
+                WaitDialog.show(ConservationController.this,"Sohbet Siliniyor");
+                MessageService.shared().removeChat(currentUser, otherUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            finish();
+                            Helper.shared().back(ConservationController.this);
+                            WaitDialog.dismiss();
+                        }
+                    }
+                });
+                Toast.makeText(ConservationController.this,"Delete Chat",Toast.LENGTH_SHORT).show();
+            }
+            else if (target !=null && target.equals(CompletionWithValue.remove_from_friend_list)){
+                Toast.makeText(ConservationController.this,"remove_from_friend_list",Toast.LENGTH_SHORT).show();
+            }
+            else if (target !=null && target.equals(CompletionWithValue.make_slient_chat_friend)){
+                Toast.makeText(ConservationController.this,"make_slient_chat_friend",Toast.LENGTH_SHORT).show();
+            }
+            else if (target !=null && target.equals(CompletionWithValue.report_chat_user)){
+                Toast.makeText(ConservationController.this,"report_chat_user",Toast.LENGTH_SHORT).show();
             }
         }
     };
+
 
 
     private void sendImage() {
@@ -527,7 +572,12 @@ public class ConservationController extends AppCompatActivity implements Message
             startActivity(i);
         }
     }
+    private long getDuration(File file) {
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        mediaMetadataRetriever.setDataSource(file.getAbsolutePath());
 
+        return Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+    }
     public boolean isServicesOk() {
         Log.d(TAG, "isServicesOk: " + "check google service version");
         int avabile = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ConservationController.this);
@@ -623,6 +673,57 @@ public class ConservationController extends AppCompatActivity implements Message
     }
 
     //TODO:: upload images
+
+    private void saveDatasToDataBaseAudio(String contentType, String mimeType, Activity activity, OtherUser otherUser, CurrentUser currentUser, Uri data,
+                                     SavedAudioFileUrl completion) {
+        hud.show();
+
+        String dataName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType(contentType)
+                .build();
+        StorageReference ref = FirebaseStorage.getInstance().getReference().child("messages")
+                .child(currentUser.getUid())
+                .child(otherUser.getUid())
+                .child(dataName + mimeType);
+
+        uploadTask = ref.putFile(data, metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()) {
+
+                    task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String url = uri.toString();
+                            Log.d(TAG, "onComplete: " + url);
+                            hud.dismiss();
+
+                            completion.callback(url,dataName+".m4a");
+
+
+                        }
+                    });
+
+                }
+
+            }
+
+        });
+
+        uploadTask.addOnProgressListener(activity, new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                hud.setProgress((int) progress);
+                Log.d(TAG, "onProgress: " + progress);
+            }
+        });
+
+    }
+
+
     private void saveDatasToDataBase(String contentType, String mimeType, Activity activity, OtherUser otherUser, CurrentUser currentUser, Uri data,
                                      StringCompletion completion) {
         hud.show();
@@ -691,7 +792,23 @@ public class ConservationController extends AppCompatActivity implements Message
                     boolean permissionToStore = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     if (permissionToRecord && permissionToStore) {
                         try {
-                            Helper.shared().RecorderBottomSheet(ConservationController.this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp");
+                            Helper.shared().RecorderBottomSheet(ConservationController.this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp", new RecordedAudioCallback() {
+                                @Override
+                                public void callback(File filePath) {
+                                    Uri uri = Uri.fromFile(filePath);
+                                    int duration = (int) ((getDuration(filePath) % (1000 * 60 * 60)) % (1000 * 60) / 1000);
+                                    saveDatasToDataBaseAudio(DataTypes.mimeType.audio,
+                                            DataTypes.contentType.audio, ConservationController.this, otherUser, currentUser, uri, new SavedAudioFileUrl() {
+                                                @Override
+                                                public void callback(String url, String filename) {
+                                                    MessageService.shared().sendTextMsg(currentUser,otherUser,filename,isOnline,Calendar.getInstance().getTimeInMillis(),null,duration,0f,0f,url,String.valueOf(Calendar.getInstance().getTimeInMillis()),MessageType.audio);
+                                                }
+
+
+                                            });
+                                }
+
+                            });
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -795,7 +912,10 @@ public class ConservationController extends AppCompatActivity implements Message
                                     if (mediaPlayer!=null){
                                         int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
                                         seekBar.setProgress(mCurrentPosition);
+
+
                                     }
+
                                   mHandler.postDelayed(runnable,1000);
                                 }
                             };
@@ -844,7 +964,9 @@ public class ConservationController extends AppCompatActivity implements Message
                             if (mediaPlayer!=null){
                                 int mCurrentPosition = mediaPlayer.getCurrentPosition() / 1000;
                                 seekBar.setProgress(mCurrentPosition);
+
                             }
+
                             mHandler.postDelayed(runnable,1000);
                         }
                     };
@@ -960,7 +1082,15 @@ public class ConservationController extends AppCompatActivity implements Message
 
         }
     }
+    String secondToMinutes(int totalSecs){
 
+       int minutes = 0;
+       int seconds = 0;
+        minutes = (totalSecs % 3600) / 60;
+        seconds = totalSecs % 60;
+
+        return String.format("%02d:%02d", minutes, seconds);
+    }
 
      void downloadAudio( String fileUrl , String fileName , TrueFalse<Boolean> callback){
 
