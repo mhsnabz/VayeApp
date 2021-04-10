@@ -345,9 +345,6 @@ public class Helper {
             @Override
             public void onClick(View view) {
                 if (isPlaying){
-
-
-
                     play_pause.playAnimation();
                     play_pause.removeAllAnimatorListeners();
                     play_pause.addAnimatorListener(new Animator.AnimatorListener() {

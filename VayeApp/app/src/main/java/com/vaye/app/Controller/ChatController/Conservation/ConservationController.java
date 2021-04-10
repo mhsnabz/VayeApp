@@ -188,7 +188,6 @@ public class ConservationController extends AppCompatActivity implements Message
                 if (!CheckPermissions()) {
                     RequestPermissions();
                 } else {
-
                     try {
                         Helper.shared().RecorderBottomSheet(ConservationController.this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp", new RecordedAudioCallback() {
                             @Override
