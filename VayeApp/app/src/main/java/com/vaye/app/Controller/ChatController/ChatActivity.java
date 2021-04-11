@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
@@ -52,7 +53,9 @@ public class ChatActivity extends AppCompatActivity {
     TextView sohbetlerLbl , arkadaslarLbl , isteklerLbl;
     RelativeLayout line1,line2,line3;
     ChatViewPagerAdapter adapter;
-
+    QBadgeView sohbetBadge =null;
+    QBadgeView arkadasBadge = null;
+    QBadgeView istekBadge = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +80,14 @@ public class ChatActivity extends AppCompatActivity {
             friendListFragment.setArguments(bundle);
             RequestListFragment requestListFragment = new RequestListFragment();
             requestListFragment.setArguments(bundle);
+
+          sohbetBadge = (QBadgeView) new QBadgeView(ChatActivity.this);
+          sohbetBadge.bindTarget(findViewById(R.id.text1));
+          arkadasBadge = (QBadgeView) new QBadgeView(ChatActivity.this);
+          arkadasBadge.bindTarget(findViewById(R.id.text2));
+          istekBadge = (QBadgeView) new QBadgeView(ChatActivity.this);
+          istekBadge.bindTarget(findViewById(R.id.text3));
+
         }
 
     }
@@ -137,7 +148,6 @@ public class ChatActivity extends AppCompatActivity {
 
 
     private void setBadgeCount(){
-        new QBadgeView(ChatActivity.this).bindTarget(sohbetlerLbl).setBadgeGravity(Gravity.CENTER | Gravity.START).setBadgeNumber(5);
 
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
@@ -163,9 +173,12 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (value.isEmpty()){
-
+                    sohbetBadge.hide(true);
                 }else{
-
+                    if (value.getDocuments() != null){
+                        sohbetBadge.setBadgeTextSize(14,true).setBadgePadding(7,true)
+                                .setBadgeBackgroundColor(Color.RED).setBadgeNumber(value.getDocuments().size());
+                    }
                 }
             }
         });
@@ -239,6 +252,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        getMessagesBadgeCount();
         if (currentUser!=null){
             setView(currentUser);
         }else{
