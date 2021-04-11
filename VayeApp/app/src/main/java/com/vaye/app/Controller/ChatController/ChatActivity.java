@@ -156,6 +156,20 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+    private void getMessagesBadgeCount(){
+        Query ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
+                .collection("msg-list").whereGreaterThan("badgeCount",0);
+        ref.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()){
+
+                }else{
+
+                }
+            }
+        });
+    }
 
     private void changeTabs(int positon){
         if (positon == 0){

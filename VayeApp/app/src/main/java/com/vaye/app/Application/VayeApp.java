@@ -42,10 +42,6 @@ public class VayeApp  extends Application {
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
-
-
-
-
         FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -72,7 +68,6 @@ public class VayeApp  extends Application {
                             }
                         }
                     });
-
 
                 }
             }
