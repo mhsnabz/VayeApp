@@ -481,7 +481,7 @@ public class ConservationController extends AppCompatActivity implements Message
         Map<String, Object> map = new HashMap<>();
         map.put("isOnline", false);
         map.put("badgeCount", 0);
-        setCurrentUserOnline.set(map, SetOptions.merge());
+        setCurrentUserOnline.update(map);
         Log.d(TAG, "onStop: onStop");
     }
 
@@ -531,9 +531,36 @@ public class ConservationController extends AppCompatActivity implements Message
                     @Override
                     public void callBack(Boolean _value) {
                         if (_value){
-                            finish();
-                            Helper.shared().back(ConservationController.this);
-                            WaitDialog.dismiss();
+                            MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (!_value){
+                                        Log.d(TAG, "removeChat: " + "other user has not chat");
+                                        MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                finish();
+                                                Helper.shared().back(ConservationController.this);
+                                                WaitDialog.dismiss();
+                                            }
+                                        });
+
+
+                                    }else{
+                                        Log.d(TAG, "removeChat: " + "other user has  chat");
+                                        MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                finish();
+                                                Helper.shared().back(ConservationController.this);
+                                                WaitDialog.dismiss();
+                                            }
+                                        });
+
+                                    }
+                                }
+                            });
+                          ;
                         }
                     }
                 });

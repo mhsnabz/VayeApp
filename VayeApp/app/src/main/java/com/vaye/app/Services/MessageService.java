@@ -439,26 +439,18 @@ public class MessageService {
 
     public void  removeChat(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
 
-        checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
-            @Override
-            public void callBack(Boolean _value) {
-                if (!_value){
-                    removeAllStorage(currentUser,otherUser);
-                    callback.callBack(true);
-
-                }else{
-                    removeMessages(currentUser,otherUser);
-                    callback.callBack(true);
-                }
-            }
-        });
         DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("msg-list").document(otherUser.getUid());
-        reference.delete();
+        reference.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                callback.callBack(true);
+            }
+        });
     }
 
-    private void removeMessages(CurrentUser currentUser , OtherUser otherUser ){
+    public void removeMessages(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback ){
         CollectionReference ref = FirebaseFirestore.getInstance().collection("messages")
                 .document(currentUser.getUid())
                 .collection(otherUser.getUid());
@@ -474,14 +466,15 @@ public class MessageService {
                                 ref.document(item.getId()).delete();
                             }
                         }
-
+                        Log.d(TAG, "removeChat: " + "remove chat");
+                        callback.callBack(true);
                     }
                 }
             }
         });
     }
 
-    private void checkChatIsExistOnOtherUser(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+    public void checkChatIsExistOnOtherUser(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
         CollectionReference reference = FirebaseFirestore.getInstance().collection("messages")
                 .document(otherUser.getUid())
                 .collection(currentUser.getUid());
@@ -498,24 +491,31 @@ public class MessageService {
             }
         });
     }
-    private void removeAllStorage(CurrentUser currentUser , OtherUser otherUser){
+    public void removeAllStorage(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
         FirebaseStorage urlReference = FirebaseStorage.getInstance();
         Query reference = FirebaseFirestore.getInstance().collection("messages")
-                .document(otherUser.getUid())
-                .collection(currentUser.getUid()).whereNotEqualTo("type","text");
+                .document(currentUser.getUid())
+                .collection(otherUser.getUid());
         reference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
                     if (task.getResult().getDocuments().isEmpty()){
+                        callback.callBack(true);
                         return;
                     }else{
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            if (item.getString("content") != null && !item.getString("content").isEmpty()){
+                            if (!item.getString("type").equals("location")&&!item.getString("type").equals("text")&&item.getString("content") != null && !item.getString("content").isEmpty()){
                                 urlReference.getReferenceFromUrl(item.getString("content")).delete();
                             }
                         }
-                        removeMessages(currentUser,otherUser);
+                        Log.d(TAG, "removeChat: " + "remove storage");
+                        removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                callback.callBack(true);
+                            }
+                        });
                     }
                 }
             }

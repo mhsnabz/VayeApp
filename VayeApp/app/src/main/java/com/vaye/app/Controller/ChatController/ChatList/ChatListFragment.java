@@ -42,7 +42,7 @@ public class ChatListFragment extends Fragment {
     RecyclerView list;
     ArrayList<ChatListModel> chatListModels;
     ChatListAdapter adapter;
-    private ListenerRegistration registration;
+
     Activity activity;
 
 
@@ -64,6 +64,7 @@ public class ChatListFragment extends Fragment {
         currentUser = activity.getIntent().getParcelableExtra("currentUser");
         configureUI();
 
+        getMsgList();
         return rootView;
     }
 
@@ -72,7 +73,7 @@ public class ChatListFragment extends Fragment {
         Query db =  FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("msg-list");
-          registration = db.addSnapshotListener( new EventListener<QuerySnapshot>() {
+           db.addSnapshotListener((ChatActivity)getActivity(), new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (!value.isEmpty()){
@@ -124,8 +125,14 @@ public class ChatListFragment extends Fragment {
                                            return obj2.getTime().compareTo(obj1.getTime());
                                        }
                                    });
-                                    chatListModels.remove(chatListModels.indexOf(item.getDocument().getString("uid")));
-                                    adapter.notifyItemRemoved(chatListModels.indexOf(item.getDocument().getString("uid")));
+
+                                   for (int i = 0 ; i < chatListModels.size() ; i++){
+                                       if (chatListModels.get(i).getUid().equals(item.getDocument().getString("uid"))){
+                                           chatListModels.remove(i);
+                                           adapter.notifyItemRemoved(i);
+                                       }
+                                   }
+
                                }
                            }
                         }
@@ -147,7 +154,7 @@ public class ChatListFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        registration.remove();
+
         Log.d(TAG, "onDestroy: " + "on destroy");
 
     }
@@ -155,6 +162,6 @@ public class ChatListFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        getMsgList();
+
     }
 }
