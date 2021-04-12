@@ -537,7 +537,7 @@ public class ConservationController extends AppCompatActivity implements Message
                         }
                     }
                 });
-                Toast.makeText(ConservationController.this,"Delete Chat",Toast.LENGTH_SHORT).show();
+
             }
             else if (target !=null && target.equals(CompletionWithValue.remove_from_friend_list)){
                 Toast.makeText(ConservationController.this,"remove_from_friend_list",Toast.LENGTH_SHORT).show();

@@ -24,6 +24,8 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
@@ -436,7 +438,88 @@ public class MessageService {
 
 
     public void  removeChat(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
-        callback.callBack(true);
+
+        checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (!_value){
+                    removeAllStorage(currentUser,otherUser);
+                    callback.callBack(true);
+
+                }else{
+                    removeMessages(currentUser,otherUser);
+                    callback.callBack(true);
+                }
+            }
+        });
+        DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("msg-list").document(otherUser.getUid());
+        reference.delete();
     }
 
+    private void removeMessages(CurrentUser currentUser , OtherUser otherUser ){
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("messages")
+                .document(currentUser.getUid())
+                .collection(otherUser.getUid());
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments().isEmpty()){
+                        return;
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            if (item.exists()){
+                                ref.document(item.getId()).delete();
+                            }
+                        }
+
+                    }
+                }
+            }
+        });
+    }
+
+    private void checkChatIsExistOnOtherUser(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("messages")
+                .document(otherUser.getUid())
+                .collection(currentUser.getUid());
+        reference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments().isEmpty()){
+                        callback.callBack(false);
+                    }else{
+                        callback.callBack(true);
+                    }
+                }
+            }
+        });
+    }
+    private void removeAllStorage(CurrentUser currentUser , OtherUser otherUser){
+        FirebaseStorage urlReference = FirebaseStorage.getInstance();
+        Query reference = FirebaseFirestore.getInstance().collection("messages")
+                .document(otherUser.getUid())
+                .collection(currentUser.getUid()).whereNotEqualTo("type","text");
+        reference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments().isEmpty()){
+                        return;
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            if (item.getString("content") != null && !item.getString("content").isEmpty()){
+                                urlReference.getReferenceFromUrl(item.getString("content")).delete();
+                            }
+                        }
+                        removeMessages(currentUser,otherUser);
+                    }
+                }
+            }
+        });
+
+    }
 }

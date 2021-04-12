@@ -63,7 +63,7 @@ public class ChatListFragment extends Fragment {
         ChatActivity activity = (ChatActivity) getActivity();
         currentUser = activity.getIntent().getParcelableExtra("currentUser");
         configureUI();
-        getMsgList();
+
         return rootView;
     }
 
@@ -123,7 +123,6 @@ public class ChatListFragment extends Fragment {
                                        public int compare(ChatListModel obj1, ChatListModel obj2) {
                                            return obj2.getTime().compareTo(obj1.getTime());
                                        }
-
                                    });
                                     chatListModels.remove(chatListModels.indexOf(item.getDocument().getString("uid")));
                                     adapter.notifyItemRemoved(chatListModels.indexOf(item.getDocument().getString("uid")));
@@ -151,5 +150,11 @@ public class ChatListFragment extends Fragment {
         registration.remove();
         Log.d(TAG, "onDestroy: " + "on destroy");
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getMsgList();
     }
 }

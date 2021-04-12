@@ -9,6 +9,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,6 +46,7 @@ import com.vaye.app.Util.Helper;
 import q.rorbin.badgeview.QBadgeView;
 
 public class ChatActivity extends AppCompatActivity {
+    String TAG = "ChatActivity";
     CurrentUser currentUser;
     ViewPager viewPager;
     Toolbar toolbar;
@@ -69,7 +71,7 @@ public class ChatActivity extends AppCompatActivity {
             setToolbar();
             setView(currentUser);
             setTabBar();
-            setBadgeCount();
+
 
             Bundle bundle = new Bundle();
             bundle.putParcelable("currentUser",intentIncoming.getParcelableExtra("currentUser"));
@@ -144,28 +146,6 @@ public class ChatActivity extends AppCompatActivity {
 
 
     }
-
-
-
-    private void setBadgeCount(){
-
-        Query db = FirebaseFirestore.getInstance().collection("user")
-                .document(currentUser.getUid())
-                .collection("msg-request").whereGreaterThan("badgeCount",0);
-
-        db.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if (value.isEmpty()){
-                      //  requestCount.hide(true);
-                    }else{
-                        //requestCount.bindTarget(isteklerLbl).setBadgeGravity(Gravity.CENTER | Gravity.START).setBadgeNumber(value.getDocuments().size());
-                    }
-             }
-        });
-
-    }
-
     private void getMessagesBadgeCount(){
         Query ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
                 .collection("msg-list").whereGreaterThan("badgeCount",0);
@@ -174,10 +154,13 @@ public class ChatActivity extends AppCompatActivity {
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (value.isEmpty()){
                     sohbetBadge.hide(true);
+                    Log.d(TAG, "sohbetBadge: empty ");
                 }else{
                     if (value.getDocuments() != null){
-                        sohbetBadge.setBadgeTextSize(14,true).setBadgePadding(7,true)
+
+                        sohbetBadge.setBadgeTextSize(8,true).setBadgePadding(7,true).setBadgeGravity(Gravity.CENTER | Gravity.START)
                                 .setBadgeBackgroundColor(Color.RED).setBadgeNumber(value.getDocuments().size());
+                        Log.d(TAG, "sohbetBadge: is " + value.getDocuments().size());
                     }
                 }
             }
