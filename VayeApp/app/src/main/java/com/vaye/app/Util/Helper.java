@@ -601,7 +601,7 @@ public class Helper {
         bottomSheetDialog.show();
     }
 
-    public void MessageOptionsBottomSheetLauncaher(Activity activity , CurrentUser currentUser , OtherUser otherUser ){
+    public void MessageOptionsBottomSheetLauncaher(String target,Activity activity , CurrentUser currentUser , OtherUser otherUser ){
         RecyclerView recyclerView;
         CardView headerView;
         Button cancel;
@@ -609,21 +609,28 @@ public class Helper {
         View view = LayoutInflater.from(activity.getApplicationContext())
                 .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
-
         ArrayList<String > items = new ArrayList<>();
-        items.add(BottomSheetActionTarget.delete_conservation);
-        items.add(BottomSheetActionTarget.remove_from_friendList);
-
-        items.add(BottomSheetActionTarget.report_chat_friend);
         ArrayList<Integer> res = new ArrayList<>();
-        res.add(R.drawable.trash);
-        res.add(R.drawable.dismis);
+        if (target.equals(BottomSheetTarget.request_conservation_options)){
+            items.add(BottomSheetActionTarget.delete_conservation);
+            items.add(BottomSheetActionTarget.report_chat_friend);
+            res.add(R.drawable.trash);
+            res.add(R.drawable.red_report);
 
-        res.add(R.drawable.red_report);
+        }else{
+            items.add(BottomSheetActionTarget.delete_conservation);
+            items.add(BottomSheetActionTarget.remove_from_friendList);
+            items.add(BottomSheetActionTarget.report_chat_friend);
+            res.add(R.drawable.trash);
+            res.add(R.drawable.dismis);
+            res.add(R.drawable.red_report);
+
+        }
+
         headerView = (CardView)view.findViewById(R.id.header);
         headerView.setVisibility(View.GONE);
 
-        BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.conservation_options,res);
+        BottomSheetModel model = new BottomSheetModel(items, target,res);
 
 
         ChatOptionAdapter adapter = new ChatOptionAdapter(currentUser,model,bottomSheetDialog,otherUser,activity);

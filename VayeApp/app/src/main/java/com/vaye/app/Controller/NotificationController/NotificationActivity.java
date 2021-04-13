@@ -193,6 +193,7 @@ public class NotificationActivity extends AppCompatActivity {
                 if (task.isSuccessful()){
                     if (task.getResult().isEmpty()){
                         swipeRefreshLayout.setRefreshing(false);
+                        progressBar.setVisibility(View.GONE);
                     }else{
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
 

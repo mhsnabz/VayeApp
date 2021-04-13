@@ -106,6 +106,7 @@ import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MessageService;
 import com.vaye.app.Services.UserService;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
@@ -300,7 +301,7 @@ public class ConservationController extends AppCompatActivity implements Message
         options.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              Helper.shared().MessageOptionsBottomSheetLauncaher(ConservationController.this, currentUser, otherUser);
+              Helper.shared().MessageOptionsBottomSheetLauncaher(BottomSheetTarget.conservation_options,ConservationController.this, currentUser, otherUser);
             }
         });
 

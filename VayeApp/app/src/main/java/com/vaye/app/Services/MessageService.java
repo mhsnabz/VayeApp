@@ -474,6 +474,17 @@ public class MessageService {
             }
         });
     }
+    public void removeRequest(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+        DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("msg-request").document(otherUser.getUid());
+        reference.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                callback.callBack(true);
+            }
+        });
+    }
 
     public void removeMessages(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback ){
         CollectionReference ref = FirebaseFirestore.getInstance().collection("messages")

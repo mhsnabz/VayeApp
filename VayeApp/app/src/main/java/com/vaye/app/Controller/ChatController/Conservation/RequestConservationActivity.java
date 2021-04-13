@@ -4,13 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -44,6 +47,9 @@ import com.google.rpc.Help;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.ReportController.ReportActivity;
+import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
@@ -51,6 +57,8 @@ import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MessageService;
 import com.vaye.app.Services.UserService;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
+import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 
 import java.io.File;
@@ -83,6 +91,7 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_request_conservation);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("media_item_target"));
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null) {
@@ -139,7 +148,7 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
         options.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Helper.shared().MessageOptionsBottomSheetLauncaher(RequestConservationActivity.this, currentUser, otherUser);
+                Helper.shared().MessageOptionsBottomSheetLauncaher(BottomSheetTarget.request_conservation_options,RequestConservationActivity.this, currentUser, otherUser);
             }
         });
 
@@ -290,7 +299,7 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
     protected void onStart() {
         super.onStart();
         getAllMessages();
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("media_item_target"));
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid());
         ref.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
@@ -629,8 +638,43 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    finish();
-                    Helper.shared().back(RequestConservationActivity.this);
+                    MessageService.shared().removeRequest(currentUser, otherUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (!_value){
+                                            Log.d(TAG, "removeChat: " + "other user has not chat");
+                                            MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    finish();
+                                                    Helper.shared().back(RequestConservationActivity.this);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+
+
+                                        }else{
+                                            Log.d(TAG, "removeChat: " + "other user has  chat");
+                                            MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    finish();
+                                                    Helper.shared().back(RequestConservationActivity.this);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+
+                                        }
+                                    }
+                                });
+                                ;
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -706,4 +750,72 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
         });
 
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+    }
+
+    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String target = intent.getStringExtra("target");
+            Log.d(TAG, "onReceive: " + target);
+          if (target !=null && target.equals(CompletionWithValue.remove_chat)){
+                WaitDialog.show(RequestConservationActivity.this,"İstek Siliniyor");
+                MessageService.shared().removeRequest(currentUser, otherUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (!_value){
+                                        Log.d(TAG, "removeChat: " + "other user has not chat");
+                                        MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                finish();
+                                                Helper.shared().back(RequestConservationActivity.this);
+                                                WaitDialog.dismiss();
+                                            }
+                                        });
+
+
+                                    }else{
+                                        Log.d(TAG, "removeChat: " + "other user has  chat");
+                                        MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                finish();
+                                                Helper.shared().back(RequestConservationActivity.this);
+                                                WaitDialog.dismiss();
+                                            }
+                                        });
+
+                                    }
+                                }
+                            });
+                            ;
+                        }
+                    }
+                });
+
+            }
+
+
+            else if (target !=null && target.equals(CompletionWithValue.report_chat_user)){
+                Intent i = new Intent(RequestConservationActivity.this , ReportActivity.class);
+                i.putExtra("otherUser",otherUser.getUid());
+                i.putExtra("target", Report.ReportTarget.reportMessages);
+                i.putExtra("reportType", Report.ReportType.reportUser);
+                i.putExtra("currentUser",currentUser);
+                startActivity(i);
+                Helper.shared().go(RequestConservationActivity.this);
+
+            }
+        }
+    };
 }
