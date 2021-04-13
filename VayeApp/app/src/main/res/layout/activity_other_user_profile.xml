@@ -57,17 +57,18 @@
                             android:layout_centerInParent="true"
                             ></ProgressBar>
                     </RelativeLayout>
+
                     <ImageButton
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
                         android:id="@+id/sendMsg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:layout_toEndOf="@id/profileImageLayout"
+                        android:layout_marginStart="33dp"
                         android:layout_marginLeft="20dp"
+                        android:layout_toEndOf="@id/profileImageLayout"
                         android:background="@android:color/transparent"
-                        android:src="@drawable/send_msg"
                         android:onClick="sendMsg"
-                        ></ImageButton>
+                        android:src="@drawable/send_msg"></ImageButton>
                     <Button
                         android:id="@+id/followButton"
                         android:layout_centerVertical="true"

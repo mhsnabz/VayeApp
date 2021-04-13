@@ -177,9 +177,9 @@ public class ConservationController extends AppCompatActivity implements Message
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conservation_controller);
-        filename = Environment.getExternalStorageDirectory().getAbsolutePath();
+      /*  filename = Environment.getExternalStorageDirectory().getAbsolutePath();
         fileName += "/" + String.valueOf(Calendar.getInstance().getTimeInMillis()) + ".3gp";
-        ;
+        ;*/
         mediaLayout = (LinearLayout) findViewById(R.id.mediaLayout);
         mediaLayout.setVisibility(View.VISIBLE);
         sendButton = (ImageButton) findViewById(R.id.send);

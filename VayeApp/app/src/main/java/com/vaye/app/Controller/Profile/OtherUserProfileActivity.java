@@ -36,6 +36,7 @@ import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.ChatController.Conservation.ConservationController;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.MajorPostFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.SchoolFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.VayeAppFragment;
@@ -43,7 +44,9 @@ import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherU
 import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserSchoolFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.OtherUserFragment.OtherUserVayeAppFragment;
 import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
@@ -625,6 +628,43 @@ public class OtherUserProfileActivity extends AppCompatActivity {
     }
 
     public void sendMsg(View view) {
+        WaitDialog.show(OtherUserProfileActivity.this,null);
+        UserService.shared().getCurrentUser(currentUser.getUid(), new CurrentUserService() {
+            @Override
+            public void onCallback(CurrentUser currentUser) {
+                if (currentUser!=null){
+                    UserService.shared().getOtherUserById(otherUser.getUid(), new OtherUserService() {
+                        @Override
+                        public void callback(OtherUser otherUser) {
+                            if (otherUser!=null){
+                                if (otherUser.getFriendList().contains(currentUser.getUid())){
+                                    Intent i = new Intent(OtherUserProfileActivity.this, ConservationController.class);
+                                    i.putExtra("currentUser",currentUser);
+                                    i.putExtra("otherUser",otherUser);
+                                    startActivity(i);
+                                    Helper.shared().go(OtherUserProfileActivity.this);
+                                    WaitDialog.dismiss();
+                                }else{
+                                    if (otherUser.getAllowRequest()){
+                                        Intent i = new Intent(OtherUserProfileActivity.this, ConservationController.class);
+                                        i.putExtra("currentUser",currentUser);
+                                        i.putExtra("otherUser",otherUser);
+                                        startActivity(i);
+                                        Helper.shared().go(OtherUserProfileActivity.this);
+                                        WaitDialog.dismiss();
+                                    }else{
+                                        WaitDialog.dismiss();
+                                        TipDialog.show(OtherUserProfileActivity.this,"Kullanıcı Mesaj İsteklerine Kapalu", TipDialog.TYPE.ERROR);
+                                        TipDialog.dismiss(1000);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
 
     }
 
