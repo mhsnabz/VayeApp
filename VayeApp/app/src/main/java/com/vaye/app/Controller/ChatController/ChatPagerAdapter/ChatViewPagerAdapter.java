@@ -9,7 +9,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.vaye.app.Controller.ChatController.ChatList.ChatListFragment;
 import com.vaye.app.Controller.ChatController.FriendList.FriendListFragment;
-import com.vaye.app.Controller.ChatController.RequestListFragment;
+import com.vaye.app.Controller.ChatController.RequestList.RequestListFragment;
 import com.vaye.app.Model.CurrentUser;
 
 public class ChatViewPagerAdapter extends FragmentPagerAdapter {

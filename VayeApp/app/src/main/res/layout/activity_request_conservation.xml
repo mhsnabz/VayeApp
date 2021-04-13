@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Controller.ChatController.Conservation.RequestConservationActivity">
+    <include layout="@layout/messages_toolbar" android:id="@+id/toolbar"></include>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeAndRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottombar"
+        android:layout_below="@id/toolbar">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:id="@+id/msgList"
+            android:nestedScrollingEnabled="true"
+            android:layout_height="wrap_content">
+        </androidx.recyclerview.widget.RecyclerView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <RelativeLayout
+        android:layout_alignParentBottom="true"
+        android:id="@+id/bottombar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/darker_gray"
+            ></RelativeLayout>
+        <TextView
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:id="@+id/text"
+            android:fontFamily="@font/nunito_semibold"
+            android:textSize="12sp"
+
+            ></TextView>
+        <LinearLayout
+            android:weightSum="2"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp"
+            android:layout_below="@id/text"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+            <Button
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:layout_width="match_parent"
+                android:textColor="@android:color/darker_gray"
+                android:textStyle="bold"
+                android:text="KABUL ET"
+                android:layout_height="match_parent">
+
+            </Button>
+            <RelativeLayout
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <RelativeLayout
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginBottom="2dp"
+                    android:layout_margin="2dp"
+                    android:background="@android:color/darker_gray"
+                    ></RelativeLayout>
+                <Button
+                    android:textColor="@android:color/holo_red_light"
+                    android:text="SİL"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/nunito_semibold"
+                    android:textSize="16sp"
+
+                    android:background="@android:color/transparent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                </Button>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,6 +26,8 @@ import com.vaye.app.Model.FriendListModel;
 import com.vaye.app.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class FriendListFragment extends Fragment {
 
@@ -68,17 +72,38 @@ public class FriendListFragment extends Fragment {
     }
 
     private void getFriendList(){
-        Query db = FirebaseFirestore.getInstance().collection("user")
+        CollectionReference db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
-                .collection("friend-list").orderBy("tarih", Query.Direction.ASCENDING);
+                .collection("friend-list");
              db.addSnapshotListener((ChatActivity) getActivity(),new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (!value.isEmpty()){
                     for (DocumentChange item : value.getDocumentChanges()){
                         if (item.getType().equals(DocumentChange.Type.ADDED)){
-                            friendList.add(item.getDocument().toObject(FriendListModel.class));
-                            adapter.notifyDataSetChanged();
+                            if (friendList.isEmpty() || friendList.size() == 0 ){
+                                friendList.add(item.getDocument().toObject(FriendListModel.class));
+                                adapter.notifyDataSetChanged();
+                            }else {
+                                for (int i = 0 ; i < friendList.size() ; i++){
+                                    if (!friendList.get(i).getUid().equals(item.getDocument().getString("uid"))){
+                                            friendList.add(item.getDocument().toObject(FriendListModel.class));
+                                            adapter.notifyDataSetChanged();
+                                        }
+
+                                }
+                            }
+
+
+                            Collections.sort(friendList, new Comparator<FriendListModel>() {
+                                @Override
+                                public int compare(FriendListModel obj1, FriendListModel obj2) {
+                                        return obj2.getTarih().compareTo(obj1.getTarih());
+                                }
+                            });
+
+
+
                         }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
                             for (int i = 0 ; i < friendList.size() ; i++){
                                 if (friendList.get(i).getUid().equals(item.getDocument().getString("uid"))){
@@ -94,21 +119,4 @@ public class FriendListFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-    }
 }

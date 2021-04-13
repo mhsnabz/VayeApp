@@ -63,7 +63,6 @@ public class ChatListFragment extends Fragment {
         ChatActivity activity = (ChatActivity) getActivity();
         currentUser = activity.getIntent().getParcelableExtra("currentUser");
         configureUI();
-
         getMsgList();
         return rootView;
     }

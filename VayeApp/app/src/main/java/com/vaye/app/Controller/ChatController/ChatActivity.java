@@ -3,7 +3,6 @@ package com.vaye.app.Controller.ChatController;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
@@ -20,8 +19,6 @@ import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -30,18 +27,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.ChatController.ChatList.ChatListFragment;
 import com.vaye.app.Controller.ChatController.ChatPagerAdapter.ChatViewPagerAdapter;
 import com.vaye.app.Controller.ChatController.FriendList.FriendListFragment;
-import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
-import com.vaye.app.Controller.HomeController.HomeActivity;
-import com.vaye.app.Controller.HomeController.PagerAdapter.PagerViewApadater;
-import com.vaye.app.Controller.HomeController.School.SchoolFragment;
-import com.vaye.app.Controller.HomeController.School.SchoolPostNotificationActivity;
-import com.vaye.app.Controller.Profile.ProfileViewPager;
+import com.vaye.app.Controller.ChatController.RequestList.RequestListFragment;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomNavHelper;
-import com.vaye.app.Util.Helper;
 
 import q.rorbin.badgeview.QBadgeView;
 
@@ -166,6 +157,26 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+    private void getRequestBadgeCount(){
+        Query ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
+                .collection("msg-request").whereGreaterThan("badgeCount",0);
+        ref.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()){
+                    istekBadge.hide(true);
+                    Log.d(TAG, "sohbetBadge: empty ");
+                }else{
+                    if (value.getDocuments() != null){
+
+                        istekBadge.setBadgeTextSize(8,true).setBadgePadding(7,true).setBadgeGravity(Gravity.CENTER | Gravity.START)
+                                .setBadgeBackgroundColor(Color.RED).setBadgeNumber(value.getDocuments().size());
+                        Log.d(TAG, "sohbetBadge: is " + value.getDocuments().size());
+                    }
+                }
+            }
+        });
+    }
 
     private void changeTabs(int positon){
         if (positon == 0){
@@ -236,6 +247,7 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         getMessagesBadgeCount();
+        getRequestBadgeCount();
         if (currentUser!=null){
             setView(currentUser);
         }else{
