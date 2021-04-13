@@ -1,6 +1,8 @@
 package com.vaye.app.Controller.ChatController.FriendList;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +12,21 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.ChatController.ChatList.ChatListAdapter;
+import com.vaye.app.Controller.ChatController.Conservation.ConservationController;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.FriendListModel;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
+import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 
@@ -50,6 +59,25 @@ public class FriendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         friendListViewHolder.setname(model.getName(),model.getUserName());
         friendListViewHolder.setProfileImage(model.getThumb_image());
         friendListViewHolder.setSchool(model.getShort_school(),model.getBolum());
+        friendListViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WaitDialog.show((AppCompatActivity)context,null);
+                UserService.shared().getOtherUserById(model.getUid(), new OtherUserService() {
+                    @Override
+                    public void callback(OtherUser user) {
+                        if (user!=null){
+                            Intent i = new Intent(context, ConservationController.class);
+                            i.putExtra("currentUser",currentUser);
+                            i.putExtra("otherUser",user);
+                            context.startActivity(i);
+                            Helper.shared().go((Activity)context);
+                            WaitDialog.dismiss();
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override

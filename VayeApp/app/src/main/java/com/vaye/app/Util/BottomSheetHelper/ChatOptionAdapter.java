@@ -65,14 +65,7 @@ public class ChatOptionAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                 }
-                else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.make_chat_slient)){
-                    dialog.dismiss();
-                    Intent intent = new Intent("media_item_target");
 
-                    intent.putExtra("target", CompletionWithValue.make_slient_chat_friend);
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-                }
                 else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.delete_conservation)){
                     dialog.dismiss();
                     Intent intent = new Intent("media_item_target");

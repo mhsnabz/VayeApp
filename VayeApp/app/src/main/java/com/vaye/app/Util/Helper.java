@@ -613,12 +613,12 @@ public class Helper {
         ArrayList<String > items = new ArrayList<>();
         items.add(BottomSheetActionTarget.delete_conservation);
         items.add(BottomSheetActionTarget.remove_from_friendList);
-        items.add(BottomSheetActionTarget.make_chat_slient);
+
         items.add(BottomSheetActionTarget.report_chat_friend);
         ArrayList<Integer> res = new ArrayList<>();
         res.add(R.drawable.trash);
         res.add(R.drawable.dismis);
-        res.add(R.drawable.slient);
+
         res.add(R.drawable.red_report);
         headerView = (CardView)view.findViewById(R.id.header);
         headerView.setVisibility(View.GONE);

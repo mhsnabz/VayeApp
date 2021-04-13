@@ -33,7 +33,7 @@ public class FriendListFragment extends Fragment {
     View rootView;
     FriendListAdapter adapter;
     ArrayList<FriendListModel> friendList = new ArrayList<>();
-    ListenerRegistration registration;
+
 
 
     public FriendListFragment() {
@@ -54,6 +54,7 @@ public class FriendListFragment extends Fragment {
         ChatActivity activity = (ChatActivity) getActivity();
         currentUser = activity.getIntent().getParcelableExtra("currentUser");
         configureUI();
+        getFriendList();
         return rootView;
     }
 
@@ -70,7 +71,7 @@ public class FriendListFragment extends Fragment {
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("friend-list").orderBy("tarih", Query.Direction.ASCENDING);
-      registration =   db.addSnapshotListener(new EventListener<QuerySnapshot>() {
+             db.addSnapshotListener((ChatActivity) getActivity(),new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (!value.isEmpty()){
@@ -79,8 +80,13 @@ public class FriendListFragment extends Fragment {
                             friendList.add(item.getDocument().toObject(FriendListModel.class));
                             adapter.notifyDataSetChanged();
                         }else if (item.getType().equals(DocumentChange.Type.REMOVED)){
-                            friendList.remove(friendList.indexOf(item.getDocument().toObject(FriendListModel.class)));
-                            adapter.notifyItemRemoved(friendList.indexOf(item.getDocument().toObject(FriendListModel.class)));
+                            for (int i = 0 ; i < friendList.size() ; i++){
+                                if (friendList.get(i).getUid().equals(item.getDocument().getString("uid"))){
+                                    friendList.remove(i);
+                                    adapter.notifyItemRemoved(i);
+                                }
+                            }
+
                         }
                     }
                 }
@@ -91,18 +97,18 @@ public class FriendListFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        getFriendList();
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        registration.remove();
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        registration.remove();
+
     }
 }

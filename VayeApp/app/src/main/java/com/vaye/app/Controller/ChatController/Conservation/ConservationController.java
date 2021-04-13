@@ -2,6 +2,7 @@ package com.vaye.app.Controller.ChatController.Conservation;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -18,6 +19,7 @@ import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -35,6 +37,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -72,17 +75,26 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.google.rpc.Help;
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
+import com.vaye.app.Controller.MapsController.VayeAppPlacePickerActivity;
+import com.vaye.app.Controller.ReportController.ReportActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
 import com.vaye.app.FCM.MessagingService;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.LocationCallback;
 import com.vaye.app.Interfaces.RecordedAudioCallback;
+import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Interfaces.SavedAudioFileUrl;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -93,9 +105,11 @@ import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MessageService;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
+import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.io.File;
@@ -241,7 +255,7 @@ public class ConservationController extends AppCompatActivity implements Message
                 }
             });
         }
-
+        targetChooser();
     }
 
     private void targetChooser() {
@@ -249,7 +263,7 @@ public class ConservationController extends AppCompatActivity implements Message
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("media_item_target"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocaitonReciver, new IntentFilter("locaiton_manager"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocaitonReciver, new IntentFilter("chat_option"));
-
+        Log.d(TAG, "targetChooser: " + "Broadcast register");
     }
 
     private void setToolbar(OtherUser otherUser) {
@@ -428,7 +442,7 @@ public class ConservationController extends AppCompatActivity implements Message
     protected void onStart() {
         super.onStart();
         getAllMessages();
-        targetChooser();
+
 
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid());
@@ -469,6 +483,42 @@ public class ConservationController extends AppCompatActivity implements Message
 
         scrollRecyclerViewToBottom(list);
 
+
+
+        Dexter.withActivity(ConservationController.this)
+                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                        if (permissionDeniedResponse.isPermanentlyDenied()){
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ConservationController.this);
+                            builder.setTitle("İzin Vermediniz")
+                                    .setMessage("Dosyalarınıza Erişebilmemiz İçin İzin Vermeniz Gerekiyor")
+                                    .setNegativeButton("Vazgeç",null)
+                                    .setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            Intent intent = new Intent();
+                                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                            intent.setData(Uri.fromParts("package",getPackageName(),null));
+
+                                        }
+                                    }).show();
+                        }else{
+                            Toast.makeText(ConservationController.this,"Izın Verildi",Toast.LENGTH_SHORT).show();;
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                        permissionToken.continuePermissionRequest();
+                    }
+                }).check();
     }
 
     @Override
@@ -489,6 +539,10 @@ public class ConservationController extends AppCompatActivity implements Message
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onStop: onPause");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocaitonReciver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocaitonReciver);
+        Log.d(TAG, "targetChooser: " + "Broadcast unregisterReceiver");
 
     }
 
@@ -496,7 +550,7 @@ public class ConservationController extends AppCompatActivity implements Message
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onStop: onResume");
-
+        targetChooser();
 
     }
 
@@ -567,13 +621,63 @@ public class ConservationController extends AppCompatActivity implements Message
 
             }
             else if (target !=null && target.equals(CompletionWithValue.remove_from_friend_list)){
-                Toast.makeText(ConservationController.this,"remove_from_friend_list",Toast.LENGTH_SHORT).show();
+                WaitDialog.show(ConservationController.this , "Lütfen Bekleyin");
+                UserService.shared().removeFromFirendList(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            MessageService.shared().removeChat(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (!_value){
+                                                    Log.d(TAG, "removeChat: " + "other user has not chat");
+                                                    MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                        @Override
+                                                        public void callBack(Boolean _value) {
+                                                            finish();
+                                                            Helper.shared().back(ConservationController.this);
+                                                            WaitDialog.dismiss();
+                                                        }
+                                                    });
+
+
+                                                }else{
+                                                    Log.d(TAG, "removeChat: " + "other user has  chat");
+                                                    MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                        @Override
+                                                        public void callBack(Boolean _value) {
+                                                            finish();
+                                                            Helper.shared().back(ConservationController.this);
+                                                            WaitDialog.dismiss();
+                                                        }
+                                                    });
+
+                                                }
+                                            }
+                                        });
+                                        ;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             }
-            else if (target !=null && target.equals(CompletionWithValue.make_slient_chat_friend)){
-                Toast.makeText(ConservationController.this,"make_slient_chat_friend",Toast.LENGTH_SHORT).show();
-            }
+
             else if (target !=null && target.equals(CompletionWithValue.report_chat_user)){
-                Toast.makeText(ConservationController.this,"report_chat_user",Toast.LENGTH_SHORT).show();
+               Intent i = new Intent(ConservationController.this , ReportActivity.class);
+                i.putExtra("otherUser",otherUser.getUid());
+                i.putExtra("target", Report.ReportTarget.reportMessages);
+                i.putExtra("reportType", Report.ReportType.reportUser);
+                i.putExtra("currentUser",currentUser);
+                startActivity(i);
+                Helper.shared().go(ConservationController.this);
+
             }
         }
     };
@@ -589,6 +693,15 @@ public class ConservationController extends AppCompatActivity implements Message
     }
 
     private void sendDocument() {
+        if (!checkGalleryPermissions()) {
+            requestStoragePermission();
+        } else {
+            Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+            intent4.putExtra(Constant.MAX_NUMBER, 1);
+            intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] { "doc", "docx","pdf"});
+            startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+        }
+
 
     }
 
@@ -650,6 +763,9 @@ public class ConservationController extends AppCompatActivity implements Message
         return result;
     }
 
+
+
+
     private void requestStoragePermission() {
         ActivityCompat.requestPermissions(this, storagePermission, gallery_request);
 
@@ -660,6 +776,7 @@ public class ConservationController extends AppCompatActivity implements Message
         intent1.putExtra(IS_NEED_CAMERA, false);
         intent1.putExtra(Constant.MAX_NUMBER, 1);
         startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+
     }
 
 
@@ -694,6 +811,11 @@ public class ConservationController extends AppCompatActivity implements Message
                     });
                 }
                 break;
+            case Constant.REQUEST_CODE_PICK_FILE:
+                if (requestCode == RESULT_OK){
+                    Log.d(TAG, "onActivityResult: " + data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE).get(0));
+
+                }
 
         }
     }
