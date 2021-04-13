@@ -226,19 +226,24 @@ public class ChatActivity extends AppCompatActivity {
         sohbetlerLbl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                viewPager.setCurrentItem(0);
                 changeTabs(0);
             }
         });
         arkadaslarLbl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 changeTabs(1);
+                viewPager.setCurrentItem(1);
             }
         });
         isteklerLbl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 changeTabs(2);
+                viewPager.setCurrentItem(2);
             }
         });
     }
@@ -246,6 +251,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        viewPager.setCurrentItem(0);
         getMessagesBadgeCount();
         getRequestBadgeCount();
         if (currentUser!=null){

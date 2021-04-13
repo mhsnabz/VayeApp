@@ -94,6 +94,31 @@ public class MessageService {
 
     }
 
+ public void deleteRequestMessagesBadge(CurrentUser currentUser , OtherUser otherUser){
+        Log.d(TAG, "deleteBadge: start delete badge");
+
+        Query deleteBadgeDb = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("msg-request")
+                .document(otherUser.getUid()).collection("badgeCount").whereEqualTo("badge","badge");
+        CollectionReference dbc = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("msg-request")
+                .document(otherUser.getUid()).collection("badgeCount");
+        deleteBadgeDb.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (!task.getResult().getDocuments().isEmpty()){
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            Log.d(TAG, "onComplete: get badgeid" + item.getId());
+                            dbc.document(item.getId()).delete();
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     public void sendTextMsg(CurrentUser currentUser , OtherUser otherUser , String fileName,Boolean isOnline ,long time,GeoPoint geoPoint,int duration,Float width , Float heigth,String msg , String messageId , String type){
             if (currentUser.getFriendList().contains(otherUser.getUid())){

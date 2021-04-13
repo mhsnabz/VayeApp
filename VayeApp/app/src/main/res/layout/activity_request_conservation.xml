@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:id="@+id/text"
+            android:id="@+id/despcText"
             android:fontFamily="@font/nunito_semibold"
             android:textSize="12sp"
 
@@ -47,7 +47,7 @@
             android:weightSum="2"
             android:orientation="horizontal"
             android:layout_marginBottom="4dp"
-            android:layout_below="@id/text"
+            android:layout_below="@id/despcText"
             android:layout_width="match_parent"
             android:layout_height="50dp">
             <Button
@@ -58,6 +58,7 @@
                 android:textColor="@android:color/darker_gray"
                 android:textStyle="bold"
                 android:text="KABUL ET"
+                android:onClick="acceptRequest"
                 android:layout_height="match_parent">
 
             </Button>
@@ -75,6 +76,7 @@
                     android:background="@android:color/darker_gray"
                     ></RelativeLayout>
                 <Button
+                    android:onClick="deleteRequest"
                     android:textColor="@android:color/holo_red_light"
                     android:text="SİL"
                     android:textAllCaps="true"

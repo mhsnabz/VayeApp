@@ -724,4 +724,33 @@ public class UserService {
         map.put("username",currentUser.getUsername());
         ref.set(map , SetOptions.merge());
     }
+
+   public void  removeRequestBadgeCount (CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+       CollectionReference db = FirebaseFirestore.getInstance().collection("user")
+               .document(currentUser.getUid())
+               .collection("msg-request")
+               .document(otherUser.getUid())
+               .collection("badgeCount");
+       db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+           @Override
+           public void onComplete(@NonNull Task<QuerySnapshot> task) {
+               if (task.isSuccessful()){
+                   if (task.getResult().isEmpty()){
+                       callback.callBack(true);
+                       return;
+                   }else{
+                       if (task.getResult()!=null){
+                            for (DocumentSnapshot item : task.getResult().getDocuments()){
+                                db.document(item.getId()).delete();
+                            }
+                            callback.callBack(true);
+                       }else{
+                           callback.callBack(true);
+                           return;
+                       }
+                   }
+               }
+           }
+       });
+    }
 }
