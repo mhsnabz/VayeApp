@@ -121,21 +121,40 @@ public class LessonSettingService {
                                     getAllPost(currentUser, model.getLessonName(), activity, new StringArrayListInterface() {
                                         @Override
                                         public void getArrayList(ArrayList<String> list) {
-                                            addAllLessonId(list,model.getLessonName(), currentUser, new TrueFalse<Boolean>() {
-                                                @Override
-                                                public void callBack(Boolean _value) {
-                                                    if (_value){
-                                                        setNotificationGetter(currentUser, model.getLessonName(), new TrueFalse<Boolean>() {
-                                                            @Override
-                                                            public void callBack(Boolean _value) {
-                                                                TipDialog.show((AppCompatActivity) activity, "Ders Eklendi", TipDialog.TYPE.SUCCESS);
-                                                                TipDialog.dismiss(1500);
-                                                                callBack.callBack(true);
-                                                            }
-                                                        });
+                                            if (list.isEmpty()){
+                                                setNotificationGetter(currentUser, model.getLessonName(), new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            TipDialog.show((AppCompatActivity) activity, "Ders Eklendi", TipDialog.TYPE.SUCCESS);
+                                                            TipDialog.dismiss(1500);
+                                                            callBack.callBack(true);
+                                                        }
+
                                                     }
-                                                }
-                                            });
+                                                });
+
+                                            }else{
+                                                addAllLessonId(list,model.getLessonName(), currentUser, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            setNotificationGetter(currentUser, model.getLessonName(), new TrueFalse<Boolean>() {
+                                                                @Override
+                                                                public void callBack(Boolean _value) {
+                                                                    if (_value){
+                                                                        TipDialog.show((AppCompatActivity) activity, "Ders Eklendi", TipDialog.TYPE.SUCCESS);
+                                                                        TipDialog.dismiss(1500);
+                                                                        callBack.callBack(true);
+                                                                    }
+
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                });
+                                            }
+
                                         }
                                     });
                                 }

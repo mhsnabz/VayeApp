@@ -19,6 +19,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.protobuf.StringValue;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -46,14 +47,15 @@ public class NotificaitonService {
                 .collection("notification")
                 .document(notId);
         Map<String , Object> map = new HashMap<>();
-
+//essonName , not_id,postId,senderImage,senderName,senderUid,type,text,username,postType,targetCommentId,isRead;
         map.put("type",type);
         map.put("text",text);
         map.put("senderUid",currentUser.getUid());
         map.put("time",FieldValue.serverTimestamp());
         map.put("senderImage",currentUser.getThumb_image());
         map.put("not_id",notId);
-        map.put("isRead",false);
+        map.put("isRead","false");
+        map.put("postType", NotificationPostType.name.follow);
         map.put("username",currentUser.getUsername());
         map.put("postId","currentUser.getUid()");
         map.put("senderName",currentUser.getName());

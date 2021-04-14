@@ -38,6 +38,7 @@ import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
+import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.RepliedCommentModel;
 import com.vaye.app.Interfaces.SingleLessonPost;
@@ -167,7 +168,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
                     }
                     else if (model.getPostType().equals(NotificationPostType.name.follow)){
-                        if (model.getType().equals(FollowNotification.type.follow_you)){
+                        if (model.getType().equals(Notifications.NotificationType.following_you)){
                             UserService.shared().getOtherUser((Activity) context, model.getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {

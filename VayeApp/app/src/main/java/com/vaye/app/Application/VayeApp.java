@@ -22,13 +22,40 @@ import com.squareup.picasso.Picasso;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Services.UserService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class VayeApp  extends Application {
+    ArrayList<String> dersler = new ArrayList<>();
     @Override
     public void onCreate() {
         super.onCreate();
+
+        dersler.add("Fizik II");
+        dersler.add("Matematik II");
+        dersler.add("Bilgisayar Programlama");
+        dersler.add("Devre Elemanları");
+        dersler.add("Sayısal Tasarım II");
+        dersler.add("Lineer Cebir");
+        dersler.add("İş sağlığı ve Güvenliği");
+        dersler.add("Olasılık ve İstatistik");
+        dersler.add("Veri Taban destekli Görsel programlama");
+        dersler.add("İşletim Sistemleri");
+        dersler.add("Sayısal Tasarım Lab");
+        dersler.add("Üniversite Etkinliklerine Katılım ");
+        dersler.add("Yazılım Müh. Giriş");
+        dersler.add("Mikroişlemciler");
+        dersler.add("Web Tabanlı Programlama ");
+        dersler.add("Nesne Tabanlı Programlama Uyg");
+        dersler.add("Kablosuz Sensör Ağlar");
+        dersler.add("Bilgisayar Ağları ");
+        dersler.add("Yapay Zeka Uygulamaları");
+        dersler.add("Mühendislikte Bilgisayar uyg. II");
+        dersler.add("İnsan Bilgisayar Etkileşimi");
+        dersler.add("Robotik uygulamaları");
+        dersler.add("Sayısal Görüntü İşleme");
+        dersler.add("Bilişim hukuku");
 
         Picasso.Builder builder = new Picasso.Builder(this);
         builder.downloader(new OkHttp3Downloader(this,Integer.MAX_VALUE));
@@ -73,4 +100,5 @@ public class VayeApp  extends Application {
             }
         });
     }
+
 }

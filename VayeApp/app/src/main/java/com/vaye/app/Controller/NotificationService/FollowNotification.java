@@ -5,6 +5,6 @@ public interface FollowNotification {
         String follow_you = "Sizi Takip Etmeye Başladı";
     }
     interface  type {
-        String follow_you="follow_you";
+        String follow_you="following_you";
     }
 }

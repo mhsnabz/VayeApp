@@ -1632,7 +1632,7 @@ public class Helper {
             }
         }
         else if (model.getPostType().equals(NotificationPostType.name.follow)){
-            if (model.getType().equals(FollowNotification.type.follow_you)){
+            if (model.getType().equals(Notifications.NotificationType.following_you)){
                 text = FollowNotification.desp.follow_you;
             }
         }

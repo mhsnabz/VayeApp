@@ -197,13 +197,8 @@ public class NotificationActivity extends AppCompatActivity {
                     }else{
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
 
-                            models.add(item.toObject(NotificationModel.class));
+                           models.add(item.toObject(NotificationModel.class));
 
-                           /* Collections.sort(models, new Comparator<NotificationModel>(){
-                                public int compare(NotificationModel obj1, NotificationModel obj2) {
-                                    return obj2.getTime().compareTo(obj1.getTime());
-                                }
-                            });*/
                             adapter.notifyDataSetChanged();
                             swipeRefreshLayout.setRefreshing(false);
                             progressBar.setVisibility(View.GONE);
