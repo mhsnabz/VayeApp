@@ -443,7 +443,15 @@ public class ConservationController extends AppCompatActivity implements Message
     protected void onStart() {
         super.onStart();
         getAllMessages();
-
+        DocumentReference setCurrentUserOnline = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("msg-list")
+                .document(otherUser.getUid());
+        Map<String, Object> map = new HashMap<>();
+        map.put("isOnline", true);
+        map.put("badgeCount", 0);
+        setCurrentUserOnline.update(map);
+        Log.d(TAG, "onStop: onStop");
 
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(otherUser.getUid());

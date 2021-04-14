@@ -30,7 +30,7 @@ public interface Notifications {
         String  reply_comment = "reply_comment";
         String  comment_like = "comment_like";
         String  comment_mention = "comment_mention";
-        String  following_you = "following_you";
+        String  following_you = "follow_you";
         String  home_new_post = "home_new_post";
         String home_new_mentions_post = "home_new_mentions_post";
         String  new_ad = "new_ad";

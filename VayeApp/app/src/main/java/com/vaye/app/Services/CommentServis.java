@@ -107,7 +107,19 @@ public class CommentServis {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()){
-                        callback.callBack(true);
+                        DocumentReference db = FirebaseFirestore.getInstance().collection("comment")
+                                .document(postId).collection("comment").document(targetCommentId);
+                        Map<String , Object> map = new HashMap<>();
+                        map.put("replies",FieldValue.arrayUnion(commentId));
+                        db.set(map,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    callback.callBack(true);
+                                }
+                            }
+                        });
+
                     }
                 }
             });

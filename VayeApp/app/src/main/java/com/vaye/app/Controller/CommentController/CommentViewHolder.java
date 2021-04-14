@@ -34,8 +34,8 @@ public class CommentViewHolder extends RecyclerView.ViewHolder {
     TextView username = (TextView)itemView.findViewById(R.id.username);
     TextView time = (TextView)itemView.findViewById(R.id.time);
     TextView likeCount = (TextView)itemView.findViewById(R.id.likeCount);
-    TextView likeTextButton = (TextView)itemView.findViewById(R.id.likeTextButton);
-    TextView replyTextBtn = (TextView)itemView.findViewById(R.id.replyTextButton);
+   public TextView likeTextButton = (TextView)itemView.findViewById(R.id.likeTextButton);
+    public TextView replyTextBtn = (TextView)itemView.findViewById(R.id.replyTextButton);
     TextView replyCountText = (TextView)itemView.findViewById(R.id.replyCount);
     ImageButton likeBtn = (ImageButton)itemView.findViewById(R.id.likeBtn);
    public SocialTextView msgText = (SocialTextView)itemView.findViewById(R.id.msgText);

@@ -144,6 +144,12 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
         viewHolder.setLikeBtn(model.getLikes(),currentUser);
         viewHolder.setLikeCount(String.valueOf(model.getLikes().size()));
         viewHolder.setReplyCount(model.getReplies().size());
+        viewHolder.replyTextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replyClick(model);
+            }
+        });
         viewHolder.msgText.setOnMentionClickListener(new SocialView.OnClickListener() {
             @Override
             public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {
@@ -254,6 +260,29 @@ public class CommentAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void setHasStableIds(boolean hasStableIds) {
         super.setHasStableIds(hasStableIds);
     }
-
+    private void replyClick(CommentModel commentModel){
+        if (postModel != null){
+            Intent i = new Intent(context , ReplyActivity.class);
+            i.putExtra("targetComment",commentModel);
+            i.putExtra("currentUser",currentUser);
+            i.putExtra("lessonPost",postModel);
+           context.startActivity(i);
+            Helper.shared().go((Activity) context);
+        }else if (noticesPostModel != null){
+            Intent i = new Intent(context , ReplyActivity.class);
+            i.putExtra("targetComment",commentModel);
+            i.putExtra("currentUser",currentUser);
+            i.putExtra("noticesPost",noticesPostModel);
+            context.startActivity(i);
+            Helper.shared().go((Activity) context);
+        }else if (mainPostModel !=  null){
+            Intent i = new Intent(context , ReplyActivity.class);
+            i.putExtra("targetComment",commentModel);
+            i.putExtra("currentUser",currentUser);
+            i.putExtra("mainPost",mainPostModel);
+            context.startActivity(i);
+            Helper.shared().go((Activity) context);
+        }
+    }
   
 }

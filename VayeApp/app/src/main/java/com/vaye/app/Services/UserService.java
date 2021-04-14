@@ -507,6 +507,31 @@ public class UserService {
                             }
                         }
                     });
+                }else{
+                    completion.callBack(true);
+                }
+            }
+        });
+    }
+
+    public void acceptRequest(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+        addOnFreindArray(currentUser, otherUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+                    addOtherUserFriendList(currentUser, otherUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if(_value){
+                                MessageService.shared().removeRequest(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        callback.callBack(_value);
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             }
         });

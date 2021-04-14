@@ -43,6 +43,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.auth.User;
 import com.google.rpc.Help;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
@@ -609,20 +610,13 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
 
     public void acceptRequest(View view) {
         WaitDialog.show(RequestConservationActivity.this,"Arkadaş Listesine Ekleniyor");
-        UserService.shared().addAsMessegesFriend(currentUser, otherUser, new TrueFalse<Boolean>() {
+        UserService.shared().acceptRequest(currentUser, otherUser, new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 if (_value){
-                    UserService.shared().removeRequestBadgeCount(currentUser, otherUser, new TrueFalse<Boolean>() {
-                        @Override
-                        public void callBack(Boolean _value) {
-                            if (_value){
-                                finish();
-                                Helper.shared().back(RequestConservationActivity.this);
-                                WaitDialog.dismiss();
-                            }
-                        }
-                    });
+                    WaitDialog.dismiss();
+                    finish();
+                    Helper.shared().back(RequestConservationActivity.this);
                 }
             }
         });
