@@ -36,6 +36,7 @@ public class LessonSettingService {
         return instance;
     }
     public void getFollowersCont(String lessonName , CurrentUser currentUser ,  CallBackCount count){
+        Log.d(TAG, "getFollowersCont: " + lessonName);
         CollectionReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("lesson")
                 .collection(currentUser.getBolum())

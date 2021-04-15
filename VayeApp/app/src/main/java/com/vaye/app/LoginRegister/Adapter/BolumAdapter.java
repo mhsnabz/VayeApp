@@ -73,6 +73,7 @@ public class BolumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     CustomDialog.show((AppCompatActivity) context, R.layout.auth_dialog, new CustomDialog.OnBindView() {
                         @Override
                         public void onBind(CustomDialog dialog, View v) {
+                            dialog.setCancelable(true);
                             TextView header = (TextView)v.findViewById(R.id.headerTitle);
                             TextView mainText =(TextView)v.findViewById(R.id.mainText);
                             Button done = (Button)v.findViewById(R.id.okey);
@@ -81,28 +82,24 @@ public class BolumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                             done.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    dialog.doDismiss();
-                                }
-                            });
-                        }
-                    }).setOnDismissListener(new OnDismissListener() {
-                        @Override
-                        public void onDismiss() {
-                            WaitDialog.show((AppCompatActivity)context,"Kayıt Tamamlanıyor");
-                            StudentSignUpService.shared().completeSignUp(context, taskUser,"student", item.getValue(), item.getKey(), fakulte, new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    if (_value){
-                                        UserService.shared().getCurrentUser(taskUser.getUid(), new CurrentUserService() {
-                                            @Override
-                                            public void onCallback(CurrentUser user) {
-                                                Intent i = new Intent(context , SplashScreen.class);
-                                                context.startActivity(i);
-                                                ((AppCompatActivity) context).finish();
-                                                WaitDialog.dismiss();
+                                    WaitDialog.show((AppCompatActivity)context,"Kayıt Tamamlanıyor");
+                                    StudentSignUpService.shared().completeSignUp(context, taskUser,"student", item.getValue(), item.getKey(), fakulte, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                UserService.shared().getCurrentUser(taskUser.getUid(), new CurrentUserService() {
+                                                    @Override
+                                                    public void onCallback(CurrentUser user) {
+                                                        Intent i = new Intent(context , SplashScreen.class);
+                                                        context.startActivity(i);
+                                                        ((AppCompatActivity) context).finish();
+                                                        WaitDialog.dismiss();
+                                                    }
+                                                });
                                             }
-                                        });
-                                    }
+                                        }
+                                    });
+                                    dialog.doDismiss();
                                 }
                             });
                         }
@@ -119,52 +116,48 @@ public class BolumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                             done.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    dialog.doDismiss();
-                                }
-                            });
-                        }
-                    }).setOnDismissListener(new OnDismissListener() {
-                        @Override
-                        public void onDismiss() {
-                            WaitDialog.show((AppCompatActivity)context,"Kayıt Tamamlanıyor");
-                            StudentSignUpService.shared().completeSignUp(context, taskUser,"student", item.getValue(), item.getKey(), fakulte, new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    if (_value){
-                                        WaitDialog.show((AppCompatActivity)context,"Lütfen Bekleyin...");
-                                        TeacherRegisterService.shared().completeSignUp(taskUser, item.getValue(), fakulte,item.getKey(), new TrueFalse<Boolean>() {
-                                            @Override
-                                            public void callBack(Boolean _value) {
-                                                if (_value){
-                                                    DocumentReference ref = FirebaseFirestore.getInstance().collection("task-teacher")
-                                                            .document(taskUser.getUid());
-                                                    ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()){
-                                                                String tokenID = FirebaseInstanceId.getInstance().getToken();
-                                                                final Map<String,Object> map=new HashMap<>();
-                                                                map.put("tokenID",tokenID);
-                                                                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                                                        .document(taskUser.getUid());
-                                                                db.set(map, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                        if (task.isSuccessful()){
-                                                                            Intent i = new Intent(context,SplashScreen.class);
-                                                                            context.startActivity(i);
-                                                                            ((AppCompatActivity) context).finish();
-                                                                            WaitDialog.dismiss();
-                                                                        }
+                                    WaitDialog.show((AppCompatActivity)context,"Kayıt Tamamlanıyor");
+                                    StudentSignUpService.shared().completeSignUp(context, taskUser,"student", item.getValue(), item.getKey(), fakulte, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                WaitDialog.show((AppCompatActivity)context,"Lütfen Bekleyin...");
+                                                TeacherRegisterService.shared().completeSignUp(taskUser, item.getValue(), fakulte,item.getKey(), new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            DocumentReference ref = FirebaseFirestore.getInstance().collection("task-teacher")
+                                                                    .document(taskUser.getUid());
+                                                            ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                    if (task.isSuccessful()){
+                                                                        String tokenID = FirebaseInstanceId.getInstance().getToken();
+                                                                        final Map<String,Object> map=new HashMap<>();
+                                                                        map.put("tokenID",tokenID);
+                                                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                                                .document(taskUser.getUid());
+                                                                        db.set(map, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                                if (task.isSuccessful()){
+                                                                                    Intent i = new Intent(context,SplashScreen.class);
+                                                                                    context.startActivity(i);
+                                                                                    ((AppCompatActivity) context).finish();
+                                                                                    WaitDialog.dismiss();
+                                                                                }
+                                                                            }
+                                                                        });
                                                                     }
-                                                                });
-                                                            }
+                                                                }
+                                                            });
                                                         }
-                                                    });
-                                                }
+                                                    }
+                                                });
                                             }
-                                        });
-                                    }
+                                        }
+                                    });
+
                                 }
                             });
                         }

@@ -30,6 +30,7 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostViewHolder;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
+import com.vaye.app.Controller.HomeController.SetLessons.AboutLessonActivity;
 import com.vaye.app.Controller.ReportController.ReportActivity;
 import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -186,7 +187,12 @@ public class BottomSheetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         });
 
                     }else if (model.getItems().get(i).equals(BottomSheetActionTarget.ders_hakkında)){
-                        Toast.makeText(context,"About Lesson",Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(context, AboutLessonActivity.class);
+                        i.putExtra("currentUser",currentUser);
+                        i.putExtra("lessonName",lessonModel.getLessonName());
+                        context.startActivity(i);
+                        Helper.shared().go((Activity)context);
+
                         dialog.dismiss();
                     }
                     else if (model.getItems().get(i).equals(BottomSheetActionTarget.problem_bildir)){

@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -99,6 +100,19 @@ public class VayeApp  extends Application {
                 }
             }
         });
+    }
+    private void setLesson(){
+        Map<String , Object > map = new HashMap<>();
+        map.put("teacherEmail","empty");
+        map.put( "teacherId","empty");
+        map.put("teacherName","empty");
+       //İSTE/lesson/Bilgisayar Mühendisliği/Bilgisayar Programlama
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("İSTE")
+                .document("lesson").collection("Bilgisayar Mühendisliği");
+        for (String item : dersler){
+            map.put("lesson_key","empty");
+            ref.document(item).set(map , SetOptions.merge());
+        }
     }
 
 }

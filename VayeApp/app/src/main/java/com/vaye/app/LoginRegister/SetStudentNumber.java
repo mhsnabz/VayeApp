@@ -153,6 +153,7 @@ public class SetStudentNumber extends AppCompatActivity {
                                             UserService.shared().getTaskUser(taskUser.getUid(), new TaskUserHandler() {
                                                 @Override
                                                 public void onCallback(TaskUser user) {
+                                                    WaitDialog.dismiss();
                                                     Intent i = new Intent(SetStudentNumber.this,SetFakulteActivity.class);
                                                     taskUser.setNumber(_number);
                                                     taskUser.setUsername(_username);

@@ -14,6 +14,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -179,7 +180,21 @@ public class StudentSignUpService {
     }
     public void checkIsUserNameValid(String _username , TrueFalse<Boolean> callback){
 
-        CollectionReference ref = FirebaseFirestore.getInstance().collection("username");
+        Query ref = FirebaseFirestore.getInstance().collection("username")
+                .whereEqualTo("username",_username);
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        callback.callBack(true);
+                    }else{
+                        callback.callBack(false);
+                    }
+                }
+            }
+        });
+     /*   CollectionReference ref = FirebaseFirestore.getInstance().collection("username");
         ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -189,11 +204,12 @@ public class StudentSignUpService {
                             callback.callBack(false);
                         }else{
                             callback.callBack(true);
+                            return;
                         }
                     }
                 }
             }
-        });
+        });*/
     }
 
 

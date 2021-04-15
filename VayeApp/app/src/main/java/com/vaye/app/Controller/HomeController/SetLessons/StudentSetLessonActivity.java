@@ -94,10 +94,11 @@ public class StudentSetLessonActivity extends AppCompatActivity {
                     if (!task.getResult().isEmpty()){
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
                             if (item.exists()){
-                                LessonModel value = item.toObject(LessonModel.class);
-                                model.add(value);
-                                adapter.notifyDataSetChanged();
-
+                                if (!item.getId().equals("Genel Duyuru")){
+                                    LessonModel value = item.toObject(LessonModel.class);
+                                    model.add(value);
+                                    adapter.notifyDataSetChanged();
+                                }
                             }
                         }
                         WaitDialog.dismiss();
