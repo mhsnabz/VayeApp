@@ -112,6 +112,7 @@ import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
+import com.vincent.filepicker.filter.entity.NormalFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -250,13 +251,16 @@ public class ConservationController extends AppCompatActivity implements Message
                     Helper.shared().MessageMediaLauncher(ConservationController.this, otherUser, currentUser, new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
+                            if (_value){
+
+                            }
 
                         }
                     });
                 }
             });
         }
-        targetChooser();
+
     }
 
     private void targetChooser() {
@@ -821,12 +825,42 @@ public class ConservationController extends AppCompatActivity implements Message
                 }
                 break;
             case Constant.REQUEST_CODE_PICK_FILE:
-                if (requestCode == RESULT_OK){
-                    Log.d(TAG, "onActivityResult: " + data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE).get(0));
+                Log.d(TAG, "onActivityResult: " + "normal file pick");
 
+                    Log.d(TAG, "onActivityResult: " + "normal file pick");
+                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
+                    String fileName = list.get(0).getName();
+                    Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));;
+                    Log.d(TAG, "onActivityResult: " + fileName);
+                    Log.d(TAG, "onActivityResult: " + file);
+                    Log.d(TAG, "onActivityResult: " + fileUri.getPath());
+                String mimeType = "";
+                String contentType = "";
+
+                if (list.get(0).getMimeType().equals(DataTypes.contentType.doc)) {
+                    contentType = DataTypes.contentType.doc;
+                    mimeType = DataTypes.mimeType.doc;
+                } else if (list.get(0).getMimeType().equals(DataTypes.contentType.docx)) {
+                    contentType = DataTypes.contentType.docx;
+                    mimeType = DataTypes.mimeType.docx;
+                } else if (list.get(0).getMimeType().equals(DataTypes.contentType.pdf)) {
+                    contentType = DataTypes.contentType.pdf;
+                    mimeType = DataTypes.mimeType.pdf;
                 }
-
+                dataModel.add(new NewPostDataModel(fileName, fileUri, null, null, mimeType, contentType));
+                saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        Log.d(TAG, "getString: url : " + url);
+                        MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, 100f, 150f, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
+                        TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
+                        TipDialog.dismiss(500);
+                    }
+                });
         }
+
+
     }
 
     //TODO:: upload images
@@ -905,10 +939,7 @@ public class ConservationController extends AppCompatActivity implements Message
                             String url = uri.toString();
                             Log.d(TAG, "onComplete: " + url);
                             hud.dismiss();
-
                             completion.getString(url);
-
-
                         }
                     });
 

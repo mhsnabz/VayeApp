@@ -70,7 +70,7 @@ public class MessageMediaAdapter  extends RecyclerView.Adapter<RecyclerView.View
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.send_document)){
-                    dialog.dismiss();
+
                     Log.d(TAG, "onClick: send document");
                     Intent intent = new Intent("media_item_target");
 

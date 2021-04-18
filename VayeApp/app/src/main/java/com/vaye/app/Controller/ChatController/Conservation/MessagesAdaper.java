@@ -483,22 +483,31 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public void setMsg_image(String url)
         {
             if (url!=null && !url.isEmpty()){
-                Picasso.get().load(url)
-                        .resize(400,500)
-                        .centerCrop()
-                        .placeholder(android.R.color.darker_gray)
-                        .into(msg_image, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                imageProgress.setVisibility(View.GONE);
-                            }
+                if (url.contains("doc") || url.contains("docx")){
+                    msg_image.setImageDrawable(context.getDrawable(R.drawable.doc_holder_2));
+                    imageProgress.setVisibility(View.GONE);
+                }else if (url.contains("pdf")){
+                    msg_image.setImageDrawable(context.getDrawable(R.drawable.pdf_holder_two));
+                    imageProgress.setVisibility(View.GONE);
+                }else{
+                    Picasso.get().load(url)
+                            .resize(400,500)
+                            .centerCrop()
+                            .placeholder(android.R.color.darker_gray)
+                            .into(msg_image, new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    imageProgress.setVisibility(View.GONE);
+                                }
 
-                            @Override
-                            public void onError(Exception e) {
-                                msg_image.setImageResource(android.R.color.darker_gray);
-                                imageProgress.setVisibility(View.GONE);
-                            }
-                        });
+                                @Override
+                                public void onError(Exception e) {
+                                    msg_image.setImageResource(android.R.color.darker_gray);
+                                    imageProgress.setVisibility(View.GONE);
+                                }
+                            });
+                }
+
             }else{
                 msg_image.setImageResource(android.R.color.darker_gray);
                 imageProgress.setVisibility(View.GONE);
@@ -626,22 +635,31 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public void setMsg_image(String url)
         {
             if (url!=null && !url.isEmpty()){
-                Picasso.get().load(url)
-                        .resize(400,500)
-                        .centerCrop()
-                        .placeholder(android.R.color.darker_gray)
-                        .into(msg_image, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                imageProgress.setVisibility(View.GONE);
-                            }
+                if (url.contains("doc") || url.contains("docx")){
+                    msg_image.setImageDrawable(context.getDrawable(R.drawable.doc_holder_2));
+                    imageProgress.setVisibility(View.GONE);
+                }else if (url.contains("pdf")){
+                    msg_image.setImageDrawable(context.getDrawable(R.drawable.pdf_holder_two));
+                    imageProgress.setVisibility(View.GONE);
+                }else{
+                    Picasso.get().load(url)
+                            .resize(400,500)
+                            .centerCrop()
+                            .placeholder(android.R.color.darker_gray)
+                            .into(msg_image, new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    imageProgress.setVisibility(View.GONE);
+                                }
 
-                            @Override
-                            public void onError(Exception e) {
-                                msg_image.setImageResource(android.R.color.darker_gray);
-                                imageProgress.setVisibility(View.GONE);
-                            }
-                        });
+                                @Override
+                                public void onError(Exception e) {
+                                    msg_image.setImageResource(android.R.color.darker_gray);
+                                    imageProgress.setVisibility(View.GONE);
+                                }
+                            });
+                }
+
             }else{
                 msg_image.setImageResource(android.R.color.darker_gray);
                 imageProgress.setVisibility(View.GONE);
