@@ -1,6 +1,8 @@
 package com.vaye.app.Controller.ChatController.Conservation;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.Image;
@@ -75,6 +77,8 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int SEND_IMAGE_MSG= 6;
     private static final int SEND_AUDIO_MSG= 7;
     private static final int RECEIVED_AUDIO_MSG= 8;
+    private static final int SEND_DOC_MSG= 9;
+    private static final int RECEIVED_DOC_MSG= 10;
 
     CurrentUser currentUser;
     OtherUser otherUser;
@@ -123,12 +127,25 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             return new ReceivedImageMsgViewHolder(itemView);
         }
+        else if (viewType == RECEIVED_DOC_MSG){
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.received_document_message, parent, false);
+
+            return new ReceivedDocMsgViewHolder(itemView);
+        }
         else if (viewType == SEND_IMAGE_MSG){
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.image_send_message, parent, false);
 
             return new SendImageMsgViewHolder(itemView);
-        }else if (viewType == SEND_AUDIO_MSG){
+        }
+        else if (viewType == SEND_DOC_MSG){
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.send_document_message, parent, false);
+
+            return new SendDocMsgViewHolder(itemView);
+        }
+        else if (viewType == SEND_AUDIO_MSG){
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.msg_audio_send, parent, false);
             senderMSg = itemView;
@@ -206,6 +223,64 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 if (i>0){
                     setTimeTextVisibility(model.getTime(), previousTs, send_image.groupDate);
+                }
+
+                break;
+            case SEND_DOC_MSG :
+                SendDocMsgViewHolder send_doc = (SendDocMsgViewHolder)holder;
+                send_doc.setMsg_image(model.getContent());
+                send_doc.setProfileImage(currentUser.getProfileImage());
+                send_doc.msg_image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String url = model.getContent();
+                        try {
+                            Intent i = new Intent("android.intent.action.MAIN");
+                            i.setComponent(ComponentName.unflattenFromString("com.android.chrome/com.android.chrome.Main"));
+                            i.addCategory("android.intent.category.LAUNCHER");
+                            i.setData(Uri.parse(url));
+                            context.startActivity(i);
+                        }
+                        catch(ActivityNotFoundException e) {
+                            // Chrome is not installed
+                            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            context.startActivity(i);
+                        }
+                    }
+                });
+                setTimeAgo(model.getTime(),send_doc.time);
+
+                if (i>0){
+                    setTimeTextVisibility(model.getTime(), previousTs, send_doc.groupDate);
+                }
+
+                break;
+            case RECEIVED_DOC_MSG:
+                ReceivedDocMsgViewHolder received_doc = (ReceivedDocMsgViewHolder)holder;
+                received_doc.setMsg_image(model.getContent());
+                received_doc.setProfileImage(otherUser.getProfileImage());
+                received_doc.msg_image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String url = model.getContent();
+                        try {
+                            Intent i = new Intent("android.intent.action.MAIN");
+                            i.setComponent(ComponentName.unflattenFromString("com.android.chrome/com.android.chrome.Main"));
+                            i.addCategory("android.intent.category.LAUNCHER");
+                            i.setData(Uri.parse(url));
+                            context.startActivity(i);
+                        }
+                        catch(ActivityNotFoundException e) {
+                            // Chrome is not installed
+                            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            context.startActivity(i);
+                        }
+                    }
+                });
+                setTimeAgo(model.getTime(),received_doc.time);
+
+                if (i>0){
+                    setTimeTextVisibility(model.getTime(), previousTs, received_doc.groupDate);
                 }
 
                 break;
@@ -368,10 +443,22 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }else if (model.getType().equals(MessageType.photo)){
             if (model.getSenderUid().equals(currentUser.getUid())){
 
-                return SEND_IMAGE_MSG;
-            }else{
+                if (model.getContent().contains("doc") || model.getContent().contains("docx") || model.getContent().contains("pdf")){
+                    return  SEND_DOC_MSG;
+                }else{
+                    return SEND_IMAGE_MSG;
+                }
 
-                return RECEIVED_IMAGE_MSG;
+
+
+            }else{
+                if (model.getContent().contains("doc") || model.getContent().contains("docx") || model.getContent().contains("pdf")) {
+                    return RECEIVED_DOC_MSG;
+                }
+                else {
+                    return RECEIVED_IMAGE_MSG;
+                }
+
             }
 
         }else if (model.getType().equals(MessageType.audio)){
@@ -472,6 +559,74 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public class SendImageMsgViewHolder extends RecyclerView.ViewHolder{
 
         public SendImageMsgViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        public TextView groupDate = (TextView)itemView.findViewById(R.id.groupDate);
+        public ProgressBar progressBar =(ProgressBar)itemView.findViewById(R.id.progress);
+        public CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
+        public TextView time = (TextView)itemView.findViewById(R.id.time);
+        public RoundedImageView msg_image = (RoundedImageView)itemView.findViewById(R.id.imageView);
+        public ProgressBar imageProgress = (ProgressBar)itemView.findViewById(R.id.progressImage);
+        public void setMsg_image(String url)
+        {
+            if (url!=null && !url.isEmpty()){
+                if (url.contains("doc") || url.contains("docx")){
+                    msg_image.setImageDrawable(context.getDrawable(R.drawable.doc_holder_2));
+                    imageProgress.setVisibility(View.GONE);
+                }else if (url.contains("pdf")){
+                    msg_image.setImageDrawable(context.getDrawable(R.drawable.pdf_holder_two));
+                    imageProgress.setVisibility(View.GONE);
+                }else{
+                    Picasso.get().load(url)
+                            .resize(400,500)
+                            .centerCrop()
+                            .placeholder(android.R.color.darker_gray)
+                            .into(msg_image, new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    imageProgress.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    msg_image.setImageResource(android.R.color.darker_gray);
+                                    imageProgress.setVisibility(View.GONE);
+                                }
+                            });
+                }
+
+            }else{
+                msg_image.setImageResource(android.R.color.darker_gray);
+                imageProgress.setVisibility(View.GONE);
+            }
+        }
+        public void setProfileImage(String url){
+            if (url!=null && !url.isEmpty()){
+                Picasso.get().load(url)
+                        .resize(200,200)
+                        .centerCrop()
+                        .placeholder(android.R.color.darker_gray)
+                        .into(profileImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                profileImage.setImageResource(android.R.color.darker_gray);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+            }else{
+                profileImage.setImageResource(android.R.color.darker_gray);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+    }
+    public class SendDocMsgViewHolder extends RecyclerView.ViewHolder{
+
+        public SendDocMsgViewHolder(@NonNull View itemView) {
             super(itemView);
         }
         public TextView groupDate = (TextView)itemView.findViewById(R.id.groupDate);
@@ -690,7 +845,75 @@ public class MessagesAdaper extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
     }
+    public class ReceivedDocMsgViewHolder extends RecyclerView.ViewHolder{
 
+        public ReceivedDocMsgViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        public TextView groupDate = (TextView)itemView.findViewById(R.id.groupDate);
+        public ProgressBar progressBar =(ProgressBar)itemView.findViewById(R.id.progress);
+        public CircleImageView profileImage = (CircleImageView)itemView.findViewById(R.id.profileImage);
+        public TextView time = (TextView)itemView.findViewById(R.id.time);
+        public RoundedImageView msg_image = (RoundedImageView)itemView.findViewById(R.id.imageView);
+        public ProgressBar imageProgress = (ProgressBar)itemView.findViewById(R.id.progressImage);
+        public void setMsg_image(String url)
+        {
+            if (url!=null && !url.isEmpty()){
+                if (url.contains("doc") || url.contains("docx")){
+                    msg_image.setImageDrawable(context.getDrawable(R.drawable.doc_holder_2));
+                    imageProgress.setVisibility(View.GONE);
+                }else if (url.contains("pdf")){
+                    msg_image.setImageDrawable(context.getDrawable(R.drawable.pdf_holder_two));
+                    imageProgress.setVisibility(View.GONE);
+                }else{
+                    Picasso.get().load(url)
+                            .resize(400,500)
+                            .centerCrop()
+                            .placeholder(android.R.color.darker_gray)
+                            .into(msg_image, new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    imageProgress.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    msg_image.setImageResource(android.R.color.darker_gray);
+                                    imageProgress.setVisibility(View.GONE);
+                                }
+                            });
+                }
+
+            }else{
+                msg_image.setImageResource(android.R.color.darker_gray);
+                imageProgress.setVisibility(View.GONE);
+            }
+        }
+        public void setProfileImage(String url){
+            if (url!=null && !url.isEmpty()){
+                Picasso.get().load(url)
+                        .resize(200,200)
+                        .centerCrop()
+                        .placeholder(android.R.color.darker_gray)
+                        .into(profileImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                profileImage.setImageResource(android.R.color.darker_gray);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+            }else{
+                profileImage.setImageResource(android.R.color.darker_gray);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+
+    }
     public class ReceivedAudioMsgHolder extends  RecyclerView.ViewHolder{
 
         public ReceivedAudioMsgHolder(@NonNull View itemView) {
