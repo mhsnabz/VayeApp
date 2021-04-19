@@ -486,7 +486,6 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         intent.addCategory(intent.CATEGORY_OPENABLE);
-
         startActivityForResult(intent,image_pick_request);
     }
 
@@ -599,7 +598,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                         .setMinCropWindowSize(500, 500)
                         .start(this);
             }
-        
+
             if (requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
                 CropImage.ActivityResult result =CropImage.getActivityResult(data);
                 if(resultCode==RESULT_OK){

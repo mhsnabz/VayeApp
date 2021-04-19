@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,6 +42,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -85,6 +87,9 @@ import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
 import com.vaye.app.Controller.MapsController.VayeAppPlacePickerActivity;
 import com.vaye.app.Controller.ReportController.ReportActivity;
@@ -93,6 +98,7 @@ import com.vaye.app.FCM.MessagingService;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.LocationCallback;
+import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Interfaces.RecordedAudioCallback;
 import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Interfaces.SavedAudioFileUrl;
@@ -108,6 +114,7 @@ import com.vaye.app.Services.MessageService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
+import com.vaye.app.Util.RunTimePermissionHelper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.activity.NormalFilePickActivity;
@@ -137,7 +144,7 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
-public class ConservationController extends AppCompatActivity implements MessagesAdaper.OnItemClickListener {
+public class ConservationController extends AppCompatActivity implements MessagesAdaper.OnItemClickListener,OnOptionSelect {
     String TAG = "ConservationController";
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
@@ -170,10 +177,13 @@ public class ConservationController extends AppCompatActivity implements Message
     String storagePermission[];
     KProgressHUD hud;
     private static final int gallery_request = 400;
+
     String fileName = "";
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
     int lastPostion = -1;
-
+    OnOptionSelect optionSelect;
+    private static final int image_pick_request =600;
+    private static final int DOCUMENT_PICK_CODE = 500;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -182,6 +192,7 @@ public class ConservationController extends AppCompatActivity implements Message
       /*  filename = Environment.getExternalStorageDirectory().getAbsolutePath();
         fileName += "/" + String.valueOf(Calendar.getInstance().getTimeInMillis()) + ".3gp";
         ;*/
+        optionSelect = this::onChoose;
         mediaLayout = (LinearLayout) findViewById(R.id.mediaLayout);
         mediaLayout.setVisibility(View.VISIBLE);
         sendButton = (ImageButton) findViewById(R.id.send);
@@ -249,7 +260,7 @@ public class ConservationController extends AppCompatActivity implements Message
             mediaItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Helper.shared().MessageMediaLauncher(ConservationController.this, otherUser, currentUser, new TrueFalse<Boolean>() {
+                    Helper.shared().MessageMediaLauncher(ConservationController.this, otherUser, currentUser, optionSelect,new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
                             if (_value){
@@ -588,11 +599,11 @@ public class ConservationController extends AppCompatActivity implements Message
             String target = intent.getStringExtra("target");
             Log.d(TAG, "onReceive: " + target);
             if (target != null && target.equals(CompletionWithValue.send_image)) {
-                sendImage();
+
             } else if (target != null && target.equals(CompletionWithValue.send_location)) {
-                sendLocation();
+
             } else if (target != null && target.equals(CompletionWithValue.send_document)) {
-                sendDocument();
+
             }else if (target !=null && target.equals(CompletionWithValue.remove_chat)){
                 WaitDialog.show(ConservationController.this,"Sohbet Siliniyor");
                 MessageService.shared().removeChat(currentUser, otherUser, new TrueFalse<Boolean>() {
@@ -699,26 +710,53 @@ public class ConservationController extends AppCompatActivity implements Message
 
 
     private void sendImage() {
-        if (!checkGalleryPermissions()) {
-            requestStoragePermission();
-        } else {
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        pickGallery();
+                    }
+                }
+            });
+        }else{
             pickGallery();
+
         }
     }
 
     private void sendDocument() {
-        if (!checkGalleryPermissions()) {
-            requestStoragePermission();
-        } else {
-            Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                      /*  Intent intent4 = new Intent(ConservationController.this, NormalFilePickActivity.class);
+                        intent4.putExtra(Constant.MAX_NUMBER, 1);
+                        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] { "doc", "docx","pdf"});
+                        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);*/
+                        pickDocument();
+                    }
+                }
+            });
+        }else{
+            /*Intent intent4 = new Intent(this, NormalFilePickActivity.class);
             intent4.putExtra(Constant.MAX_NUMBER, 1);
             intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] { "doc", "docx","pdf"});
-            startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+            startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);*/
+            pickDocument();
+
         }
-
-
     }
 
+    private void pickDocument(){
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+        startActivityForResult(intent,DOCUMENT_PICK_CODE);
+    }
+    String[] mimetypes = {"application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/msword","application/pdf"};
     private void sendLocation() {
         if (isServicesOk()) {
             Intent i = new Intent(ConservationController.this, LocationPermissionActivity.class);
@@ -786,45 +824,81 @@ public class ConservationController extends AppCompatActivity implements Message
     }
 
     private void pickGallery() {
-        Intent intent1 = new Intent(this, ImagePickActivity.class);
+       /* Intent intent1 = new Intent(this, ImagePickActivity.class);
         intent1.putExtra(IS_NEED_CAMERA, false);
         intent1.putExtra(Constant.MAX_NUMBER, 1);
-        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);*/
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent,image_pick_request);
 
     }
 
 
+    private String getMimeType(Uri uri){
+        ContentResolver cR = this.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String type = mime.getExtensionFromMimeType(cR.getType(uri));
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+    private String getMContentType(Uri uri){
+        ContentResolver cR = this.getContentResolver();
+        return cR.getType(uri);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case Constant.REQUEST_CODE_PICK_IMAGE:
-                if (resultCode == RESULT_OK) {
-                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
-                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                    String fileName = list.get(0).getName();
-                    Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
-                    String mimeType = DataTypes.mimeType.image;
-                    String contentType = DataTypes.contentType.image;
-                    dataModel.add(new NewPostDataModel(fileName, fileUri, null, null, mimeType, contentType));
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(new File(file.getPath()).getAbsolutePath(), options);
-                    float imageHeight = options.outHeight;
-                    float imageWidth = options.outWidth;
-                    Log.d(TAG, "imageWidth: " + imageWidth);
-                    Log.d(TAG, "imageHeight: " + imageHeight);
-                    saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
-                        @Override
-                        public void getString(String url) {
-                            Log.d(TAG, "getString: url : " + url);
-                            MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, imageWidth, imageHeight, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
-                            TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
-                            TipDialog.dismiss(500);
-                        }
-                    });
-                }
-                break;
+
+        if (resultCode == RESULT_OK){
+            if (requestCode == image_pick_request){
+                Uri file = data.getData();
+                Log.d(TAG, "onActivityResult: " + file.getPath());
+                String mimeType = DataTypes.mimeType.image;
+                String contentType = DataTypes.contentType.image;
+                String fileName = file.getPath().toString();
+                dataModel.add(new NewPostDataModel(fileName, file, null, null, mimeType, contentType));
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(new File(file.getPath()).getAbsolutePath(), options);
+                float imageHeight = options.outHeight;
+                float imageWidth = options.outWidth;
+                Log.d(TAG, "imageWidth: " + imageWidth);
+                Log.d(TAG, "imageHeight: " + imageHeight);
+                saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        Log.d(TAG, "getString: url : " + url);
+                        MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, imageWidth, imageHeight, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
+                        TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
+                        TipDialog.dismiss(500);
+                    }
+                });
+            }
+            if (requestCode == DOCUMENT_PICK_CODE){
+                Uri file = data.getData();
+                String fileName = file.getPath().toString();
+                String mimeType = "."+getMimeType(file);
+                String contentType = getMContentType(file);
+                dataModel.add(new NewPostDataModel(fileName, file, null, null, mimeType, contentType));
+                saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        Log.d(TAG, "getString: url : " + url);
+                        MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, 100f, 150f, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
+                        TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
+                        TipDialog.dismiss(500);
+                    }
+                });
+            }
+        }
+
+       /* switch (requestCode) {
+
             case Constant.REQUEST_CODE_PICK_FILE:
                 Log.d(TAG, "onActivityResult: " + "normal file pick");
 
@@ -859,7 +933,34 @@ public class ConservationController extends AppCompatActivity implements Message
                         TipDialog.dismiss(500);
                     }
                 });
-        }
+                  case Constant.REQUEST_CODE_PICK_IMAGE:
+                if (resultCode == RESULT_OK) {
+                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
+                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
+                    String fileName = list.get(0).getName();
+                    Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
+                    String mimeType = DataTypes.mimeType.image;
+                    String contentType = DataTypes.contentType.image;
+                    dataModel.add(new NewPostDataModel(fileName, fileUri, null, null, mimeType, contentType));
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(new File(file.getPath()).getAbsolutePath(), options);
+                    float imageHeight = options.outHeight;
+                    float imageWidth = options.outWidth;
+                    Log.d(TAG, "imageWidth: " + imageWidth);
+                    Log.d(TAG, "imageHeight: " + imageHeight);
+                    saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
+                        @Override
+                        public void getString(String url) {
+                            Log.d(TAG, "getString: url : " + url);
+                            MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, imageWidth, imageHeight, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
+                            TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
+                            TipDialog.dismiss(500);
+                        }
+                    });
+                }
+                break;
+        }*/
 
 
     }
@@ -1353,4 +1454,15 @@ public class ConservationController extends AppCompatActivity implements Message
 
     }
 
+    @Override
+    public void onChoose(String value) {
+        Log.d(TAG, "onChoose: value" + value);
+        if (value != null && value.equals(CompletionWithValue.send_image)) {
+            sendImage();
+        } else if (value != null && value.equals(CompletionWithValue.send_location)) {
+            sendLocation();
+        } else if (value != null && value.equals(CompletionWithValue.send_document)) {
+            sendDocument();
+        }
+    }
 }

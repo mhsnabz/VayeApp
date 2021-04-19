@@ -59,7 +59,6 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
     implementation 'com.makeramen:roundedimageview:2.3.0'
-    //implementation 'com.pixplicity.multiviewpager:library:1.0'
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     implementation("com.squareup.okhttp3:okhttp")
     implementation project(':nativetemplates')
@@ -67,17 +66,12 @@ dependencies {
     implementation 'id.zelory:compressor:2.1.0'
     implementation 'com.kaopiz:kprogresshud:1.2.0'
     implementation 'com.vincent.filepicker:MultiTypeFilePicker:1.0.8'
-    //Glide
-    implementation ("com.github.bumptech.glide:glide:4.6.1") {
-        exclude group: "com.android.support"
-    }
-    implementation 'com.github.bumptech.glide:annotations:4.6.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
+
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
     implementation "com.airbnb.android:lottie:3.0.3"
 
-  //  implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
-    //implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'
    implementation "com.hendraanggrian.appcompat:socialview:0.2"
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
     implementation 'com.github.marcoscgdev:EasyLicensesDialog:2.0.0'

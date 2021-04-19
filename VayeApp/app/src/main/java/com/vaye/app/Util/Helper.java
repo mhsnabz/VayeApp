@@ -1421,7 +1421,7 @@ public class Helper {
         bottomSheetDialog.show();
     }
 
-    public void MessageMediaLauncher(Activity activity ,OtherUser otherUser, CurrentUser currentUser , TrueFalse<Boolean> callback){
+    public void MessageMediaLauncher(Activity activity ,OtherUser otherUser, CurrentUser currentUser,OnOptionSelect optionSelect , TrueFalse<Boolean> callback){
         RecyclerView recyclerView;
         CardView headerView;
         Button cancel;
@@ -1441,7 +1441,7 @@ public class Helper {
         res.add(R.drawable.belge);
         BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.media_item,res);
 
-        MessageMediaAdapter adapter = new MessageMediaAdapter(otherUser,currentUser , activity , model , bottomSheetDialog);
+        MessageMediaAdapter adapter = new MessageMediaAdapter(otherUser,currentUser , activity , model , bottomSheetDialog ,optionSelect);
         recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));

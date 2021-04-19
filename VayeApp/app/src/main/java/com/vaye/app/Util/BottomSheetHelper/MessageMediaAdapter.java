@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.vaye.app.Controller.HomeController.SingleImageActivity;
 import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
@@ -27,12 +28,14 @@ public class MessageMediaAdapter  extends RecyclerView.Adapter<RecyclerView.View
     BottomSheetDialog dialog;
     OtherUser otherUser;
     String TAG = "MessageMediaAdapter";
-    public MessageMediaAdapter(OtherUser otherUser, CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog) {
+    OnOptionSelect optionSelect;
+    public MessageMediaAdapter(OtherUser otherUser, CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog , OnOptionSelect optionSelect) {
         this.currentUser = currentUser;
         this.context = context;
         this.model = model;
         this.dialog = dialog;
         this.otherUser = otherUser;
+        this.optionSelect = optionSelect;
     }
 
     @NonNull
@@ -54,29 +57,14 @@ public class MessageMediaAdapter  extends RecyclerView.Adapter<RecyclerView.View
             public void onClick(View view) {
                 if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.send_image)){
                   dialog.dismiss();
-                    Log.d(TAG, "onClick: send image");
-                    Intent intent = new Intent("media_item_target");
 
-                    intent.putExtra("target",CompletionWithValue.send_image);
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    optionSelect.onChoose(CompletionWithValue.send_image);
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.send_location)){
                     dialog.dismiss();
-                    Log.d(TAG, "onClick: send location");
-                    Intent intent = new Intent("media_item_target");
-
-                    intent.putExtra("target",CompletionWithValue.send_location);
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    optionSelect.onChoose(CompletionWithValue.send_location);
 
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.send_document)){
-
-                    Log.d(TAG, "onClick: send document");
-                    Intent intent = new Intent("media_item_target");
-
-                    intent.putExtra("target",CompletionWithValue.send_document);
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    optionSelect.onChoose(CompletionWithValue.send_document);
 
                 }
             }
