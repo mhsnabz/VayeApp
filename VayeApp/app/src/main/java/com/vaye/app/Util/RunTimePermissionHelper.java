@@ -77,17 +77,17 @@ public class RunTimePermissionHelper {
                                         }
                                     })
 
-                                    .setPositiveButton("İzin Ver", new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Ayarlar", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             Intent intent = new Intent();
                                             intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                                             intent.setData(Uri.fromParts("package",context.getPackageName(),null));
-
+                                            context.startActivity(intent);
                                         }
                                     }).show();
                         }else{
-                            Toast.makeText(context,"Izın Verildi",Toast.LENGTH_SHORT).show();;
+
                         }
                     }
 
@@ -117,17 +117,17 @@ public class RunTimePermissionHelper {
                                         }
                                     })
 
-                                    .setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Ayarlar", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             Intent intent = new Intent();
                                             intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                                             intent.setData(Uri.fromParts("package",context.getPackageName(),null));
-
+                                            context.startActivity(intent);
                                         }
                                     }).show();
                         }else{
-                            Toast.makeText(context,"Izın Verildi",Toast.LENGTH_SHORT).show();;
+
                         }
                     }
 
@@ -155,12 +155,13 @@ public class RunTimePermissionHelper {
                                         }
                                     })
 
-                                    .setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Ayarlar", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             Intent intent = new Intent();
                                             intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                                             intent.setData(Uri.fromParts("package",context.getPackageName(),null));
+                                            context.startActivity(intent);
 
                                         }
                                     }).show();
@@ -195,13 +196,13 @@ public class RunTimePermissionHelper {
                                             callback.callBack(false);
                                         }
                                     })
-                                    .setPositiveButton("İZİN VER", new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Ayarlar", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             Intent intent = new Intent();
                                             intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                                             intent.setData(Uri.fromParts("package",context.getPackageName(),null));
-
+                                            context.startActivity(intent);
                                         }
                                     }).show();
                         }else{

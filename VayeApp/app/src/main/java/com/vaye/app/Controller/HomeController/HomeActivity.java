@@ -142,14 +142,12 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     private int STORAGE_PERMISSION_CODE = 1;
     private int STOREGE_READ_WRİTE_CODE = 2;
     private int STROGE_MANAGE_CODE = 3;
-    private static final int camera_request =200;
-    private static final int gallery_request =400;
+
     private static final int image_pick_request =600;
     private static final int camera_pick_request =800;
     private static final int CAMERA_REQUEST = 1888;
     OnOptionSelect optionSelect;
-    String cameraPermission[];
-    String storagePermission[];
+
     private PagerViewApadater pagerViewApadater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -480,80 +478,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         }
     }
 
-    private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this , Manifest.permission.CAMERA) +
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)+
-                ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED){
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) ){
-                AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
-                builder.setTitle("İzin Vermeniz Gerekmektedir");
-                builder.setMessage("Kamera , Galeri ");
-                builder.setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        ActivityCompat.requestPermissions(HomeActivity.this , new String[] {
-                                        Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE ,
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                                },STORAGE_PERMISSION_CODE
-                        );
-                    }
-                });
-                builder.setNegativeButton("VAZGEÇ",null);
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-            }else{
-                ActivityCompat.requestPermissions(this , new String[] {
-                                Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE ,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
 
-                        },STORAGE_PERMISSION_CODE
-                );
-            }
-        }else{
-
-        }
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == camera_pick_request)
-        {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
-                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
-            }
-            else
-            {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
-            }
-        }
-
-    }
-
-
-    private void uploadProfileImage() {
-       /*- if (!checkGalleryPermissions()){
-            requestStoragePermission();
-        }
-        else{ pickGallery();}*/
-
-        if (!RunTimePermissionHelper.shared().checkGalleryPermission(HomeActivity.this)){
-            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
-                @Override
-                public void callBack(Boolean _value) {
-                    if (_value)
-                    pickGallery();
-                }
-            });
-        }else{
-            pickGallery();
-        }
-    }
     private void pickGallery()
     {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -561,8 +486,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         intent.addCategory(intent.CATEGORY_OPENABLE);
-        //  Intent intent = new Intent(Intent.ACTION_PICK);
-        // intent.setType("*/*");
+
         startActivityForResult(intent,image_pick_request);
     }
 
@@ -572,31 +496,39 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                 @Override
                 public void callBack(Boolean _value) {
                     if (_value){
-                        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                        startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                        CropImage.activity()
+                                .setGuidelines(CropImageView.Guidelines.ON)
+                                .setCropShape(CropImageView.CropShape.OVAL)
+                                .setActivityTitle("Konumlandır")
+                                .setCropMenuCropButtonTitle("Seç")
+                                .setAllowFlipping(false)
+                                .setAllowRotation(false)
+                                .setAllowCounterRotation(false)
+                                .setAspectRatio(1, 1)
+                                .setMinCropWindowSize(500, 500)
+                                .start(HomeActivity.this);
                     }
 
                 }
             });
         }else{
-            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+
+            CropImage.activity()
+                    .setGuidelines(CropImageView.Guidelines.ON)
+                    .setCropShape(CropImageView.CropShape.OVAL)
+                    .setActivityTitle("Konumlandır")
+                    .setCropMenuCropButtonTitle("Seç")
+                    .setAllowFlipping(false)
+                    .setAllowRotation(false)
+                    .setAllowCounterRotation(false)
+                    .setAspectRatio(1, 1)
+                    .setMinCropWindowSize(500, 500)
+                    .start(this);
+
         }
-       /* if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-        {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, camera_pick_request);
-        }
-        else
-        {
-            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, CAMERA_REQUEST);
-        }*/
+
     }
-    private boolean checkGalleryPermissions()
-    {
-        boolean result = ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
+
 
     @Override
     protected void onResume() {
@@ -607,7 +539,6 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     @Override
     protected void onStart() {
         super.onStart();
-       // requestStoragePermission();
 
         RunTimePermissionHelper.shared().locationPermission(HomeActivity.this, new TrueFalse<Boolean>() {
             @Override
@@ -653,8 +584,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: " + resultCode);
-        Log.d(TAG, "onActivityResult: " + requestCode);
+
         if (resultCode == RESULT_OK) {
             if (requestCode == image_pick_request) {
                 CropImage.activity(data.getData())
@@ -669,59 +599,55 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                         .setMinCropWindowSize(500, 500)
                         .start(this);
             }
-            if (requestCode == camera_pick_request) {
-                CropImage.activity(data.getData())
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .setAspectRatio(1, 1)
-                        .setMinCropWindowSize(500, 500)
-                        .start(this);
-            }
-        }
-        if (requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
-            CropImage.ActivityResult result =CropImage.getActivityResult(data);
-            if(resultCode==RESULT_OK){
-                WaitDialog.show(HomeActivity.this,"Resim Yükleniyor");
-                Uri resultUri = result.getUri();
-                String mimeType = DataTypes.mimeType.image;
-                String  contentType = DataTypes.contentType.image;
-                saveToDatabase(contentType, mimeType, resultUri, new StringCompletion() {
-                    @Override
-                    public void getString(String url) {
-                        try {
-                            setThumbImage(contentType, mimeType, currentUser, resultUri, new StringCompletion() {
-                                @Override
-                                public void getString(String thumb_url) {
-                                    currentUser.setProfileImage(url);
-                                    currentUser.setThumb_image(thumb_url);
-                                    DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
-                                            .document(currentUser.getUid());
-                                    Map<String , Object> map = new HashMap<>();
-                                    map.put("profileImage",url);
-                                    map.put("thumb_image",thumb_url);
-                                    reference.set(map , SetOptions.merge());
-                                    UserService.shared().updateAllPost(currentUser);
-                                    WaitDialog.dismiss();
-                                    Picasso.get().load(thumb_url).resize(256,256).centerCrop().placeholder(android.R.color.darker_gray).into(profileIamge, new Callback() {
-                                        @Override
-                                        public void onSuccess() {
+        
+            if (requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
+                CropImage.ActivityResult result =CropImage.getActivityResult(data);
+                if(resultCode==RESULT_OK){
+                    WaitDialog.show(HomeActivity.this,"Resim Yükleniyor");
+                    Uri resultUri = result.getUri();
+                    String mimeType = DataTypes.mimeType.image;
+                    String  contentType = DataTypes.contentType.image;
+                    saveToDatabase(contentType, mimeType, resultUri, new StringCompletion() {
+                        @Override
+                        public void getString(String url) {
+                            try {
+                                setThumbImage(contentType, mimeType, currentUser, resultUri, new StringCompletion() {
+                                    @Override
+                                    public void getString(String thumb_url) {
+                                        currentUser.setProfileImage(url);
+                                        currentUser.setThumb_image(thumb_url);
+                                        DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
+                                                .document(currentUser.getUid());
+                                        Map<String , Object> map = new HashMap<>();
+                                        map.put("profileImage",url);
+                                        map.put("thumb_image",thumb_url);
+                                        reference.set(map , SetOptions.merge());
+                                        UserService.shared().updateAllPost(currentUser);
+                                        WaitDialog.dismiss();
+                                        Picasso.get().load(thumb_url).resize(256,256).centerCrop().placeholder(android.R.color.darker_gray).into(profileIamge, new Callback() {
+                                            @Override
+                                            public void onSuccess() {
 
-                                        }
+                                            }
 
-                                        @Override
-                                        public void onError(Exception e) {
+                                            @Override
+                                            public void onError(Exception e) {
 
-                                        }
-                                    });
-                                }
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                                            }
+                                        });
+                                    }
+                                });
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                });
+                    });
 
+                }
             }
+
         }
+
     }
 
 

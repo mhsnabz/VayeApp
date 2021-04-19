@@ -67,11 +67,6 @@ public class ProfileImageSettingAdapter extends RecyclerView.Adapter<RecyclerVie
                         public void completion(Boolean bool, String val) {
                             dialog.dismiss();
 
-                            Intent intent = new Intent("target_choose");
-
-                            intent.putExtra("target",val);
-
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         }
                     });
 
