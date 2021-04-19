@@ -49,6 +49,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.NotificationService.FollowNotification;
 import com.vaye.app.Controller.NotificationService.MainPostNotification;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
@@ -60,6 +61,7 @@ import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.LocationCallback;
 import com.vaye.app.Interfaces.LottieFrames;
 import com.vaye.app.Interfaces.Notifications;
+import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Interfaces.RecordedAudioCallback;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -1465,10 +1467,11 @@ public class Helper {
         bottomSheetDialog.show();
     }
 
-    public void ProfileImageSetting(Activity activity , CurrentUser currentUser , TrueFalse<Boolean> callback){
+    public void ProfileImageSetting(Activity activity , OnOptionSelect onOptionSelect, CurrentUser currentUser ,  TrueFalse<Boolean> callback){
         RecyclerView recyclerView;
         CardView headerView;
         Button cancel;
+
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
         View view = LayoutInflater.from(activity.getApplicationContext())
                 .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
@@ -1484,7 +1487,7 @@ public class Helper {
         res.add(R.drawable.gallery_btn);
 
         BottomSheetModel model = new BottomSheetModel(items, BottomSheetTarget.profile_image_setting,res);
-        ProfileImageSettingAdapter adapter = new ProfileImageSettingAdapter(currentUser , activity , model , bottomSheetDialog);
+        ProfileImageSettingAdapter adapter = new ProfileImageSettingAdapter(currentUser , activity , model , bottomSheetDialog,onOptionSelect);
         recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));

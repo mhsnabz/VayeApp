@@ -61,10 +61,13 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.karumi.dexter.Dexter;
+import com.karumi.dexter.DexterActivity;
+import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
@@ -81,12 +84,15 @@ import com.vaye.app.Controller.HomeController.SetLessons.StudentSetLessonActivit
 import com.vaye.app.Controller.HomeController.SetLessons.TeacherSetLessonActivity;
 import com.vaye.app.Controller.HomeController.SettingController.SettingActivity;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
+import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
+import com.vaye.app.Controller.MapsController.VayeAppPlacePickerActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.EditProfileActivity;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.DataTypes;
+import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -95,7 +101,9 @@ import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.SplashScreen.SplashScreen;
 import com.vaye.app.Util.BottomNavHelper;
+import com.vaye.app.Util.BottomSheetHelper.ProfileImageSettingAdapter;
 import com.vaye.app.Util.Helper;
+import com.vaye.app.Util.RunTimePermissionHelper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
 
@@ -104,6 +112,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -112,7 +121,7 @@ import q.rorbin.badgeview.QBadgeView;
 
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
-public class HomeActivity extends AppCompatActivity implements CompletionWithValue {
+public class HomeActivity extends AppCompatActivity implements CompletionWithValue , OnOptionSelect {
     String TAG = "HomeActivity";
     private DrawerLayout drawer;
     Toolbar toolbar;
@@ -138,7 +147,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     private static final int image_pick_request =600;
     private static final int camera_pick_request =800;
     private static final int CAMERA_REQUEST = 1888;
-
+    OnOptionSelect optionSelect;
     String cameraPermission[];
     String storagePermission[];
     private PagerViewApadater pagerViewApadater;
@@ -146,6 +155,8 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        optionSelect = this::onChoose;
+        setAllPermissinon();
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
@@ -204,8 +215,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
             }
         });
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter("target_choose"));
+
     }
 
 
@@ -360,7 +370,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         profileImageSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Helper.shared().ProfileImageSetting(HomeActivity.this, currentUser, new TrueFalse<Boolean>() {
+                Helper.shared().ProfileImageSetting(HomeActivity.this,optionSelect, currentUser, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
                         if (_value){
@@ -375,9 +385,22 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                     }
                 });
             }
+
+
         });
     }
 
+    @Override
+    public void onChoose(String value) {
+        Log.d(TAG, "onChoose: " + value);
+        if (value.equals(CompletionWithValue.chooseImage)){
+            pickGallery();
+        }else if (value.equals(CompletionWithValue.takePicture)){
+            takeImage();
+        }else if (value.equals(CompletionWithValue.showImage)){
+
+        }
+    }
     private void setupBottomNavBar(CurrentUser currentUser){
         BottomNavigationView navBar = (BottomNavigationView)findViewById(R.id.bottom_nav_bar);
         navBar.setElevation(5);
@@ -512,11 +535,24 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
 
     }
 
+
     private void uploadProfileImage() {
-        if (!checkGalleryPermissions()){
+       /*- if (!checkGalleryPermissions()){
             requestStoragePermission();
         }
-        else{ pickGallery();}
+        else{ pickGallery();}*/
+
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(HomeActivity.this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value)
+                    pickGallery();
+                }
+            });
+        }else{
+            pickGallery();
+        }
     }
     private void pickGallery()
     {
@@ -531,7 +567,22 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     }
 
     private void takeImage(){
-        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                    }
+
+                }
+            });
+        }else{
+            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+        }
+       /* if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
         {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, camera_pick_request);
         }
@@ -539,7 +590,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         {
             Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             startActivityForResult(cameraIntent, CAMERA_REQUEST);
-        }
+        }*/
     }
     private boolean checkGalleryPermissions()
     {
@@ -548,9 +599,25 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
-        requestStoragePermission();
+       // requestStoragePermission();
+
+        RunTimePermissionHelper.shared().locationPermission(HomeActivity.this, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (!_value){
+
+                }
+            }
+        });
+
         FirebaseFirestore.getInstance().collection("user").orderBy("username").whereGreaterThanOrEqualTo("username","@a").whereLessThanOrEqualTo("username","@a"+'\uf8ff').get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -565,40 +632,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                 }
             }
         });
-        Dexter.withActivity(HomeActivity.this)
-                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .withListener(new PermissionListener() {
-                    @Override
-                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
 
-                    }
-
-                    @Override
-                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
-                        if (permissionDeniedResponse.isPermanentlyDenied()){
-                            AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
-                            builder.setTitle("İzin Vermediniz")
-                                    .setMessage("Konumunuza Erişebilmemiz için konum servislerine izin vermeniz gerekiyor")
-                                    .setNegativeButton("Vazgeç",null)
-                                    .setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            Intent intent = new Intent();
-                                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                            intent.setData(Uri.fromParts("package",getPackageName(),null));
-
-                                        }
-                                    }).show();
-                        }else{
-                            Toast.makeText(HomeActivity.this,"Izın Verildi",Toast.LENGTH_SHORT).show();;
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
-                        permissionToken.continuePermissionRequest();
-                    }
-                }).check();
     }
 
     @Override
@@ -615,22 +649,12 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         Log.d(TAG, "completion: " + val);
         Log.d(TAG, "completion: " + bool);
     }
-    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String target = intent.getStringExtra("target");
-            if (target.equals(CompletionWithValue.chooseImage)){
-                uploadProfileImage();
-            }else if (target.equals(CompletionWithValue.takePicture)){
-                takeImage();
-            }
-        }
-    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: " + resultCode);
+        Log.d(TAG, "onActivityResult: " + requestCode);
         if (resultCode == RESULT_OK) {
             if (requestCode == image_pick_request) {
                 CropImage.activity(data.getData())
@@ -651,8 +675,6 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                         .setAspectRatio(1, 1)
                         .setMinCropWindowSize(500, 500)
                         .start(this);
-
-
             }
         }
         if (requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
@@ -777,4 +799,111 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
             }
         });
     }
+
+
+    private void setAllPermissinon(){
+       // galleryPermission();
+       // locationPermission();
+       // galleryPermission();
+    }
+
+    private void galleryPermission(){
+        Dexter.withContext(HomeActivity.this)
+                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE , Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+                        if (multiplePermissionsReport.areAllPermissionsGranted()){
+
+                        }else {
+
+                           for (PermissionDeniedResponse item : multiplePermissionsReport.getDeniedPermissionResponses()){
+                               Log.d(TAG, "onPermissionsChecked: "+ item.getPermissionName());
+
+                           }
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+                        permissionToken.continuePermissionRequest();
+                    }
+                }).check();
+    }
+
+    private void locationPermission(){
+        Dexter.withActivity(HomeActivity.this)
+                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                        if (permissionDeniedResponse.isPermanentlyDenied()){
+                            AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+                            builder.setTitle("İzin Vermediniz")
+                                    .setMessage("Konumunuza Erişebilmemiz için konum servislerine izin vermeniz gerekiyor")
+                                    .setNegativeButton("Vazgeç",null)
+                                    .setPositiveButton("İzin Ver", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            Intent intent = new Intent();
+                                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                            intent.setData(Uri.fromParts("package",getPackageName(),null));
+
+                                        }
+                                    }).show();
+                        }else{
+                            Toast.makeText(HomeActivity.this,"Izın Verildi",Toast.LENGTH_SHORT).show();;
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                        permissionToken.continuePermissionRequest();
+                    }
+                }).check();
+        Dexter.withActivity(HomeActivity.this)
+                .withPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                        Intent i = new Intent(HomeActivity.this,VayeAppPlacePickerActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                        if (permissionDeniedResponse.isPermanentlyDenied()){
+                            AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+                            builder.setTitle("İzin Vermediniz")
+                                    .setMessage("Konumunuza Erişebilmemiz için konum servislerine izin vermeniz gerekiyor")
+                                    .setNegativeButton("Vazgeç",null)
+                                    .setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            Intent intent = new Intent();
+                                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                            intent.setData(Uri.fromParts("package",getPackageName(),null));
+
+                                        }
+                                    }).show();
+                        }else{
+                            Toast.makeText(HomeActivity.this,"Izın Verildi",Toast.LENGTH_SHORT).show();;
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                        permissionToken.continuePermissionRequest();
+                    }
+                }).check();
+    }
+
+
+
 }

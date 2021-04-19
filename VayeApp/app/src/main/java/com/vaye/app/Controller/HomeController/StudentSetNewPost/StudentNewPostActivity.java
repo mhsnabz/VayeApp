@@ -498,7 +498,8 @@ public class StudentNewPostActivity extends AppCompatActivity {
     }
     private boolean checkGalleryPermissions() {
         boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result;
+        boolean result2 =  ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        return result && result2;
     }
     private void requestStoragePermission() {
         ActivityCompat.requestPermissions(this,storagePermission,gallery_request);
@@ -528,6 +529,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
         intent4.putExtra(Constant.MAX_NUMBER, 1);
         intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"pdf"});
         startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+
     }
     public  double getImageSizeFromUriInMegaByte(Context context, Uri uri) {
         String scheme = uri.getScheme();

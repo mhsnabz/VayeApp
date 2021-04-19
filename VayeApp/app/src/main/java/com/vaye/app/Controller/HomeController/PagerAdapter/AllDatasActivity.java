@@ -3,10 +3,13 @@ package com.vaye.app.Controller.HomeController.PagerAdapter;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.Manifest;
 import android.app.DownloadManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -16,6 +19,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.Image;
@@ -55,7 +59,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 public class AllDatasActivity extends AppCompatActivity {
+    private static final int REQUEST_CODE = 102;
     String TAG = "AllDatasActivity";
     Toolbar toolbar;
     ViewPager2 viewPager;
@@ -118,19 +125,58 @@ public class AllDatasActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "onClick: " + url.get(viewPager.getCurrentItem()));
                 hud.show();
-                downloadFile(url.get(viewPager.getCurrentItem()), new TrueFalse<Boolean>() {
-                    @Override
-                    public void callBack(Boolean _value) {
-                        if (_value){
+                if (haveStoragePermission()){
+                    downloadFile(url.get(viewPager.getCurrentItem()), new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
 
+                            }
                         }
-                    }
-                });
+                    });
+                }else{
+
+                }
+
             }
         });
     }
+    private boolean checkGalleryPermissions() {
+        if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Log.e("Permission error","You have permission");
+            return true;
+        }
+        return  false;
+    }
 
 
+    String storagePermission[];
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
+
+    }
+    public  boolean haveStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.e("Permission error","You have permission");
+                return true;
+            } else {
+
+                Log.e("Permission error","You have asked for permission");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else { //you dont need to worry about these stuff below api level 23
+            Log.e("Permission error","You already have the permission");
+            return true;
+        }
+    }
     String fileName = "";
     String mimeType = "";
     void downloadFile( String fileUrl , TrueFalse<Boolean> callback){

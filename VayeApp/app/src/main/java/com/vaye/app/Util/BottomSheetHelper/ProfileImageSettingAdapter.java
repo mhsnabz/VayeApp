@@ -6,6 +6,10 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,8 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.vaye.app.Controller.HomeController.SingleImageActivity;
 import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.MessagesModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
 
@@ -26,11 +32,15 @@ public class ProfileImageSettingAdapter extends RecyclerView.Adapter<RecyclerVie
     BottomSheetModel model;
     BottomSheetDialog dialog;
 
-    public ProfileImageSettingAdapter(CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog ) {
+    OnOptionSelect optionSelect;
+
+    public ProfileImageSettingAdapter(CurrentUser currentUser, Context context, BottomSheetModel model, BottomSheetDialog dialog , OnOptionSelect optionSelect  ) {
         this.currentUser = currentUser;
         this.context = context;
         this.model = model;
         this.dialog = dialog;
+        this.optionSelect = optionSelect;
+
 
     }
 
@@ -70,26 +80,16 @@ public class ProfileImageSettingAdapter extends RecyclerView.Adapter<RecyclerVie
                     i.putExtra("profileImage",currentUser.getProfileImage());
                     context.startActivity(i);
                     dialog.dismiss();
-                    Intent intent = new Intent("target_choose");
 
-                    intent.putExtra("target",CompletionWithValue.showImage);
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    optionSelect.onChoose(CompletionWithValue.showImage);
 
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.take_new_image)){
                     dialog.dismiss();
-                    Intent intent = new Intent("target_choose");
 
-                    intent.putExtra("target",CompletionWithValue.takePicture);
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    optionSelect.onChoose(CompletionWithValue.takePicture);
 
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.choose_image_from_gallery)){
-                    Intent intent = new Intent("target_choose");
-
-                    intent.putExtra("target",CompletionWithValue.chooseImage);
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    optionSelect.onChoose(CompletionWithValue.chooseImage);
                 }
             }
         });
