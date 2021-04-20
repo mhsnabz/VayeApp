@@ -230,6 +230,7 @@ public class Helper {
                 chat.putExtra("count",count);
                 LocalBroadcastManager.getInstance(activity).sendBroadcast(chat);
                 bottomSheetDialog.dismiss();
+
             }
         });
         title = (TextView)view.findViewById(R.id.title);
@@ -603,7 +604,7 @@ public class Helper {
         bottomSheetDialog.show();
     }
 
-    public void MessageOptionsBottomSheetLauncaher(String target,Activity activity , CurrentUser currentUser , OtherUser otherUser ){
+    public void MessageOptionsBottomSheetLauncaher(String target,OnOptionSelect optionSelect ,Activity activity , CurrentUser currentUser , OtherUser otherUser ){
         RecyclerView recyclerView;
         CardView headerView;
         Button cancel;
@@ -635,7 +636,7 @@ public class Helper {
         BottomSheetModel model = new BottomSheetModel(items, target,res);
 
 
-        ChatOptionAdapter adapter = new ChatOptionAdapter(currentUser,model,bottomSheetDialog,otherUser,activity);
+        ChatOptionAdapter adapter = new ChatOptionAdapter(currentUser,model,bottomSheetDialog,otherUser,activity,optionSelect);
         recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));

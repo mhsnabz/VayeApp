@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
@@ -48,7 +49,10 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Application.VayeApp;
 import com.vaye.app.Interfaces.LocationCallback;
 import com.vaye.app.Interfaces.TrueFalse;
+import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.MessageService;
 import com.vaye.app.Util.Helper;
 
 import java.io.IOException;
@@ -69,6 +73,7 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
     Marker prevMarker;
     Location currentLocation ;
     LocationCallback callback;
+
     private FusedLocationProviderClient locationProviderClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +150,9 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
                 Helper.shared().LocationPickDialog(VayeAppPlacePickerActivity.this, arg0.getTitle(), getCompleteAddressString(arg0.getPosition().latitude,arg0.getPosition().longitude),arg0.getPosition().latitude, arg0.getPosition().longitude,callback, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
+                        if (_value){
 
+                        }
                     }
                 });
                     WaitDialog.dismiss();

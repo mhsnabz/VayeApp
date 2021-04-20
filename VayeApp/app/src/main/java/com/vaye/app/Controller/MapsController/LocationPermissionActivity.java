@@ -21,10 +21,14 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
+import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 
 public class LocationPermissionActivity extends AppCompatActivity {
     private LottieAnimationView anim;
+    OtherUser otherUser;
+    CurrentUser currentUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +41,7 @@ public class LocationPermissionActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(LocationPermissionActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
         ContextCompat.checkSelfPermission(LocationPermissionActivity.this , Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             Intent i = new Intent(LocationPermissionActivity.this,VayeAppPlacePickerActivity.class);
+
             startActivity(i);
 
 

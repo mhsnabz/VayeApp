@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -18,9 +19,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -52,6 +57,7 @@ import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.ChatController.Conservation.ConservationController;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.NewPostAdapter;
 import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
 import com.vaye.app.Interfaces.CompletionWithValue;
@@ -60,22 +66,27 @@ import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
+import com.vaye.app.LoginRegister.MessageType;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.MainPostTopicFollower;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.MainPostNS;
+import com.vaye.app.Services.MessageService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.Helper;
+import com.vaye.app.Util.RunTimePermissionHelper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -109,16 +120,10 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     ArrayList<MainPostTopicFollower>  followers;
     String postType;
     String postName = "";
-    private static final int PICK_IMAGE_REQUEST = 1;
-    private static final int gallery_request =400;
+
     private static final int image_pick_request =600;
-    private static final int camera_pick_request =800;
-    String link = "";
-    private int MAX_ATTACHMENT_COUNT = 10;
-    private ArrayList<String> photoPaths = new ArrayList<>();
-    private ArrayList<Uri> docPaths = new ArrayList<>();
     String value = "";
-    String storagePermission[];
+
     //Stackview
     ImageButton addImage, map_pin , price , cancelPrice , cancelLacation;
     String contentType = "";
@@ -409,28 +414,32 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
         }
 
     }
-
     private void uploadImage() {
-        if (!checkGalleryPermissions()){
-            requestStoragePermission();
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        pickGallery();
+                    }
+                }
+            });
+        }else{
+            pickGallery();
+
         }
-        else{ pickGallery();}
     }
-    private boolean checkGalleryPermissions() {
-        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
-    private void requestStoragePermission() {
-        ActivityCompat.requestPermissions(this,storagePermission,gallery_request);
 
-    }
     private void pickGallery() {
-        Intent intent1 = new Intent(this, ImagePickActivity.class);
-        intent1.putExtra(IS_NEED_CAMERA, false);
-        intent1.putExtra(Constant.MAX_NUMBER, 1);
-        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), image_pick_request);
 
     }
+
     public  double getImageSizeFromUriInMegaByte(Context context, Uri uri) {
         String scheme = uri.getScheme();
         double dataSize = 0;
@@ -455,7 +464,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                 dataSize = file.length();
             }
         }
-        return dataSize / (1024 * 1024);
+        return dataSize / (1024 * 1024) / 1024;
     }
 
     private double getTotalSize(Context context , ArrayList<NewPostDataModel> dataModel){
@@ -468,51 +477,52 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case Constant.REQUEST_CODE_PICK_IMAGE:
-                if (getTotalSize(VayeAppNewPostActivity.this , dataModel) < 15){
-                    if (resultCode == RESULT_OK){
-                        ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
-                        Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                        String fileName = list.get(0).getName();
-                        Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
-                        String mimeType = DataTypes.mimeType.image;
-                        String  contentType = DataTypes.contentType.image;
-                        dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
-                        saveDatasToDataBase(DataTypes.contentType.image, DataTypes.mimeType.image, this, String.valueOf(postDate), currentUser, file, new StringCompletion() {
-                            @Override
-                            public void getString(String url) {
-                                try {
-                                    setThumbData(DataTypes.contentType.image, VayeAppNewPostActivity.this, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
+
+        if (resultCode == RESULT_OK){
+            if (requestCode == image_pick_request){
+                Uri file = Uri.parse(data.getData().getPath());
+                Log.d(TAG, "onActivityResult: " + file.getPath());
+                String mimeType = DataTypes.mimeType.image;
+                String contentType = DataTypes.contentType.image;
+               // String fileName = file.getPath().toString();
+                dataModel.add(new NewPostDataModel("fileName", file, null, null, mimeType, contentType));
+
+                saveDatasToDataBase(DataTypes.contentType.image, DataTypes.mimeType.image, this, String.valueOf(postDate), currentUser, file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        try {
+                            setThumbData(DataTypes.contentType.image, VayeAppNewPostActivity.this, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
+                                @Override
+                                public void getString(String thumb_url) {
+                                    updateImages(VayeAppNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
                                         @Override
-                                        public void getString(String thumb_url) {
-                                            updateImages(VayeAppNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
-                                                @Override
-                                                public void callBack(Boolean _value) {
-                                                    WaitDialog.dismiss();
-                                                    TipDialog.show(VayeAppNewPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
-                                                    TipDialog.dismiss(1500);
-                                                    for (int i = 0 ; i< dataModel.size() ; i++){
-                                                        if (dataModel.get(i).getFile() == fileUri){
-                                                            dataModel.get(i).setFileUrl(url);
-                                                            dataModel.get(i).setThumb_url(thumb_url);
-                                                            adapter.notifyDataSetChanged();
-                                                        }
-                                                    }
-                                                    title.setText(String.valueOf(getTotalSize(VayeAppNewPostActivity.this , dataModel) +"mb"));
+                                        public void callBack(Boolean _value) {
+                                            WaitDialog.dismiss();
+                                            TipDialog.show(VayeAppNewPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                            TipDialog.dismiss(1500);
+                                            for (int i = 0 ; i< dataModel.size() ; i++){
+                                                if (dataModel.get(i).getFile() == file){
+                                                    dataModel.get(i).setFileUrl(url);
+                                                    dataModel.get(i).setThumb_url(thumb_url);
+                                                    adapter.notifyDataSetChanged();
                                                 }
-                                            });
+                                            }
+                                            title.setText(String.valueOf(getTotalSize(VayeAppNewPostActivity.this , dataModel) +"mb"));
                                         }
                                     });
-                                } catch (IOException e) {
-                                    e.printStackTrace();
                                 }
+                            });
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.d(TAG, "getString: " + e.getLocalizedMessage());
+                        }
 
-                            }
-                        });
                     }
-                }
+                });
+            }
         }
+
+
     }
     //TODO:: upload images
     private void saveDatasToDataBase(String contentType, String mimeType, Activity activity , String date , CurrentUser currentUser , Uri data,
@@ -563,47 +573,70 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
         });
 
     }
+    public static String getRealPathFromUri(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
     private void setThumbData(String contentType, Activity activity ,String date ,String mimeType, CurrentUser currentUser , String type , Uri data,
                               StringCompletion completion) throws IOException {
         WaitDialog.show((AppCompatActivity) activity ,null);
         if (type == "image"){
 
-            StorageMetadata metadata = new StorageMetadata.Builder()
-                    .setContentType(contentType)
-                    .build();
+            if (RunTimePermissionHelper.shared().checkGalleryPermission(VayeAppNewPostActivity.this)){
+                StorageMetadata metadata = new StorageMetadata.Builder()
+                        .setContentType(contentType)
+                        .build();
+                Log.d(TAG, "setThumbData: " + getRealPathFromUri(VayeAppNewPostActivity.this , data));
+                Uri sharedFileUri = FileProvider.getUriForFile(this, "com.vaye.app", new File(data.getPath()));
+                File thumb_file = new File(sharedFileUri.getPath());
+                if (thumb_file.exists()){
 
-            File thumb_file = new File(data.getPath());
-            Bitmap thumb_bitmap = new Compressor(this)
-                    .setMaxHeight(300)
-                    .setMaxWidth(300).setQuality(100)
-                    .compressToBitmap(thumb_file);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            final byte[] thumb_byte = baos.toByteArray();
-
-            StorageReference ref = FirebaseStorage.getInstance().getReference().child("main-post-thumb")
-                    .child(currentUser.getShort_school())
-                    .child(postType)
-                    .child(currentUser.getUsername())
-                    .child(date)
-                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +mimeType);
-
-            ref.putBytes(thumb_byte, metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                    if (task.isSuccessful()){
-                        task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(activity, new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                String thumb_url = uri.toString();
-                                completion.getString(thumb_url);
-
-                            }
-                        });
-                    }
+                }else{
+                    Log.d(TAG, "setThumbData: file not exist");
                 }
-            });
+                Bitmap thumb_bitmap = new Compressor(this)
+                        .setMaxHeight(300)
+                        .setMaxWidth(300).setQuality(100)
+                        .compressToBitmap(thumb_file);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                final byte[] thumb_byte = baos.toByteArray();
+
+                StorageReference ref = FirebaseStorage.getInstance().getReference().child("main-post-thumb")
+                        .child(currentUser.getShort_school())
+                        .child(postType)
+                        .child(currentUser.getUsername())
+                        .child(date)
+                        .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +mimeType);
+
+                ref.putBytes(thumb_byte, metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()){
+                            task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(activity, new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    String thumb_url = uri.toString();
+                                    completion.getString(thumb_url);
+
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
         }
 
     }

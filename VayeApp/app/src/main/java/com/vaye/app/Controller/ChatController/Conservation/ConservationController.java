@@ -144,7 +144,7 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
-public class ConservationController extends AppCompatActivity implements MessagesAdaper.OnItemClickListener,OnOptionSelect {
+public class ConservationController extends AppCompatActivity implements MessagesAdaper.OnItemClickListener,OnOptionSelect  {
     String TAG = "ConservationController";
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
@@ -275,13 +275,7 @@ public class ConservationController extends AppCompatActivity implements Message
 
     }
 
-    private void targetChooser() {
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("media_item_target"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocaitonReciver, new IntentFilter("locaiton_manager"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocaitonReciver, new IntentFilter("chat_option"));
-        Log.d(TAG, "targetChooser: " + "Broadcast register");
-    }
 
     private void setToolbar(OtherUser otherUser) {
         toolbar = findViewById(R.id.toolbar);
@@ -317,7 +311,7 @@ public class ConservationController extends AppCompatActivity implements Message
         options.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              Helper.shared().MessageOptionsBottomSheetLauncaher(BottomSheetTarget.conservation_options,ConservationController.this, currentUser, otherUser);
+              Helper.shared().MessageOptionsBottomSheetLauncaher(BottomSheetTarget.conservation_options,optionSelect,ConservationController.this, currentUser, otherUser);
             }
         });
 
@@ -544,6 +538,8 @@ public class ConservationController extends AppCompatActivity implements Message
                         permissionToken.continuePermissionRequest();
                     }
                 }).check();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("target_location"));
     }
 
     @Override
@@ -558,6 +554,8 @@ public class ConservationController extends AppCompatActivity implements Message
         map.put("badgeCount", 0);
         setCurrentUserOnline.update(map);
         Log.d(TAG, "onStop: onStop");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+
     }
 
     @Override
@@ -565,24 +563,18 @@ public class ConservationController extends AppCompatActivity implements Message
         super.onPause();
         Log.d(TAG, "onStop: onPause");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocaitonReciver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocaitonReciver);
-        Log.d(TAG, "targetChooser: " + "Broadcast unregisterReceiver");
-
     }
-
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onStop: onResume");
-        targetChooser();
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("target_location"));
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
     }
 
     @Override
@@ -597,112 +589,9 @@ public class ConservationController extends AppCompatActivity implements Message
         @Override
         public void onReceive(Context context, Intent intent) {
             String target = intent.getStringExtra("target");
-            Log.d(TAG, "onReceive: " + target);
-            if (target != null && target.equals(CompletionWithValue.send_image)) {
+            if (target.equals(CompletionWithValue.location)){
 
-            } else if (target != null && target.equals(CompletionWithValue.send_location)) {
-
-            } else if (target != null && target.equals(CompletionWithValue.send_document)) {
-
-            }else if (target !=null && target.equals(CompletionWithValue.remove_chat)){
-                WaitDialog.show(ConservationController.this,"Sohbet Siliniyor");
-                MessageService.shared().removeChat(currentUser, otherUser, new TrueFalse<Boolean>() {
-                    @Override
-                    public void callBack(Boolean _value) {
-                        if (_value){
-                            MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    if (!_value){
-                                        Log.d(TAG, "removeChat: " + "other user has not chat");
-                                        MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
-                                            @Override
-                                            public void callBack(Boolean _value) {
-                                                finish();
-                                                Helper.shared().back(ConservationController.this);
-                                                WaitDialog.dismiss();
-                                            }
-                                        });
-
-
-                                    }else{
-                                        Log.d(TAG, "removeChat: " + "other user has  chat");
-                                        MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
-                                            @Override
-                                            public void callBack(Boolean _value) {
-                                                finish();
-                                                Helper.shared().back(ConservationController.this);
-                                                WaitDialog.dismiss();
-                                            }
-                                        });
-
-                                    }
-                                }
-                            });
-                          ;
-                        }
-                    }
-                });
-
-            }
-            else if (target !=null && target.equals(CompletionWithValue.remove_from_friend_list)){
-                WaitDialog.show(ConservationController.this , "Lütfen Bekleyin");
-                UserService.shared().removeFromFirendList(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
-                    @Override
-                    public void callBack(Boolean _value) {
-                        if (_value){
-                            MessageService.shared().removeChat(currentUser, otherUser, new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    if (_value){
-                                        MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
-                                            @Override
-                                            public void callBack(Boolean _value) {
-                                                if (!_value){
-                                                    Log.d(TAG, "removeChat: " + "other user has not chat");
-                                                    MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
-                                                        @Override
-                                                        public void callBack(Boolean _value) {
-                                                            finish();
-                                                            Helper.shared().back(ConservationController.this);
-                                                            WaitDialog.dismiss();
-                                                        }
-                                                    });
-
-
-                                                }else{
-                                                    Log.d(TAG, "removeChat: " + "other user has  chat");
-                                                    MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
-                                                        @Override
-                                                        public void callBack(Boolean _value) {
-                                                            finish();
-                                                            Helper.shared().back(ConservationController.this);
-                                                            WaitDialog.dismiss();
-                                                        }
-                                                    });
-
-                                                }
-                                            }
-                                        });
-                                        ;
-                                    }
-                                }
-                            });
-                        }
-                    }
-                });
-
-            }
-
-            else if (target !=null && target.equals(CompletionWithValue.report_chat_user)){
-               Intent i = new Intent(ConservationController.this , ReportActivity.class);
-                i.putExtra("otherUser",otherUser.getUid());
-                i.putExtra("target", Report.ReportTarget.reportMessages);
-                i.putExtra("reportType", Report.ReportType.reportUser);
-                i.putExtra("currentUser",currentUser);
-                startActivity(i);
-                Helper.shared().go(ConservationController.this);
-
+                sendLocationMessage(new GeoPoint(intent.getDoubleExtra("lat",-45),intent.getDoubleExtra("longLat",45)));
             }
         }
     };
@@ -731,19 +620,12 @@ public class ConservationController extends AppCompatActivity implements Message
                 @Override
                 public void callBack(Boolean _value) {
                     if (_value){
-                      /*  Intent intent4 = new Intent(ConservationController.this, NormalFilePickActivity.class);
-                        intent4.putExtra(Constant.MAX_NUMBER, 1);
-                        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] { "doc", "docx","pdf"});
-                        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);*/
                         pickDocument();
                     }
                 }
             });
         }else{
-            /*Intent intent4 = new Intent(this, NormalFilePickActivity.class);
-            intent4.putExtra(Constant.MAX_NUMBER, 1);
-            intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] { "doc", "docx","pdf"});
-            startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);*/
+
             pickDocument();
 
         }
@@ -760,6 +642,8 @@ public class ConservationController extends AppCompatActivity implements Message
     private void sendLocation() {
         if (isServicesOk()) {
             Intent i = new Intent(ConservationController.this, LocationPermissionActivity.class);
+            i.putExtra("currentUser",currentUser);
+            i.putExtra("otherUser",otherUser);
             startActivity(i);
         }
     }
@@ -817,17 +701,7 @@ public class ConservationController extends AppCompatActivity implements Message
 
 
 
-
-    private void requestStoragePermission() {
-        ActivityCompat.requestPermissions(this, storagePermission, gallery_request);
-
-    }
-
     private void pickGallery() {
-       /* Intent intent1 = new Intent(this, ImagePickActivity.class);
-        intent1.putExtra(IS_NEED_CAMERA, false);
-        intent1.putExtra(Constant.MAX_NUMBER, 1);
-        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);*/
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
@@ -896,72 +770,6 @@ public class ConservationController extends AppCompatActivity implements Message
                 });
             }
         }
-
-       /* switch (requestCode) {
-
-            case Constant.REQUEST_CODE_PICK_FILE:
-                Log.d(TAG, "onActivityResult: " + "normal file pick");
-
-                    Log.d(TAG, "onActivityResult: " + "normal file pick");
-                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
-                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                    String fileName = list.get(0).getName();
-                    Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));;
-                    Log.d(TAG, "onActivityResult: " + fileName);
-                    Log.d(TAG, "onActivityResult: " + file);
-                    Log.d(TAG, "onActivityResult: " + fileUri.getPath());
-                String mimeType = "";
-                String contentType = "";
-
-                if (list.get(0).getMimeType().equals(DataTypes.contentType.doc)) {
-                    contentType = DataTypes.contentType.doc;
-                    mimeType = DataTypes.mimeType.doc;
-                } else if (list.get(0).getMimeType().equals(DataTypes.contentType.docx)) {
-                    contentType = DataTypes.contentType.docx;
-                    mimeType = DataTypes.mimeType.docx;
-                } else if (list.get(0).getMimeType().equals(DataTypes.contentType.pdf)) {
-                    contentType = DataTypes.contentType.pdf;
-                    mimeType = DataTypes.mimeType.pdf;
-                }
-                dataModel.add(new NewPostDataModel(fileName, fileUri, null, null, mimeType, contentType));
-                saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
-                    @Override
-                    public void getString(String url) {
-                        Log.d(TAG, "getString: url : " + url);
-                        MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, 100f, 150f, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
-                        TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
-                        TipDialog.dismiss(500);
-                    }
-                });
-                  case Constant.REQUEST_CODE_PICK_IMAGE:
-                if (resultCode == RESULT_OK) {
-                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
-                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                    String fileName = list.get(0).getName();
-                    Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
-                    String mimeType = DataTypes.mimeType.image;
-                    String contentType = DataTypes.contentType.image;
-                    dataModel.add(new NewPostDataModel(fileName, fileUri, null, null, mimeType, contentType));
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(new File(file.getPath()).getAbsolutePath(), options);
-                    float imageHeight = options.outHeight;
-                    float imageWidth = options.outWidth;
-                    Log.d(TAG, "imageWidth: " + imageWidth);
-                    Log.d(TAG, "imageHeight: " + imageHeight);
-                    saveDatasToDataBase(contentType, mimeType, ConservationController.this, otherUser, currentUser, file, new StringCompletion() {
-                        @Override
-                        public void getString(String url) {
-                            Log.d(TAG, "getString: url : " + url);
-                            MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, imageWidth, imageHeight, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
-                            TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
-                            TipDialog.dismiss(500);
-                        }
-                    });
-                }
-                break;
-        }*/
-
 
     }
 
@@ -1460,9 +1268,111 @@ public class ConservationController extends AppCompatActivity implements Message
         if (value != null && value.equals(CompletionWithValue.send_image)) {
             sendImage();
         } else if (value != null && value.equals(CompletionWithValue.send_location)) {
+
             sendLocation();
         } else if (value != null && value.equals(CompletionWithValue.send_document)) {
             sendDocument();
+        }else if (value !=null && value.equals(CompletionWithValue.remove_chat)){
+            WaitDialog.show(ConservationController.this,"Sohbet Siliniyor");
+            MessageService.shared().removeChat(currentUser, otherUser, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (!_value){
+                                    Log.d(TAG, "removeChat: " + "other user has not chat");
+                                    MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            finish();
+                                            Helper.shared().back(ConservationController.this);
+                                            WaitDialog.dismiss();
+                                        }
+                                    });
+
+
+                                }else{
+                                    Log.d(TAG, "removeChat: " + "other user has  chat");
+                                    MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            finish();
+                                            Helper.shared().back(ConservationController.this);
+                                            WaitDialog.dismiss();
+                                        }
+                                    });
+
+                                }
+                            }
+                        });
+                        ;
+                    }
+                }
+            });
+
+        }
+        else if (value !=null && value.equals(CompletionWithValue.remove_from_friend_list)){
+            WaitDialog.show(ConservationController.this , "Lütfen Bekleyin");
+            UserService.shared().removeFromFirendList(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        MessageService.shared().removeChat(currentUser, otherUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (!_value){
+                                                Log.d(TAG, "removeChat: " + "other user has not chat");
+                                                MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        finish();
+                                                        Helper.shared().back(ConservationController.this);
+                                                        WaitDialog.dismiss();
+                                                    }
+                                                });
+
+
+                                            }else{
+                                                Log.d(TAG, "removeChat: " + "other user has  chat");
+                                                MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        finish();
+                                                        Helper.shared().back(ConservationController.this);
+                                                        WaitDialog.dismiss();
+                                                    }
+                                                });
+
+                                            }
+                                        }
+                                    });
+                                    ;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+        }
+
+        else if (value !=null && value.equals(CompletionWithValue.report_chat_user)){
+            Intent i = new Intent(ConservationController.this , ReportActivity.class);
+            i.putExtra("otherUser",otherUser.getUid());
+            i.putExtra("target", Report.ReportTarget.reportMessages);
+            i.putExtra("reportType", Report.ReportType.reportUser);
+            i.putExtra("currentUser",currentUser);
+            startActivity(i);
+            Helper.shared().go(ConservationController.this);
+
         }
     }
+
+
 }

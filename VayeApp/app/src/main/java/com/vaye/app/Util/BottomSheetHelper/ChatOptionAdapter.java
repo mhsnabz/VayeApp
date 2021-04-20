@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.vaye.app.Interfaces.CompletionWithValue;
+import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
@@ -25,12 +26,14 @@ public class ChatOptionAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHo
     OtherUser otherUser;
     Context context;
     String TAG = "ChatOptionAdapter";
-    public ChatOptionAdapter(CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context) {
+    OnOptionSelect optionSelect;
+    public ChatOptionAdapter(CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context , OnOptionSelect optionSelect) {
         this.currentUser = currentUser;
         this.model = model;
         this.dialog = dialog;
         this.otherUser = otherUser;
         this.context = context;
+        this.optionSelect = optionSelect;
     }
 
     @NonNull
@@ -52,27 +55,21 @@ public class ChatOptionAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHo
             public void onClick(View view) {
                 if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.remove_from_friendList)){
                     dialog.dismiss();
-                    Intent intent = new Intent("media_item_target");
 
-                    intent.putExtra("target", CompletionWithValue.remove_from_friend_list);
 
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    optionSelect.onChoose( CompletionWithValue.remove_from_friend_list);
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.report_chat_friend)){
                     dialog.dismiss();
-                    Intent intent = new Intent("media_item_target");
 
-                    intent.putExtra("target", CompletionWithValue.report_chat_user);
+                    optionSelect.onChoose(CompletionWithValue.report_chat_user);
 
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                 }
+
 
                 else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.delete_conservation)){
                     dialog.dismiss();
-                    Intent intent = new Intent("media_item_target");
 
-                    intent.putExtra("target", CompletionWithValue.remove_chat);
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    optionSelect.onChoose(CompletionWithValue.remove_chat);
                 }
             }
         });
