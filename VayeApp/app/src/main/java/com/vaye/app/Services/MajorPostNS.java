@@ -1,5 +1,7 @@
 package com.vaye.app.Services;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,7 +59,12 @@ public class MajorPostNS {
                                             .collection("notification")
                                             .document(String.valueOf(notId));
                                     ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
-                                    PushNotificationService.shared().sendPushNotification(notId,id.getId(),null, PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text, MajorPostNotification.descp.new_post,currentUser.getUid());
+                                    PushNotificationService.shared().sendPushNotification(notId, id.getId(), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid(), new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+
+                                        }
+                                    });
                                 }
 
                         }
@@ -67,19 +74,31 @@ public class MajorPostNS {
             }
         });
     }
-
-    public void teacherNewPostNotification(ArrayList<String> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId){
+    int counter = 0;
+    public void teacherNewPostNotification(ArrayList<String> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId , TrueFalse<Boolean> callback){
         String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-        for (String item : notificationGetter){
-            if (!item.equals(currentUser.getUid())){
+        for (int i = 0 ; i<notificationGetter.size() ; i++){
+            counter ++;
+            if (!notificationGetter.get(i).equals(currentUser.getUid())){
+                Log.d("PushNotificationService", "teacherNewPostNotification: " + notificationGetter.get(i));
                 DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user")
-                        .document(item)
+                        .document(notificationGetter.get(i))
                         .collection("notification")
                         .document(String.valueOf(notId));
                 ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(notId,item,null, PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text, MajorPostNotification.descp.new_post,currentUser.getUid());
+                Log.d("TeacherNewPostActivity", "teacherNewPostNotification: " + "send notificaiton");
+
+                PushNotificationService.shared().sendPushNotification(notId, notificationGetter.get(i), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid(), new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (notificationGetter.size() < counter){
+                            callback.callBack(true);
+                        }
+                    }
+                });
             }
         }
+
 
     }
 

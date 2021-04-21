@@ -65,16 +65,6 @@ dependencies {
     implementation 'com.cocosw:bottomsheet:1.+@aar'
     implementation 'id.zelory:compressor:2.1.0'
     implementation 'com.kaopiz:kprogresshud:1.2.0'
-    implementation 'com.vincent.filepicker:MultiTypeFilePicker:1.0.8'
-
-    implementation ("com.github.bumptech.glide:glide:4.6.1") {
-        exclude group: "com.android.support"
-    }
-    implementation 'com.github.bumptech.glide:annotations:4.6.1'
-    implementation 'com.github.bumptech.glide:compiler:4.6.1'
-
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
-
     implementation "com.airbnb.android:lottie:3.0.3"
 
    implementation "com.hendraanggrian.appcompat:socialview:0.2"

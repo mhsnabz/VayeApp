@@ -64,9 +64,7 @@ import com.vaye.app.Services.SchoolPostNS;
 import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.RunTimePermissionHelper;
-import com.vincent.filepicker.Constant;
-import com.vincent.filepicker.activity.ImagePickActivity;
-import com.vincent.filepicker.filter.entity.ImageFile;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,7 +80,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
 
-import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
+
 
 public class NewSchoolPostActivity extends AppCompatActivity {
     private static final String TAG = "NewSchoolPostActivity";
@@ -358,8 +356,6 @@ public class NewSchoolPostActivity extends AppCompatActivity {
             sampleImage.setImageBitmap(bitmap);
             return  BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
         } catch (FileNotFoundException e) {
-            // handle errors
-        } catch (IOException e) {
             // handle errors
         } finally {
             if (parcelFD != null)

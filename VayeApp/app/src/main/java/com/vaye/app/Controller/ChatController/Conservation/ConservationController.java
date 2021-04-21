@@ -118,11 +118,7 @@ import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.RunTimePermissionHelper;
-import com.vincent.filepicker.Constant;
-import com.vincent.filepicker.activity.ImagePickActivity;
-import com.vincent.filepicker.activity.NormalFilePickActivity;
-import com.vincent.filepicker.filter.entity.ImageFile;
-import com.vincent.filepicker.filter.entity.NormalFile;
+
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -147,7 +143,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
+
 
 public class ConservationController extends AppCompatActivity implements MessagesAdaper.OnItemClickListener,OnOptionSelect  {
     String TAG = "ConservationController";

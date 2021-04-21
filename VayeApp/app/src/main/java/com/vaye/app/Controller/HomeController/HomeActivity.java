@@ -104,8 +104,7 @@ import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.BottomSheetHelper.ProfileImageSettingAdapter;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.RunTimePermissionHelper;
-import com.vincent.filepicker.Constant;
-import com.vincent.filepicker.activity.ImagePickActivity;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -119,7 +118,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
 import q.rorbin.badgeview.QBadgeView;
 
-import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class HomeActivity extends AppCompatActivity implements CompletionWithValue , OnOptionSelect {
     String TAG = "HomeActivity";

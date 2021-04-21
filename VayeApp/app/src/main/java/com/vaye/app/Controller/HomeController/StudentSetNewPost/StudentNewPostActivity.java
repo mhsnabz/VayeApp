@@ -82,11 +82,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.RunTimePermissionHelper;
-import com.vincent.filepicker.Constant;
-import com.vincent.filepicker.activity.ImagePickActivity;
-import com.vincent.filepicker.activity.NormalFilePickActivity;
-import com.vincent.filepicker.filter.entity.ImageFile;
-import com.vincent.filepicker.filter.entity.NormalFile;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -101,9 +97,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import id.zelory.compressor.Compressor;
 
-import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class StudentNewPostActivity extends AppCompatActivity {
     private static final String TAG = "StudentNewPostActivity";
@@ -203,32 +197,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
                     return;
                 }else {
                     WaitDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
-                    MajorPostNS.shared().sendNewPostNotification(NotificationPostType.name.lessonPost,currentUser,lessonName,text.getText().toString(), MajorPostNotification.type.new_post,String.valueOf(postDate));
-                    for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
-                        String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-                        UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
-                            @Override
-                            public void callback(OtherUser otherUser) {
-                                if (otherUser != null){
-                                    if (otherUser.getShort_school().equals(currentUser.getShort_school()))
-                                    {
-                                        if (otherUser.getBolum().equals(currentUser.getBolum())){
-                                            if (!currentUser.getUid().equals(otherUser.getUid())){
-                                                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
-                                                        .document(otherUser.getUid())
-                                                        .collection("notification")
-                                                        .document(notId);
-                                                ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
-                                                PushNotificationService.shared().sendPushNotification(notId,otherUser.getUid(),otherUser, PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text.getText().toString(),MajorPostNotification.descp.new_mentioned_post,currentUser.getUid());
 
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    }
                     MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
                         @Override
                         public void onCallback(ArrayList<LessonFallowerUser> users) {
@@ -259,12 +228,44 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                                             }
 
                                                         }
+                                                        MajorPostNS.shared().sendNewPostNotification(NotificationPostType.name.lessonPost,currentUser,lessonName,text.getText().toString(), MajorPostNotification.type.new_post,String.valueOf(postDate));
+                                                        for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
+                                                            String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                                                            UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
+                                                                @Override
+                                                                public void callback(OtherUser otherUser) {
+                                                                    if (otherUser != null){
+                                                                        if (otherUser.getShort_school().equals(currentUser.getShort_school()))
+                                                                        {
+                                                                            if (otherUser.getBolum().equals(currentUser.getBolum())){
+                                                                                if (!currentUser.getUid().equals(otherUser.getUid())){
+                                                                                    DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                                                                            .document(otherUser.getUid())
+                                                                                            .collection("notification")
+                                                                                            .document(notId);
+                                                                                    ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
+                                                                                    PushNotificationService.shared().sendPushNotification(notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid(), new TrueFalse<Boolean>() {
+                                                                                        @Override
+                                                                                        public void callBack(Boolean _value) {
+                                                                                            if (_value){
+                                                                                                WaitDialog.dismiss();
+                                                                                                TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                                                                                TipDialog.dismiss(1400);
+                                                                                                finish();
+                                                                                                Helper.shared().back(StudentNewPostActivity.this);
+                                                                                            }
+                                                                                        }
+                                                                                    });
 
-                                                        WaitDialog.dismiss();
-                                                        TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
-                                                        TipDialog.dismiss(1400);
-                                                        finish();
-                                                        Helper.shared().back(StudentNewPostActivity.this);
+                                                                                }
+
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+
                                                     }
                                                 }
                                             });
@@ -876,8 +877,6 @@ public class StudentNewPostActivity extends AppCompatActivity {
             sampleImage.setImageBitmap(bitmap);
             return  BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
         } catch (FileNotFoundException e) {
-            // handle errors
-        } catch (IOException e) {
             // handle errors
         } finally {
             if (parcelFD != null)

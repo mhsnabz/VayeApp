@@ -39,7 +39,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),post.getPostId(),null,null,post.getPostType()), SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid(),null);
             }
         }
     }
@@ -55,7 +55,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid(),null);
             }
         }
     }
@@ -76,7 +76,7 @@ public class CommentNotificationService {
                     .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,null,post.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_comment,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_comment,currentUser.getUid(),null);
             }
         }
     }
@@ -100,7 +100,7 @@ public class CommentNotificationService {
                                             .document(notificaitonId);
 
                                     db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notId,null,post.getPostId(),post.getLessonName(),null,null));
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_mentioned_comment,currentUser.getUid());
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_mentioned_comment,currentUser.getUid(),null);
 
 
                                 }
@@ -125,7 +125,7 @@ public class CommentNotificationService {
                         .document(notificaitonId);
                 Log.d(TAG, "sendLessonPostRepliedComment: "+targetCommentModel.getCommentId());
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_comment,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_comment,currentUser.getUid(),null);
             }
         }
     }
@@ -151,7 +151,7 @@ public class CommentNotificationService {
                                             .document(notificaitonId);
 
                                     db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),post.getLessonName(),null,null));
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid());
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid(),null);
                                 }
                             }
                         }
@@ -173,7 +173,7 @@ public class CommentNotificationService {
                     .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,null,post.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.comment_like,currentUser.getUid(),null);
             }
         }
     }
@@ -189,7 +189,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.update(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),post.getLessonName(),null,null));
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.replied_comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.replied_comment_like,currentUser.getUid(),null);
 
             }
         }
@@ -209,7 +209,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_comment,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_comment,currentUser.getUid(),null);
             }
         }
     }
@@ -231,7 +231,7 @@ public class CommentNotificationService {
                                             .document(notificaitonId);
 
                                     db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_mentioned_comment,currentUser.getUid());
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_mentioned_comment,currentUser.getUid(),null);
 
 
                                 }
@@ -253,7 +253,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid(),null);
             }
         }
     }
@@ -270,7 +270,7 @@ public class CommentNotificationService {
                     .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getPostType(),post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid(),null);
 
             }
         }
@@ -288,7 +288,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_replied_comment,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_replied_comment,currentUser.getUid(),null);
             }
         }
     }
@@ -313,7 +313,7 @@ public class CommentNotificationService {
                                             .document(notificaitonId);
 
                                     db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid());
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid(),null);
 
                         }
                     }
@@ -337,7 +337,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,null,post.getPostId(),null,post.getClupName(),null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_comment,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_comment,currentUser.getUid(),null);
             }
         }
     }
@@ -361,7 +361,7 @@ public class CommentNotificationService {
                                             .document(notificaitonId);
 
                                     db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notId,null,post.getPostId(),null,post.getClupName(),null));
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_mentioned_comment,currentUser.getUid());
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_mentioned_comment,currentUser.getUid(),null);
 
 
                                 }
@@ -385,7 +385,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getClupName(),null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_replied_comment,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_replied_comment,currentUser.getUid(),null);
             }
         }
     }
@@ -411,7 +411,7 @@ public class CommentNotificationService {
                                             .document(notificaitonId);
 
                                     db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),null,post.getClupName(),null));
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid());
+                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid(),null);
                                 }
                             }
                         }
@@ -434,7 +434,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,null,post.getPostId(),null,post.getClupName(),null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.comment_like,currentUser.getUid(),null);
             }
         }
     }
@@ -450,7 +450,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.update(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getClupName(),null));
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.replied_comment_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.replied_comment_like,currentUser.getUid(),null);
 
             }
         }

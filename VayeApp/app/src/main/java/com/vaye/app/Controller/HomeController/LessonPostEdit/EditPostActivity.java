@@ -60,13 +60,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
-import com.vincent.filepicker.Constant;
-import com.vincent.filepicker.activity.ImagePickActivity;
-import com.vincent.filepicker.activity.NormalFilePickActivity;
-import com.vincent.filepicker.filter.entity.AudioFile;
-import com.vincent.filepicker.filter.entity.ImageFile;
-import com.vincent.filepicker.filter.entity.NormalFile;
-import com.vincent.filepicker.filter.entity.VideoFile;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,7 +76,6 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
 
-import static com.vincent.filepicker.activity.ImagePickActivity.IS_NEED_CAMERA;
 
 public class EditPostActivity extends AppCompatActivity {
     private static final String TAG ="EditPostActivity" ;
@@ -382,7 +375,7 @@ public class EditPostActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
+       /* switch (requestCode){
             case Constant.REQUEST_CODE_PICK_IMAGE:
                 if (resultCode == RESULT_OK) {
 
@@ -470,7 +463,7 @@ public class EditPostActivity extends AppCompatActivity {
 
                 }
                 break;
-        }
+        }*/
 
 
     }
@@ -500,18 +493,18 @@ public class EditPostActivity extends AppCompatActivity {
     }
     private void pickGallery()
     {
-        Intent intent1 = new Intent(this, ImagePickActivity.class);
+      /*  Intent intent1 = new Intent(this, ImagePickActivity.class);
         intent1.putExtra(IS_NEED_CAMERA, false);
         intent1.putExtra(Constant.MAX_NUMBER, 1);
-        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);*/
 
     }
 
     private void picDoc(){
-        Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+       /* Intent intent4 = new Intent(this, NormalFilePickActivity.class);
         intent4.putExtra(Constant.MAX_NUMBER, 1);
         intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"doc", "docx"});
-        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);*/
     }
     private void UploadDoc() {
         if (!checkGalleryPermissions()){
@@ -523,10 +516,10 @@ public class EditPostActivity extends AppCompatActivity {
 
 
     private void pickPdf(){
-        Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+       /*Intent intent4 = new Intent(this, NormalFilePickActivity.class);
         intent4.putExtra(Constant.MAX_NUMBER, 1);
         intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"pdf"});
-        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);*/
     }
 
 

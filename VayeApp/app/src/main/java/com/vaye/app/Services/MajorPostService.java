@@ -114,7 +114,7 @@ public class MajorPostService {
             mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
             ref.set(mapLike , SetOptions.merge());
             MajorPostNotificationService.shared().setPostLike(NotificationPostType.name.lessonPost,post,currentUser,post.getText(), MajorPostNotification.type.post_like);
-            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.like,currentUser.getName(),post.getText(),MajorPostNotification.descp.post_like,currentUser.getUid());
+            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.like,currentUser.getName(),post.getText(),MajorPostNotification.descp.post_like,currentUser.getUid(),null);
         }
         else{
             post.getLikes().remove(currentUser.getUid());
