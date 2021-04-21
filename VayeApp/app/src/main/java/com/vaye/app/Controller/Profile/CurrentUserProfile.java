@@ -17,17 +17,21 @@ import android.widget.TextView;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
+import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.FavFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.MajorPostFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.SchoolFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.VayeAppFragment;
 import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.FollowService;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -75,6 +79,16 @@ public class CurrentUserProfile extends AppCompatActivity {
     }
 
     public void editProfile(View view) {
+        UserService.shared().getCurrentUser(currentUser.getUid(), new CurrentUserService() {
+            @Override
+            public void onCallback(CurrentUser user) {
+                Intent i = new Intent(CurrentUserProfile.this , EditProfileActivity.class);
+                i.putExtra("currentUser",user);
+                startActivity(i);
+                Helper.shared().go(CurrentUserProfile.this);
+                WaitDialog.dismiss();
+            }
+        });
     }
 
     private void setView(CurrentUser currentUser ) {

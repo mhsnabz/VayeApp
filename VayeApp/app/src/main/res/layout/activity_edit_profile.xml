@@ -8,41 +8,10 @@
     android:background="@color/white"
     tools:context=".Controller.Profile.EditProfileActivity">
 <include layout="@layout/custom_toolbar" android:id="@+id/toolbar"></include>
-    <RelativeLayout
-        android:layout_marginTop="20dp"
-        android:id="@+id/usernameLay"
-        android:layout_below="@id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="60dp">
-        <ImageButton
-            android:id="@+id/imageButton1"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp"
-            android:background="@android:color/transparent"
-            android:layout_width="25dp"
-            android:src="@drawable/username"
-            android:layout_height="25dp">
-        </ImageButton>
 
-        <com.rengwuxian.materialedittext.MaterialEditText
-            android:id="@+id/username"
-
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="20dp"
-            android:layout_toEndOf="@id/imageButton1"
-            android:digits="0123456789qwertzuiopasdfghjklyxcvbnm._-"
-            android:fontFamily="@font/nunito_semibold"
-            android:hint=" @kullanıcıadi"
-            android:inputType="text"
-            android:textAlignment="center"
-            android:textSize="12dp"
-            app:met_floatingLabel="normal" />
-    </RelativeLayout>
     <RelativeLayout
         android:id="@+id/githubLay"
-        android:layout_below="@id/usernameLay"
+        android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="60dp">
         <ImageButton

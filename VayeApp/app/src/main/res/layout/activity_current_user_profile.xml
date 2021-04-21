@@ -74,7 +74,6 @@
                         android:paddingRight="16dp"
                         android:onClick="editProfile"
                         android:layout_marginRight="12dp"
-
                         ></Button>
                 </RelativeLayout>
                 <TextView
