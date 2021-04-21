@@ -15,12 +15,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -57,12 +63,15 @@ import com.vaye.app.R;
 import com.vaye.app.Services.SchoolPostNS;
 import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Util.Helper;
+import com.vaye.app.Util.RunTimePermissionHelper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -97,6 +106,7 @@ public class NewSchoolPostActivity extends AppCompatActivity {
     String mimeType = "";
     long postDate = Calendar.getInstance().getTimeInMillis();
     ImageButton addImage;
+    ImageView sampleImage;
     private static final int gallery_request =400;
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
     NewPostAdapter adapter ;
@@ -107,7 +117,7 @@ public class NewSchoolPostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_school_post);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
-
+        sampleImage = (ImageView)findViewById(R.id.sampleImage);
 
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
@@ -250,26 +260,31 @@ public class NewSchoolPostActivity extends AppCompatActivity {
     }
 
     private void uploadImage() {
-        if (!checkGalleryPermissions()){
-            requestStoragePermission();
+
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        pickGallery();
+                    }
+                }
+            });
+        }else{
+            pickGallery();
+
         }
-        else{ pickGallery();}
     }
     private void pickGallery() {
-        Intent intent1 = new Intent(this, ImagePickActivity.class);
-        intent1.putExtra(IS_NEED_CAMERA, false);
-        intent1.putExtra(Constant.MAX_NUMBER, 1);
-        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent,gallery_request);
 
     }
-    private boolean checkGalleryPermissions() {
-        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
-    private void requestStoragePermission() {
-        ActivityCompat.requestPermissions(this,storagePermission,gallery_request);
 
-    }
     private void setRecylerView(CurrentUser currentUser) {
         adapter = new NewPostAdapter(dataModel,NewSchoolPostActivity.this,currentUser);
         datas = (RecyclerView)findViewById(R.id.datasRec);
@@ -309,56 +324,104 @@ public class NewSchoolPostActivity extends AppCompatActivity {
         }
         return  totolVal;
     }
+    public Bitmap decodeUri(Uri uri) {
+        ParcelFileDescriptor parcelFD = null;
+        try {
+            parcelFD = getContentResolver().openFileDescriptor(uri, "r");
+            FileDescriptor imageSource = parcelFD.getFileDescriptor();
+
+            // Decode image size
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeFileDescriptor(imageSource, null, o);
+
+            // the new size we want to scale to
+            final int REQUIRED_SIZE = 1024;
+
+            // Find the correct scale value. It should be the power of 2.
+            int width_tmp = o.outWidth, height_tmp = o.outHeight;
+            int scale = 1;
+            while (true) {
+                if (width_tmp < REQUIRED_SIZE && height_tmp < REQUIRED_SIZE) {
+                    break;
+                }
+                width_tmp /= 2;
+                height_tmp /= 2;
+                scale *= 2;
+            }
+
+            // decode with inSampleSize
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            Bitmap bitmap = BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
+
+            sampleImage.setImageBitmap(bitmap);
+            return  BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
+        } catch (FileNotFoundException e) {
+            // handle errors
+        } catch (IOException e) {
+            // handle errors
+        } finally {
+            if (parcelFD != null)
+                try {
+                    parcelFD.close();
+                } catch (IOException e) {
+                    // ignored
+                }
+        }
+        return  null;
+    }
+    private String getMimeType(Uri uri){
+        ContentResolver cR = this.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String type = mime.getExtensionFromMimeType(cR.getType(uri));
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+    private String getMContentType(Uri uri){
+        ContentResolver cR = this.getContentResolver();
+        return cR.getType(uri);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case Constant.REQUEST_CODE_PICK_IMAGE:
-                if (getTotalSize(NewSchoolPostActivity.this , dataModel) < 15){
-                    if (data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE) != null){
-                        ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
-                        Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                        String fileName = list.get(0).getName();
-                        Uri fileUri = Uri.fromFile(new File(list.get(0).getPath()));
-                        String mimeType = DataTypes.mimeType.image;
-                        String  contentType = DataTypes.contentType.image;
-                        dataModel.add(new NewPostDataModel(fileName , fileUri,null,null,mimeType,contentType));
-                        saveDatasToDataBase(DataTypes.contentType.image, DataTypes.mimeType.image, this, clupName, String.valueOf(postDate), currentUser, "image", file, new StringCompletion() {
-                            @Override
-                            public void getString(String url) {
-                                try{
-                                    setThumbData(DataTypes.contentType.image, NewSchoolPostActivity.this, clupName, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
-                                        @Override
-                                        public void getString(String thumb_url) {
-                                            updateImages(NewSchoolPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
-                                                @Override
-                                                public void callBack(Boolean _value) {
-                                                    WaitDialog.dismiss();
-                                                    TipDialog.show(NewSchoolPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
-                                                    TipDialog.dismiss(1500);
-                                                    for (int i = 0 ; i< dataModel.size() ; i++){
-                                                        if (dataModel.get(i).getFile() == fileUri){
-                                                            dataModel.get(i).setFileUrl(url);
-                                                            dataModel.get(i).setThumb_url(thumb_url);
-                                                            adapter.notifyDataSetChanged();
-                                                        }
-                                                    }
-                                                    title.setText(String.valueOf(getTotalSize(NewSchoolPostActivity.this , dataModel) +"mb"));
+        if (resultCode == RESULT_OK && requestCode == gallery_request){
+            Uri file = data.getData();
+            decodeUri(data.getData());
+            String fileName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+            String mimeType = "."+getMimeType(file);
+            String contentType = getMContentType(file);
+            Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(decodeUri(data.getData()), 300, 300);
 
-                                                }
-                                            });
+            dataModel.add(new NewPostDataModel(fileName, file, null, null, mimeType, contentType));
+            saveDatasToDataBase(contentType, mimeType, NewSchoolPostActivity.this, clupName, String.valueOf(postDate), currentUser, "image", file, new StringCompletion() {
+                @Override
+                public void getString(String url) {
+                    setThumbData(contentType, NewSchoolPostActivity.this, clupName, String.valueOf(postDate), mimeType, currentUser, "image", ThumbImage, new StringCompletion() {
+                        @Override
+                        public void getString(String thumb_url) {
+                            updateImages(NewSchoolPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    WaitDialog.dismiss();
+                                    TipDialog.show(NewSchoolPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                    TipDialog.dismiss(1500);
+                                    for (int i = 0 ; i< dataModel.size() ; i++){
+                                        if (dataModel.get(i).getFile() == file){
+                                            dataModel.get(i).setFileUrl(url);
+                                            dataModel.get(i).setThumb_url(thumb_url);
+                                            adapter.notifyDataSetChanged();
                                         }
-                                    });
-                                }catch (Exception ex){
+                                    }
+                                    title.setText(String.valueOf(getTotalSize(NewSchoolPostActivity.this , dataModel) +"mb"));
 
                                 }
-                            }
-                        });
-                    }
-
+                            });
+                        }
+                    });
                 }
-                break;
+            });
         }
+
     }
 
     //TODO:: upload images
@@ -410,24 +473,18 @@ public class NewSchoolPostActivity extends AppCompatActivity {
         });
 
     }
-    private void setThumbData(String contentType, Activity activity ,String clup_name , String date ,String mimeType, CurrentUser currentUser , String type , Uri data,
-                              StringCompletion completion) throws IOException {
+    private void setThumbData(String contentType, Activity activity ,String clup_name , String date ,String mimeType, CurrentUser currentUser , String type , Bitmap data,
+                              StringCompletion completion)  {
         WaitDialog.show((AppCompatActivity) activity ,null);
 
 
-            StorageMetadata metadata = new StorageMetadata.Builder()
-                    .setContentType(contentType)
-                    .build();
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType(contentType)
+                .build();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            File thumb_file = new File(data.getPath());
-            Bitmap thumb_bitmap = new Compressor(this)
-                    .setMaxHeight(300)
-                    .setMaxWidth(300).setQuality(100)
-                    .compressToBitmap(thumb_file);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            final byte[] thumb_byte = baos.toByteArray();
+        data.compress(Bitmap.CompressFormat.JPEG, 25, baos);
+        final byte[] thumb_byte = baos.toByteArray();
 
 
             StorageReference ref = FirebaseStorage.getInstance().getReference().child(currentUser.getShort_school() +"thumb")
