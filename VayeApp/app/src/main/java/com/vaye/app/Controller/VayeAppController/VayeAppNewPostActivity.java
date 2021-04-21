@@ -451,9 +451,9 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
 
     }
 
-    public  double getImageSizeFromUriInMegaByte(Context context, Uri uri) {
+    public  float getImageSizeFromUriInMegaByte(Context context, Uri uri) {
         String scheme = uri.getScheme();
-        double dataSize = 0;
+        float dataSize = 0;
         if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
             try {
                 InputStream fileInputStream = context.getContentResolver().openInputStream(uri);
@@ -475,7 +475,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                 dataSize = file.length();
             }
         }
-        return dataSize / (1024 * 1024) / 1024;
+        return dataSize / (1024 * 1024) ;
     }
 
     private double getTotalSize(Context context , ArrayList<NewPostDataModel> dataModel){

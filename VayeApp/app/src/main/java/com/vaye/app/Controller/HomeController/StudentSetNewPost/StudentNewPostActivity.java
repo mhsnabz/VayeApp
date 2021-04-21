@@ -16,12 +16,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -75,6 +81,7 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
+import com.vaye.app.Util.RunTimePermissionHelper;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.activity.NormalFilePickActivity;
@@ -83,6 +90,8 @@ import com.vincent.filepicker.filter.entity.NormalFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -119,8 +128,9 @@ public class StudentNewPostActivity extends AppCompatActivity {
     ArrayList<LessonFallowerUser> lessonFallowerUsers;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int gallery_request =400;
-    private static final int image_pick_request =600;
-    private static final int camera_pick_request =800;
+    ImageView sampleImage;
+    private static final int PICK_PDF_CODE =800;
+    private static final int PICK_DOC_CODE =801;
     String link = "";
     private int MAX_ATTACHMENT_COUNT = 10;
     private ArrayList<String> photoPaths = new ArrayList<>();
@@ -138,7 +148,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_student_new_post);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
-
+        sampleImage = (ImageView)findViewById(R.id.sampleImage);
 
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
@@ -344,7 +354,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
         addPdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pickPdf();
+                uploadPdf();
             }
 
         });
@@ -491,47 +501,80 @@ public class StudentNewPostActivity extends AppCompatActivity {
     }
     //TODO-permission
     private void uploadImage() {
-        if (!checkGalleryPermissions()){
-            requestStoragePermission();
+
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        pickGallery();
+                    }
+                }
+            });
+        }else{
+            pickGallery();
+
         }
-        else{ pickGallery();}
     }
-    private boolean checkGalleryPermissions() {
 
-
-        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        boolean result2 =  ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result && result2;
-    }
-    private void requestStoragePermission() {
-        ActivityCompat.requestPermissions(this,storagePermission,gallery_request);
-
-    }
     private void pickGallery() {
-
-        Intent intent1 = new Intent(this, ImagePickActivity.class);
-        intent1.putExtra(IS_NEED_CAMERA, false);
-        intent1.putExtra(Constant.MAX_NUMBER, 1);
-        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent,gallery_request);
 
     }
+    String[] mimetypes = {"application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/msword"};
     private void picDoc(){
-        Intent intent4 = new Intent(this, NormalFilePickActivity.class);
-        intent4.putExtra(Constant.MAX_NUMBER, 1);
-        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"doc", "docx"});
-        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setType("application/msword");
+        startActivityForResult(intent,PICK_DOC_CODE);
     }
+
+
     private void UploadDoc() {
-        if (!checkGalleryPermissions()){
-            requestStoragePermission();
+
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        picDoc();
+                    }
+                }
+            });
+        }else{
+            picDoc();
+
         }
-        else{ picDoc();}
     }
+
+    private void uploadPdf(){
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        pickPdf();
+                    }
+                }
+            });
+        }else{
+            pickPdf();
+
+        }
+    }
+
     private void pickPdf(){
-        Intent intent4 = new Intent(this, NormalFilePickActivity.class);
-        intent4.putExtra(Constant.MAX_NUMBER, 1);
-        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"pdf"});
-        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setType("application/pdf");
+        startActivityForResult(intent,PICK_PDF_CODE);
 
     }
     public  double getImageSizeFromUriInMegaByte(Context context, Uri uri) {
@@ -572,7 +615,8 @@ public class StudentNewPostActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
+
+       /* switch (requestCode){
             case Constant.REQUEST_CODE_PICK_IMAGE:
 
                         if (getTotalSize(StudentNewPostActivity.this , dataModel) < 15){
@@ -679,10 +723,182 @@ public class StudentNewPostActivity extends AppCompatActivity {
                 }
                 break;
 
+        }*/
+        if (resultCode == RESULT_OK){
+            if (requestCode == PICK_PDF_CODE){
+                Uri file = data.getData();
+                String fileName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                String mimeType = "."+getMimeType(file);
+                String contentType = getMContentType(file);
+
+                dataModel.add(new NewPostDataModel(fileName,file,null,null,mimeType,contentType));
+                saveDatasToDataBase(contentType, mimeType, StudentNewPostActivity.this, lessonModel.getLesson_key(), String.valueOf(postDate), currentUser, "file", file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+
+                        setThumbData(contentType, StudentNewPostActivity.this, lessonModel.getLesson_key(), String.valueOf(postDate), mimeType, currentUser, "file", null, new StringCompletion() {
+                            @Override
+                            public void getString(String thumb_url) {
+                                updateImages(StudentNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        WaitDialog.dismiss();
+                                        TipDialog.show(StudentNewPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                        TipDialog.dismiss(1500);
+                                        for (int i = 0 ; i< dataModel.size() ; i++){
+                                            if (dataModel.get(i).getFile() == file){
+                                                dataModel.get(i).setFileUrl(url);
+                                                dataModel.get(i).setThumb_url(thumb_url);
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                        title.setText(String.valueOf(getTotalSize(StudentNewPostActivity.this , dataModel) +"mb"));
+
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                });
+            }else if (requestCode == PICK_DOC_CODE){
+                Log.d(TAG, "onActivityResult: PICK_DOC_CODE" + data.getData().getPath());
+                if (getTotalSize(StudentNewPostActivity.this , dataModel) < 15){
+                    Uri file = data.getData();
+                    String fileName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                    String mimeType = "."+getMimeType(file);
+                    String contentType = getMContentType(file);
+
+                    dataModel.add(new NewPostDataModel(fileName,file,null,null,mimeType,contentType));
+                    title.setText(String.valueOf(getTotalSize(StudentNewPostActivity.this , dataModel) +"mb"));
+                    saveDatasToDataBase(contentType, mimeType, StudentNewPostActivity.this, lessonModel.getLesson_key(), String.valueOf(postDate), currentUser, "file", file, new StringCompletion() {
+                        @Override
+                        public void getString(String url) {
+                            setThumbData(contentType, StudentNewPostActivity.this, lessonModel.getLesson_key(), String.valueOf(postDate), mimeType, currentUser, "file", null, new StringCompletion() {
+                                @Override
+                                public void getString(String thumb_url) {
+                                    updateImages(StudentNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            WaitDialog.dismiss();
+                                            TipDialog.show(StudentNewPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                            TipDialog.dismiss(1500);
+                                            for (int i = 0 ; i< dataModel.size() ; i++){
+                                                if (dataModel.get(i).getFile() == file){
+                                                    dataModel.get(i).setFileUrl(url);
+                                                    dataModel.get(i).setThumb_url(thumb_url);
+                                                    adapter.notifyDataSetChanged();
+                                                }
+                                            }
+                                            title.setText(String.valueOf(getTotalSize(StudentNewPostActivity.this , dataModel) +"mb"));
+
+                                        }
+                                    });
+                                }
+                            });
+
+                        }
+                    });
+                }
+
+            }else if (requestCode == gallery_request){
+                Uri file = data.getData();
+                decodeUri(data.getData());
+                String fileName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                String mimeType = "."+getMimeType(file);
+                String contentType = getMContentType(file);
+                Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(decodeUri(data.getData()), 300, 300);
+
+                dataModel.add(new NewPostDataModel(fileName, file, null, null, mimeType, contentType));
+                saveDatasToDataBase(contentType, mimeType, StudentNewPostActivity.this, lessonModel.getLesson_key(), String.valueOf(postDate), currentUser, "image", file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        setThumbData(contentType, StudentNewPostActivity.this, lessonModel.getLesson_key(), String.valueOf(postDate), mimeType, currentUser, "image", ThumbImage, new StringCompletion() {
+                            @Override
+                            public void getString(String thumb_url) {
+                                updateImages(StudentNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        WaitDialog.dismiss();
+                                        TipDialog.show(StudentNewPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                        TipDialog.dismiss(1500);
+                                        for (int i = 0 ; i< dataModel.size() ; i++){
+                                            if (dataModel.get(i).getFile() == file){
+                                                dataModel.get(i).setFileUrl(url);
+                                                dataModel.get(i).setThumb_url(thumb_url);
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                        title.setText(String.valueOf(getTotalSize(StudentNewPostActivity.this , dataModel) +"mb"));
+
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
         }
+
+
     }
+    public Bitmap decodeUri(Uri uri) {
+        ParcelFileDescriptor parcelFD = null;
+        try {
+            parcelFD = getContentResolver().openFileDescriptor(uri, "r");
+            FileDescriptor imageSource = parcelFD.getFileDescriptor();
 
+            // Decode image size
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeFileDescriptor(imageSource, null, o);
 
+            // the new size we want to scale to
+            final int REQUIRED_SIZE = 1024;
+
+            // Find the correct scale value. It should be the power of 2.
+            int width_tmp = o.outWidth, height_tmp = o.outHeight;
+            int scale = 1;
+            while (true) {
+                if (width_tmp < REQUIRED_SIZE && height_tmp < REQUIRED_SIZE) {
+                    break;
+                }
+                width_tmp /= 2;
+                height_tmp /= 2;
+                scale *= 2;
+            }
+
+            // decode with inSampleSize
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            Bitmap bitmap = BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
+
+            sampleImage.setImageBitmap(bitmap);
+            return  BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
+        } catch (FileNotFoundException e) {
+            // handle errors
+        } catch (IOException e) {
+            // handle errors
+        } finally {
+            if (parcelFD != null)
+                try {
+                    parcelFD.close();
+                } catch (IOException e) {
+                    // ignored
+                }
+        }
+        return  null;
+    }
+    private String getMimeType(Uri uri){
+        ContentResolver cR = this.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String type = mime.getExtensionFromMimeType(cR.getType(uri));
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+    private String getMContentType(Uri uri){
+        ContentResolver cR = this.getContentResolver();
+        return cR.getType(uri);
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -741,24 +957,19 @@ public class StudentNewPostActivity extends AppCompatActivity {
         });
 
     }
-    private void setThumbData(String contentType, Activity activity ,String lesson_key , String date ,String mimeType, CurrentUser currentUser , String type , Uri data,
-                              StringCompletion completion) throws IOException {
+    private void setThumbData(String contentType, Activity activity ,String lesson_key , String date ,String mimeType, CurrentUser currentUser , String type , Bitmap data,
+                              StringCompletion completion) {
         WaitDialog.show((AppCompatActivity) activity ,null);
         if (type == "image"){
 
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType(contentType)
                     .build();
-
-            File thumb_file = new File(data.getPath());
-            Bitmap thumb_bitmap = new Compressor(this)
-                    .setMaxHeight(300)
-                    .setMaxWidth(300).setQuality(100)
-                    .compressToBitmap(thumb_file);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            data.compress(Bitmap.CompressFormat.JPEG, 25, baos);
             final byte[] thumb_byte = baos.toByteArray();
+
 
 
             StorageReference ref = FirebaseStorage.getInstance().getReference().child(currentUser.getShort_school() +"thumb")
