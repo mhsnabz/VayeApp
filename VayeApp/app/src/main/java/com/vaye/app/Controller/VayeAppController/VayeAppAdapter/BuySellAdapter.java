@@ -48,6 +48,7 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int VIEW_TYPE_FOODME_POST_DATA  = 2;
     private static final int VIEW_TYPE_ADS  = 3;
     private static final int VIEW_TYPE_EMPTY  = 4;
+    String TAG = "BuySellAdapter";
     ArrayList<MainPostModel> post;
     Context context;
     CurrentUser currentUser;
@@ -423,6 +424,7 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     }
                 });
                 postHolder.setLocationButton(menuItemData.getGeoPoint());
+                Log.d(TAG, "onBindViewHolder: " +menuItemData.getGeoPoint() );
                 postHolder.text.setOnMentionClickListener(new SocialView.OnClickListener() {
                     @Override
                     public void onClick(@NonNull SocialView view, @NonNull CharSequence username) {

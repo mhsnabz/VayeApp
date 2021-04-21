@@ -497,6 +497,8 @@ public class StudentNewPostActivity extends AppCompatActivity {
         else{ pickGallery();}
     }
     private boolean checkGalleryPermissions() {
+
+
         boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
         boolean result2 =  ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
         return result && result2;
@@ -506,6 +508,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
 
     }
     private void pickGallery() {
+
         Intent intent1 = new Intent(this, ImagePickActivity.class);
         intent1.putExtra(IS_NEED_CAMERA, false);
         intent1.putExtra(Constant.MAX_NUMBER, 1);

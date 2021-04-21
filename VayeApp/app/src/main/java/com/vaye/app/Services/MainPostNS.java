@@ -241,6 +241,7 @@ public class MainPostNS {
         ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
                 if (task.isSuccessful()){
                     if (task.getResult().isEmpty()){
                         list.getArrayList(followersList);
@@ -248,6 +249,9 @@ public class MainPostNS {
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
                             followersList.add(item.getId());
                         }
+                        list.getArrayList(followersList);
+                    }
+                    if (task.getResult() == null){
                         list.getArrayList(followersList);
                     }
                 }else{

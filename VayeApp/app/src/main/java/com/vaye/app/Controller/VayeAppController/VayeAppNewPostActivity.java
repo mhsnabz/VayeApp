@@ -22,8 +22,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -31,6 +33,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -38,6 +41,7 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -83,6 +87,7 @@ import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,10 +125,10 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     ArrayList<MainPostTopicFollower>  followers;
     String postType;
     String postName = "";
-
+    GeoPoint location = null;
     private static final int image_pick_request =600;
     String value = "";
-
+    ImageView sampleImage;
     //Stackview
     ImageButton addImage, map_pin , price , cancelPrice , cancelLacation;
     String contentType = "";
@@ -140,7 +145,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_vaye_app_new_post);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
-
+        sampleImage = (ImageView)findViewById(R.id.sampleImage);
 
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
@@ -228,7 +233,8 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                         @Override
                         public void getArrayList(ArrayList<String> list) {
 
-                                MainPostNS.shared().setNewPost(postName, "post", locationName, value, currentUser, new GeoPoint(lat,longLat), postDate, list, msgText, dataModel, new TrueFalse<Boolean>() {
+
+                               MainPostNS.shared().setNewPost(postName, "post", locationName, value, currentUser, location, postDate, list, msgText, dataModel, new TrueFalse<Boolean>() {
                                     @Override
                                     public void callBack(Boolean _value) {
                                         if (_value){
@@ -240,7 +246,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                                             Map<String , Object> mapObj = new HashMap<>();
                                             if (!dataModel.isEmpty()){
                                                 mapObj.put("type","data");
-
+                                                mapObj.put("geoPoint",location);
                                                 for (int i = 0 ; i < dataModel.size() ; i ++){
                                                     mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
                                                     mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
@@ -248,6 +254,9 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
 
                                                 }
 
+                                            }else{
+                                                mapObj.put("geoPoint",location);
+                                                ref.set(mapObj, SetOptions.merge());
                                             }
 
                                             WaitDialog.dismiss();
@@ -431,12 +440,14 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
     }
 
     private void pickGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-        Intent intent = new Intent();
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), image_pick_request);
+
+        intent.addCategory(intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent,image_pick_request);
 
     }
 
@@ -474,11 +485,95 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
         }
         return  totolVal;
     }
+    public Bitmap decodeUri(Uri uri) {
+        ParcelFileDescriptor parcelFD = null;
+        try {
+            parcelFD = getContentResolver().openFileDescriptor(uri, "r");
+            FileDescriptor imageSource = parcelFD.getFileDescriptor();
+
+            // Decode image size
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeFileDescriptor(imageSource, null, o);
+
+            // the new size we want to scale to
+            final int REQUIRED_SIZE = 1024;
+
+            // Find the correct scale value. It should be the power of 2.
+            int width_tmp = o.outWidth, height_tmp = o.outHeight;
+            int scale = 1;
+            while (true) {
+                if (width_tmp < REQUIRED_SIZE && height_tmp < REQUIRED_SIZE) {
+                    break;
+                }
+                width_tmp /= 2;
+                height_tmp /= 2;
+                scale *= 2;
+            }
+
+            // decode with inSampleSize
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            Bitmap bitmap = BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
+
+            sampleImage.setImageBitmap(bitmap);
+            return  BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
+        } catch (FileNotFoundException e) {
+            // handle errors
+        } catch (IOException e) {
+            // handle errors
+        } finally {
+            if (parcelFD != null)
+                try {
+                    parcelFD.close();
+                } catch (IOException e) {
+                    // ignored
+                }
+        }
+     return  null;
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK) {
+            if (requestCode == image_pick_request) {
+                Uri file = data.getData();
+                decodeUri(data.getData());
+                Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(decodeUri(data.getData()), 300, 300);
+                Log.d(TAG, "onActivityResult: " + ThumbImage.getHeight());
+                Log.d(TAG, "onActivityResult: " + file.getPath());
+                String mimeType = DataTypes.mimeType.image;
+                String contentType = DataTypes.contentType.image;
+                String fileName = file.getPath().toString();
+                dataModel.add(new NewPostDataModel(fileName, file, null, null, mimeType, contentType));
+                saveDatasToDataBase(contentType, mimeType, VayeAppNewPostActivity.this, String.valueOf(postDate), currentUser, file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        setThumbImage(DataTypes.contentType.image, VayeAppNewPostActivity.this, String.valueOf(postDate), DataTypes.mimeType.image, currentUser, "image", decodeUri(data.getData()), new StringCompletion() {
+                            @Override
+                            public void getString(String thumb_url) {
+                                updateImages(VayeAppNewPostActivity.this,  currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        WaitDialog.dismiss();
+                                        TipDialog.show(VayeAppNewPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                        TipDialog.dismiss(1500);
+                                        for (int i = 0 ; i< dataModel.size() ; i++){
+                                            if (dataModel.get(i).getFile() == file){
+                                                dataModel.get(i).setFileUrl(url);
+                                                dataModel.get(i).setThumb_url(thumb_url);
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                        title.setText(String.valueOf(getTotalSize(VayeAppNewPostActivity.this , dataModel) +"mb"));
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        /*if (resultCode == RESULT_OK){
             if (requestCode == image_pick_request){
                 Uri file = Uri.parse(data.getData().getPath());
                 Log.d(TAG, "onActivityResult: " + file.getPath());
@@ -520,14 +615,16 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                     }
                 });
             }
+        }*/
+
         }
-
-
     }
     //TODO:: upload images
     private void saveDatasToDataBase(String contentType, String mimeType, Activity activity , String date , CurrentUser currentUser , Uri data,
                                      StringCompletion completion ){
         hud.show();
+        Log.d(TAG, "saveDatasToDataBase: " + mimeType);
+        Log.d(TAG, "saveDatasToDataBase: " + contentType);
 
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType(contentType)
@@ -570,6 +667,13 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                 hud.setProgress((int) progress);
                 Log.d(TAG, "onProgress: " + progress);
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: "+e.getLocalizedMessage());
+                Log.d(TAG, "onFailure: "+e.getMessage());
+                Log.d(TAG, "onFailure: "+e.getCause());
+            }
         });
 
     }
@@ -587,6 +691,44 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void setThumbImage(String contentType, Activity activity ,String date ,String mimeType, CurrentUser currentUser , String type , Bitmap data,
+                               StringCompletion completion ){
+        if (type == "image"){
+            StorageMetadata metadata = new StorageMetadata.Builder()
+                    .setContentType(contentType)
+                    .build();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            data.compress(Bitmap.CompressFormat.JPEG, 25, baos);
+            final byte[] thumb_byte = baos.toByteArray();
+
+            StorageReference ref = FirebaseStorage.getInstance().getReference().child("main-post-thumb")
+                    .child(currentUser.getShort_school())
+                    .child(postType)
+                    .child(currentUser.getUsername())
+                    .child(date)
+                    .child(String.valueOf(Calendar.getInstance().getTimeInMillis()) +mimeType);
+
+            ref.putBytes(thumb_byte, metadata).addOnCompleteListener(activity, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if (task.isSuccessful()){
+                        task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(activity, new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String thumb_url = uri.toString();
+                                completion.getString(thumb_url);
+
+                            }
+                        });
+                    }
+                }
+            });
+
+        }
+    }
+
     private void setThumbData(String contentType, Activity activity ,String date ,String mimeType, CurrentUser currentUser , String type , Uri data,
                               StringCompletion completion) throws IOException {
         WaitDialog.show((AppCompatActivity) activity ,null);
@@ -596,9 +738,8 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                 StorageMetadata metadata = new StorageMetadata.Builder()
                         .setContentType(contentType)
                         .build();
-                Log.d(TAG, "setThumbData: " + getRealPathFromUri(VayeAppNewPostActivity.this , data));
-                Uri sharedFileUri = FileProvider.getUriForFile(this, "com.vaye.app", new File(data.getPath()));
-                File thumb_file = new File(sharedFileUri.getPath());
+
+                File thumb_file = new File(getRealPathFromUri(VayeAppNewPostActivity.this , data));
                 if (thumb_file.exists()){
 
                 }else{
@@ -671,6 +812,7 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
                  lat = intent.getDoubleExtra("lat",-45);
                  longLat = intent.getDoubleExtra("longLat",45);
                  locationName = intent.getStringExtra("locationName");
+                 location = new GeoPoint(lat,longLat);
                 Log.d(TAG, "onReceive: locaiton " + lat + " " + longLat + " " + locationName );
                 setLocationLayout();
             }
