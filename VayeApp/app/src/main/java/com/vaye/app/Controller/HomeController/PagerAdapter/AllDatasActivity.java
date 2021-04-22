@@ -204,8 +204,9 @@ public class AllDatasActivity extends AppCompatActivity {
                     direct.mkdirs();
                 }
                 File ExistingFile =  new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS) + "/vayeapp/" + fileName);
+                        Environment.DIRECTORY_DOWNLOADS)  + fileName);
                 if (ExistingFile.exists()){
+                    showNotification(ExistingFile,mimeType);
                     return;
                 }else {
                     if (!ExistingFile.exists()){
@@ -219,7 +220,7 @@ public class AllDatasActivity extends AppCompatActivity {
                                         | DownloadManager.Request.NETWORK_MOBILE)
                                 .setAllowedOverRoaming(false)
 
-                                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,"vayeapp/"+ fileName);
+                                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,fileName);
 
 
                         final long downloadId = mgr.enqueue(request);

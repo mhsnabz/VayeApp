@@ -14,13 +14,18 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -52,6 +57,7 @@ import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.UploadFiles;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
@@ -60,10 +66,13 @@ import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetModel;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
 import com.vaye.app.Util.Helper;
+import com.vaye.app.Util.RunTimePermissionHelper;
 
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -97,11 +106,10 @@ public class EditPostActivity extends AppCompatActivity {
     RecyclerView datas;
 
     KProgressHUD hud;
-    private static final int PICK_IMAGE_REQUEST = 1;
     private static final int gallery_request =400;
-    private static final int image_pick_request =600;
-    private static final int camera_pick_request =800;
-
+    ImageView sampleImage;
+    private static final int PICK_PDF_CODE =800;
+    private static final int PICK_DOC_CODE =801;
     private int MAX_ATTACHMENT_COUNT = 10;
     private ArrayList<String> photoPaths = new ArrayList<>();
     private ArrayList<Uri> docPaths = new ArrayList<>();
@@ -115,7 +123,7 @@ public class EditPostActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_post);
-
+        sampleImage = (ImageView)findViewById(R.id.sampleImage);
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
 
@@ -264,7 +272,7 @@ public class EditPostActivity extends AppCompatActivity {
         addPdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pickPdf();
+                uploadPdf();
             }
 
         });
@@ -370,101 +378,143 @@ public class EditPostActivity extends AppCompatActivity {
         }
     }
 
+    public Bitmap decodeUri(Uri uri) {
+        ParcelFileDescriptor parcelFD = null;
+        try {
+            parcelFD = getContentResolver().openFileDescriptor(uri, "r");
+            FileDescriptor imageSource = parcelFD.getFileDescriptor();
 
+            // Decode image size
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeFileDescriptor(imageSource, null, o);
+
+            // the new size we want to scale to
+            final int REQUIRED_SIZE = 1024;
+
+            // Find the correct scale value. It should be the power of 2.
+            int width_tmp = o.outWidth, height_tmp = o.outHeight;
+            int scale = 1;
+            while (true) {
+                if (width_tmp < REQUIRED_SIZE && height_tmp < REQUIRED_SIZE) {
+                    break;
+                }
+                width_tmp /= 2;
+                height_tmp /= 2;
+                scale *= 2;
+            }
+
+            // decode with inSampleSize
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            Bitmap bitmap = BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
+
+            sampleImage.setImageBitmap(bitmap);
+            return  BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
+        } catch (FileNotFoundException e) {
+            // handle errors
+        } finally {
+            if (parcelFD != null)
+                try {
+                    parcelFD.close();
+                } catch (IOException e) {
+                    // ignored
+                }
+        }
+        return  null;
+    }
+    private String getMimeType(Uri uri){
+        ContentResolver cR = this.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String type = mime.getExtensionFromMimeType(cR.getType(uri));
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+    private String getMContentType(Uri uri){
+        ContentResolver cR = this.getContentResolver();
+        return cR.getType(uri);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-       /* switch (requestCode){
-            case Constant.REQUEST_CODE_PICK_IMAGE:
-                if (resultCode == RESULT_OK) {
 
-                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
-                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                    saveDatasToDataBase(DataTypes.contentType.image,DataTypes.mimeType.image,this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), currentUser, "image", file,
-                            new StringCompletion() {
-                                @Override
-                                public void getString(String url) {
-                                    try {
-                                        setThumbData(DataTypes.contentType.image,EditPostActivity.this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()),DataTypes.mimeType.image, currentUser, "image", file, new StringCompletion() {
-                                            @Override
-                                            public void getString(String thumb_url) {
-                                                updateImages(EditPostActivity.this, post, currentUser, url, thumb_url, new TrueFalse<Boolean>() {
-                                                    @Override
-                                                    public void callBack(Boolean _value) {
-                                                        WaitDialog.dismiss();
-                                                        TipDialog.show(EditPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
-                                                        TipDialog.dismiss(1500);
-                                                        adaptar.notifyDataSetChanged();
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+        if(resultCode == RESULT_OK){
+            if (requestCode == gallery_request){
+                Uri file = data.getData();
+                decodeUri(data.getData());
+                String fileName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                String mimeType = "."+getMimeType(file);
+                String contentType = getMContentType(file);
+                Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(decodeUri(data.getData()), 300, 300);
+                saveDatasToDataBase(contentType, mimeType, EditPostActivity.this, post.getLesson_key(), post.getPostId(), currentUser, "image", file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        setThumbData(contentType, EditPostActivity.this, post.getLesson_key(), post.getPostId(), mimeType, currentUser, "image", ThumbImage, new StringCompletion() {
+                            @Override
+                            public void getString(String thumb_url) {
+                                updateImages(EditPostActivity.this, post, currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        WaitDialog.dismiss();
+                                        TipDialog.show(EditPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                        TipDialog.dismiss(1500);
+                                        adaptar.notifyDataSetChanged();
                                     }
-                                }
-                            });
-
-                }
-                break;
-            case Constant.REQUEST_CODE_PICK_VIDEO:
-                if (resultCode == RESULT_OK) {
-                    ArrayList<VideoFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_VIDEO);
-                }
-                break;
-            case Constant.REQUEST_CODE_PICK_AUDIO:
-                if (resultCode == RESULT_OK) {
-                    ArrayList<AudioFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_AUDIO);
-                }
-                break;
-            case Constant.REQUEST_CODE_PICK_FILE:
-                if (resultCode == RESULT_OK) {
-                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
-                    Uri file = Uri.fromFile(new File(list.get(0).getPath()));
-                    Log.d(TAG, "onActivityResult: " + list.get(0).getMimeType());
-
-                    if (list.get(0).getMimeType().equals(DataTypes.contentType.doc )){
-                        contentType = DataTypes.contentType.doc;
-                        mimeType = DataTypes.mimeType.doc;
-                    }else if(list.get(0).getMimeType().equals(DataTypes.contentType.docx)){
-                        contentType = DataTypes.contentType.docx;
-                        mimeType = DataTypes.mimeType.docx;
-                    }else if (list.get(0).getMimeType().equals(DataTypes.contentType.pdf)){
-                        contentType = DataTypes.contentType.pdf;
-                        mimeType = DataTypes.mimeType.pdf;
+                                });
+                            }
+                        });
                     }
-
-                    saveDatasToDataBase(contentType, mimeType, this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()),
-                            currentUser, "file", file, new StringCompletion() {
-                                @Override
-                                public void getString(String url) {
-                                    try {
-                                        setThumbData(contentType, EditPostActivity.this, post.getLesson_key(), String.valueOf(Calendar.getInstance().getTimeInMillis()), mimeType, currentUser,
-                                                "file", file, new StringCompletion() {
-                                                    @Override
-                                                    public void getString(String thumb_url) {
-                                                        updateImages(EditPostActivity.this, post, currentUser, url, thumb_url, new TrueFalse<Boolean>() {
-                                                            @Override
-                                                            public void callBack(Boolean _value) {
-                                                                WaitDialog.dismiss();
-                                                                TipDialog.show(EditPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
-                                                                TipDialog.dismiss(1500);
-                                                                adaptar.notifyDataSetChanged();
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                });
+            }else if (requestCode == PICK_DOC_CODE){
+                Uri file = data.getData();
+                String fileName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                String mimeType = "."+getMimeType(file);
+                String contentType = getMContentType(file);
+                saveDatasToDataBase(contentType, mimeType, EditPostActivity.this, post.getLesson_key(), post.getPostId(), currentUser, "file", file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        setThumbData(contentType, EditPostActivity.this, post.getLesson_key(), post.getPostId(), mimeType, currentUser, "file", null, new StringCompletion() {
+                            @Override
+                            public void getString(String thumb_url) {
+                                updateImages(EditPostActivity.this, post, currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        WaitDialog.dismiss();
+                                        TipDialog.show(EditPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                        TipDialog.dismiss(1500);
+                                        adaptar.notifyDataSetChanged();
                                     }
-                                }
-                            });
-
-                }
-                break;
-        }*/
-
+                                });
+                            }
+                        });
+                    }
+                });
+            }else if (requestCode == PICK_PDF_CODE){
+                Uri file = data.getData();
+                String fileName = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                String mimeType = "."+getMimeType(file);
+                String contentType = getMContentType(file);
+                saveDatasToDataBase(contentType, mimeType, EditPostActivity.this, post.getLesson_key(), post.getPostId(), currentUser, "file", file, new StringCompletion() {
+                    @Override
+                    public void getString(String url) {
+                        setThumbData(contentType, EditPostActivity.this, post.getLesson_key(), post.getPostId(), mimeType, currentUser, "file", null, new StringCompletion() {
+                            @Override
+                            public void getString(String thumb_url) {
+                                updateImages(EditPostActivity.this, post, currentUser, url, thumb_url, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        WaitDialog.dismiss();
+                                        TipDialog.show(EditPostActivity.this , "Dosya Yüklendi", TipDialog.TYPE.SUCCESS);
+                                        TipDialog.dismiss(1500);
+                                        adaptar.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        }
 
     }
     @Override
@@ -475,54 +525,84 @@ public class EditPostActivity extends AppCompatActivity {
 
 
     //TODO-permission
+
     private void uploadImage() {
-        if (!checkGalleryPermissions()){
-            requestStoragePermission();
+
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        pickGallery();
+                    }
+                }
+            });
+        }else{
+            pickGallery();
+
         }
-        else{ pickGallery();}
     }
-    private boolean checkGalleryPermissions()
-    {
-        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
-    private void requestStoragePermission()
-    {
-        ActivityCompat.requestPermissions(this,storagePermission,gallery_request);
 
-    }
-    private void pickGallery()
-    {
-      /*  Intent intent1 = new Intent(this, ImagePickActivity.class);
-        intent1.putExtra(IS_NEED_CAMERA, false);
-        intent1.putExtra(Constant.MAX_NUMBER, 1);
-        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);*/
+    private void pickGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent,gallery_request);
 
     }
 
-    private void picDoc(){
-       /* Intent intent4 = new Intent(this, NormalFilePickActivity.class);
-        intent4.putExtra(Constant.MAX_NUMBER, 1);
-        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"doc", "docx"});
-        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);*/
-    }
-    private void UploadDoc() {
-        if (!checkGalleryPermissions()){
-            requestStoragePermission();
+
+    private void uploadPdf(){
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        pickPdf();
+                    }
+                }
+            });
+        }else{
+            pickPdf();
+
         }
-        else{ picDoc();}
     }
-
-
 
     private void pickPdf(){
-       /*Intent intent4 = new Intent(this, NormalFilePickActivity.class);
-        intent4.putExtra(Constant.MAX_NUMBER, 1);
-        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[] {"pdf"});
-        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);*/
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setType("application/pdf");
+        startActivityForResult(intent,PICK_PDF_CODE);
+
+    }
+    private void picDoc(){
+
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setType("application/msword");
+        startActivityForResult(intent,PICK_DOC_CODE);
     }
 
 
+    private void UploadDoc() {
+
+        if (!RunTimePermissionHelper.shared().checkGalleryPermission(this)){
+            RunTimePermissionHelper.shared().requestGalleryCameraPermission(this, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (_value){
+                        picDoc();
+                    }
+                }
+            });
+        }else{
+            picDoc();
+
+        }
+    }
     //TODO:: upload images
     private void saveDatasToDataBase(String contentType,String mimeType,Activity activity ,String lesson_key , String date , CurrentUser currentUser , String type , Uri data,
                                      StringCompletion completion ){
@@ -572,23 +652,18 @@ public class EditPostActivity extends AppCompatActivity {
         });
 
     }
-    private void setThumbData(String contentType, Activity activity ,String lesson_key , String date ,String mimeType, CurrentUser currentUser , String type , Uri data,
-                              StringCompletion completion) throws IOException {
+    private void setThumbData(String contentType, Activity activity ,String lesson_key , String date ,String mimeType, CurrentUser currentUser , String type , Bitmap data,
+                              StringCompletion completion)  {
         WaitDialog.show((AppCompatActivity) activity ,null);
         if (type == "image"){
+
 
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType(contentType)
                     .build();
-
-            File thumb_file = new File(data.getPath());
-            Bitmap thumb_bitmap = new Compressor(this)
-                    .setMaxHeight(300)
-                    .setMaxWidth(300).setQuality(100)
-                    .compressToBitmap(thumb_file);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            data.compress(Bitmap.CompressFormat.JPEG, 25, baos);
             final byte[] thumb_byte = baos.toByteArray();
 
 
