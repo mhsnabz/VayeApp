@@ -18,11 +18,15 @@ import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.VayeAppController.BuySell.BuySellFragment;
 import com.vaye.app.Controller.VayeAppController.Camping.CampingFragment;
 import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
@@ -31,6 +35,9 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.Helper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import q.rorbin.badgeview.QBadgeView;
 
@@ -43,6 +50,7 @@ public class VayeAppActivity extends AppCompatActivity {
     RelativeLayout followesLine , foodmeLine , campingLine , buySellLine;
     ViewPager mainViewPager;
     VayeAppPager pagerViewAdapter;
+    int requestSize = 0 , chatSize = 0 , friendSize = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,35 +181,9 @@ public class VayeAppActivity extends AppCompatActivity {
         }
 
         getBadgeCount();
+        getMessagesCount();
     }
-    private void getBadgeCount(){
-        BottomNavigationView view;
-        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
-        BottomNavigationMenuView bottomNavigationMenuView =
-                (BottomNavigationMenuView) view.getChildAt(0);
-        final QBadgeView badge = new QBadgeView(this);
-        final View v = bottomNavigationMenuView.getChildAt(2);
 
-        Query ref =  FirebaseFirestore.getInstance().collection("user")
-                .document(currentUser.getUid())
-                .collection("notification").whereEqualTo("isRead","false");
-
-        ref.addSnapshotListener(this,new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                if (documentSnapshot.isEmpty()){
-                    badge.hide(true);
-                }else{
-                    badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
-                            .setBadgeBackgroundColor(Color.RED).setBadgeNumber(documentSnapshot.getDocuments().size());;
-                    if (documentSnapshot.getDocuments().size() < 1){
-                        badge.hide(true);
-                    }
-                }
-            }
-        });
-
-    }
     private void changeTabs(int postion){
         if (postion == 0){
 
@@ -260,4 +242,113 @@ public class VayeAppActivity extends AppCompatActivity {
             title.setText("Kamp");
         }
     }
+    private void getBadgeCount(){
+        BottomNavigationView view;
+        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) view.getChildAt(0);
+        final QBadgeView badge = new QBadgeView(this);
+        final View v = bottomNavigationMenuView.getChildAt(2);
+
+        Query ref =  FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("notification").whereEqualTo("isRead","false");
+
+        ref.addSnapshotListener(this,new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (documentSnapshot.isEmpty()){
+                    badge.hide(true);
+                }else{
+                    badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                            .setBadgeBackgroundColor(Color.RED).setBadgeNumber(documentSnapshot.getDocuments().size());;
+                    if (documentSnapshot.getDocuments().size() < 1){
+                        badge.hide(true);
+                    }
+                }
+            }
+        });
+
+    }
+    private void getMessagesCount(){
+        BottomNavigationView view;
+        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) view.getChildAt(0);
+        final QBadgeView badge = new QBadgeView(this);
+        final View v = bottomNavigationMenuView.getChildAt(3);
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid());
+        ref.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value!=null){
+                    if (value.getLong("totalBadge") != null){
+                        if (value.getLong("totalBadge").intValue() == 0){
+                            badge.hide(true);
+                        }else{
+
+                            badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                                    .setBadgeBackgroundColor(Color.RED).setBadgeNumber(value.getLong("totalBadge").intValue());
+                        }
+                    }
+                }
+            }
+        });
+
+
+    }
+    private void setChatBadgeCount(){
+        Query ref_msg_list = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
+                .collection("msg-list").whereGreaterThan("badgeCount",0);
+        Query ref_req_list = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
+                .collection("msg-request").whereGreaterThan("badgeCount",0);
+
+        ref_req_list.addSnapshotListener( VayeAppActivity.this,new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()){
+
+                    requestSize = 0;
+                    updateTotalBadgeCount(chatSize + requestSize);
+                    Log.d(TAG, "sohbetBadge: empty ");
+                }else{
+                    if (value.getDocuments() != null){
+                        requestSize = value.getDocuments().size();
+                        updateTotalBadgeCount(chatSize + requestSize);
+
+                        Log.d(TAG, "sohbetBadge: is " + value.getDocuments().size());
+                    }
+                }
+            }
+        });
+
+        ref_msg_list.addSnapshotListener(VayeAppActivity.this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()){
+
+                    chatSize = 0;
+                    updateTotalBadgeCount(chatSize + requestSize);
+
+                    Log.d(TAG, "sohbetBadge: empty ");
+                }else{
+                    if (value.getDocuments() != null){
+                        chatSize = value.getDocuments().size();
+                        updateTotalBadgeCount(chatSize + requestSize);
+
+                        Log.d(TAG, "sohbetBadge: is " + value.getDocuments().size());
+                    }
+                }
+            }
+        });
+    }
+    private void updateTotalBadgeCount(int total){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid());
+        Map<String , Object> map = new HashMap<>();
+        map.put("totalBadge",total);
+        ref.set(map , SetOptions.merge());
+    }
+
 }

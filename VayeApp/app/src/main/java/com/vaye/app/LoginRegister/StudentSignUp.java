@@ -122,7 +122,7 @@ public class StudentSignUp extends Fragment {
         }
         if (_password.isEmpty()){
             WaitDialog.dismiss();
-            password.setError("Lütfen Bir Şifre Belirleyim");
+            password.setError("Lütfen Bir Şifre Belirleyin");
             password.requestFocus();
             return;
         }
@@ -160,6 +160,7 @@ public class StudentSignUp extends Fragment {
                                                                     CustomDialog.show((AppCompatActivity) getContext(), R.layout.auth_dialog, new CustomDialog.OnBindView() {
                                                                         @Override
                                                                         public void onBind(CustomDialog dialog, View v) {
+                                                                            task.getResult().getUser().sendEmailVerification();
                                                                             TextView headerTitle = (TextView)v.findViewById(R.id.headerTitle);
                                                                             TextView mainText = (TextView)v.findViewById(R.id.mainText);
                                                                             Button okey = (Button)v.findViewById(R.id.okey);

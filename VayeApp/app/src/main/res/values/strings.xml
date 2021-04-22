@@ -13,8 +13,8 @@
     <string name="menu_slideshow">Slideshow</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="unit_id">ca-app-pub-3940256099942544/2247696110</string>
-    <string name="gecis_unit_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="unit_id">ca-app-pub-1362663023819993/8675125811</string>
+    <string name="gecis_unit_id">ca-app-pub-1362663023819993/9370365000</string>
     <string name="error_gif">hata</string>
     <string name="map_api_key">AIzaSyC2yPEvNrQQOnuBr7MGaByxk8PEwzrsG1I</string>
     <string name="default_notification_channel_id">vaye.app</string>

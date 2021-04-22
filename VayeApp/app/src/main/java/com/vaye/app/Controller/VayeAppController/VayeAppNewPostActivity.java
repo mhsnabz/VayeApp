@@ -518,8 +518,6 @@ public class VayeAppNewPostActivity extends AppCompatActivity {
             return  BitmapFactory.decodeFileDescriptor(imageSource, null, o2);
         } catch (FileNotFoundException e) {
             // handle errors
-        } catch (IOException e) {
-            // handle errors
         } finally {
             if (parcelFD != null)
                 try {

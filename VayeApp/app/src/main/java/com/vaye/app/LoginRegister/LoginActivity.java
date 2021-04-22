@@ -18,22 +18,26 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.crowdfire.cfalertdialog.CFAlertDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kongzue.dialog.interfaces.OnDismissListener;
 import com.kongzue.dialog.v3.CustomDialog;
+import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.GizlilikActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.HizmetActivity;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.TaskUserHandler;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.TaskUser;
 import com.vaye.app.R;
@@ -109,10 +113,20 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onCallback(CurrentUser user) {
                                 if (user!=null){
-                                    Intent i = new Intent(LoginActivity.this , SplashScreen.class);
-                                    startActivity(i);
-                                    WaitDialog.dismiss();
-                                    finish();
+                                    UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                Intent i = new Intent(LoginActivity.this , SplashScreen.class);
+                                                startActivity(i);
+                                                WaitDialog.dismiss();
+                                                finish();
+                                            }else{
+                                                showDialog(task.getResult().getUser());
+                                            }
+                                        }
+                                    });
+
                                 }else{
                                     DocumentReference getPriority = FirebaseFirestore.getInstance().collection("priority")
                                             .document(task.getResult().getUser().getUid());
@@ -130,15 +144,25 @@ public class LoginActivity extends AppCompatActivity {
                                                                            .document(task.getResult().getUser().getUid());
                                                                    ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                                        @Override
-                                                                       public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                       public void onComplete(@NonNull Task<DocumentSnapshot> taskk) {
                                                                            if (task.isSuccessful()){
 
-                                                                               if (task.getResult().getBoolean("isValid")){
-                                                                                   //TODO: is verifty email
-                                                                                   Intent i = new Intent(LoginActivity.this , SplashScreen.class);
-                                                                                   startActivity(i);
-                                                                                   WaitDialog.dismiss();
-                                                                                   finish();
+                                                                               if (taskk.getResult().getBoolean("isValid")){
+
+                                                                                   UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
+                                                                                       @Override
+                                                                                       public void callBack(Boolean _value) {
+                                                                                           if (_value){
+                                                                                               //TODO: is verifty email
+                                                                                               Intent i = new Intent(LoginActivity.this , SplashScreen.class);
+                                                                                               startActivity(i);
+                                                                                               WaitDialog.dismiss();
+                                                                                               finish();
+                                                                                           }else{
+                                                                                               showDialog(task.getResult().getUser());
+                                                                                           }
+                                                                                       }
+                                                                                   });
                                                                                }else{
                                                                                    CustomDialog.show(LoginActivity.this, R.layout.auth_dialog, new CustomDialog.OnBindView() {
                                                                                        @Override
@@ -230,10 +254,20 @@ public class LoginActivity extends AppCompatActivity {
                                                             UserService.shared().getTaskUser(task.getResult().getUser().getUid(), new TaskUserHandler() {
                                                                 @Override
                                                                 public void onCallback(TaskUser user) {
-                                                                    Intent i = new Intent(LoginActivity.this , SplashScreen.class);
-                                                                    startActivity(i);
-                                                                    WaitDialog.dismiss();
-                                                                    finish();
+                                                                    UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
+                                                                        @Override
+                                                                        public void callBack(Boolean _value) {
+                                                                            if (_value){
+                                                                                Intent i = new Intent(LoginActivity.this , SplashScreen.class);
+                                                                                startActivity(i);
+                                                                                WaitDialog.dismiss();
+                                                                                finish();
+                                                                            }else{
+                                                                                showDialog(task.getResult().getUser());
+                                                                            }
+                                                                        }
+                                                                    });
+
                                                                 }
                                                             });
                                                         }
@@ -270,6 +304,41 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+
+    public void showDialog(FirebaseUser user){
+        FirebaseAuth.getInstance().signOut();
+        CFAlertDialog.Builder builder = new CFAlertDialog.Builder(LoginActivity.this)
+                .setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT)
+                .setTitle(user.getEmail()+ " Adresini Doğrulayamadık")
+                .setMessage("Tekrar Doğrulama Bağlantısı Göndermemizi İstermisiniz?")
+                .addButton("Evet", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                    WaitDialog.show(LoginActivity.this,"Gönderiliyor");
+                    user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                WaitDialog.dismiss();
+                                TipDialog.show(LoginActivity.this,"Doğrulama Linki Gönderildi", TipDialog.TYPE.SUCCESS);
+                                TipDialog.dismiss(1500);
+                                dialog.dismiss();
+                            }else {
+                                WaitDialog.dismiss();
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+
+
+                    dialog.dismiss();
+
+                }).addButton("Vazgeç", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                    WaitDialog.dismiss();
+                    dialog.dismiss();
+
+                });
+        builder.show();
     }
 
     public void gizlilik(View view) {

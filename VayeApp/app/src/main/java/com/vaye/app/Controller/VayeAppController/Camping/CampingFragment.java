@@ -262,11 +262,14 @@ public class CampingFragment extends Fragment {
                                 }
                             });
                         }else{
-
+                            swipeRefreshLayout.setRefreshing(false);
+                            isLoadMore = false;
                         }
                     }
                 }else{
-
+                    swipeRefreshLayout.setRefreshing(false);
+                    isLoadMore = false;
+                    progressBar.setVisibility(View.GONE);
                 }
             }
         });

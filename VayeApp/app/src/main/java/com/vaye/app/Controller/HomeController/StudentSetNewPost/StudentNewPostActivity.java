@@ -228,6 +228,11 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                                             }
 
                                                         }
+                                                        WaitDialog.dismiss();
+                                                        TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                                        TipDialog.dismiss(1400);
+                                                        finish();
+                                                        Helper.shared().back(StudentNewPostActivity.this);
                                                         MajorPostNS.shared().sendNewPostNotification(NotificationPostType.name.lessonPost,currentUser,lessonName,text.getText().toString(), MajorPostNotification.type.new_post,String.valueOf(postDate));
                                                         for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
                                                             String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
@@ -248,11 +253,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                                                                         @Override
                                                                                         public void callBack(Boolean _value) {
                                                                                             if (_value){
-                                                                                                WaitDialog.dismiss();
-                                                                                                TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
-                                                                                                TipDialog.dismiss(1400);
-                                                                                                finish();
-                                                                                                Helper.shared().back(StudentNewPostActivity.this);
+                                                                                               ;
                                                                                             }
                                                                                         }
                                                                                     });

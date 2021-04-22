@@ -247,10 +247,15 @@ public class FollowersFragment extends Fragment {
                             });
                         }else{
                             deletePostId(item.getId());
+                            swipeRefreshLayout.setRefreshing(false);
+                            isLoadMore = false;
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 }else{
-
+                    swipeRefreshLayout.setRefreshing(false);
+                    isLoadMore = false;
+                    progressBar.setVisibility(View.GONE);
                 }
             }
         });

@@ -283,6 +283,7 @@ public class StudentSignUpService {
         map.put("like",true);
         map.put("comment",true);
         map.put("follow",true);
+        map.put("allowRequest",true);
         map.put("lessonNotices",true);
         map.put("friendList",FieldValue.arrayUnion());
         map.put("slientChatUser",FieldValue.arrayUnion());

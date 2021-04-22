@@ -264,11 +264,14 @@ public class BuySellFragment extends Fragment {
                                 }
                             });
                         }else{
-
+                            swipeRefreshLayout.setRefreshing(false);
+                            isLoadMore = false;
                         }
                     }
                 }else{
-
+                    swipeRefreshLayout.setRefreshing(false);
+                    isLoadMore = false;
+                    progressBar.setVisibility(View.GONE);
                 }
             }
         });

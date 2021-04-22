@@ -140,7 +140,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     private int STORAGE_PERMISSION_CODE = 1;
     private int STOREGE_READ_WRİTE_CODE = 2;
     private int STROGE_MANAGE_CODE = 3;
-
+    int requestSize = 0 , chatSize = 0 , friendSize = 0;
     private static final int image_pick_request =600;
     private static final int camera_pick_request =800;
     private static final int CAMERA_REQUEST = 1888;
@@ -407,35 +407,9 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         menuItem.setChecked(true);
         overridePendingTransition(0, 0);
         getBadgeCount();
+        getMessagesCount();
     }
-    private void getBadgeCount(){
-        BottomNavigationView view;
-        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
-        BottomNavigationMenuView bottomNavigationMenuView =
-                (BottomNavigationMenuView) view.getChildAt(0);
-        final QBadgeView badge = new QBadgeView(this);
-        final View v = bottomNavigationMenuView.getChildAt(2);
 
-        Query ref =  FirebaseFirestore.getInstance().collection("user")
-                .document(currentUser.getUid())
-                .collection("notification").whereEqualTo("isRead","false");
-
-        ref.addSnapshotListener(this,new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                if (documentSnapshot.isEmpty()){
-                    badge.hide(true);
-                }else{
-                    badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
-                            .setBadgeBackgroundColor(Color.RED).setBadgeNumber(documentSnapshot.getDocuments().size());;
-                    if (documentSnapshot.getDocuments().size() < 1){
-                        badge.hide(true);
-                    }
-                }
-            }
-        });
-
-    }
 
     private void addLesson(){
         if (currentUser.getPriority().equals("teacher")){
@@ -826,7 +800,115 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                     }
                 }).check();
     }
+    private void getBadgeCount(){
+        BottomNavigationView view;
+        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) view.getChildAt(0);
+        final QBadgeView badge = new QBadgeView(this);
+        final View v = bottomNavigationMenuView.getChildAt(2);
+
+        Query ref =  FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid())
+                .collection("notification").whereEqualTo("isRead","false");
+
+        ref.addSnapshotListener(this,new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (documentSnapshot.isEmpty()){
+                    badge.hide(true);
+                }else{
+                    badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                            .setBadgeBackgroundColor(Color.RED).setBadgeNumber(documentSnapshot.getDocuments().size());;
+                    if (documentSnapshot.getDocuments().size() < 1){
+                        badge.hide(true);
+                    }
+                }
+            }
+        });
+
+    }
+    private void getMessagesCount(){
+        BottomNavigationView view;
+        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) view.getChildAt(0);
+        final QBadgeView badge = new QBadgeView(this);
+        final View v = bottomNavigationMenuView.getChildAt(3);
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid());
+        ref.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value!=null){
+                    if (value.getLong("totalBadge") != null){
+                        if (value.getLong("totalBadge").intValue() == 0){
+                            badge.hide(true);
+                        }else{
+
+                           badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                                   .setBadgeBackgroundColor(Color.RED).setBadgeNumber(value.getLong("totalBadge").intValue());
+                        }
+                    }
+                }
+            }
+        });
+        setChatBadgeCount();
+
+    }
 
 
+    private void setChatBadgeCount(){
+        Query ref_msg_list = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
+                .collection("msg-list").whereGreaterThan("badgeCount",0);
+        Query ref_req_list = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
+                .collection("msg-request").whereGreaterThan("badgeCount",0);
+
+        ref_req_list.addSnapshotListener( HomeActivity.this,new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()){
+
+                    requestSize = 0;
+                    updateTotalBadgeCount(chatSize + requestSize);
+                    Log.d(TAG, "sohbetBadge: empty ");
+                }else{
+                    if (value.getDocuments() != null){
+                        requestSize = value.getDocuments().size();
+                        updateTotalBadgeCount(chatSize + requestSize);
+
+                        Log.d(TAG, "sohbetBadge: is " + value.getDocuments().size());
+                    }
+                }
+            }
+        });
+
+        ref_msg_list.addSnapshotListener(HomeActivity.this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value.isEmpty()){
+
+                    chatSize = 0;
+                    updateTotalBadgeCount(chatSize + requestSize);
+
+                    Log.d(TAG, "sohbetBadge: empty ");
+                }else{
+                    if (value.getDocuments() != null){
+                        chatSize = value.getDocuments().size();
+                        updateTotalBadgeCount(chatSize + requestSize);
+
+                        Log.d(TAG, "sohbetBadge: is " + value.getDocuments().size());
+                    }
+                }
+            }
+        });
+    }
+    private void updateTotalBadgeCount(int total){
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid());
+        Map<String , Object> map = new HashMap<>();
+        map.put("totalBadge",total);
+        ref.set(map , SetOptions.merge());
+    }
 
 }

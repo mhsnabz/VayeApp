@@ -264,11 +264,15 @@ public class FoodMeFragment extends Fragment {
                                     }
                                 });
                             }else{
-
+                                swipeRefreshLayout.setRefreshing(false);
+                                progressBar.setVisibility(View.GONE);
+                                isLoadMore = false;
                             }
                         }
                     }else{
-
+                        swipeRefreshLayout.setRefreshing(false);
+                        progressBar.setVisibility(View.GONE);
+                        isLoadMore = false;
                     }
             }
         });
