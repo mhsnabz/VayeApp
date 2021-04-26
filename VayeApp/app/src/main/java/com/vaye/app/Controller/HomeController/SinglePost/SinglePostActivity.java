@@ -13,15 +13,17 @@ import android.widget.TextView;
 
 import com.vaye.app.Controller.NotificationController.NotificationActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Util.Helper;
 
-public class SinglePostActivity extends AppCompatActivity {
+public class SinglePostActivity extends AppCompatActivity implements BlockOptionSelect {
 
 
     LessonPostModel lessonPostModel;
@@ -32,10 +34,12 @@ public class SinglePostActivity extends AppCompatActivity {
     TextView toolbarTitle;
     RecyclerView list;
     SinglePostAdapter adapter;
+    BlockOptionSelect optionSelect;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_post);
+        optionSelect = this::onSelectOption;
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null){
@@ -61,13 +65,13 @@ public class SinglePostActivity extends AppCompatActivity {
         list.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         list.setHasFixedSize(true);
         if (lessonPostModel != null){
-            adapter = new SinglePostAdapter(lessonPostModel,currentUser,this);
+            adapter = new SinglePostAdapter(lessonPostModel,currentUser,this,optionSelect);
             list.setAdapter(adapter);
         }else if (noticesMainModel != null){
-            adapter = new SinglePostAdapter(noticesMainModel,currentUser,this);
+            adapter = new SinglePostAdapter(noticesMainModel,currentUser,this,optionSelect);
             list.setAdapter(adapter);
         }else if (mainPostModel!=null){
-            adapter = new SinglePostAdapter(mainPostModel,currentUser,this);
+            adapter = new SinglePostAdapter(mainPostModel,currentUser,this,optionSelect);
             list.setAdapter(adapter);
         }
 
@@ -102,5 +106,10 @@ public class SinglePostActivity extends AppCompatActivity {
         super.onBackPressed();
         finish();
         Helper.shared().back(SinglePostActivity.this);
+    }
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+
     }
 }

@@ -9,12 +9,16 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.kongzue.dialog.v3.WaitDialog;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
 import com.vaye.app.Controller.ReportController.ReportActivity;
+import com.vaye.app.Interfaces.BlockOptionSelect;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -22,8 +26,10 @@ import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.BlockService;
 import com.vaye.app.Services.MainPostService;
 import com.vaye.app.Services.MajorPostService;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -39,7 +45,8 @@ public class MajorPostBottomAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     OtherUser otherUser;
     Context context;
     ArrayList<LessonPostModel> allPost;
-    public MajorPostBottomAdapter(ArrayList<LessonPostModel> allPost,LessonPostModel post, CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context) {
+    BlockOptionSelect optionSelect;
+    public MajorPostBottomAdapter(ArrayList<LessonPostModel> allPost,LessonPostModel post, CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context,BlockOptionSelect optionSelect) {
         this.post = post;
         this.currentUser = currentUser;
         this.model = model;
@@ -47,6 +54,7 @@ public class MajorPostBottomAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         this.otherUser = otherUser;
         this.context = context;
         this.allPost = allPost;
+        this.optionSelect = optionSelect;
     }
 
     /**
@@ -184,6 +192,19 @@ public class MajorPostBottomAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         context.startActivity(i);
                         Helper.shared().go((Activity) context);
                         dialog.dismiss();
+                    }else if (model.getItems().get(i).equals(BottomSheetActionTarget.getBu_kullaniciyi_engelle)){
+                        WaitDialog.show((AppCompatActivity)context,null );
+                        UserService.shared().getOtherUserById(post.getSenderUid(), new OtherUserService() {
+                            @Override
+                            public void callback(OtherUser user) {
+                                if (user!=null){
+
+                                    BlockService.shared().reportReasonDialog((Activity)context,currentUser,user,optionSelect);
+                                    WaitDialog.dismiss();
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
                     }
 
                 }

@@ -57,6 +57,7 @@ import com.vaye.app.Controller.NotificationService.NoticesPostNotification;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.Followers.FollowersFragment;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.LocationCallback;
 import com.vaye.app.Interfaces.LottieFrames;
@@ -941,7 +942,7 @@ public class Helper {
         bottomSheetDialog.show();
 
     }
-    public void MajorPostOtherUserBottomSheetLaunher(Activity activity, ArrayList<LessonPostModel> allPost, OtherUser otherUser,   CurrentUser currentUser , LessonPostModel post , TrueFalse<Boolean> callback){
+    public void MajorPostOtherUserBottomSheetLaunher(Activity activity, ArrayList<LessonPostModel> allPost, OtherUser otherUser, CurrentUser currentUser , LessonPostModel post , BlockOptionSelect optionSelect, TrueFalse<Boolean> callback){
         RecyclerView recyclerView;
         CardView headerView;
         CircleImageView profileImage;
@@ -958,6 +959,7 @@ public class Helper {
         }
         items.add(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak);
         items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
+        items.add(BottomSheetActionTarget.getBu_kullaniciyi_engelle);
         ArrayList<Integer> res = new ArrayList<>();
 
         res.add(R.drawable.black_color_report);
@@ -970,11 +972,12 @@ public class Helper {
         }
         res.add(R.drawable.cancel);
         res.add(R.drawable.red_report);
+        res.add(R.drawable.block_user);
         BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.major_OtherUser_launcher,res);
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
         View view = LayoutInflater.from(activity.getApplicationContext())
                 .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
-        MajorPostBottomAdapter adapter = new MajorPostBottomAdapter(allPost,post , currentUser ,model,bottomSheetDialog,otherUser,activity);
+        MajorPostBottomAdapter adapter = new MajorPostBottomAdapter(allPost,post , currentUser ,model,bottomSheetDialog,otherUser,activity,optionSelect);
         recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
         headerView = (CardView)view.findViewById(R.id.header);
         profileImage = (CircleImageView)view.findViewById(R.id.profileImage);
@@ -1110,6 +1113,9 @@ public class Helper {
         });
 
     }
+
+
+
     public void VayeAppCurrentUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
        RecyclerView recyclerView;
        CardView headerView;

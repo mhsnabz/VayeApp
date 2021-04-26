@@ -35,6 +35,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Model.CurrentUser;
@@ -48,7 +49,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class MajorPostFragment extends Fragment {
+public class MajorPostFragment extends Fragment implements BlockOptionSelect {
 
     int color;
 
@@ -69,6 +70,7 @@ public class MajorPostFragment extends Fragment {
     NestedScrollView scrollView;
     int totalAdsCount = 0;
     AdLoader adLoader;
+    BlockOptionSelect optionSelect;
     public MajorPostFragment() {
         // Required empty public constructor
     }
@@ -93,6 +95,7 @@ public class MajorPostFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView =inflater.inflate(R.layout.fragment_major_post, container, false);
                 postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
+                optionSelect = this::onSelectOption;
         postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         postList.setHasFixedSize(true);
         scrollView = (NestedScrollView)rootView.findViewById(R.id.nestedScroolView);
@@ -147,7 +150,7 @@ public class MajorPostFragment extends Fragment {
     private void getPost(CurrentUser currentUser ){
         swipeRefreshLayout.setRefreshing(true);
         lessonPostModels = new ArrayList<>();
-        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity());
+        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity(),optionSelect);
         postList.setAdapter(adapter);
         getAllPost(currentUser);
 
@@ -380,5 +383,10 @@ public class MajorPostFragment extends Fragment {
                 lessonPostModels.get(i).getNativeAd().destroy();
             }
         }
+    }
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+
     }
 }

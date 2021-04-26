@@ -32,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.OtherUser;
@@ -42,7 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class FavFragment extends Fragment {
+public class FavFragment extends Fragment implements BlockOptionSelect {
 
     View rootView;
     String TAG = "MajorPostFragment";
@@ -61,6 +62,7 @@ public class FavFragment extends Fragment {
     NestedScrollView scrollView;
     int totalAdsCount = 0;
     AdLoader adLoader;
+    BlockOptionSelect optionSelect;
     public FavFragment() {
         // Required empty public constructor
     }
@@ -79,6 +81,7 @@ public class FavFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_fav, container, false);
+        optionSelect = this::onSelectOption;
         postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
         postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         postList.setHasFixedSize(true);
@@ -134,7 +137,7 @@ public class FavFragment extends Fragment {
     private void getPost(CurrentUser currentUser ){
         swipeRefreshLayout.setRefreshing(true);
         lessonPostModels = new ArrayList<>();
-        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity());
+        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity(),optionSelect);
         postList.setAdapter(adapter);
         getAllPost(currentUser);
 
@@ -375,5 +378,10 @@ public class FavFragment extends Fragment {
                 lessonPostModels.get(i).getNativeAd().destroy();
             }
         }
+    }
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+
     }
 }

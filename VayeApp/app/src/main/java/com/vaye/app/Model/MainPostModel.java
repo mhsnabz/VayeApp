@@ -7,6 +7,7 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.sql.Time;
 import java.util.ArrayList;
 
 public class MainPostModel implements Parcelable {
@@ -20,6 +21,11 @@ public class MainPostModel implements Parcelable {
 
 
     public MainPostModel() {
+    }
+
+    public MainPostModel(String postId , Timestamp postTime){
+        this.postId = postId;
+        this.postTime = postTime;
     }
 
     public MainPostModel(String senderName, String text, String senderUid, String link, String locationName, String postId, String empty, String value, String postType, String id, String username, String thumb_image, String type, int comment, Timestamp postTime, ArrayList<String> likes, ArrayList<String> dislike, ArrayList<String> data, ArrayList<String> thumbData, ArrayList<String> silent, GeoPoint geoPoint, UnifiedNativeAd nativeAd) {

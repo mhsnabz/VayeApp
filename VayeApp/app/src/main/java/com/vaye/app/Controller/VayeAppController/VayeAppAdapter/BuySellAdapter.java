@@ -109,7 +109,10 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         int viewType = getItemViewType(i);
         switch (viewType) {
             case VIEW_TYPE_ADS:
+                UnifiedNativeAd nativeAd = (UnifiedNativeAd) post.get(i).getNativeAd();
+                populateNativeAdView(nativeAd, ((UnifiedNativeAdViewHolder) holder).getAdView());
                 break;
+
             case VIEW_TYPE_EMPTY:
                 break;
             case VIEW_TYPE_FOODME_POST:
@@ -673,11 +676,11 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         MainPostModel model = (MainPostModel)post.get(position);
         if (model.getType()!=null&& model.getType().equals("ads")) {
             return  VIEW_TYPE_ADS;
-        }else if ( model.getType().equals("data")){
+        }else if (model.getType()!=null&& model.getType().equals("data")){
             return  VIEW_TYPE_FOODME_POST_DATA;
-        }else if  ( model.getType().equals("post")){
+        }else if  (model.getType()!=null&& model.getType().equals("post")){
             return   VIEW_TYPE_FOODME_POST;
-        }else if (model.getEmpty().equals("empty")){
+        }else if (model.getType()!=null&& model.getEmpty().equals("empty")){
             return  VIEW_TYPE_EMPTY;
         }
         return super.getItemViewType(position);

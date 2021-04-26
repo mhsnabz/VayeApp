@@ -72,4 +72,24 @@ public class ReportService {
         });
     }
 
+    public void setBlockReport(String reportType ,String reportTarget ,String currentUser, String otherUser , TrueFalse<Boolean> callback ){
+        Map<String , Object> map = new HashMap<>();
+        map.put("reportType",reportType);
+        map.put("reportTarget",reportTarget);
+        map.put("time",FieldValue.serverTimestamp());
+        map.put("reportedBy",currentUser);
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("report")
+                .document(reportType).collection("reportTo")
+                .document(otherUser)
+                .collection("report");
+        reference.add(map).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                if (task.isSuccessful()){
+                    callback.callBack(true);
+                }
+            }
+        });
+
+    }
 }

@@ -3,6 +3,7 @@ package com.vaye.app.Controller.VayeAppController.Followers;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,9 +25,13 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
@@ -38,11 +43,13 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 
 public class FollowersFragment extends Fragment {
@@ -148,21 +155,46 @@ public class FollowersFragment extends Fragment {
                                     @Override
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                         if (documentSnapshot.exists()){
-                                            post.add(documentSnapshot.toObject(MainPostModel.class));
-                                            Collections.sort(post, new Comparator<MainPostModel>(){
-                                                public int compare(MainPostModel obj1, MainPostModel obj2) {
+                                            if (documentSnapshot.getString("senderUid") != null || !documentSnapshot.getString("senderUid").isEmpty()) {
+                                                UserService.shared().checkBlock(documentSnapshot.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            post.add(documentSnapshot.toObject(MainPostModel.class));
+                                                            Collections.sort(post, new Comparator<MainPostModel>(){
+                                                                public int compare(MainPostModel obj1, MainPostModel obj2) {
 
-                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
+                                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
 
-                                                }
+                                                                }
 
-                                            });
-                                            adapter.notifyDataSetChanged();
-                                            swipeRefreshLayout.setRefreshing(false);
-                                            progressBar.setVisibility(View.GONE);
-                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                                            isLoadMore = true;
-                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                            });
+                                                            adapter.notifyDataSetChanged();
+                                                            swipeRefreshLayout.setRefreshing(false);
+                                                            progressBar.setVisibility(View.GONE);
+                                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                                            isLoadMore = true;
+                                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                        }else{
+                                                            post.add(new MainPostModel("empty", Timestamp.now()));
+                                                            Collections.sort(post, new Comparator<MainPostModel>(){
+                                                                public int compare(MainPostModel obj1, MainPostModel obj2) {
+
+                                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
+
+                                                                }
+
+                                                            });
+                                                            adapter.notifyDataSetChanged();
+                                                            swipeRefreshLayout.setRefreshing(false);
+                                                            progressBar.setVisibility(View.GONE);
+                                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                                            isLoadMore = true;
+                                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                        }
+                                                    }
+                                                });
+                                            }
                                         }else{
                                             deletePostId(item.getId());
                                         }
@@ -221,22 +253,47 @@ public class FollowersFragment extends Fragment {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     if (documentSnapshot.exists()){
-                                        Log.d(TAG, "onSuccess: " + documentSnapshot.getData());
-                                        post.add(documentSnapshot.toObject(MainPostModel.class));
-                                        Collections.sort(post, new Comparator<MainPostModel>(){
-                                            public int compare(MainPostModel obj1, MainPostModel obj2) {
+                                        if (documentSnapshot.getString("senderUid") != null || !documentSnapshot.getString("senderUid").isEmpty()) {
+                                            UserService.shared().checkBlock(documentSnapshot.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    if (_value){
+                                                        post.add(documentSnapshot.toObject(MainPostModel.class));
+                                                        Collections.sort(post, new Comparator<MainPostModel>(){
+                                                            public int compare(MainPostModel obj1, MainPostModel obj2) {
 
-                                                return obj2.getPostTime().compareTo(obj1.getPostTime());
+                                                                return obj2.getPostTime().compareTo(obj1.getPostTime());
 
-                                            }
+                                                            }
 
-                                        });
-                                        adapter.notifyDataSetChanged();
-                                        swipeRefreshLayout.setRefreshing(false);
-                                        progressBar.setVisibility(View.GONE);
-                                        lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                                        isLoadMore = true;
-                                        Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                        });
+                                                        adapter.notifyDataSetChanged();
+                                                        swipeRefreshLayout.setRefreshing(false);
+                                                        progressBar.setVisibility(View.GONE);
+                                                        lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                                        isLoadMore = true;
+                                                        Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                    }else{
+                                                        post.add(new MainPostModel("empty", Timestamp.now()));
+                                                        Collections.sort(post, new Comparator<MainPostModel>(){
+                                                            public int compare(MainPostModel obj1, MainPostModel obj2) {
+
+                                                                return obj2.getPostTime().compareTo(obj1.getPostTime());
+
+                                                            }
+
+                                                        });
+                                                        adapter.notifyDataSetChanged();
+                                                        swipeRefreshLayout.setRefreshing(false);
+                                                        progressBar.setVisibility(View.GONE);
+                                                        lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                                        isLoadMore = true;
+                                                        Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                    }
+                                                }
+                                            });
+                                        }
+
                                     }
                                 }
                             }).addOnFailureListener(getActivity(), new OnFailureListener() {
@@ -310,5 +367,31 @@ public class FollowersFragment extends Fragment {
                 post.get(i).getNativeAd().destroy();
             }
         }
+    }
+    private void getCurrent(){
+        if (FirebaseAuth.getInstance().getCurrentUser().getUid() != null){
+            DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            ref.addSnapshotListener((VayeAppActivity)getActivity(),new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if(error == null){
+                        List<String> blockList = (List<String>)value.get("blockList");
+                        List<String> blockByOtherUser = (List<String>)value.get("blockByOtherUser");
+                        if (blockList != null && blockByOtherUser!=null){
+                            if (!currentUser.getBlockList().equals(blockList) || !currentUser.getBlockByOtherUser().equals(blockByOtherUser) ){
+                                currentUser = value.toObject(CurrentUser.class);
+                                getPost(value.toObject(CurrentUser.class));
+                            }
+                        }
+
+                    }
+                }
+            });
+        }
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        getCurrent();
     }
 }

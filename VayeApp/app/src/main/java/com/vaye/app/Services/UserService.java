@@ -448,6 +448,8 @@ public class UserService {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
                     completion.callBack(true);
+                }else{
+                    completion.callBack(true);
                 }
             }
         });

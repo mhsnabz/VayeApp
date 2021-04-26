@@ -672,11 +672,11 @@ public class CampingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         MainPostModel model = (MainPostModel)post.get(position);
         if (model.getType()!=null&& model.getType().equals("ads")) {
             return  VIEW_TYPE_ADS;
-        }else if ( model.getType().equals("data")){
+        }else if (model.getType()!=null&& model.getType().equals("data")){
             return VIEW_TYPE_CAMPING_POST_DATA;
-        }else if  ( model.getType().equals("post")){
+        }else if  (model.getType()!=null&& model.getType().equals("post")){
             return VIEW_TYPE_CAMPING_POST;
-        }else if (model.getEmpty().equals("empty")){
+        }else if (model.getType()!=null && model.getEmpty().equals("empty")){
             return  VIEW_TYPE_EMPTY;
         }
         return super.getItemViewType(position);

@@ -27,6 +27,7 @@ import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
 import com.vaye.app.Controller.CommentController.CommentActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -47,10 +48,12 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final String TAG = "MajorPostAdapter";
     Boolean istanceOfCurrentUserProfile = false;
     Boolean istanceOfOtherUserProfile = false;
-    public MajorPostAdapter(ArrayList<LessonPostModel> post, CurrentUser currentUser, Context context) {
+    BlockOptionSelect optionSelect;
+    public MajorPostAdapter(ArrayList<LessonPostModel> post, CurrentUser currentUser, Context context , BlockOptionSelect optionSelect) {
         this.post = post;
         this.currentUser = currentUser;
         this.context = context;
+        this.optionSelect = optionSelect;
         if (context instanceof CurrentUserProfile){
             Log.d("FollowersAdapter", "FollowersAdapter: " + "instanceof CurrentUserProfile");
             istanceOfCurrentUserProfile = true;
@@ -171,7 +174,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, post, user, currentUser, post.get(i), new TrueFalse<Boolean>() {
+                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, post, user, currentUser, post.get(i),optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -507,7 +510,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, post, user, currentUser, post.get(i), new TrueFalse<Boolean>() {
+                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, post, user, currentUser, post.get(i),optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){

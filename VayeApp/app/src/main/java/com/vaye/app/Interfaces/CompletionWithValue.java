@@ -23,4 +23,9 @@ public interface CompletionWithValue {
     String remove_from_friend_list = "remove_from_friend_list";
     String make_slient_chat_friend = "make_slient_chat_friend";
     String report_chat_user = "report_chat_user";
+
+    String fake_account = "Sahte Hesap";
+    String nudity = "Çıplaklık , Rahatsız Edici İçerik";
+    String swear = "Küfür , Argo, Siber Zorbalık";
+    String other = "Diğer";
 }

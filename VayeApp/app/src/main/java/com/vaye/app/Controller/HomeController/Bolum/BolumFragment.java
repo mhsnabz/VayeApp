@@ -47,13 +47,16 @@ import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity;
 import com.vaye.app.Controller.HomeController.TeacherNewPost.TeacherChooseLesson;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.BlockService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.AdsHelper.AdUnifiedListeningg;
 import com.vaye.app.Util.Helper;
@@ -64,7 +67,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public class BolumFragment extends Fragment {
+public class BolumFragment extends Fragment  implements  BlockOptionSelect {
 
     String TAG = "BolumFragment";
     View rootView;
@@ -82,6 +85,7 @@ public class BolumFragment extends Fragment {
     NestedScrollView scrollView;
         int totalAdsCount = 0;
     AdLoader adLoader;
+    BlockOptionSelect optionSelect;
     ListenerRegistration listenerRegistration;
     public BolumFragment() {
 
@@ -95,6 +99,7 @@ public class BolumFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
             rootView = inflater.inflate(R.layout.fragment_bolum, container, false);
+            optionSelect = this::onSelectOption;
             newPost = (FloatingActionButton)rootView.findViewById(R.id.newPostButton);
             postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
             postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
@@ -176,7 +181,7 @@ public class BolumFragment extends Fragment {
     private void getPost(CurrentUser currentUser ){
         swipeRefreshLayout.setRefreshing(true);
         lessonPostModels = new ArrayList<>();
-        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity());
+        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity(),optionSelect);
         postList.setAdapter(adapter);
         getAllPost(currentUser);
 
@@ -555,5 +560,18 @@ public class BolumFragment extends Fragment {
                 }
             });
         }
+    }
+
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+        Log.d(TAG, "onSelectOption: " + target);
+        Log.d(TAG, "onSelectOption: " + otherUser.getName());
+        BlockService.shared().report((HomeActivity) getActivity(), target, currentUser, otherUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+
+            }
+        });
     }
 }

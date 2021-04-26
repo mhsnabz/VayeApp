@@ -1782,7 +1782,7 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
         else if (model.getPostType()!=null&& model.getPostType().equals("ads")) {
             return  VIEW_TYPE_ADS;
-        }else if (model.getEmpty().equals("empty")){
+        }else if (model.getPostType()!=null && model.getPostId().equals("empty")){
             return  VIEW_TYPE_EMPTY;
         }
         return super.getItemViewType(position);

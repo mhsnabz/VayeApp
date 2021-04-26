@@ -25,6 +25,7 @@ import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.BuySell.BuySellViewHolder;
 import com.vaye.app.Controller.VayeAppController.Camping.CampingViewHolder;
 import com.vaye.app.Controller.VayeAppController.FoodMe.FoodMeViewHolder;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
@@ -49,7 +50,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     MainPostModel mainPostModel;
     CurrentUser currentUser;
     Context context;
-
+    BlockOptionSelect optionSelect;
     private static final int VIEW_TYPE_LESSON_POST = 1;
     private static final String TAG = "SinglePostAdapter";
     private static final int VIEW_TYPE_LESSON_POST_DATA  = 2;
@@ -74,10 +75,11 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     Boolean istanceOfCurrentUserProfile = false;
     Boolean istanceOfOtherUserProfile = false;
-    public SinglePostAdapter(LessonPostModel lessonPostModel, CurrentUser currentUser, Context context) {
+    public SinglePostAdapter(LessonPostModel lessonPostModel, CurrentUser currentUser, Context context , BlockOptionSelect optionSelect) {
         this.lessonPostModel = lessonPostModel;
         this.currentUser = currentUser;
         this.context = context;
+        this.optionSelect = optionSelect;
         if (context instanceof CurrentUserProfile){
             Log.d("FollowersAdapter", "FollowersAdapter: " + "instanceof CurrentUserProfile");
             istanceOfCurrentUserProfile = true;
@@ -95,10 +97,11 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    public SinglePostAdapter(NoticesMainModel noticesMainModel, CurrentUser currentUser, Context context) {
+    public SinglePostAdapter(NoticesMainModel noticesMainModel, CurrentUser currentUser, Context context , BlockOptionSelect optionSelect) {
         this.noticesMainModel = noticesMainModel;
         this.currentUser = currentUser;
         this.context = context;
+        this.optionSelect = optionSelect;
         if (context instanceof CurrentUserProfile){
             Log.d("FollowersAdapter", "FollowersAdapter: " + "instanceof CurrentUserProfile");
             istanceOfCurrentUserProfile = true;
@@ -116,7 +119,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    public SinglePostAdapter(MainPostModel mainPostModel, CurrentUser currentUser, Context context) {
+    public SinglePostAdapter(MainPostModel mainPostModel, CurrentUser currentUser, Context context , BlockOptionSelect optionSelect) {
         Log.d(TAG, "SinglePostAdapter: " + mainPostModel.getType());
         Log.d(TAG, "SinglePostAdapter: " + mainPostModel.getPostType());
         Log.d(TAG, "SinglePostAdapter: " + mainPostModel.getId());
@@ -124,6 +127,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mainPostModel = mainPostModel;
         this.currentUser = currentUser;
         this.context = context;
+        this.optionSelect = optionSelect;
         if (context instanceof CurrentUserProfile){
             Log.d("FollowersAdapter", "FollowersAdapter: " + "instanceof CurrentUserProfile");
             istanceOfCurrentUserProfile = true;
@@ -2285,7 +2289,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 public void callback(OtherUser user) {
                                     ArrayList<LessonPostModel> lessonPostModels = new ArrayList<>();
                                     lessonPostModels.add(lessonPostModel);
-                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, lessonPostModels, user, currentUser, lessonPostModel, new TrueFalse<Boolean>() {
+                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, lessonPostModels, user, currentUser, lessonPostModel, optionSelect,new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -2624,7 +2628,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 public void callback(OtherUser user) {
                                     ArrayList<LessonPostModel> lessonPostModels = new ArrayList<>();
                                     lessonPostModels.add(lessonPostModel);
-                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, lessonPostModels, user, currentUser, lessonPostModel, new TrueFalse<Boolean>() {
+                                    Helper.shared().MajorPostOtherUserBottomSheetLaunher((Activity) context, lessonPostModels, user, currentUser, lessonPostModel, optionSelect,new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){

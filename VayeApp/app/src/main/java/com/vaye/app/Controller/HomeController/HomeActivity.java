@@ -89,6 +89,7 @@ import com.vaye.app.Controller.MapsController.VayeAppPlacePickerActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.EditProfileActivity;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.DataTypes;
@@ -96,6 +97,7 @@ import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Services.UserService;
@@ -119,7 +121,7 @@ import id.zelory.compressor.Compressor;
 import q.rorbin.badgeview.QBadgeView;
 
 
-public class HomeActivity extends AppCompatActivity implements CompletionWithValue , OnOptionSelect {
+public class HomeActivity extends AppCompatActivity implements CompletionWithValue , OnOptionSelect, BlockOptionSelect {
     String TAG = "HomeActivity";
     private DrawerLayout drawer;
     Toolbar toolbar;
@@ -145,13 +147,14 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     private static final int camera_pick_request =800;
     private static final int CAMERA_REQUEST = 1888;
     OnOptionSelect optionSelect;
-
+  public   BlockOptionSelect blockOptionSelect;
     private PagerViewApadater pagerViewApadater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         optionSelect = this::onChoose;
+        blockOptionSelect = this::onSelectOption;
         setAllPermissinon();
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
@@ -911,4 +914,9 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         ref.set(map , SetOptions.merge());
     }
 
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+        Log.d(TAG, "onSelectOption: " + target);
+        Log.d(TAG, "onSelectOption: " + otherUser.getName());
+    }
 }

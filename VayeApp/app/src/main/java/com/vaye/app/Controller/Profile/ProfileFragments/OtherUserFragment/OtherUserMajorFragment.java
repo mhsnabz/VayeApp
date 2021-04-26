@@ -34,6 +34,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.OtherUser;
@@ -44,7 +45,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class OtherUserMajorFragment extends Fragment {
+public class OtherUserMajorFragment extends Fragment implements  BlockOptionSelect {
 
     CurrentUser currentUser;
     OtherUser otherUser;
@@ -64,7 +65,7 @@ public class OtherUserMajorFragment extends Fragment {
     NestedScrollView scrollView;
     int totalAdsCount = 0;
     AdLoader adLoader;
-
+    BlockOptionSelect optionSelect;
 
 
     public OtherUserMajorFragment(CurrentUser currentUser, OtherUser otherUser) {
@@ -82,6 +83,7 @@ public class OtherUserMajorFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_other_user_major, container, false);
+        optionSelect = this::onSelectOption;
         postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
         postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         postList.setHasFixedSize(true);
@@ -280,7 +282,7 @@ public class OtherUserMajorFragment extends Fragment {
     private void getPost(OtherUser otherUser , CurrentUser currentUser) {
         swipeRefreshLayout.setRefreshing(true);
         lessonPostModels = new ArrayList<>();
-        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity());
+        adapter = new MajorPostAdapter(lessonPostModels , currentUser , getActivity(),optionSelect);
         postList.setAdapter(adapter);
         getAllPost(otherUser);
 
@@ -356,6 +358,11 @@ public class OtherUserMajorFragment extends Fragment {
 
 
         getAds();
+
+    }
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
 
     }
 }
