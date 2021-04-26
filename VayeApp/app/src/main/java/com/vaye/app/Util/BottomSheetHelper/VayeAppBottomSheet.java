@@ -15,13 +15,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.ReportController.ReportActivity;
+import com.vaye.app.Interfaces.BlockOptionSelect;
+import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.BlockService;
 import com.vaye.app.Services.MainPostService;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Services.VayeAppPostService;
 import com.vaye.app.Util.Helper;
 
@@ -37,10 +41,11 @@ public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHo
     OtherUser otherUser;
     Context context;
     ArrayList<MainPostModel> allPost;
+    BlockOptionSelect optionSelect;
     /***
     * other user consctrtuctor
     * */
-    public VayeAppBottomSheet(ArrayList<MainPostModel> allPost,MainPostModel post, CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context) {
+    public VayeAppBottomSheet(ArrayList<MainPostModel> allPost,MainPostModel post, CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context,BlockOptionSelect optionSelect) {
         this.post = post;
         this.currentUser = currentUser;
         this.model = model;
@@ -48,6 +53,7 @@ public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.otherUser = otherUser;
         this.context = context;
         this.allPost = allPost;
+        this.optionSelect = optionSelect;
     }
 
     /**
@@ -181,6 +187,19 @@ public class VayeAppBottomSheet extends RecyclerView.Adapter<RecyclerView.ViewHo
                             context.startActivity(i);
                             Helper.shared().go((Activity) context);
                             dialog.dismiss();
+                        }else if (VH_otherUser.title.getText().equals(BottomSheetActionTarget.getBu_kullaniciyi_engelle)){
+                            WaitDialog.show((AppCompatActivity)context,null );
+                            UserService.shared().getOtherUserById(post.getSenderUid(), new OtherUserService() {
+                                @Override
+                                public void callback(OtherUser user) {
+                                    if (user!=null){
+
+                                        BlockService.shared().reportReasonDialog((Activity)context,currentUser,user,optionSelect);
+                                        WaitDialog.dismiss();
+                                        dialog.dismiss();
+                                    }
+                                }
+                            });
                         }
                     }
                 });

@@ -1,10 +1,13 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,13 +23,16 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.auth.User;
+import com.kongzue.dialog.v3.CustomDialog;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.BlockOptionSelect;
+import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.SplashScreen.SplashScreen;
 import com.vaye.app.Util.BottomSheetHelper.BlockServiceAdapter;
 import com.vaye.app.Util.Helper;
 
@@ -78,56 +84,94 @@ public class BlockService {
         bottomSheetDialog.setContentView(view);
         bottomSheetDialog.show();
     }
+
+    public void showDialog(Context context , TrueFalse<Boolean> callback ){
+        CustomDialog.show((AppCompatActivity) context, R.layout.block_dialog, new CustomDialog.OnBindView() {
+            @Override
+            public void onBind(CustomDialog dialog, View v) {
+                dialog.setCancelable(true);
+
+                Button okey = (Button)v.findViewById(R.id.okey);
+                Button cancel = (Button)v.findViewById(R.id.cancel);
+
+                okey.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        callback.callBack(true);
+                        dialog.doDismiss();
+                    }
+                });
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        callback.callBack(false);
+                        dialog.doDismiss();
+                    }
+                });
+            }
+        });
+    }
+
     public void report(Activity activity,String reportType , CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
-        WaitDialog.show((AppCompatActivity) activity, "Lütfen Bekleyin");
-        ReportService.shared().setBlockReport(reportType, reportType, currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+        showDialog(activity, new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 if (_value){
-                    addOnBlockList(currentUser, otherUser, new TrueFalse<Boolean>() {
+                    WaitDialog.show((AppCompatActivity) activity, "Lütfen Bekleyin");
+                    ReportService.shared().setBlockReport(reportType, reportType, currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
                             if (_value){
-                                WaitDialog.dismiss();
-                                TipDialog.show((AppCompatActivity) activity, "Kullanıcı Engellendi", TipDialog.TYPE.SUCCESS);
-                                TipDialog.dismiss(2000);
-                                callback.callBack(true);
-                                UserService.shared().removeFromFirendList(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+                                addOnBlockList(currentUser, otherUser, new TrueFalse<Boolean>() {
                                     @Override
                                     public void callBack(Boolean _value) {
-                                        UserService.shared().removeFromMsgList(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
-                                            @Override
-                                            public void callBack(Boolean _value) {
+                                        if (_value){
+                                            WaitDialog.dismiss();
+                                            TipDialog.show((AppCompatActivity) activity, "Kullanıcı Engellendi", TipDialog.TYPE.SUCCESS);
+                                            TipDialog.dismiss(2000);
+                                            callback.callBack(true);
+                                            UserService.shared().removeFromFirendList(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    UserService.shared().removeFromMsgList(currentUser.getUid(), otherUser.getUid(), new TrueFalse<Boolean>() {
+                                                        @Override
+                                                        public void callBack(Boolean _value) {
 
-                                            }
-                                        });
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
                                     }
                                 });
                             }
                         }
                     });
+                    UserService.shared().removeRequestBadgeCount(currentUser, otherUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+
+                        }
+                    });
+                    DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(otherUser.getUid())
+                            .collection("fallowers").document(currentUser.getUid());
+                    ref.delete();
+                    DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user").document(otherUser.getUid())
+                            .collection("following").document(currentUser.getUid());
+                    ref1.delete();
+
+                    DocumentReference reference = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
+                            .collection("following").document(otherUser.getUid());
+                    reference.delete();
+                    DocumentReference reference1 = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
+                            .collection("fallowers").document(otherUser.getUid());
+                    reference1.delete();
+                }else{
+
                 }
             }
         });
-        UserService.shared().removeRequestBadgeCount(currentUser, otherUser, new TrueFalse<Boolean>() {
-            @Override
-            public void callBack(Boolean _value) {
 
-            }
-        });
-        DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(otherUser.getUid())
-                .collection("fallowers").document(currentUser.getUid());
-        ref.delete();
-        DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user").document(otherUser.getUid())
-                .collection("following").document(currentUser.getUid());
-        ref1.delete();
-
-        DocumentReference reference = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
-                .collection("following").document(otherUser.getUid());
-        reference.delete();
-        DocumentReference reference1 = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
-                .collection("fallowers").document(otherUser.getUid());
-        reference1.delete();
     }
     private void addOnBlockList(CurrentUser currentUser ,OtherUser otherUser , TrueFalse<Boolean> callback){
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")

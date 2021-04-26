@@ -438,7 +438,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 public void callback(OtherUser user) {
                                     ArrayList<MainPostModel> mainPostModels = new ArrayList<>();
                                     mainPostModels.add(mainPostModel);
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, buy_sell_item, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, buy_sell_item,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -718,7 +718,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 public void callback(OtherUser user) {
                                     ArrayList<MainPostModel> mainPostModels = new ArrayList<>();
                                     mainPostModels.add(mainPostModel);
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, buy_sell_item_data, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, buy_sell_item_data,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -1001,7 +1001,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 public void callback(OtherUser user) {
                                     ArrayList<MainPostModel> mainPostModels = new ArrayList<>();
                                     mainPostModels.add(mainPostModel);
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, food_item_data, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, food_item_data,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -1239,7 +1239,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 public void callback(OtherUser user) {
                                     ArrayList<MainPostModel> mainPostModels = new ArrayList<>();
                                     mainPostModels.add(mainPostModel);
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, food_me_item, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, food_me_item,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -1484,7 +1484,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 public void callback(OtherUser user) {
                                     ArrayList<MainPostModel> mainPostModels = new ArrayList<>();
                                     mainPostModels.add(mainPostModel);
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, camping_item, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, camping_item,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -1766,7 +1766,7 @@ public class SinglePostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 public void callback(OtherUser user) {
                                     ArrayList<MainPostModel> mainPostModels = new ArrayList<>();
                                     mainPostModels.add(mainPostModel);
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, camping_item_data, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(mainPostModels,(Activity) context, user, currentUser, camping_item_data,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){

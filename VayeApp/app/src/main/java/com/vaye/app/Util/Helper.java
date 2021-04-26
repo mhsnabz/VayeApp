@@ -1171,7 +1171,7 @@ public class Helper {
        bottomSheetDialog.setContentView(view);
        bottomSheetDialog.show();
    }
-    public void VayeAppOtherUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , OtherUser otherUser , CurrentUser currentUser , MainPostModel post , TrueFalse<Boolean> callback){
+    public void VayeAppOtherUserBottomSheetLauncher(ArrayList<MainPostModel> allPost,Activity activity , OtherUser otherUser , CurrentUser currentUser , MainPostModel post ,BlockOptionSelect optionSelect, TrueFalse<Boolean> callback){
        RecyclerView recyclerView;
        CardView headerView;
        CircleImageView profileImage;
@@ -1188,6 +1188,7 @@ public class Helper {
            }
 
            items.add(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et);
+           items.add(BottomSheetActionTarget.getBu_kullaniciyi_engelle);
            ArrayList<Integer> res = new ArrayList<>();
 
            res.add(R.drawable.black_color_report);
@@ -1200,12 +1201,13 @@ public class Helper {
        }
 
            res.add(R.drawable.red_report);
+         res.add(R.drawable.block_user);
 
        BottomSheetModel model = new BottomSheetModel(items,BottomSheetTarget.vaye_app_other_user_launcher,res);
        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity,R.style.BottomSheetDialogTheme);
        View view = LayoutInflater.from(activity.getApplicationContext())
                .inflate(R.layout.action_bottom_sheet_layout,(RelativeLayout)activity.findViewById(R.id.dialog));
-       VayeAppBottomSheet adapter = new VayeAppBottomSheet(allPost,post , currentUser ,model,bottomSheetDialog,otherUser,activity);
+       VayeAppBottomSheet adapter = new VayeAppBottomSheet(allPost,post , currentUser ,model,bottomSheetDialog,otherUser,activity,optionSelect);
        recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
        headerView = (CardView)view.findViewById(R.id.header);
        profileImage = (CircleImageView)view.findViewById(R.id.profileImage);

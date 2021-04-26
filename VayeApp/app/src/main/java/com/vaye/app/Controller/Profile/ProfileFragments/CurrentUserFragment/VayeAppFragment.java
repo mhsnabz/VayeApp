@@ -33,6 +33,7 @@ import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.VayeAppController.VayeAppActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.FollowersAdapter;
 import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.FoodMeAdapter;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
@@ -43,7 +44,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class VayeAppFragment extends Fragment {
+public class VayeAppFragment extends Fragment implements BlockOptionSelect {
     int color;
 
     CurrentUser currentUser;
@@ -63,7 +64,7 @@ public class VayeAppFragment extends Fragment {
     NestedScrollView scrollView;
     int totalAdsCount = 0;
     AdLoader adLoader;
-
+    BlockOptionSelect optionSelect;
     public VayeAppFragment(int color , OtherUser otherUser) {
         this.color = color;
         this.otherUser = otherUser;
@@ -87,6 +88,7 @@ public class VayeAppFragment extends Fragment {
 
 
         rootView = inflater.inflate(R.layout.fragment_vaye_app, container, false);
+        optionSelect = this::onSelectOption;
         postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
         postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         postList.setHasFixedSize(true);
@@ -188,7 +190,7 @@ public class VayeAppFragment extends Fragment {
     private void getPost(CurrentUser currentUser){
         swipeRefreshLayout.setRefreshing(true);
         post = new ArrayList<>();
-        adapter = new FollowersAdapter(post , getActivity(), currentUser);
+        adapter = new FollowersAdapter(post , getActivity(), currentUser,optionSelect);
         postList.setAdapter(adapter);
         getAllPost(currentUser);
 
@@ -306,5 +308,10 @@ public class VayeAppFragment extends Fragment {
                 post.get(i).getNativeAd().destroy();
             }
         }
+    }
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+
     }
 }

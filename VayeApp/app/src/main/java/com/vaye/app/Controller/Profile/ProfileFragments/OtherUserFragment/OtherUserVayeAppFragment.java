@@ -30,6 +30,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.FollowersAdapter;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
@@ -40,7 +41,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class OtherUserVayeAppFragment extends Fragment {
+public class OtherUserVayeAppFragment extends Fragment  implements BlockOptionSelect {
 
     CurrentUser currentUser;
     OtherUser otherUser;
@@ -59,7 +60,7 @@ public class OtherUserVayeAppFragment extends Fragment {
     NestedScrollView scrollView;
     int totalAdsCount = 0;
     AdLoader adLoader;
-
+    BlockOptionSelect optionSelect;
     public OtherUserVayeAppFragment(CurrentUser currentUser, OtherUser otherUser) {
         this.currentUser = currentUser;
         this.otherUser = otherUser;
@@ -75,6 +76,7 @@ public class OtherUserVayeAppFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_other_user_vaye_app, container, false);
+        optionSelect = this::onSelectOption;
         postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
         postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         postList.setHasFixedSize(true);
@@ -226,7 +228,7 @@ public class OtherUserVayeAppFragment extends Fragment {
     private void getPost(OtherUser otherUser , CurrentUser currentUser) {
         swipeRefreshLayout.setRefreshing(true);
         post = new ArrayList<>();
-        adapter = new FollowersAdapter(post , getActivity(), currentUser);
+        adapter = new FollowersAdapter(post , getActivity(), currentUser,optionSelect);
         postList.setAdapter(adapter);
         getAllPost(otherUser);
 
@@ -299,5 +301,10 @@ public class OtherUserVayeAppFragment extends Fragment {
                 post.get(i).getNativeAd().destroy();
             }
         }
+    }
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+
     }
 }

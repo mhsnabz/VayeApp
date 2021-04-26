@@ -32,6 +32,7 @@ import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.VayeAppController.BuySell.BuySellViewHolder;
 import com.vaye.app.Controller.VayeAppController.Camping.CampingViewHolder;
 import com.vaye.app.Controller.VayeAppController.FoodMe.FoodMeViewHolder;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.StringCompletion;
@@ -52,10 +53,12 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     CurrentUser currentUser;
     Boolean istanceOfCurrentUserProfile = false;
     Boolean istanceOfOtherUserProfile = false;
-    public FollowersAdapter(ArrayList<MainPostModel> post, Context context, CurrentUser currentUser) {
+    BlockOptionSelect optionSelect;
+    public FollowersAdapter(ArrayList<MainPostModel> post, Context context, CurrentUser currentUser , BlockOptionSelect optionSelect) {
         this.post = post;
         this.context = context;
         this.currentUser = currentUser;
+        this.optionSelect = optionSelect;
         if (context instanceof CurrentUserProfile){
             istanceOfCurrentUserProfile = true;
         }else{
@@ -379,7 +382,7 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -656,7 +659,7 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -934,7 +937,7 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -1168,7 +1171,7 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -1402,7 +1405,7 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItem,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -1678,7 +1681,7 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
                                 @Override
                                 public void callback(OtherUser user) {
-                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                    Helper.shared().VayeAppOtherUserBottomSheetLauncher(post,(Activity) context, user, currentUser, menuItemData,optionSelect, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){

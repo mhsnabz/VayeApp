@@ -43,12 +43,15 @@ import com.vaye.app.Controller.VayeAppController.VayeAppActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.BuySellAdapter;
 import com.vaye.app.Controller.VayeAppController.VayeAppAdapter.FoodMeAdapter;
 import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.MainPostFollowers;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.MainPostTopicFollower;
+import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.BlockService;
 import com.vaye.app.Services.MainPostService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
@@ -60,7 +63,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public class BuySellFragment extends Fragment {
+public class BuySellFragment extends Fragment implements BlockOptionSelect {
 
     String TAG = "BuySellFragment";
     View rootView;
@@ -78,7 +81,7 @@ public class BuySellFragment extends Fragment {
     NestedScrollView scrollView;
     int totalAdsCount = 0;
     AdLoader adLoader;
-
+    BlockOptionSelect optionSelect;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +92,7 @@ public class BuySellFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_buy_sell, container, false);
-
+        optionSelect = this::onSelectOption;
         newPost = (FloatingActionButton)rootView.findViewById(R.id.newPostButton);
         postList = (RecyclerView)rootView.findViewById(R.id.majorPost);
         postList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
@@ -239,7 +242,7 @@ public class BuySellFragment extends Fragment {
     private void getPost(CurrentUser currentUser){
         swipeRefreshLayout.setRefreshing(true);
         post = new ArrayList<>();
-        adapter = new BuySellAdapter(post , getActivity(), currentUser);
+        adapter = new BuySellAdapter(post , getActivity(), currentUser,optionSelect);
         postList.setAdapter(adapter);
         getAllPost(currentUser);
 
@@ -413,5 +416,17 @@ public class BuySellFragment extends Fragment {
     public void onStart() {
         super.onStart();
         getCurrent();
+    }
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+        Log.d(TAG, "onSelectOption: " + target);
+        Log.d(TAG, "onSelectOption: " + otherUser.getName());
+        BlockService.shared().report((VayeAppActivity) getActivity(), target, currentUser, otherUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+
+            }
+        });
     }
 }
