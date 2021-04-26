@@ -788,4 +788,18 @@ public class UserService {
             callback.callBack(false);
         }
     }
+    public void canSendNotificaiton(CurrentUser currentUser , OtherUser otherUser , TrueFalse<Boolean> callback){
+        if (currentUser.getBlockList().contains(otherUser.getUid()) || currentUser.getBlockByOtherUser().contains(otherUser.getUid()) || otherUser.getBlockList().contains(currentUser.getUid()) ||otherUser.getBlockByOtherUser().contains(currentUser.getUid())){
+            callback.callBack(false);
+        }else{
+            callback.callBack(true);
+        }
+    }
+    public void checkBlock(String uid , CurrentUser currentUser , TrueFalse<Boolean> callback){
+        if (currentUser.getBlockByOtherUser().contains(uid) || currentUser.getBlockList().contains(uid)){
+            callback.callBack(false);
+        }else{
+            callback.callBack(true);
+        }
+    }
 }

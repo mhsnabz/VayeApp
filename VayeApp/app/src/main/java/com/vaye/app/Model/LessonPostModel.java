@@ -23,6 +23,11 @@ public class LessonPostModel implements Parcelable {
     public LessonPostModel() {
     }
 
+    public LessonPostModel(String postId,Timestamp postTime){
+        this.postId = postId;
+        this.postTime = postTime;
+    }
+
     public LessonPostModel(String lessonName, String senderName, String text, String senderUid, String postId, String link, String id, String thumb_image, String username, ArrayList<String> thumbData, ArrayList<String> data, ArrayList<String> silent, ArrayList<String> favori, ArrayList<String> dislike, ArrayList<String> likes, Long post_ID, int comment, Timestamp postTime, UnifiedNativeAd nativeAd, String empty, String type, String lesson_key) {
         this.lessonName = lessonName;
         this.senderName = senderName;

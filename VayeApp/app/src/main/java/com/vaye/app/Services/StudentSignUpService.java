@@ -292,6 +292,8 @@ public class StudentSignUpService {
         map.put("bolum",bolum);
         map.put("fakulte",fakulte);
         map.put("bolum_key",bolum_key);
+        map.put("blockList",FieldValue.arrayUnion());
+        map.put("blockByOtherUser",FieldValue.arrayUnion());
         map.put("number",taskUser.getNumber());
         map.put("short_school",taskUser.getShort_school());
         map.put("schoolName",taskUser.getSchoolName());

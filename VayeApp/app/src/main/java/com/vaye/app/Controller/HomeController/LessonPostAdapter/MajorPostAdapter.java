@@ -117,11 +117,11 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         if (model.getType()!=null&& model.getType().equals("ads")) {
             return  VIEW_TYPE_ADS;
-        }else if ( model.getType().equals("data")){
+        }else if (model.getType()!=null && model.getType().equals("data")){
             return  VIEW_TYPE_LESSON_POST_DATA;
-        }else if  ( model.getType().equals("post")){
+        }else if  (model.getType()!=null && model.getType().equals("post")){
             return   VIEW_TYPE_LESSON_POST;
-        }else if (model.getEmpty().equals("empty")){
+        }else if (model.getPostId().equals("empty")){
             return  VIEW_TYPE_EMPTY;
         }
         return super.getItemViewType(position);

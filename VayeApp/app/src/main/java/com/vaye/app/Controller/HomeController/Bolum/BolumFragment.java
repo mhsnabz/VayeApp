@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,27 +31,37 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.vaye.app.Controller.ChatController.ChatActivity;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentChooseLessonActivity;
 import com.vaye.app.Controller.HomeController.TeacherNewPost.TeacherChooseLesson;
 import com.vaye.app.Interfaces.LessonPostModelCompletion;
 import com.vaye.app.Interfaces.StringArrayListInterface;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.AdsHelper.AdUnifiedListeningg;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 
 public class BolumFragment extends Fragment {
@@ -71,18 +82,13 @@ public class BolumFragment extends Fragment {
     NestedScrollView scrollView;
         int totalAdsCount = 0;
     AdLoader adLoader;
+    ListenerRegistration listenerRegistration;
     public BolumFragment() {
 
     }
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
-
     }
 
     @Override
@@ -131,8 +137,11 @@ public class BolumFragment extends Fragment {
                     Log.d(TAG, "onScrollChange: "+"load more item");
                     if (!lessonPostModels.isEmpty()){
                         for (int i = 0 ; i < lessonPostModels.size() ; i++){
-                            if (lessonPostModels.get(i).getType().equals("ads"))
-                                totalAdsCount ++;
+                            if ( lessonPostModels.get(i).getType()!=null){
+                                if (lessonPostModels.get(i).getType().equals("ads"))
+                                    totalAdsCount ++;
+                            }
+
                         }
 
                         if ((lessonPostModels.size() - totalAdsCount) % 5 == 0){
@@ -206,18 +215,42 @@ public class BolumFragment extends Fragment {
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task1)
                                         {
                                             if (task1.getResult().exists()){
-                                               lessonPostModels.add(task1.getResult().toObject(LessonPostModel.class));
-                                                Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
-                                                    public int compare(LessonPostModel obj1, LessonPostModel obj2) {
-                                                        return obj2.getPostTime().compareTo(obj1.getPostTime());
-                                                    }
+                                                if (task1.getResult().getString("senderUid") !=null){
+                                                    UserService.shared().checkBlock(task1.getResult().getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                                        @Override
+                                                        public void callBack(Boolean _value) {
+                                                            if (_value){
+                                                                lessonPostModels.add(task1.getResult().toObject(LessonPostModel.class));
+                                                                Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                                                    public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                                                        return obj2.getPostTime().compareTo(obj1.getPostTime());
+                                                                    }
 
-                                                });
-                                                adapter.notifyDataSetChanged();
-                                                isLoadMore = true;
-                                                lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
+                                                                });
+                                                                adapter.notifyDataSetChanged();
+                                                                isLoadMore = true;
+                                                                lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
 
-                                                Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                                Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                            }else{
+                                                                lessonPostModels.add(new LessonPostModel("empty",Timestamp.now()));
+                                                                Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                                                    public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                                                        return obj2.getPostTime().compareTo(obj1.getPostTime());
+                                                                    }
+
+                                                                });
+                                                                adapter.notifyDataSetChanged();
+                                                                isLoadMore = true;
+                                                                lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
+
+                                                                Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                            }
+                                                        }
+                                                    });
+                                                }
+
+
                                             }else {
                                                 isLoadMore = false;
                                                 deletePostId(currentUser , item.getId());
@@ -293,21 +326,51 @@ public class BolumFragment extends Fragment {
                                     @Override
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                         if (documentSnapshot.exists()){
-                                            lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
-                                            Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
-                                                public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+                                            if (documentSnapshot.getString("senderUid") != null || !documentSnapshot.getString("senderUid").isEmpty()){
+                                                UserService.shared().checkBlock(documentSnapshot.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            lessonPostModels.add(documentSnapshot.toObject(LessonPostModel.class));
+                                                            Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                                                public int compare(LessonPostModel obj1, LessonPostModel obj2) {
 
-                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
+                                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
 
-                                                }
+                                                                }
 
-                                            });
-                                            adapter.notifyDataSetChanged();
-                                            swipeRefreshLayout.setRefreshing(false);
-                                            progressBar.setVisibility(View.GONE);
-                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                                            isLoadMore = true;
-                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                            });
+                                                            adapter.notifyDataSetChanged();
+                                                            swipeRefreshLayout.setRefreshing(false);
+                                                            progressBar.setVisibility(View.GONE);
+                                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                                            isLoadMore = true;
+                                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                        }else{
+
+                                                            lessonPostModels.add(new LessonPostModel("empty",Timestamp.now()));
+                                                            Log.d(TAG, "callBack: " +"empty post added");
+                                                            Log.d(TAG, "callBack: " +"empty post id: " +documentSnapshot.getId());
+                                                            Collections.sort(lessonPostModels, new Comparator<LessonPostModel>(){
+                                                                public int compare(LessonPostModel obj1, LessonPostModel obj2) {
+
+                                                                    return obj2.getPostTime().compareTo(obj1.getPostTime());
+
+                                                                }
+
+                                                            });
+                                                            adapter.notifyDataSetChanged();
+                                                            swipeRefreshLayout.setRefreshing(false);
+                                                            progressBar.setVisibility(View.GONE);
+                                                            lastPage = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                                                            isLoadMore = true;
+                                                            Log.d(TAG, "onSuccess: "+lastPage.getId());
+                                                        }
+                                                    }
+                                                });
+                                            }
+
+
                                         }else {
                                             deletePostId(currentUser , item.getId());
                                         }
@@ -456,6 +519,11 @@ public class BolumFragment extends Fragment {
     }
 
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        getCurrent();
+    }
 
     @Override
     public void onDestroy() {
@@ -467,7 +535,25 @@ public class BolumFragment extends Fragment {
         }
     }
 
+    private void getCurrent(){
+        if (FirebaseAuth.getInstance().getCurrentUser().getUid() != null){
+            DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            ref.addSnapshotListener((HomeActivity)getActivity(),new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if(error == null){
+                        List<String> blockList = (List<String>)value.get("blockList");
+                        List<String> blockByOtherUser = (List<String>)value.get("blockByOtherUser");
+                        if (blockList != null && blockByOtherUser!=null){
+                            if (!currentUser.getBlockList().equals(blockList) || !currentUser.getBlockByOtherUser().equals(blockByOtherUser) ){
+                                currentUser = value.toObject(CurrentUser.class);
+                                getPost(value.toObject(CurrentUser.class));
+                            }
+                        }
 
-
-
+                    }
+                }
+            });
+        }
+    }
 }

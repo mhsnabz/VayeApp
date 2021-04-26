@@ -9,11 +9,13 @@ public class OtherUser implements Parcelable {
     String email  , bolum_key , name,number,priority,profileImage,thumb_image,schoolName,short_school,bolum,fakulte,uid,username,linkedin,instagram,twitter,github;
     int totalBadge ;
     Boolean allowRequest,comment,mention,like,follow,lessonNotices;
-    ArrayList<String> slient,friendList,slientChatUser;
+    ArrayList<String> slient,friendList,slientChatUser,blockList,blockByOtherUser;;
     String tokenID;
 
+    public OtherUser() {
+    }
 
-    public OtherUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slient, ArrayList<String> friendList, ArrayList<String> slientChatUser , String tokenID) {
+    public OtherUser(String email, String bolum_key, String name, String number, String priority, String profileImage, String thumb_image, String schoolName, String short_school, String bolum, String fakulte, String uid, String username, String linkedin, String instagram, String twitter, String github, int totalBadge, Boolean allowRequest, Boolean comment, Boolean mention, Boolean like, Boolean follow, Boolean lessonNotices, ArrayList<String> slient, ArrayList<String> friendList, ArrayList<String> slientChatUser, ArrayList<String> blockList, ArrayList<String> blockByOtherUser, String tokenID) {
         this.email = email;
         this.bolum_key = bolum_key;
         this.name = name;
@@ -41,11 +43,9 @@ public class OtherUser implements Parcelable {
         this.slient = slient;
         this.friendList = friendList;
         this.slientChatUser = slientChatUser;
+        this.blockList = blockList;
+        this.blockByOtherUser = blockByOtherUser;
         this.tokenID = tokenID;
-
-    }
-
-    public OtherUser() {
     }
 
     protected OtherUser(Parcel in) {
@@ -82,6 +82,9 @@ public class OtherUser implements Parcelable {
         slient = in.createStringArrayList();
         friendList = in.createStringArrayList();
         slientChatUser = in.createStringArrayList();
+        blockList = in.createStringArrayList();
+        blockByOtherUser = in.createStringArrayList();
+        tokenID = in.readString();
     }
 
     public static final Creator<OtherUser> CREATOR = new Creator<OtherUser>() {
@@ -95,19 +98,6 @@ public class OtherUser implements Parcelable {
             return new OtherUser[size];
         }
     };
-
-
-    public String getTokenID() {
-        return tokenID;
-    }
-
-    public void setTokenID(String tokenID) {
-        this.tokenID = tokenID;
-    }
-
-    public static Creator<OtherUser> getCREATOR() {
-        return CREATOR;
-    }
 
     public String getEmail() {
         return email;
@@ -325,6 +315,30 @@ public class OtherUser implements Parcelable {
         this.slientChatUser = slientChatUser;
     }
 
+    public ArrayList<String> getBlockList() {
+        return blockList;
+    }
+
+    public void setBlockList(ArrayList<String> blockList) {
+        this.blockList = blockList;
+    }
+
+    public ArrayList<String> getBlockByOtherUser() {
+        return blockByOtherUser;
+    }
+
+    public void setBlockByOtherUser(ArrayList<String> blockByOtherUser) {
+        this.blockByOtherUser = blockByOtherUser;
+    }
+
+    public String getTokenID() {
+        return tokenID;
+    }
+
+    public void setTokenID(String tokenID) {
+        this.tokenID = tokenID;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -359,5 +373,8 @@ public class OtherUser implements Parcelable {
         parcel.writeStringList(slient);
         parcel.writeStringList(friendList);
         parcel.writeStringList(slientChatUser);
+        parcel.writeStringList(blockList);
+        parcel.writeStringList(blockByOtherUser);
+        parcel.writeString(tokenID);
     }
 }
