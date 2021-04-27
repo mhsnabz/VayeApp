@@ -51,7 +51,7 @@ public class MainPostNS {
 
                 ref.set(Helper.shared().getDictionary(postType,type,post.getText(),currentUser,notificationId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
 
-                PushNotificationService.shared().sendPushNotification(notificationId,post.getSenderUid(),null, PushNotificationTarget.like,currentUser.getName(),post.getText(), MainPostNotification.descp.post_like,currentUser.getUid(),null);
+                PushNotificationService.shared().sendPushNotification(notificationId,post.getSenderUid(),null, PushNotificationTarget.like,currentUser.getName(),post.getText(), MainPostNotification.descp.post_like,currentUser.getUid());
 
             }
         }

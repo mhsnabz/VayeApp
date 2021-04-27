@@ -163,21 +163,35 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 caping_post_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 caping_post_holder.comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 caping_post_holder.setCommentLbl(menuItem.getComment());
@@ -221,17 +235,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                             }else{
                                 if (!istanceOfOtherUserProfile){
-                                    UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                    UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                         @Override
-                                        public void callback(OtherUser user) {
-                                            Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                            i.putExtra("otherUser",user);
-                                            i.putExtra("currentUser",currentUser);
-                                            context.startActivity(i);
-                                            Helper.shared().go((Activity) context);
-                                            WaitDialog.dismiss();
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                                    @Override
+                                                    public void callback(OtherUser user) {
+                                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                        i.putExtra("otherUser",user);
+                                                        i.putExtra("currentUser",currentUser);
+                                                        context.startActivity(i);
+                                                        Helper.shared().go((Activity) context);
+                                                        WaitDialog.dismiss();
+                                                    }
+                                                });
+                                            }
                                         }
                                     });
+
                                 }else{
                                     return;
                                 }
@@ -260,17 +282,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -306,12 +336,22 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else{
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -438,17 +478,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -473,17 +521,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -515,12 +571,22 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else{
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -555,21 +621,35 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 camping_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 camping_post_data_holder.comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
 
@@ -707,17 +787,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -741,17 +829,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -793,12 +889,22 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else{
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -833,21 +939,35 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 foodme_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 foodme_post_data_holder.comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
 
@@ -959,21 +1079,35 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 foodme_post_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 foodme_post_holder.comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 foodme_post_holder.setCommentLbl(menuItem.getComment());
@@ -1004,17 +1138,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -1037,17 +1179,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -1089,12 +1239,22 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else{
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -1192,21 +1352,35 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 buy_sell_post_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 buy_sell_post_holder.comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 buy_sell_post_holder.setCommentLbl(menuItem.getComment());
@@ -1238,17 +1412,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -1271,17 +1453,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -1323,12 +1513,22 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else{
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -1452,17 +1652,25 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }else{
                                 return;
                             }
@@ -1578,21 +1786,36 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 buy_sell_post_data_holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
+
                     }
                 });
                 buy_sell_post_data_holder.comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(post.get(i).getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 buy_sell_post_data_holder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {

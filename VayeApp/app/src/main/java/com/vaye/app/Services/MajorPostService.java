@@ -114,7 +114,7 @@ public class MajorPostService {
             mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
             ref.set(mapLike , SetOptions.merge());
             MajorPostNotificationService.shared().setPostLike(NotificationPostType.name.lessonPost,post,currentUser,post.getText(), MajorPostNotification.type.post_like);
-            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.like,currentUser.getName(),post.getText(),MajorPostNotification.descp.post_like,currentUser.getUid(),null);
+            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.like,currentUser.getName(),post.getText(),MajorPostNotification.descp.post_like,currentUser.getUid());
         }
         else{
             post.getLikes().remove(currentUser.getUid());
@@ -128,69 +128,82 @@ public class MajorPostService {
     }
 
     public void setDislike(CurrentUser currentUser , LessonPostModel post , TrueFalse<Boolean> result){
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
-                .document(post.getPostId());
-
-
-
-        if (!post.getDislike().contains(currentUser.getUid())){
-            post.getLikes().remove(currentUser.getUid());
-            post.getDislike().add(currentUser.getUid());
-            result.callBack(true);
-            Map<String , Object> mapLike = new HashMap<>();
-            mapLike.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
-            mapLike.put("dislike",FieldValue.arrayUnion(currentUser.getUid()));
-            ref.set(mapLike,SetOptions.merge());
+        if (currentUser.getBlockByOtherUser().contains(post.getSenderUid()) || currentUser.getBlockList().contains(post.getSenderUid())){
+            return;
         }else{
-            post.getDislike().remove(currentUser.getUid());
-            result.callBack(true);
-            Map<String , Object> mapLike = new HashMap<>();
-            mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
-            ref.set(mapLike , SetOptions.merge());
+            DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                    .document("lesson-post")
+                    .collection("post")
+                    .document(post.getPostId());
+
+
+
+            if (!post.getDislike().contains(currentUser.getUid())){
+                post.getLikes().remove(currentUser.getUid());
+                post.getDislike().add(currentUser.getUid());
+                result.callBack(true);
+                Map<String , Object> mapLike = new HashMap<>();
+                mapLike.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
+                mapLike.put("dislike",FieldValue.arrayUnion(currentUser.getUid()));
+                ref.set(mapLike,SetOptions.merge());
+            }else{
+                post.getDislike().remove(currentUser.getUid());
+                result.callBack(true);
+                Map<String , Object> mapLike = new HashMap<>();
+                mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
+                ref.set(mapLike , SetOptions.merge());
+            }
         }
+
+
     }
 
     public void setFav(CurrentUser currentUser , LessonPostModel post , TrueFalse<Boolean> result){
-        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                .document("lesson-post")
-                .collection("post")
-                .document(post.getPostId());
-        DocumentReference refUser =  FirebaseFirestore.getInstance().collection("user")
-                .document(currentUser.getUid())
-                .collection("fav-post")
-                .document(post.getPostId());
 
-        Map<String , Object> mapUser = new HashMap<>();
-        if (!post.getFavori().contains(currentUser.getUid())){
-            post.getFavori().add(currentUser.getUid());
-            result.callBack(true);
-            Map<String, Object> mapFav = new HashMap<>();
-            mapFav.put("favori", FieldValue.arrayUnion(currentUser.getUid()));
-            ref.set(mapFav, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isComplete()){
-                        mapUser.put("postId",post.getPostId());
-                        refUser.set(mapUser, SetOptions.merge());
-                    }
-                }
-            });
+        if (currentUser.getBlockList().contains(post.getSenderUid()) || currentUser.getBlockByOtherUser().contains(post.getSenderUid())){
+            return;
         }else{
-            Map<String, Object> mapFav = new HashMap<>();
-            post.getFavori().remove(currentUser.getUid());
-            result.callBack(true);
-            mapFav.put("favori",FieldValue.arrayRemove(currentUser.getUid()));
-            ref.set(mapFav,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isComplete()){
-                        refUser.delete();
+            DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                    .document("lesson-post")
+                    .collection("post")
+                    .document(post.getPostId());
+            DocumentReference refUser =  FirebaseFirestore.getInstance().collection("user")
+                    .document(currentUser.getUid())
+                    .collection("fav-post")
+                    .document(post.getPostId());
+
+            Map<String , Object> mapUser = new HashMap<>();
+            if (!post.getFavori().contains(currentUser.getUid())){
+                post.getFavori().add(currentUser.getUid());
+                result.callBack(true);
+                Map<String, Object> mapFav = new HashMap<>();
+                mapFav.put("favori", FieldValue.arrayUnion(currentUser.getUid()));
+                ref.set(mapFav, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isComplete()){
+                            mapUser.put("postId",post.getPostId());
+                            refUser.set(mapUser, SetOptions.merge());
+                        }
                     }
-                }
-            });
+                });
+            }else{
+                Map<String, Object> mapFav = new HashMap<>();
+                post.getFavori().remove(currentUser.getUid());
+                result.callBack(true);
+                mapFav.put("favori",FieldValue.arrayRemove(currentUser.getUid()));
+                ref.set(mapFav,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isComplete()){
+                            refUser.delete();
+                        }
+                    }
+                });
+            }
         }
+
+
     }
 
     public void setCurrentUserPostSlient(Activity activity , CurrentUser currentUser , LessonPostModel post , TrueFalse<Boolean> completion){

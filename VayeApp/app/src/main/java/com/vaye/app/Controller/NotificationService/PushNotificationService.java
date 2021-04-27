@@ -45,7 +45,7 @@ public class PushNotificationService {
     }
 
     public void  sendPushNotification(String not_id , String getterUid , OtherUser otherUser , String  target
-    , String senderName , String mainText , String type , String senderUid , TrueFalse<Boolean> callback){
+    , String senderName , String mainText , String type , String senderUid ){
         DocumentReference db = FirebaseFirestore.getInstance().collection("notification").document(not_id);
         String title = senderName;
         String text = type + " : "+mainText;
@@ -58,72 +58,73 @@ public class PushNotificationService {
             if (otherUser.getTokenID() !=null && !otherUser.getTokenID().isEmpty()){
                 map.put("tokenId",otherUser.getTokenID());
             }else{
-                callback.callBack(true);
+
                 return;
+            }
+            if (otherUser.getBlockByOtherUser().contains(senderUid) || otherUser.getBlockList().contains(senderUid)){
+                return;
+            }else{
+                if (target.equals(PushNotificationTarget.like)){
+                    if (otherUser.getLike()){
+                        db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+
+                                }
+                            }
+                        });
+                    }
+                }else if (target.equals(PushNotificationTarget.comment)){
+                    if (otherUser.getComment()){
+                        db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+
+                                }
+                            }
+                        });
+                    }
+                }
+                else if (target.equals(PushNotificationTarget.follow)){
+                    if (otherUser.getFollow()){
+                        db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                }
+                            }
+                        });
+                    }
+                }
+                else if (target.equals(PushNotificationTarget.mention)){
+                    if (otherUser.getMention()){
+                        db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                }
+                            }
+                        });
+                    }
+                }
+                else if (target.equals(PushNotificationTarget.newpost_lessonpost)){
+                    if (otherUser.getLessonNotices()){
+                        db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                }
+                            }
+                        });
+                    }
+                }else{
+                    return;
+                }
             }
 
-            if (target.equals(PushNotificationTarget.like)){
-                if (otherUser.getLike()){
-                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                callback.callBack(true);
-                            }
-                        }
-                    });
-                }
-            }else if (target.equals(PushNotificationTarget.comment)){
-                if (otherUser.getComment()){
-                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                callback.callBack(true);
-                            }
-                        }
-                    });
-                }
-            }
-            else if (target.equals(PushNotificationTarget.follow)){
-                if (otherUser.getFollow()){
-                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                callback.callBack(true);
-                            }
-                        }
-                    });
-                }
-            }
-            else if (target.equals(PushNotificationTarget.mention)){
-                if (otherUser.getMention()){
-                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                callback.callBack(true);
-                            }
-                        }
-                    });
-                }
-            }
-            else if (target.equals(PushNotificationTarget.newpost_lessonpost)){
-                if (otherUser.getLessonNotices()){
-                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                callback.callBack(true);
-                            }
-                        }
-                    });
-                }
-            }else{
-                callback.callBack(true);
-                return;
-            }
+
         }
         else{
             UserService.shared().otherUser(getterUid, new OtherUserService() {
@@ -133,75 +134,73 @@ public class PushNotificationService {
                         if (otherUser.getTokenID() !=null && !otherUser.getTokenID().isEmpty()){
                             map.put("tokenId",otherUser.getTokenID());
                         }else{
-                            callback.callBack(true);
                             return;
                         }
 
-                        if (target.equals(PushNotificationTarget.like)){
-                            if (otherUser.getLike()){
-                                db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            callback.callBack(true);
-                                        }
-                                    }
-                                });
-                            }
-                        }else if (target.equals(PushNotificationTarget.comment)){
-                            if (otherUser.getComment()){
-                                db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            callback.callBack(true);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        else if (target.equals(PushNotificationTarget.follow)){
-                            if (otherUser.getFollow()){
-                                db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            callback.callBack(true);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        else if (target.equals(PushNotificationTarget.mention)){
-                            if (otherUser.getMention()){
-                                db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            callback.callBack(true);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        else if (target.equals(PushNotificationTarget.newpost_lessonpost)){
-                            if (otherUser.getLessonNotices()){
-                                db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            callback.callBack(true);
-                                        }
-                                    }
-                                });
-                            }
-                        }else{
-                            callback.callBack(true);
+                        if (otherUser.getBlockList().contains(senderUid) || otherUser.getBlockByOtherUser().contains(senderUid)){
                             return;
+                        }else{
+                            if (target.equals(PushNotificationTarget.like)){
+                                if (otherUser.getLike()){
+                                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                            }
+                                        }
+                                    });
+                                }
+                            }else if (target.equals(PushNotificationTarget.comment)){
+                                if (otherUser.getComment()){
+                                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            else if (target.equals(PushNotificationTarget.follow)){
+                                if (otherUser.getFollow()){
+                                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            else if (target.equals(PushNotificationTarget.mention)){
+                                if (otherUser.getMention()){
+                                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            else if (target.equals(PushNotificationTarget.newpost_lessonpost)){
+                                if (otherUser.getLessonNotices()){
+                                    db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                            }
+                                        }
+                                    });
+                                }
+                            }else{
+                                return;
+                            }
                         }
+
+
                     }else
                     {
-                        callback.callBack(true);
                         return;
                     }
                 }

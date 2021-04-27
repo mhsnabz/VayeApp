@@ -52,6 +52,7 @@ import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentServis;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
 import com.vaye.app.Util.SwipeControllerActions;
@@ -189,19 +190,28 @@ public class ReplyActivity extends AppCompatActivity {
                     if (task.isSuccessful()){
                         if (!task.getResult().isEmpty()){
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                comments.add(item.toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
+                                if (item.getString("senderUid")!=null && !item.getString("senderUid").isEmpty()){
+                                    UserService.shared().checkBlock(item.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                comments.add(item.toObject(CommentModel.class));
+                                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
+                                                        return obj1.getTime().compareTo(obj2.getTime());
 
-                                    }
+                                                    }
 
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
+                                                });
+                                                adapter.notifyDataSetChanged();
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                firstPage = comments.get(0).getCommentId();
+                                                loadMoreButton.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }else{
                             swipeRefreshLayout.setRefreshing(false);
@@ -231,19 +241,28 @@ public class ReplyActivity extends AppCompatActivity {
                     if (task.isSuccessful()){
                         if (!task.getResult().isEmpty()){
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                comments.add(item.toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
+                                if (item.getString("senderUid")!=null && !item.getString("senderUid").isEmpty()){
+                                    UserService.shared().checkBlock(item.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                comments.add(item.toObject(CommentModel.class));
+                                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
+                                                        return obj1.getTime().compareTo(obj2.getTime());
 
-                                    }
+                                                    }
 
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
+                                                });
+                                                adapter.notifyDataSetChanged();
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                firstPage = comments.get(0).getCommentId();
+                                                loadMoreButton.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }else{
                             swipeRefreshLayout.setRefreshing(false);
@@ -273,19 +292,28 @@ public class ReplyActivity extends AppCompatActivity {
                     if (task.isSuccessful()){
                         if (!task.getResult().isEmpty()){
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                comments.add(item.toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
+                                if (item.getString("senderUid")!=null && !item.getString("senderUid").isEmpty()){
+                                    UserService.shared().checkBlock(item.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                comments.add(item.toObject(CommentModel.class));
+                                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
+                                                        return obj1.getTime().compareTo(obj2.getTime());
 
-                                    }
+                                                    }
 
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
+                                                });
+                                                adapter.notifyDataSetChanged();
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                firstPage = comments.get(0).getCommentId();
+                                                loadMoreButton.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }else{
                             swipeRefreshLayout.setRefreshing(false);
@@ -438,26 +466,29 @@ public class ReplyActivity extends AppCompatActivity {
                     for (DocumentChange item : value.getDocumentChanges()){
                         if (item.getType().equals(DocumentChange.Type.ADDED))
                         {
-                            comments.add(item.getDocument().toObject(CommentModel.class));
-
-                            Collections.sort(comments, new Comparator<CommentModel>(){
-                                public int compare(CommentModel obj1, CommentModel obj2) {
-
-                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
-
-                                }
-
-                            });
-                            if (adapter!=null){
-
-                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                                adapter.notifyDataSetChanged();
-                            }
-                            firstPage = comments.get(0).getCommentId();
-                            if (comments.size() < 9){
-                                loadMoreButton.setVisibility(View.GONE);
-                            }else{
-                                loadMoreButton.setVisibility(View.VISIBLE);
+                            if (item.getDocument().getString("senderUid")!=null && !item.getDocument().getString("senderUid").isEmpty()){
+                                UserService.shared().checkBlock(item.getDocument().getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            comments.add(item.getDocument().toObject(CommentModel.class));
+                                            Collections.sort(comments, new Comparator<CommentModel>(){
+                                                public int compare(CommentModel obj1, CommentModel obj2) {
+                                                    return obj1.getCommentId().compareTo(obj2.getCommentId()); }
+                                            });
+                                            if (adapter!=null){
+                                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                            firstPage = comments.get(0).getCommentId();
+                                            if (comments.size() < 9){
+                                                loadMoreButton.setVisibility(View.GONE);
+                                            }else{
+                                                loadMoreButton.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    }
+                                });
                             }
 
                         }

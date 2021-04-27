@@ -5,8 +5,10 @@ import android.util.Log;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.auth.User;
 import com.google.protobuf.StringValue;
 import com.vaye.app.Interfaces.OtherUserService;
+import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonPostModel;
@@ -34,12 +36,20 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(post.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(targetCommentModel.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),post.getPostId(),null,null,post.getPostType()), SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid(),null);
+                UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                    .document(targetCommentModel.getSenderUid())
+                                    .collection("notification")
+                                    .document(notificaitonId);
+                            db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),post.getPostId(),null,null,post.getPostType()), SetOptions.merge());
+                            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid());
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -55,7 +65,7 @@ public class CommentNotificationService {
                         .collection("notification")
                         .document(notificaitonId);
                 db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid(),null);
+                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid());
             }
         }
     }
@@ -71,12 +81,20 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(post.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(post.getSenderUid())
-                    .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,null,post.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_comment,currentUser.getUid(),null);
+                UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                    .document(post.getSenderUid())
+                                    .collection("notification")
+                                    .document(notificaitonId);
+                            db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,null,post.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
+                            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_comment,currentUser.getUid());
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -94,15 +112,20 @@ public class CommentNotificationService {
                         {
                             if (otherUser.getBolum().equals(currentUser.getBolum())){
                                 if (!currentUser.getUid().equals(otherUser.getUid())){
-                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                            .document(otherUser.getUid())
-                                            .collection("notification")
-                                            .document(notificaitonId);
+                                    UserService.shared().canSendNotificaiton(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                        .document(otherUser.getUid())
+                                                        .collection("notification")
+                                                        .document(notificaitonId);
 
-                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notId,null,post.getPostId(),post.getLessonName(),null,null));
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_mentioned_comment,currentUser.getUid(),null);
-
-
+                                                db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notId,null,post.getPostId(),post.getLessonName(),null,null));
+                                                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_mentioned_comment,currentUser.getUid());
+                                            }
+                                        }
+                                    });
                                 }
 
                             }
@@ -119,13 +142,28 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(targetCommentModel.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(targetCommentModel.getSenderUid())
-                    .collection("notification")
-                        .document(notificaitonId);
-                Log.d(TAG, "sendLessonPostRepliedComment: "+targetCommentModel.getCommentId());
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_comment,currentUser.getUid(),null);
+                UserService.shared().checkBlock(targetCommentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            UserService.shared().checkBlock(targetCommentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                .document(targetCommentModel.getSenderUid())
+                                                .collection("notification")
+                                                .document(notificaitonId);
+                                        Log.d(TAG, "sendLessonPostRepliedComment: "+targetCommentModel.getCommentId());
+                                        db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
+                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_comment,currentUser.getUid());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -145,13 +183,21 @@ public class CommentNotificationService {
                         if (otherUser!=null){
                             if(otherUser.getShort_school().equals(currentUser.getShort_school())){
                                 if (otherUser.getBolum().equals(currentUser.getBolum())){
-                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                            .document(otherUser.getUid())
-                                            .collection("notification")
-                                            .document(notificaitonId);
+                                    UserService.shared().checkBlock(otherUser.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                        .document(otherUser.getUid())
+                                                        .collection("notification")
+                                                        .document(notificaitonId);
 
-                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),post.getLessonName(),null,null));
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid(),null);
+                                                db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),post.getLessonName(),null,null));
+                                                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid());
+                                            }
+                                        }
+                                    });
+
                                 }
                             }
                         }
@@ -168,12 +214,27 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(commentModel.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(commentModel.getSenderUid())
-                    .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,null,post.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.comment_like,currentUser.getUid(),null);
+                UserService.shared().checkBlock(commentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                .document(commentModel.getSenderUid())
+                                                .collection("notification")
+                                                .document(notificaitonId);
+                                        db.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,type,text,currentUser,notificaitonId,null,post.getPostId(),post.getLessonName(),null,null),SetOptions.merge());
+                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.comment_like,currentUser.getUid());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -184,13 +245,26 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(comment.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(comment.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.update(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),post.getLessonName(),null,null));
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.replied_comment_like,currentUser.getUid(),null);
-
+                UserService.shared().checkBlock(comment.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                .document(comment.getSenderUid())
+                                                .collection("notification")
+                                                .document(notificaitonId);
+                                        db.update(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),post.getLessonName(),null,null));
+                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MajorPostNotification.descp.replied_comment_like,currentUser.getUid());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             }
         }
     }
@@ -204,12 +278,20 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(post.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(post.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_comment,currentUser.getUid(),null);
+                UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                    .document(post.getSenderUid())
+                                    .collection("notification")
+                                    .document(notificaitonId);
+                            db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
+                            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_comment,currentUser.getUid());
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -225,15 +307,27 @@ public class CommentNotificationService {
                     if (otherUser != null){
 
                                 if (!currentUser.getUid().equals(otherUser.getUid())){
-                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                            .document(otherUser.getUid())
-                                            .collection("notification")
-                                            .document(notificaitonId);
+                                    UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                UserService.shared().checkBlock(otherUser.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                                    .document(otherUser.getUid())
+                                                                    .collection("notification")
+                                                                    .document(notificaitonId);
 
-                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_mentioned_comment,currentUser.getUid(),null);
-
-
+                                                            db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
+                                                            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_mentioned_comment,currentUser.getUid());
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
                                 }
 
                             }
@@ -248,12 +342,27 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(commentModel.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(commentModel.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid(),null);
+                UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            UserService.shared().checkBlock(commentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                .document(commentModel.getSenderUid())
+                                                .collection("notification")
+                                                .document(notificaitonId);
+                                        db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
+                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.comment_like,currentUser.getUid());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -265,12 +374,34 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(comment.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(comment.getSenderUid())
-                    .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getPostType(),post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid(),null);
+                UserService.shared().checkBlock(targetCommentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            UserService.shared().checkBlock(comment.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                            .document(comment.getSenderUid())
+                                                            .collection("notification")
+                                                            .document(notificaitonId);
+                                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getPostType(),post.getPostType()),SetOptions.merge());
+                                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.replied_comment_like,currentUser.getUid());
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
 
             }
         }
@@ -283,12 +414,27 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(targetCommentModel.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(targetCommentModel.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_replied_comment,currentUser.getUid(),null);
+                UserService.shared().checkBlock(targetCommentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                .document(targetCommentModel.getSenderUid())
+                                                .collection("notification")
+                                                .document(notificaitonId);
+                                        db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,null,post.getPostType()),SetOptions.merge());
+                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_replied_comment,currentUser.getUid());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -306,15 +452,27 @@ public class CommentNotificationService {
                     @Override
                     public void callback(OtherUser otherUser) {
                         if (otherUser!=null){
+                                UserService.shared().checkBlock(targetCommentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    if (_value){
+                                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                                .document(otherUser.getUid())
+                                                                .collection("notification")
+                                                                .document(notificaitonId);
 
-                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                            .document(otherUser.getUid())
-                                            .collection("notification")
-                                            .document(notificaitonId);
-
-                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid(),null);
-
+                                                        db.set(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
+                                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,MainPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid());
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
                         }
                     }
                 });
@@ -332,12 +490,20 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(post.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(post.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,null,post.getPostId(),null,post.getClupName(),null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_comment,currentUser.getUid(),null);
+                UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                    .document(post.getSenderUid())
+                                    .collection("notification")
+                                    .document(notificaitonId);
+                            db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,null,post.getPostId(),null,post.getClupName(),null),SetOptions.merge());
+                            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_comment,currentUser.getUid());
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -355,15 +521,28 @@ public class CommentNotificationService {
                         {
                             if (otherUser.getBolum().equals(currentUser.getBolum())){
                                 if (!currentUser.getUid().equals(otherUser.getUid())){
-                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                            .document(otherUser.getUid())
-                                            .collection("notification")
-                                            .document(notificaitonId);
+                                    UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                UserService.shared().checkBlock(otherUser.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                                    .document(otherUser.getUid())
+                                                                    .collection("notification")
+                                                                    .document(notificaitonId);
 
-                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notId,null,post.getPostId(),null,post.getClupName(),null));
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_mentioned_comment,currentUser.getUid(),null);
+                                                            db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notId,null,post.getPostId(),null,post.getClupName(),null));
+                                                            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_mentioned_comment,currentUser.getUid());
+                                                        }
+                                                    }
+                                                });
 
-
+                                            }
+                                        }
+                                    });
                                 }
 
                             }
@@ -380,12 +559,27 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(targetCommentModel.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(targetCommentModel.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getClupName(),null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_replied_comment,currentUser.getUid(),null);
+                UserService.shared().checkBlock(targetCommentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                .document(targetCommentModel.getSenderUid())
+                                                .collection("notification")
+                                                .document(notificaitonId);
+                                        db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getClupName(),null),SetOptions.merge());
+                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),targetCommentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_replied_comment,currentUser.getUid());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -405,13 +599,35 @@ public class CommentNotificationService {
                         if (otherUser!=null){
                             if(otherUser.getShort_school().equals(currentUser.getShort_school())){
                                 if (otherUser.getBolum().equals(currentUser.getBolum())){
-                                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                                            .document(otherUser.getUid())
-                                            .collection("notification")
-                                            .document(notificaitonId);
+                                    UserService.shared().checkBlock(targetCommentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                UserService.shared().checkBlock(otherUser.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                    @Override
+                                                    public void callBack(Boolean _value) {
+                                                        if (_value){
+                                                            UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                                                @Override
+                                                                public void callBack(Boolean _value) {
+                                                                    if (_value){
+                                                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                                                .document(otherUser.getUid())
+                                                                                .collection("notification")
+                                                                                .document(notificaitonId);
 
-                                    db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),null,post.getClupName(),null));
-                                    PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid(),null);
+                                                                        db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notId,targetCommentModel.getCommentId(),post.getPostId(),null,post.getClupName(),null));
+                                                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.new_replied_mentioned_comment,currentUser.getUid());
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+
                                 }
                             }
                         }
@@ -429,12 +645,27 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(commentModel.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(commentModel.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,null,post.getPostId(),null,post.getClupName(),null),SetOptions.merge());
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.comment_like,currentUser.getUid(),null);
+                UserService.shared().checkBlock(commentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            UserService.shared().checkBlock(post.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    if (_value){
+                                        DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                                .document(commentModel.getSenderUid())
+                                                .collection("notification")
+                                                .document(notificaitonId);
+                                        db.set(Helper.shared().getDictionary(NotificationPostType.name.notices,type,text,currentUser,notificaitonId,null,post.getPostId(),null,post.getClupName(),null),SetOptions.merge());
+                                        PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),commentModel.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.comment_like,currentUser.getUid());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             }
         }
     }
@@ -445,13 +676,19 @@ public class CommentNotificationService {
             return;
         }else{
             if (!currentUser.getSlient().contains(comment.getSenderUid())){
-                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
-                        .document(comment.getSenderUid())
-                        .collection("notification")
-                        .document(notificaitonId);
-                db.update(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getClupName(),null));
-                PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.replied_comment_like,currentUser.getUid(),null);
-
+                UserService.shared().checkBlock(comment.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                    @Override
+                    public void callBack(Boolean _value) {
+                        if (_value){
+                            DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                                    .document(comment.getSenderUid())
+                                    .collection("notification")
+                                    .document(notificaitonId);
+                            db.update(Helper.shared().getDictionary(NotificationPostType.name.mainPost,type,text,currentUser,notificaitonId,targetCommentModel.getCommentId(),targetCommentModel.getPostId(),null,post.getClupName(),null));
+                            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),comment.getSenderUid(),null,PushNotificationTarget.comment,currentUser.getName(),text,NoticesPostNotification.descp.replied_comment_like,currentUser.getUid());
+                        }
+                    }
+                });
             }
         }
     }

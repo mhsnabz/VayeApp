@@ -21,6 +21,7 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -276,7 +277,7 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                                                         .collection("notification")
                                                         .document(notId);
                                                 ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
-                                                PushNotificationService.shared().sendPushNotification(notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid(), null);
+                                                PushNotificationService.shared().sendPushNotification(notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
 
                                             }
 
@@ -286,22 +287,22 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                             }
                         });
                     }
+
                     MajorPostService.shared().teacherSetNewPost(selectedLesson, link, currentUser, postDate, lessonFallowerUsers
                             , msgText, dataModel, lessonName, new TrueFalse<Boolean>() {
                                 @Override
                                 public void callBack(Boolean _value) {
-                                    MajorPostNS.shared().teacherNewPostNotification(lessonFallowerUsers, NotificationPostType.name.lessonPost, currentUser, lessonName, text.getText().toString(), MajorPostNotification.type.new_post, String.valueOf(postDate), new TrueFalse<Boolean>() {
-                                        @Override
-                                        public void callBack(Boolean _value) {
-                                            if (_value){
-                                                WaitDialog.dismiss();
-                                                TipDialog.show(TeacherNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
-                                                TipDialog.dismiss(1400);
-                                                finish();
-                                                Helper.shared().back(TeacherNewPostActivity.this);
-                                            }
-                                        }
-                                    });
+                                    if (_value){
+                                        MajorPostNS.shared().teacherNewPostNotification(lessonFallowerUsers, NotificationPostType.name.lessonPost, currentUser, lessonName, text.getText().toString(), MajorPostNotification.type.new_post, String.valueOf(postDate));
+                                        SystemClock.sleep(8000);
+
+                                        WaitDialog.dismiss();
+                                        TipDialog.show(TeacherNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                        TipDialog.dismiss(1400);
+                                        finish();
+                                        Helper.shared().back(TeacherNewPostActivity.this);
+                                    }
+
                                     MajorPostService.shared().moveSavedLinkOnpost(String.valueOf(postDate), currentUser, new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {

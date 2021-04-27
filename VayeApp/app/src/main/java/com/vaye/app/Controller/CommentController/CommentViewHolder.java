@@ -18,6 +18,7 @@ import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CommentModel;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
 import java.util.ArrayList;
@@ -89,14 +90,24 @@ public class CommentViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void like_dislike_click(CommentModel model , CurrentUser currentUser, TrueFalse<Boolean> val ){
-        if (model.getLikes().contains(currentUser.getUid())){
-            model.getLikes().remove(currentUser.getUid());
-            val.callBack(false);
-            //like
-        }else {
-            //remove like
-            model.getLikes().add(currentUser.getUid());
-            val.callBack(true);
-        }
+        UserService.shared().checkBlock(model.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+                    if (model.getLikes().contains(currentUser.getUid())){
+                        model.getLikes().remove(currentUser.getUid());
+                        val.callBack(false);
+                        //like
+                    }else {
+                        //remove like
+                        model.getLikes().add(currentUser.getUid());
+                        val.callBack(true);
+                    }
+                }else{
+                    val.callBack(false);
+                }
+            }
+        });
+
     }
 }

@@ -124,21 +124,37 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 itemHolder.comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("mainPost",post.get(i));
+                                    intent.putExtra("currentUser",currentUser);
+
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
                     }
                 });
                 itemHolder.setCommentLbl(menuItem.getComment());
@@ -171,6 +187,7 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         if (menuItem.getSenderUid().equals(currentUser.getUid())){
 
                             if (!istanceOfCurrentUserProfile){
+
                                 Intent i = new Intent(context , CurrentUserProfile.class);
                                 i.putExtra("currentUser",currentUser);
                                 context.startActivity(i);
@@ -179,17 +196,25 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
 
                             }
                         }
@@ -208,15 +233,26 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                         }else{
                             if (!istanceOfOtherUserProfile){
+
                                 UserService.shared().getOtherUser((Activity) context, menuItem.getSenderUid(), new OtherUserService() {
                                     @Override
                                     public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }else{
+                                                    WaitDialog.dismiss();
+                                                }
+                                            }
+                                        });
+
                                     }
                                 });
                             }
@@ -249,12 +285,22 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else{
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -383,17 +429,25 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
                             }
 
                         }
@@ -415,12 +469,22 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                 UserService.shared().getOtherUser((Activity) context, menuItemData.getSenderUid(), new OtherUserService() {
                                     @Override
                                     public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }else{
+                                                    WaitDialog.dismiss();
+                                                }
+                                            }
+                                        });
+
                                     }
                                 });
                             }
@@ -454,12 +518,22 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else{
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -494,22 +568,54 @@ public class BuySellAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 postHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("mainPost",post.get(i));
-                        intent.putExtra("currentUser",currentUser);
+                        UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                Intent intent = new Intent(context , CommentActivity.class);
+                                                intent.putExtra("mainPost",post.get(i));
+                                                intent.putExtra("currentUser",currentUser);
 
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                                                context.startActivity(intent);
+                                                Helper.shared().go((Activity) context);
+                                            }
+                                        }
+                                    });
+
+                                }
+                            }
+                        });
+
                     }
                 });
             postHolder.comment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context , CommentActivity.class);
-                    intent.putExtra("mainPost",post.get(i));
-                    intent.putExtra("currentUser",currentUser);
-                    context.startActivity(intent);
-                    Helper.shared().go((Activity) context);
+                    UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            Intent intent = new Intent(context , CommentActivity.class);
+                                            intent.putExtra("mainPost",post.get(i));
+                                            intent.putExtra("currentUser",currentUser);
+
+                                            context.startActivity(intent);
+                                            Helper.shared().go((Activity) context);
+                                        }
+                                    }
+                                });
+
+                            }
+                        }
+                    });
                 }
             });
                 postHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {

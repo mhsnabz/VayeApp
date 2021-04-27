@@ -214,46 +214,70 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 postHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MajorPostService.shared().setLike(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                        UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
                                 if (_value){
-                                    postHolder.setLike(menuItemData.getLikes(),currentUser,context);
-                                    notifyDataSetChanged();
+                                    MajorPostService.shared().setLike(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                postHolder.setLike(menuItemData.getLikes(),currentUser,context);
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         });
+
                     }
                 });
 
                 postHolder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MajorPostService.shared().setDislike(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                        UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
-                                if (_value)
-                                {
-                                    postHolder.setDislike(menuItemData.getDislike(),currentUser,context);
-                                    notifyDataSetChanged();
+                                if (_value){
+                                    MajorPostService.shared().setDislike(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value)
+                                            {
+                                                postHolder.setDislike(menuItemData.getDislike(),currentUser,context);
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         });
+
                     }
                 });
 
                 postHolder.itemView.findViewById(R.id.fav).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MajorPostService.shared().setFav(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                        UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
                                 if (_value){
-                                    postHolder.setFav(menuItemData.getFavori(),currentUser,context);
-                                    notifyDataSetChanged();
+                                    MajorPostService.shared().setFav(currentUser, menuItemData, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                postHolder.setFav(menuItemData.getFavori(),currentUser,context);
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         });
+
                     }
                 });
 
@@ -318,17 +342,25 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             }
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
 
                             }
                         }
@@ -346,15 +378,23 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             }
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItemData.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+
+                                        }
                                     }
                                 });
 
@@ -375,6 +415,7 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             }
 
                         }else{
+
                             UserService.shared().getOthUserIdByMention("@"+username.toString(), new StringCompletion() {
                                 @Override
                                 public void getString(String otherUserId) {
@@ -384,12 +425,22 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else{
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -414,25 +465,42 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case VIEW_TYPE_LESSON_POST:
                 MajorPostViewHolder itemHolder = (MajorPostViewHolder) holder;
                 LessonPostModel menuItem = post.get(i);
+
                 itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("lessonPost",menuItem);
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("lessonPost",menuItem);
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
+
                     }
                 });
 
                 itemHolder.comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(context , CommentActivity.class);
-                        intent.putExtra("lessonPost",menuItem);
-                        intent.putExtra("currentUser",currentUser);
-                        context.startActivity(intent);
-                        Helper.shared().go((Activity) context);
+                        UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent intent = new Intent(context , CommentActivity.class);
+                                    intent.putExtra("lessonPost",menuItem);
+                                    intent.putExtra("currentUser",currentUser);
+                                    context.startActivity(intent);
+                                    Helper.shared().go((Activity) context);
+                                }
+                            }
+                        });
+
                     }
                 });
 
@@ -448,17 +516,25 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             }
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
 
                             }
                         }
@@ -476,17 +552,25 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             }
                         }else{
                             if (!istanceOfOtherUserProfile){
-                                UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                                     @Override
-                                    public void callback(OtherUser user) {
-                                        Intent i  = new Intent(context , OtherUserProfileActivity.class);
-                                        i.putExtra("otherUser",user);
-                                        i.putExtra("currentUser",currentUser);
-                                        context.startActivity(i);
-                                        Helper.shared().go((Activity) context);
-                                        WaitDialog.dismiss();
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            UserService.shared().getOtherUser((Activity) context, post.get(i).getSenderUid(), new OtherUserService() {
+                                                @Override
+                                                public void callback(OtherUser user) {
+                                                    Intent i  = new Intent(context , OtherUserProfileActivity.class);
+                                                    i.putExtra("otherUser",user);
+                                                    i.putExtra("currentUser",currentUser);
+                                                    context.startActivity(i);
+                                                    Helper.shared().go((Activity) context);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
+
 
                             }
                         }
@@ -574,12 +658,22 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                                 @Override
                                                 public void callback(OtherUser user) {
                                                     if (user!=null){
-                                                        WaitDialog.dismiss();
-                                                        Intent i = new Intent(context , OtherUserProfileActivity.class);
-                                                        i.putExtra("currentUser",currentUser);
-                                                        i.putExtra("otherUser",user);
-                                                        context.startActivity(i);
-                                                        Helper.shared().go((Activity) context);
+                                                        UserService.shared().checkBlock(user.getUid(), currentUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                if (_value){
+                                                                    WaitDialog.dismiss();
+                                                                    Intent i = new Intent(context , OtherUserProfileActivity.class);
+                                                                    i.putExtra("currentUser",currentUser);
+                                                                    i.putExtra("otherUser",user);
+                                                                    context.startActivity(i);
+                                                                    Helper.shared().go((Activity) context);
+                                                                }else {
+                                                                    WaitDialog.dismiss();
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 }
                                             });
@@ -607,46 +701,70 @@ public class MajorPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 itemHolder.itemView.findViewById(R.id.like).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MajorPostService.shared().setLike(currentUser, menuItem, new TrueFalse<Boolean>() {
+                        UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
                                 if (_value){
-                                    itemHolder.setLike(menuItem.getLikes(),currentUser,context);
-                                    notifyDataSetChanged();
+                                    MajorPostService.shared().setLike(currentUser, menuItem, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                itemHolder.setLike(menuItem.getLikes(),currentUser,context);
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         });
+
                     }
                 });
 
                 itemHolder.itemView.findViewById(R.id.dislike).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                    MajorPostService.shared().setDislike(currentUser, menuItem, new TrueFalse<Boolean>() {
-                        @Override
-                        public void callBack(Boolean _value) {
-                            if (_value)
-                            {
-                                itemHolder.setDislike(menuItem.getDislike(),currentUser,context);
-                                notifyDataSetChanged();
+                        UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    MajorPostService.shared().setDislike(currentUser, menuItem, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value)
+                                            {
+                                                itemHolder.setDislike(menuItem.getDislike(),currentUser,context);
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
+                                }
                             }
-                        }
-                    });
+                        });
+
                     }
                 });
 
                 itemHolder.itemView.findViewById(R.id.fav).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MajorPostService.shared().setFav(currentUser, menuItem, new TrueFalse<Boolean>() {
+                        UserService.shared().checkBlock(menuItem.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                             @Override
                             public void callBack(Boolean _value) {
                                 if (_value){
-                                    itemHolder.setFav(menuItem.getFavori(),currentUser,context);
-                                    notifyDataSetChanged();
+                                    MajorPostService.shared().setFav(currentUser, menuItem, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                itemHolder.setFav(menuItem.getFavori(),currentUser,context);
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         });
+
                     }
                 });
                 break;

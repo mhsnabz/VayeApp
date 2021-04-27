@@ -45,6 +45,7 @@ import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.NoticesMainModel;
 import com.vaye.app.R;
 import com.vaye.app.Services.CommentServis;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.SwipeController;
 import com.vaye.app.Util.SwipeControllerActions;
@@ -162,32 +163,56 @@ public class CommentActivity extends AppCompatActivity {
         }else{
 
             if (postModel != null){
-                CommentServis.shared().sendNewComment(PostName.lessonPost, currentUser, text, postModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                UserService.shared().checkBlock(postModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
-                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                        CommentNotificationService.shared().sendNewLessonPostCommentNotification(postModel,currentUser,text, MajorPostNotification.type.new_comment);
-                        CommentNotificationService.shared().sendNewLessonPostMentionedComment(postModel,currentUser,text,MajorPostNotification.type.new_mentioned_comment);
+                        if (_value){
+                            CommentServis.shared().sendNewComment(PostName.lessonPost, currentUser, text, postModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                    CommentNotificationService.shared().sendNewLessonPostCommentNotification(postModel,currentUser,text, MajorPostNotification.type.new_comment);
+                                    CommentNotificationService.shared().sendNewLessonPostMentionedComment(postModel,currentUser,text,MajorPostNotification.type.new_mentioned_comment);
+                                }
+                            });
+                        }
                     }
                 });
+
             }else if (noticesPostModel!=null){
-                CommentServis.shared().sendNewComment(PostName.noticesPost, currentUser, text, noticesPostModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                UserService.shared().checkBlock(noticesPostModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
-                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                        CommentNotificationService.shared().sendNewNatoicesPostCommentNotification(noticesPostModel,currentUser,text, MainPostNotification.type.new_comment);
-                        CommentNotificationService.shared().sendNewNoticesPostMentionedComment(noticesPostModel,currentUser,text, NoticesPostNotification.type.new_mentioned_comment);
+                        if (_value){
+                            CommentServis.shared().sendNewComment(PostName.noticesPost, currentUser, text, noticesPostModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                    CommentNotificationService.shared().sendNewNatoicesPostCommentNotification(noticesPostModel,currentUser,text, MainPostNotification.type.new_comment);
+                                    CommentNotificationService.shared().sendNewNoticesPostMentionedComment(noticesPostModel,currentUser,text, NoticesPostNotification.type.new_mentioned_comment);
+                                }
+                            });
+                        }
                     }
                 });
+
             }else if (mainPostModel != null){
-                CommentServis.shared().sendNewComment(PostName.mainPost, currentUser, text, mainPostModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                UserService.shared().checkBlock(mainPostModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
-                        commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                        CommentNotificationService.shared().sendNewMainPostCommentNotification(mainPostModel,currentUser,text, MainPostNotification.type.new_comment);
-                        CommentNotificationService.shared().sendNewMainPostMentionedComment(mainPostModel,currentUser,text,MainPostNotification.type.new_mentioned_comment);
+                        if (_value){
+                            CommentServis.shared().sendNewComment(PostName.mainPost, currentUser, text, mainPostModel.getPostId(), commentId, new TrueFalse<Boolean>() {
+                                @Override
+                                public void callBack(Boolean _value) {
+                                    commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                    CommentNotificationService.shared().sendNewMainPostCommentNotification(mainPostModel,currentUser,text, MainPostNotification.type.new_comment);
+                                    CommentNotificationService.shared().sendNewMainPostMentionedComment(mainPostModel,currentUser,text,MainPostNotification.type.new_mentioned_comment);
+                                }
+                            });
+                        }
                     }
                 });
+
             }
 
         }
@@ -320,23 +345,33 @@ public class CommentActivity extends AppCompatActivity {
                         for (DocumentChange item : value.getDocumentChanges()){
                             if (item.getType().equals(DocumentChange.Type.ADDED))
                             {
-                                comments.add(item.getDocument().toObject(CommentModel.class));
+                                if (item.getDocument().getString("senderUid")!=null && !item.getDocument().getString("senderUid").isEmpty()){
+                                    UserService.shared().checkBlock(item.getDocument().getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                comments.add(item.getDocument().toObject(CommentModel.class));
 
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
+                                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getCommentId().compareTo(obj2.getCommentId());
+                                                        return obj1.getCommentId().compareTo(obj2.getCommentId());
 
-                                    }
+                                                    }
 
-                                });
-                                if (adapter!=null){
+                                                });
+                                                if (adapter!=null){
 
-                                    //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                                    adapter.notifyDataSetChanged();
+                                                    //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                                    adapter.notifyDataSetChanged();
+                                                }
+                                                firstPage = comments.get(0).getCommentId();
+                                                loadMoreButton.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
                                 }
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
+
                             }
                         }
                         lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
@@ -359,23 +394,33 @@ public class CommentActivity extends AppCompatActivity {
                     for (DocumentChange item : value.getDocumentChanges()){
                         if (item.getType().equals(DocumentChange.Type.ADDED))
                         {
-                            comments.add(item.getDocument().toObject(CommentModel.class));
+                            if (item.getDocument().getString("senderUid")!=null && !item.getDocument().getString("senderUid").isEmpty()){
+                                UserService.shared().checkBlock(item.getDocument().getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            comments.add(item.getDocument().toObject(CommentModel.class));
 
-                            Collections.sort(comments, new Comparator<CommentModel>(){
-                                public int compare(CommentModel obj1, CommentModel obj2) {
+                                            Collections.sort(comments, new Comparator<CommentModel>(){
+                                                public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
+                                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
 
-                                }
+                                                }
 
-                            });
-                            if (adapter!=null){
+                                            });
+                                            if (adapter!=null){
 
-                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                                adapter.notifyDataSetChanged();
+                                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                            firstPage = comments.get(0).getCommentId();
+                                            loadMoreButton.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                });
                             }
-                            firstPage = comments.get(0).getCommentId();
-                            loadMoreButton.setVisibility(View.VISIBLE);
+
                         }
                     }
                     lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
@@ -397,23 +442,33 @@ public class CommentActivity extends AppCompatActivity {
                     for (DocumentChange item : value.getDocumentChanges()){
                         if (item.getType().equals(DocumentChange.Type.ADDED))
                         {
-                            comments.add(item.getDocument().toObject(CommentModel.class));
+                            if (item.getDocument().getString("senderUid")!=null && !item.getDocument().getString("senderUid").isEmpty()){
+                                UserService.shared().checkBlock(item.getDocument().getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            comments.add(item.getDocument().toObject(CommentModel.class));
 
-                            Collections.sort(comments, new Comparator<CommentModel>(){
-                                public int compare(CommentModel obj1, CommentModel obj2) {
+                                            Collections.sort(comments, new Comparator<CommentModel>(){
+                                                public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
+                                                    return obj1.getCommentId().compareTo(obj2.getCommentId());
 
-                                }
+                                                }
 
-                            });
-                            if (adapter!=null){
+                                            });
+                                            if (adapter!=null){
 
-                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
-                                adapter.notifyDataSetChanged();
+                                                //   commentList.getLayoutManager().scrollToPosition(comments.size() - 1);
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                            firstPage = comments.get(0).getCommentId();
+                                            loadMoreButton.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                });
                             }
-                            firstPage = comments.get(0).getCommentId();
-                            loadMoreButton.setVisibility(View.VISIBLE);
+
                         }
                     }
                     lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
@@ -439,19 +494,31 @@ public class CommentActivity extends AppCompatActivity {
                     if (task.isSuccessful()){
                         if (!task.getResult().isEmpty()){
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                comments.add(item.toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
+                                if (item.getString("senderUid")!=null && !item.getString("senderUid").isEmpty()){
+                                    UserService.shared().checkBlock(item.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                comments.add(item.toObject(CommentModel.class));
+                                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                    }
+                                                        return obj1.getTime().compareTo(obj2.getTime());
 
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
+                                                    }
+
+                                                });
+                                                adapter.notifyDataSetChanged();
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                firstPage = comments.get(0).getCommentId();
+                                                loadMoreButton.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
+                                }
+
+
                             }
                         }else{
                             swipeRefreshLayout.setRefreshing(false);
@@ -480,19 +547,28 @@ public class CommentActivity extends AppCompatActivity {
                     if (task.isSuccessful()){
                         if (!task.getResult().isEmpty()){
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                comments.add(item.toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
+                                if (item.getString("senderUid")!=null && !item.getString("senderUid").isEmpty()){
+                                    UserService.shared().checkBlock(item.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                comments.add(item.toObject(CommentModel.class));
+                                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
+                                                        return obj1.getTime().compareTo(obj2.getTime());
 
-                                    }
+                                                    }
 
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
+                                                });
+                                                adapter.notifyDataSetChanged();
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                firstPage = comments.get(0).getCommentId();
+                                                loadMoreButton.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }else{
                             swipeRefreshLayout.setRefreshing(false);
@@ -521,19 +597,28 @@ public class CommentActivity extends AppCompatActivity {
                     if (task.isSuccessful()){
                         if (!task.getResult().isEmpty()){
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                comments.add(item.toObject(CommentModel.class));
-                                Collections.sort(comments, new Comparator<CommentModel>(){
-                                    public int compare(CommentModel obj1, CommentModel obj2) {
+                                if (item.getString("senderUid")!=null && !item.getString("senderUid").isEmpty()){
+                                    UserService.shared().checkBlock(item.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                comments.add(item.toObject(CommentModel.class));
+                                                Collections.sort(comments, new Comparator<CommentModel>(){
+                                                    public int compare(CommentModel obj1, CommentModel obj2) {
 
-                                        return obj1.getTime().compareTo(obj2.getTime());
+                                                        return obj1.getTime().compareTo(obj2.getTime());
 
-                                    }
+                                                    }
 
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                firstPage = comments.get(0).getCommentId();
-                                loadMoreButton.setVisibility(View.VISIBLE);
+                                                });
+                                                adapter.notifyDataSetChanged();
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                firstPage = comments.get(0).getCommentId();
+                                                loadMoreButton.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }else{
                             swipeRefreshLayout.setRefreshing(false);
@@ -546,28 +631,60 @@ public class CommentActivity extends AppCompatActivity {
         }
     }
     private void replyClick(CommentModel commentModel){
-        if (postModel != null){
-            Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
-            i.putExtra("targetComment",commentModel);
-            i.putExtra("currentUser",currentUser);
-            i.putExtra("lessonPost",postModel);
-            startActivity(i);
-            Helper.shared().go(CommentActivity.this);
-        }else if (noticesPostModel != null){
-            Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
-            i.putExtra("targetComment",commentModel);
-            i.putExtra("currentUser",currentUser);
-            i.putExtra("noticesPost",noticesPostModel);
-            startActivity(i);
-            Helper.shared().go(CommentActivity.this);
-        }else if (mainPostModel !=  null){
-            Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
-            i.putExtra("targetComment",commentModel);
-            i.putExtra("currentUser",currentUser);
-            i.putExtra("mainPost",mainPostModel);
-            startActivity(i);
-            Helper.shared().go(CommentActivity.this);
-        }
+        UserService.shared().checkBlock(commentModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value) {
+                    if (postModel != null){
+                        UserService.shared().checkBlock(postModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
+                                    i.putExtra("targetComment",commentModel);
+                                    i.putExtra("currentUser",currentUser);
+                                    i.putExtra("lessonPost",postModel);
+                                    startActivity(i);
+                                    Helper.shared().go(CommentActivity.this);
+                                }
+                            }
+                        });
+
+                    }else if (noticesPostModel != null){
+                        UserService.shared().checkBlock(noticesPostModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
+                                    i.putExtra("targetComment",commentModel);
+                                    i.putExtra("currentUser",currentUser);
+                                    i.putExtra("noticesPost",noticesPostModel);
+                                    startActivity(i);
+                                    Helper.shared().go(CommentActivity.this);
+                                }
+                            }
+                        });
+
+                    }else if (mainPostModel !=  null){
+                        UserService.shared().checkBlock(mainPostModel.getSenderUid(), currentUser, new TrueFalse<Boolean>() {
+                            @Override
+                            public void callBack(Boolean _value) {
+                                if (_value){
+                                    Intent i = new Intent(CommentActivity.this , ReplyActivity.class);
+                                    i.putExtra("targetComment",commentModel);
+                                    i.putExtra("currentUser",currentUser);
+                                    i.putExtra("mainPost",mainPostModel);
+                                    startActivity(i);
+                                    Helper.shared().go(CommentActivity.this);
+                                }
+                            }
+                        });
+
+                    }
+                }
+            }
+        });
+
     }
 
     private void deleteComment(int position , TrueFalse<Boolean> callback){

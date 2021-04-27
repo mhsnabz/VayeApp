@@ -163,61 +163,71 @@ public class MainPostService {
      * @param  text notification text
      * */
     public void setPostLike(MainPostModel post , CurrentUser currentUser ,String type , String text, TrueFalse<Boolean> callback){
-        if (!post.getLikes().contains(currentUser.getUid())){
-            post.getLikes().add(currentUser.getUid());
-            post.getDislike().remove(currentUser.getUid());
-            callback.callBack(true);
-            DocumentReference db = FirebaseFirestore.getInstance().collection("main-post")
-                    .document("post").collection("post").document(post.getPostId());
-            Map<String , Object> map = new HashMap<>();
-
-            map.put("likes",FieldValue.arrayUnion(currentUser.getUid()));
-            map.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
-
-            db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()){
-                        MainPostNS.shared().setPostLikeNotification(currentUser, NotificationPostType.name.mainPost,post,post.getText(), MainPostNotification.type.post_like);
-                    }
-                }
-            });
+        if (currentUser.getBlockByOtherUser().contains(post.getSenderUid())||currentUser.getBlockList().contains(post.getSenderUid())){
+            return;
         }else{
-            post.getLikes().remove(currentUser.getUid());
-            callback.callBack(true);
-            DocumentReference db = FirebaseFirestore.getInstance().collection("main-post")
-                    .document("post").collection("post").document(post.getPostId());
-            Map<String , Object> map = new HashMap<>();
+            if (!post.getLikes().contains(currentUser.getUid())){
+                post.getLikes().add(currentUser.getUid());
+                post.getDislike().remove(currentUser.getUid());
+                callback.callBack(true);
+                DocumentReference db = FirebaseFirestore.getInstance().collection("main-post")
+                        .document("post").collection("post").document(post.getPostId());
+                Map<String , Object> map = new HashMap<>();
 
-            map.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
-            map.put("dislike",FieldValue.arrayUnion(currentUser.getUid()));
+                map.put("likes",FieldValue.arrayUnion(currentUser.getUid()));
+                map.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
 
-            db.set(map , SetOptions.merge());
+                db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            MainPostNS.shared().setPostLikeNotification(currentUser, NotificationPostType.name.mainPost,post,post.getText(), MainPostNotification.type.post_like);
+                        }
+                    }
+                });
+            }else{
+                post.getLikes().remove(currentUser.getUid());
+                callback.callBack(true);
+                DocumentReference db = FirebaseFirestore.getInstance().collection("main-post")
+                        .document("post").collection("post").document(post.getPostId());
+                Map<String , Object> map = new HashMap<>();
+
+                map.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
+                map.put("dislike",FieldValue.arrayUnion(currentUser.getUid()));
+
+                db.set(map , SetOptions.merge());
+            }
+
         }
 
 
     }
     public void setPostDislike(MainPostModel post , CurrentUser currentUser, TrueFalse<Boolean> callback){
-        if (!post.getDislike().contains(currentUser.getUid())){
-            post.getLikes().remove(currentUser.getUid());
-            post.getDislike().add(currentUser.getUid());
-            callback.callBack(true);
-            DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
-                    .document("post").collection("post").document(post.getPostId());
-            Map<String , Object> map = new HashMap<>();
-            map.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
-            map.put("dislike",FieldValue.arrayUnion(currentUser.getUid()));
-            ref.set(map, SetOptions.merge());
-
+        if (currentUser.getBlockList().contains(post.getSenderUid()) || currentUser.getBlockByOtherUser().contains(post.getSenderUid())){
+            return;
         }else{
-            post.getDislike().remove(currentUser.getUid());
-            callback.callBack(true);
-            DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
-                    .document("post").collection("post").document(post.getPostId());
-            Map<String , Object> map = new HashMap<>();
-            map.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
-            ref.set(map, SetOptions.merge());
+            if (!post.getDislike().contains(currentUser.getUid())){
+                post.getLikes().remove(currentUser.getUid());
+                post.getDislike().add(currentUser.getUid());
+                callback.callBack(true);
+                DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                        .document("post").collection("post").document(post.getPostId());
+                Map<String , Object> map = new HashMap<>();
+                map.put("likes",FieldValue.arrayRemove(currentUser.getUid()));
+                map.put("dislike",FieldValue.arrayUnion(currentUser.getUid()));
+                ref.set(map, SetOptions.merge());
+
+            }else{
+                post.getDislike().remove(currentUser.getUid());
+                callback.callBack(true);
+                DocumentReference ref = FirebaseFirestore.getInstance().collection("main-post")
+                        .document("post").collection("post").document(post.getPostId());
+                Map<String , Object> map = new HashMap<>();
+                map.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
+                ref.set(map, SetOptions.merge());
+            }
         }
+
     }
 
 

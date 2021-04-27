@@ -59,12 +59,7 @@ public class MajorPostNS {
                                             .collection("notification")
                                             .document(String.valueOf(notId));
                                     ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
-                                    PushNotificationService.shared().sendPushNotification(notId, id.getId(), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid(), new TrueFalse<Boolean>() {
-                                        @Override
-                                        public void callBack(Boolean _value) {
-
-                                        }
-                                    });
+                                    PushNotificationService.shared().sendPushNotification(notId, id.getId(), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
                                 }
 
                         }
@@ -74,11 +69,10 @@ public class MajorPostNS {
             }
         });
     }
-    int counter = 0;
-    public void teacherNewPostNotification(ArrayList<String> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId , TrueFalse<Boolean> callback){
+
+    public void teacherNewPostNotification(ArrayList<String> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId ){
         String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         for (int i = 0 ; i<notificationGetter.size() ; i++){
-            counter ++;
             if (!notificationGetter.get(i).equals(currentUser.getUid())){
                 Log.d("PushNotificationService", "teacherNewPostNotification: " + notificationGetter.get(i));
                 DocumentReference ref1 = FirebaseFirestore.getInstance().collection("user")
@@ -88,14 +82,7 @@ public class MajorPostNS {
                 ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
                 Log.d("TeacherNewPostActivity", "teacherNewPostNotification: " + "send notificaiton");
 
-                PushNotificationService.shared().sendPushNotification(notId, notificationGetter.get(i), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid(), new TrueFalse<Boolean>() {
-                    @Override
-                    public void callBack(Boolean _value) {
-                        if (notificationGetter.size() < counter){
-                            callback.callBack(true);
-                        }
-                    }
-                });
+                PushNotificationService.shared().sendPushNotification(notId, notificationGetter.get(i), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
             }
         }
 

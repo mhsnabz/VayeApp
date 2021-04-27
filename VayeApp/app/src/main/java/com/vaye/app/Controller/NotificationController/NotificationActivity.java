@@ -52,6 +52,7 @@ import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.NotificationModel;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.Helper;
 import com.vaye.app.Util.NotifcationSwipeController;
@@ -159,17 +160,26 @@ public class NotificationActivity extends AppCompatActivity {
                             progressBar.setVisibility(View.GONE);
                         }else{
                             for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                models.add(item.toObject(NotificationModel.class));
-                                Collections.sort(models, new Comparator<NotificationModel>(){
-                                    public int compare(NotificationModel obj1, NotificationModel obj2) {
-                                        return obj2.getTime().compareTo(obj1.getTime());
-                                    }
-                                });
-                                adapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                                progressBar.setVisibility(View.GONE);
-                                lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
-                                isLoadMore = true;
+                                if (item.getString("senderUid")!=null && item.getString("senderUid")!=null){
+                                    UserService.shared().checkBlock(item.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                        @Override
+                                        public void callBack(Boolean _value) {
+                                            if (_value){
+                                                models.add(item.toObject(NotificationModel.class));
+                                                Collections.sort(models, new Comparator<NotificationModel>(){
+                                                    public int compare(NotificationModel obj1, NotificationModel obj2) {
+                                                        return obj2.getTime().compareTo(obj1.getTime());
+                                                    }
+                                                });
+                                                adapter.notifyDataSetChanged();
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                progressBar.setVisibility(View.GONE);
+                                                lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
+                                                isLoadMore = true;
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }
                     }else{
@@ -202,14 +212,19 @@ public class NotificationActivity extends AppCompatActivity {
                         progressBar.setVisibility(View.GONE);
                     }else{
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
-
-                           models.add(item.toObject(NotificationModel.class));
-
-                            adapter.notifyDataSetChanged();
-                            swipeRefreshLayout.setRefreshing(false);
-                            progressBar.setVisibility(View.GONE);
-                            lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
-                            isLoadMore = true;
+                            if (item.getString("senderUid") != null || !item.getString("senderUid").isEmpty()){
+                                UserService.shared().checkBlock(item.getString("senderUid"), currentUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        models.add(item.toObject(NotificationModel.class));
+                                        adapter.notifyDataSetChanged();
+                                        swipeRefreshLayout.setRefreshing(false);
+                                        progressBar.setVisibility(View.GONE);
+                                        lastPage = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
+                                        isLoadMore = true;
+                                    }
+                                });
+                            }
                         }
                     }
                 }

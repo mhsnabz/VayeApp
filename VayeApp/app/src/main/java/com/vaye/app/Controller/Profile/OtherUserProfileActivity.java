@@ -1,6 +1,7 @@
 package com.vaye.app.Controller.Profile;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -32,11 +33,18 @@ import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Controller.ChatController.Conservation.ConservationController;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.MajorPostFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.SchoolFragment;
 import com.vaye.app.Controller.Profile.ProfileFragments.CurrentUserFragment.VayeAppFragment;
@@ -56,6 +64,7 @@ import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -95,7 +104,16 @@ public class OtherUserProfileActivity extends AppCompatActivity {
         }else{
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             otherUser = intentIncoming.getParcelableExtra("otherUser");
-
+            UserService.shared().canSendNotificaiton(currentUser, otherUser, new TrueFalse<Boolean>() {
+                @Override
+                public void callBack(Boolean _value) {
+                    if (!_value){
+                        TipDialog.show(OtherUserProfileActivity.this,"Bu Profili Görüntüleyemezsin", TipDialog.TYPE.ERROR);
+                        TipDialog.dismiss(1400);
+                        finish();
+                    }
+                }
+            });
             setToolbar(otherUser);
             setView(currentUser,otherUser);
             AdRequest adRequest = new AdRequest.Builder().build();
@@ -316,6 +334,9 @@ public class OtherUserProfileActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        getCurrent();
+
         mHandler = new Handler();
 
         mHandler.postDelayed(mRunnable,2*1000);
@@ -690,5 +711,26 @@ public class OtherUserProfileActivity extends AppCompatActivity {
         super.onBackPressed();
         finish();
         Helper.shared().back(OtherUserProfileActivity.this);
+    }
+    private void getCurrent(){
+        if (FirebaseAuth.getInstance().getCurrentUser().getUid() != null){
+            DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            ref.addSnapshotListener(this,new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if(error == null){
+                        List<String> blockList = (List<String>)value.get("blockList");
+                        List<String> blockByOtherUser = (List<String>)value.get("blockByOtherUser");
+                        if (blockList != null && blockByOtherUser!=null){
+                            if (!currentUser.getBlockList().equals(blockList) || !currentUser.getBlockByOtherUser().equals(blockByOtherUser)){
+                                if (blockList.contains(otherUser.getUid()) || blockByOtherUser.contains(otherUser.getUid()))
+                                    OtherUserProfileActivity.this.finish();
+                            }
+                        }
+
+                    }
+                }
+            });
+        }
     }
 }
