@@ -154,6 +154,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public void setLastMsg(String type , String _lastMsg){
 
+            if (type == null){
+                return;
+            }
          if (type.equals(MessageType.text)){
                 lastMsgImage.setImageDrawable(context.getResources().getDrawable(R.drawable.font));
                 if (_lastMsg!=null && !_lastMsg.isEmpty())

@@ -50,6 +50,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +61,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.core.utilities.Utilities;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -95,9 +97,11 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
 import com.vaye.app.Controller.MapsController.VayeAppPlacePickerActivity;
+import com.vaye.app.Controller.Profile.OtherUserProfileActivity;
 import com.vaye.app.Controller.ReportController.ReportActivity;
 import com.vaye.app.Controller.VayeAppController.VayeAppNewPostActivity;
 import com.vaye.app.FCM.MessagingService;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.LocationCallback;
@@ -113,6 +117,7 @@ import com.vaye.app.Model.MessagesModel;
 import com.vaye.app.Model.NewPostDataModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.BlockService;
 import com.vaye.app.Services.MessageService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetTarget;
@@ -134,6 +139,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.PrimitiveIterator;
 import java.util.Timer;
@@ -145,7 +151,7 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 
-public class ConservationController extends AppCompatActivity implements MessagesAdaper.OnItemClickListener,OnOptionSelect  {
+public class ConservationController extends AppCompatActivity implements MessagesAdaper.OnItemClickListener,OnOptionSelect,BlockOptionSelect  {
     String TAG = "ConservationController";
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
@@ -178,8 +184,7 @@ public class ConservationController extends AppCompatActivity implements Message
     String storagePermission[];
     KProgressHUD hud;
     private static final int gallery_request = 400;
-
-
+    BlockOptionSelect blockOptionSelect;
     String fileName = "";
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
     int lastPostion = -1;
@@ -194,7 +199,9 @@ public class ConservationController extends AppCompatActivity implements Message
       /*  filename = Environment.getExternalStorageDirectory().getAbsolutePath();
         fileName += "/" + String.valueOf(Calendar.getInstance().getTimeInMillis()) + ".3gp";
         ;*/
+
         optionSelect = this::onChoose;
+        blockOptionSelect = this::onSelectOption;
         mediaLayout = (LinearLayout) findViewById(R.id.mediaLayout);
         mediaLayout.setVisibility(View.VISIBLE);
         sendButton = (ImageButton) findViewById(R.id.send);
@@ -313,7 +320,7 @@ public class ConservationController extends AppCompatActivity implements Message
         options.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              Helper.shared().MessageOptionsBottomSheetLauncaher(BottomSheetTarget.conservation_options,optionSelect,ConservationController.this, currentUser, otherUser);
+              Helper.shared().MessageOptionsBottomSheetLauncaher(BottomSheetTarget.conservation_options,optionSelect,ConservationController.this, currentUser, otherUser,blockOptionSelect);
             }
         });
 
@@ -454,6 +461,7 @@ public class ConservationController extends AppCompatActivity implements Message
     @Override
     protected void onStart() {
         super.onStart();
+        getCurrent();
         getAllMessages();
         DocumentReference setCurrentUserOnline = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
@@ -1377,4 +1385,76 @@ public class ConservationController extends AppCompatActivity implements Message
     }
 
 
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+        BlockService.shared().report(ConservationController.this, target, currentUser, otherUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+
+                    MessageService.shared().removeChat(currentUser, otherUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (!_value){
+                                            Log.d(TAG, "removeChat: " + "other user has not chat");
+                                            MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    finish();
+                                                    Helper.shared().back(ConservationController.this);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+
+
+                                        }else{
+                                            Log.d(TAG, "removeChat: " + "other user has  chat");
+                                            MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    finish();
+                                                    Helper.shared().back(ConservationController.this);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+
+                                        }
+                                    }
+                                });
+                                ;
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+
+    }
+    private void getCurrent(){
+        if (FirebaseAuth.getInstance().getCurrentUser().getUid() != null){
+            DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            ref.addSnapshotListener(this,new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if(error == null){
+                        List<String> blockList = (List<String>)value.get("blockList");
+                        List<String> blockByOtherUser = (List<String>)value.get("blockByOtherUser");
+                        if (blockList != null && blockByOtherUser!=null){
+                            if (!currentUser.getBlockList().equals(blockList) || !currentUser.getBlockByOtherUser().equals(blockByOtherUser)){
+                                if (blockList.contains(otherUser.getUid()) || blockByOtherUser.contains(otherUser.getUid()))
+
+                                    ConservationController.this.finish();
+                            }
+                        }
+
+                    }
+                }
+            });
+        }
+    }
 }

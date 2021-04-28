@@ -605,7 +605,7 @@ public class Helper {
         bottomSheetDialog.show();
     }
 
-    public void MessageOptionsBottomSheetLauncaher(String target,OnOptionSelect optionSelect ,Activity activity , CurrentUser currentUser , OtherUser otherUser ){
+    public void MessageOptionsBottomSheetLauncaher(String target,OnOptionSelect optionSelect ,Activity activity , CurrentUser currentUser , OtherUser otherUser,BlockOptionSelect blockOptionSelect ){
         RecyclerView recyclerView;
         CardView headerView;
         Button cancel;
@@ -618,16 +618,21 @@ public class Helper {
         if (target.equals(BottomSheetTarget.request_conservation_options)){
             items.add(BottomSheetActionTarget.delete_conservation);
             items.add(BottomSheetActionTarget.report_chat_friend);
+            items.add(BottomSheetActionTarget.getBu_kullaniciyi_engelle);
             res.add(R.drawable.trash);
             res.add(R.drawable.red_report);
+            res.add(R.drawable.block_user);
+
 
         }else{
             items.add(BottomSheetActionTarget.delete_conservation);
             items.add(BottomSheetActionTarget.remove_from_friendList);
             items.add(BottomSheetActionTarget.report_chat_friend);
+            items.add(BottomSheetActionTarget.getBu_kullaniciyi_engelle);
             res.add(R.drawable.trash);
             res.add(R.drawable.dismis);
             res.add(R.drawable.red_report);
+            res.add(R.drawable.block_user);
 
         }
 
@@ -637,7 +642,7 @@ public class Helper {
         BottomSheetModel model = new BottomSheetModel(items, target,res);
 
 
-        ChatOptionAdapter adapter = new ChatOptionAdapter(currentUser,model,bottomSheetDialog,otherUser,activity,optionSelect);
+        ChatOptionAdapter adapter = new ChatOptionAdapter(currentUser,model,bottomSheetDialog,otherUser,activity,optionSelect,blockOptionSelect);
         recyclerView = (RecyclerView)view.findViewById(R.id.optionList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));

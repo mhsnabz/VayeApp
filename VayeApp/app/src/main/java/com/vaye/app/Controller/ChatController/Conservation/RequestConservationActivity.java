@@ -48,7 +48,9 @@ import com.google.rpc.Help;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.ReportController.ReportActivity;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Interfaces.Report;
@@ -57,6 +59,7 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.MessagesModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.BlockService;
 import com.vaye.app.Services.MessageService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.BottomSheetHelper.BottomSheetActionTarget;
@@ -72,7 +75,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class RequestConservationActivity extends AppCompatActivity  implements MessagesAdaper.OnItemClickListener , OnOptionSelect {
+public class RequestConservationActivity extends AppCompatActivity  implements MessagesAdaper.OnItemClickListener , OnOptionSelect, BlockOptionSelect {
     CircleImageView profileImage;
     ProgressBar progressBar;
     TextView title;
@@ -90,11 +93,13 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
     Boolean scrollingToBottom = false;
     String TAG = "RequestConservationActivity";
     OnOptionSelect optionSelect;
+    BlockOptionSelect blockOptionSelect;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_request_conservation);
         optionSelect = this::onChoose;
+        blockOptionSelect = this::onSelectOption;
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
         if (extras != null) {
@@ -151,7 +156,7 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
         options.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Helper.shared().MessageOptionsBottomSheetLauncaher(BottomSheetTarget.request_conservation_options,optionSelect,RequestConservationActivity.this, currentUser, otherUser);
+                Helper.shared().MessageOptionsBottomSheetLauncaher(BottomSheetTarget.request_conservation_options,optionSelect,RequestConservationActivity.this, currentUser, otherUser,blockOptionSelect);
             }
         });
 
@@ -811,4 +816,105 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
 
         }
     }
+
+    @Override
+    public void onSelectOption(String target, OtherUser otherUser) {
+        Log.d(TAG, "onSelectOption: " + target);
+        Log.d(TAG, "onSelectOption: " + otherUser.getName());
+        BlockService.shared().report(RequestConservationActivity.this, target, currentUser, otherUser, new TrueFalse<Boolean>() {
+            @Override
+            public void callBack(Boolean _value) {
+                if (_value){
+                    MessageService.shared().removeRequest(currentUser, otherUser, new TrueFalse<Boolean>() {
+                        @Override
+                        public void callBack(Boolean _value) {
+                            if (_value){
+                                MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (!_value){
+                                            Log.d(TAG, "removeChat: " + "other user has not chat");
+                                            MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    finish();
+                                                    Helper.shared().back(RequestConservationActivity.this);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+
+
+                                        }else{
+                                            Log.d(TAG, "removeChat: " + "other user has  chat");
+                                            MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    finish();
+                                                    Helper.shared().back(RequestConservationActivity.this);
+                                                    WaitDialog.dismiss();
+                                                }
+                                            });
+
+                                        }
+                                    }
+                                });
+                                ;
+                            }
+                        }
+                    });
+
+                    DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                            .document(currentUser.getUid())
+                            .collection("msg-request")
+                            .document(otherUser.getUid());
+                    db.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                MessageService.shared().removeRequest(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            MessageService.shared().checkChatIsExistOnOtherUser(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                @Override
+                                                public void callBack(Boolean _value) {
+                                                    if (!_value){
+                                                        Log.d(TAG, "removeChat: " + "other user has not chat");
+                                                        MessageService.shared().removeAllStorage(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                finish();
+                                                                Helper.shared().back(RequestConservationActivity.this);
+                                                                WaitDialog.dismiss();
+                                                            }
+                                                        });
+
+
+                                                    }else{
+                                                        Log.d(TAG, "removeChat: " + "other user has  chat");
+                                                        MessageService.shared().removeMessages(currentUser, otherUser, new TrueFalse<Boolean>() {
+                                                            @Override
+                                                            public void callBack(Boolean _value) {
+                                                                finish();
+                                                                Helper.shared().back(RequestConservationActivity.this);
+                                                                WaitDialog.dismiss();
+                                                            }
+                                                        });
+
+                                                    }
+                                                }
+                                            });
+                                            ;
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
 }

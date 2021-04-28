@@ -1,5 +1,6 @@
 package com.vaye.app.Util.BottomSheetHelper;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -13,11 +14,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.vaye.app.Interfaces.BlockOptionSelect;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.OnOptionSelect;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.BlockService;
 
 public class ChatOptionAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     CurrentUser currentUser;
@@ -27,13 +30,15 @@ public class ChatOptionAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHo
     Context context;
     String TAG = "ChatOptionAdapter";
     OnOptionSelect optionSelect;
-    public ChatOptionAdapter(CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context , OnOptionSelect optionSelect) {
+    BlockOptionSelect blockOptionSelect;
+    public ChatOptionAdapter(CurrentUser currentUser, BottomSheetModel model, BottomSheetDialog dialog, OtherUser otherUser, Context context , OnOptionSelect optionSelect,BlockOptionSelect blockOptionSelect) {
         this.currentUser = currentUser;
         this.model = model;
         this.dialog = dialog;
         this.otherUser = otherUser;
         this.context = context;
         this.optionSelect = optionSelect;
+        this.blockOptionSelect = blockOptionSelect;
     }
 
     @NonNull
@@ -55,8 +60,6 @@ public class ChatOptionAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHo
             public void onClick(View view) {
                 if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.remove_from_friendList)){
                     dialog.dismiss();
-
-
                     optionSelect.onChoose( CompletionWithValue.remove_from_friend_list);
                 }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.report_chat_friend)){
                     dialog.dismiss();
@@ -64,12 +67,14 @@ public class ChatOptionAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHo
                     optionSelect.onChoose(CompletionWithValue.report_chat_user);
 
                 }
-
-
                 else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.delete_conservation)){
                     dialog.dismiss();
 
                     optionSelect.onChoose(CompletionWithValue.remove_chat);
+                }else if (VH_currentuser.title.getText().equals(BottomSheetActionTarget.getBu_kullaniciyi_engelle)){
+                    dialog.dismiss();
+                    BlockService.shared().reportReasonDialog((Activity)context,currentUser,otherUser,blockOptionSelect);
+
                 }
             }
         });
