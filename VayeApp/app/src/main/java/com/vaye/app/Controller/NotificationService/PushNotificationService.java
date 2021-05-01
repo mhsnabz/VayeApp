@@ -45,7 +45,7 @@ public class PushNotificationService {
 
     }
 
-    public void  sendPushNotification(String notificaitonType ,String not_id , String getterUid, OtherUser otherUser , String  target
+    public void  sendPushNotification(CurrentUser currentUser,String notificaitonType ,String not_id , String getterUid, OtherUser otherUser , String  target
     , String senderName , String mainText , String type , String senderUid ){
         DocumentReference db = FirebaseFirestore.getInstance().collection("notification").document(not_id);
         String title = senderName;
@@ -58,10 +58,21 @@ public class PushNotificationService {
         map.put("type",notificaitonType);
         map.put("getterUid",getterUid);
         if (otherUser!=null){
-
+            if (otherUser.getBlockByOtherUser().contains(senderUid) || otherUser.getBlockList().contains(senderUid)){
+                return;
+            }else{
+                db.set(map,SetOptions.merge());
+            }
+        }else{
+           if (currentUser.getBlockByOtherUser().contains(getterUid) || currentUser.getBlockList().contains(getterUid)){
+               return;
+           }else{
+               if(!currentUser.getUid().equals(getterUid))
+               db.set(map,SetOptions.merge());
+           }
         }
 
-        if (otherUser != null){
+        /*if (otherUser != null){
             if (otherUser.getTokenID() !=null && !otherUser.getTokenID().isEmpty()){
                 map.put("tokenId",otherUser.getTokenID());
             }else{
@@ -212,7 +223,7 @@ public class PushNotificationService {
                     }
                 }
             });
-        }
+        }*/
 
     }
 

@@ -278,7 +278,7 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                                                         .collection("notification")
                                                         .document(notId);
                                                 ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
-                                                PushNotificationService.shared().sendPushNotification(PushNotificationType.lessonNotices,notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
+                                                PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.lessonNotices,notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
 
                                             }
 
