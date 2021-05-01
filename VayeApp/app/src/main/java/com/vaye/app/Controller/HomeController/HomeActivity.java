@@ -74,6 +74,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+import com.vaye.app.Application.VayeApp;
 import com.vaye.app.Controller.ChatController.Conservation.ConservationController;
 import com.vaye.app.Controller.HomeController.Bolum.BolumFragment;
 import com.vaye.app.Controller.HomeController.PagerAdapter.AllDatasActivity;
@@ -86,6 +87,7 @@ import com.vaye.app.Controller.HomeController.SettingController.SettingActivity;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
 import com.vaye.app.Controller.MapsController.LocationPermissionActivity;
 import com.vaye.app.Controller.MapsController.VayeAppPlacePickerActivity;
+import com.vaye.app.Controller.NotificationController.NotificationActivity;
 import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Controller.Profile.CurrentUserProfile;
 import com.vaye.app.Controller.Profile.EditProfileActivity;
@@ -99,6 +101,7 @@ import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.MessageService;
 import com.vaye.app.Services.SchoolPostService;
 import com.vaye.app.Services.UserService;
 import com.vaye.app.SplashScreen.SplashScreen;
@@ -155,6 +158,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         setContentView(R.layout.activity_home);
         optionSelect = this::onChoose;
         blockOptionSelect = this::onSelectOption;
+        MessageService.shared().isChatActive(HomeActivity.this);
         setAllPermissinon();
         Bundle extras = getIntent().getExtras();
         Intent intentIncoming = getIntent();
@@ -409,8 +413,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         MenuItem menuItem = menu.getItem(0);
         menuItem.setChecked(true);
         overridePendingTransition(0, 0);
-        getBadgeCount();
-        getMessagesCount();
+
     }
 
 
@@ -513,7 +516,8 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     @Override
     protected void onStart() {
         super.onStart();
-
+        getBadgeCount();
+        getChatBadgeCount();
         RunTimePermissionHelper.shared().locationPermission(HomeActivity.this, new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
@@ -803,6 +807,8 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                     }
                 }).check();
     }
+
+
     private void getBadgeCount(){
         BottomNavigationView view;
         view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
@@ -831,7 +837,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         });
 
     }
-    private void getMessagesCount(){
+    private void getChatBadgeCount(){
         BottomNavigationView view;
         view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
         BottomNavigationMenuView bottomNavigationMenuView =
@@ -840,7 +846,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         final View v = bottomNavigationMenuView.getChildAt(3);
 
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid());
-        ref.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+        ref.addSnapshotListener(HomeActivity.this,new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (value!=null){
@@ -849,18 +855,16 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                             badge.hide(true);
                         }else{
 
-                           badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
-                                   .setBadgeBackgroundColor(Color.RED).setBadgeNumber(value.getLong("totalBadge").intValue());
+                            badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                                    .setBadgeBackgroundColor(Color.RED).setBadgeNumber(value.getLong("totalBadge").intValue());
                         }
                     }
                 }
             }
         });
-        setChatBadgeCount();
+
 
     }
-
-
     private void setChatBadgeCount(){
         Query ref_msg_list = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
                 .collection("msg-list").whereGreaterThan("badgeCount",0);

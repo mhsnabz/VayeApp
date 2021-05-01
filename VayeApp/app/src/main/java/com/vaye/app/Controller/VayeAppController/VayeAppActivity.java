@@ -180,8 +180,6 @@ public class VayeAppActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
-        getBadgeCount();
-        getMessagesCount();
     }
 
     private void changeTabs(int postion){
@@ -242,6 +240,15 @@ public class VayeAppActivity extends AppCompatActivity {
             title.setText("Kamp");
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getMessagesCount();
+        getBadgeCount();
+        setChatBadgeCount();
+    }
+
     private void getBadgeCount(){
         BottomNavigationView view;
         view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);

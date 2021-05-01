@@ -113,7 +113,11 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onCallback(CurrentUser user) {
                                 if (user!=null){
-                                    UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
+                                    Intent i = new Intent(LoginActivity.this , SplashScreen.class);
+                                    startActivity(i);
+                                    WaitDialog.dismiss();
+                                    finish();
+                                  /*  UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -125,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 showDialog(task.getResult().getUser());
                                             }
                                         }
-                                    });
+                                    });*/
 
                                 }else{
                                     DocumentReference getPriority = FirebaseFirestore.getInstance().collection("priority")

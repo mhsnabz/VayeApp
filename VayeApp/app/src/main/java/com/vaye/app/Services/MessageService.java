@@ -1,7 +1,9 @@
 package com.vaye.app.Services;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.DownloadManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -47,8 +49,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class MessageService {
@@ -58,15 +62,7 @@ public class MessageService {
         return instance;
     }
 
-    public void setCurrentUserOnline(CurrentUser currentUser , OtherUser otherUser , Boolean bool){
-        DocumentReference ref =  FirebaseFirestore.getInstance().collection("user")
-                .document(otherUser.getUid())
-                .collection("msg-list")
-                .document(currentUser.getUid());
-        Map<String , Object> map = new HashMap<>();
-        map.put("isOnline",bool);
-        ref.set(map, SetOptions.merge());
-    }
+
     public void deleteBadge(CurrentUser currentUser , OtherUser otherUser){
         Log.d(TAG, "deleteBadge: start delete badge");
 
@@ -120,7 +116,7 @@ public class MessageService {
         });
     }
 
-    public void sendTextMsg(CurrentUser currentUser , OtherUser otherUser , String fileName,Boolean isOnline ,long time,GeoPoint geoPoint,int duration,Float width , Float heigth,String msg , String messageId , String type){
+    public void sendTextMsg(CurrentUser currentUser , OtherUser otherUser , String fileName,long time,GeoPoint geoPoint,int duration,Float width , Float heigth,String msg , String messageId , String type){
             if (currentUser.getFriendList().contains(otherUser.getUid())){
                 DocumentReference dbSender = FirebaseFirestore.getInstance().collection("messages")
                         .document(currentUser.getUid())
@@ -154,10 +150,10 @@ public class MessageService {
                         }
                     }
                 });
-                getBadgeCount(currentUser,"msg-list",isOnline,otherUser);
-                setBadgeCount(currentUser,isOnline,otherUser,"msg-list");
+                getBadgeCount(currentUser,"msg-list",otherUser);
+                setBadgeCount(currentUser,otherUser,"msg-list");
 
-                if (!isOnline) {
+
                     if (type.equals(MessageType.text)){
                         PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_msg,currentUser.getName(),msg, MsgNotification.descp.new_msg,currentUser.getUid());
 
@@ -171,7 +167,7 @@ public class MessageService {
                         PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_location,currentUser.getName(),"Konum Gönderdi", MsgNotification.descp.new_location,currentUser.getUid());
 
                     }
-                }
+
             }else{
                 DocumentReference dbSender = FirebaseFirestore.getInstance().collection("messages")
                         .document(currentUser.getUid())
@@ -207,13 +203,13 @@ public class MessageService {
                         }
                     }
                 });
-                getBadgeCount(currentUser,"msg-request",isOnline,otherUser);
-                setBadgeCount(currentUser,isOnline,otherUser,"msg-request");
+                getBadgeCount(currentUser,"msg-request",otherUser);
+                setBadgeCount(currentUser,otherUser,"msg-request");
 
 
-                    if (!isOnline) {
+
                         PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_rqst,currentUser.getName(),"Size Mesaj Göndermek İstiyor", MsgNotification.descp.new_rqst,currentUser.getUid());
-                    }
+
 
             }
     }
@@ -260,8 +256,8 @@ public class MessageService {
         return map;
     }
 
-    private void getBadgeCount(CurrentUser currentUser , String target , boolean isOnline , OtherUser otherUser){
-      if (!isOnline){
+    private void getBadgeCount(CurrentUser currentUser , String target , OtherUser otherUser){
+
           Query db = FirebaseFirestore.getInstance().collection("user")
                   .document(otherUser.getUid())
                   .collection(target).document(currentUser.getUid())
@@ -282,11 +278,11 @@ public class MessageService {
                   }
               }
           });
-      }
+
     }
 
-    private void setBadgeCount(CurrentUser currentUser , boolean isOnline , OtherUser otherUser , String  target){
-        if (!isOnline){
+    private void setBadgeCount(CurrentUser currentUser , OtherUser otherUser , String  target){
+
             CollectionReference db = FirebaseFirestore.getInstance().collection("user")
                     .document(otherUser.getUid())
                     .collection(target).document(currentUser.getUid()) .collection("badgeCount");
@@ -294,7 +290,7 @@ public class MessageService {
             map.put("badge","badge");
             db.add(map);
 
-        }
+
     }
 
 
@@ -557,5 +553,25 @@ public class MessageService {
             }
         });
 
+    }
+
+    public  boolean isChatActive (Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+        Log.d(TAG, "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+        ComponentName componentInfo = taskInfo.get(0).topActivity;
+        componentInfo.getPackageName();
+        Log.d(TAG, "isChatActive: componentInfo.getPackageName(); " +  componentInfo.getPackageName());
+        ActivityManager mActivityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> l = mActivityManager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo info : l) {
+            if (info.uid == context.getApplicationInfo().uid && info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                Log.d(TAG, "isChatActive: " + info.getClass().getName().toString());
+                Log.d(TAG, "isChatActive: " + info.processName);
+                Log.d(TAG, "isChatActive: " + info);
+                return true;
+            }
+        }
+        return false;
     }
 }

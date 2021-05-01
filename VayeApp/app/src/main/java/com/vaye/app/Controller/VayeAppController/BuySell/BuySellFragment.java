@@ -136,8 +136,10 @@ public class BuySellFragment extends Fragment implements BlockOptionSelect {
                     Log.d(TAG, "onScrollChange: "+"load more item");
                     if (!post.isEmpty()){
                         for (int i = 0 ; i < post.size() ; i++){
-                            if (post.get(i).getType().equals("ads"))
-                                totalAdsCount ++;
+                            if (post.get(i).getType() !=null ){
+                                if (post.get(i).getType().equals("ads"))
+                                    totalAdsCount ++;
+                            }
                         }
 
                         if ((post.size() - totalAdsCount) % 5 == 0){

@@ -2,6 +2,7 @@ package com.vaye.app.Application;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -19,6 +20,8 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.vaye.app.FCM.MessagingService.active_context_name;
 
 public class OnClearFromRecentService extends Service {
 
@@ -42,27 +45,10 @@ public class OnClearFromRecentService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         Log.e("ClearFromRecentService", "END");
-        Map<String , Object> map = new HashMap<>();
-        map.put("isOnline",false);
-        map.put("badgeCount",0);
-        CollectionReference reference = FirebaseFirestore.getInstance().collection("user");
-        CollectionReference setCurrentUserOnline =  FirebaseFirestore.getInstance().collection("user")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .collection("msg-list");
-        setCurrentUserOnline.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    if (!task.getResult().getDocuments().isEmpty()){
-                             for (DocumentSnapshot item : task.getResult().getDocuments()){
-                                 reference.document(item.getId()).collection("msg-list").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update(map);
-                                 Log.e("ClearFromRecentService","set offline");
-
-                             }
-                    }
-                }
-            }
-        });
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("context","onActivityStopped");
+        editor.apply();
         stopSelf();
     }
 }

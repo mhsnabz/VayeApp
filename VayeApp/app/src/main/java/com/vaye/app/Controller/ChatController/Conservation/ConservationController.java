@@ -155,10 +155,12 @@ public class ConservationController extends AppCompatActivity implements Message
     String TAG = "ConservationController";
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+
+
     String SDCardRoot = Environment.getExternalStorageDirectory()
             .toString();
     MessagesAdaper.OnItemClickListener onItemClickListener;
-    Boolean isOnline = false;
+
     CircleImageView profileImage;
     ProgressBar progressBar;
     TextView title;
@@ -235,7 +237,7 @@ public class ConservationController extends AppCompatActivity implements Message
                                         DataTypes.contentType.audio, ConservationController.this, otherUser, currentUser, uri, new SavedAudioFileUrl() {
                                             @Override
                                             public void callback(String url, String filename) {
-                                                MessageService.shared().sendTextMsg(currentUser,otherUser,filename,isOnline,Calendar.getInstance().getTimeInMillis(),null,duration,0f,0f,url,String.valueOf(Calendar.getInstance().getTimeInMillis()),MessageType.audio);
+                                                MessageService.shared().sendTextMsg(currentUser,otherUser,filename,Calendar.getInstance().getTimeInMillis(),null,duration,0f,0f,url,String.valueOf(Calendar.getInstance().getTimeInMillis()),MessageType.audio);
                                             }
 
 
@@ -453,7 +455,7 @@ public class ConservationController extends AppCompatActivity implements Message
             return;
         } else {
             String messageId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-            MessageService.shared().sendTextMsg(currentUser, otherUser, filename, isOnline, time, null, 0, 0f, 0f, msg, messageId, MessageType.text);
+            MessageService.shared().sendTextMsg(currentUser, otherUser, filename, time, null, 0, 0f, 0f, msg, messageId, MessageType.text);
 
         }
     }
@@ -468,7 +470,7 @@ public class ConservationController extends AppCompatActivity implements Message
                 .collection("msg-list")
                 .document(otherUser.getUid());
         Map<String, Object> map = new HashMap<>();
-        map.put("isOnline", true);
+
         map.put("badgeCount", 0);
         setCurrentUserOnline.update(map);
         Log.d(TAG, "onStop: onStop");
@@ -493,27 +495,9 @@ public class ConservationController extends AppCompatActivity implements Message
                 }
             }
         });
-        MessageService.shared().setCurrentUserOnline(currentUser, otherUser, true);
         MessageService.shared().deleteBadge(currentUser, otherUser);
         Log.d("MessageService", "onStart: badge delete");
-        DocumentReference isOnlineDb = FirebaseFirestore.getInstance().collection("user")
-                .document(otherUser.getUid())
-                .collection("msg-list")
-                .document(currentUser.getUid());
-
-        isOnlineDb.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (value.exists()) {
-                    isOnline = value.getBoolean("isOnline");
-                }
-            }
-        });
-
         scrollRecyclerViewToBottom(list);
-
-
-
         Dexter.withActivity(ConservationController.this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
@@ -560,7 +544,7 @@ public class ConservationController extends AppCompatActivity implements Message
                 .collection("msg-list")
                 .document(otherUser.getUid());
         Map<String, Object> map = new HashMap<>();
-        map.put("isOnline", false);
+
         map.put("badgeCount", 0);
         setCurrentUserOnline.update(map);
         Log.d(TAG, "onStop: onStop");
@@ -700,7 +684,7 @@ public class ConservationController extends AppCompatActivity implements Message
     private void sendLocationMessage(GeoPoint geoPoint) {
         String msgID = String.valueOf(Calendar.getInstance().getTimeInMillis());
         long time = Calendar.getInstance().getTimeInMillis();
-        MessageService.shared().sendTextMsg(currentUser, otherUser, filename, isOnline, time, geoPoint, 0, 200f, 200f, "Konum", msgID, MessageType.location);
+        MessageService.shared().sendTextMsg(currentUser, otherUser, filename,  time, geoPoint, 0, 200f, 200f, "Konum", msgID, MessageType.location);
     }
 
 
@@ -757,7 +741,7 @@ public class ConservationController extends AppCompatActivity implements Message
                     @Override
                     public void getString(String url) {
                         Log.d(TAG, "getString: url : " + url);
-                        MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, imageWidth, imageHeight, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
+                        MessageService.shared().sendTextMsg(currentUser, otherUser, url,  Calendar.getInstance().getTimeInMillis(), geoPoint, 0, imageWidth, imageHeight, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
                         TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
                         TipDialog.dismiss(500);
                     }
@@ -773,7 +757,7 @@ public class ConservationController extends AppCompatActivity implements Message
                     @Override
                     public void getString(String url) {
                         Log.d(TAG, "getString: url : " + url);
-                        MessageService.shared().sendTextMsg(currentUser, otherUser, url, isOnline, Calendar.getInstance().getTimeInMillis(), geoPoint, 0, 100f, 150f, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
+                        MessageService.shared().sendTextMsg(currentUser, otherUser, url,  Calendar.getInstance().getTimeInMillis(), geoPoint, 0, 100f, 150f, url, String.valueOf(Calendar.getInstance().getTimeInMillis()), MessageType.photo);
                         TipDialog.show(ConservationController.this, "Dosya Gönderildi", TipDialog.TYPE.SUCCESS);
                         TipDialog.dismiss(500);
                     }
@@ -909,7 +893,7 @@ public class ConservationController extends AppCompatActivity implements Message
                                             DataTypes.contentType.audio, ConservationController.this, otherUser, currentUser, uri, new SavedAudioFileUrl() {
                                                 @Override
                                                 public void callback(String url, String filename) {
-                                                    MessageService.shared().sendTextMsg(currentUser,otherUser,filename,isOnline,Calendar.getInstance().getTimeInMillis(),null,duration,0f,0f,url,String.valueOf(Calendar.getInstance().getTimeInMillis()),MessageType.audio);
+                                                    MessageService.shared().sendTextMsg(currentUser,otherUser,filename,Calendar.getInstance().getTimeInMillis(),null,duration,0f,0f,url,String.valueOf(Calendar.getInstance().getTimeInMillis()),MessageType.audio);
                                                 }
 
 
@@ -936,8 +920,6 @@ public class ConservationController extends AppCompatActivity implements Message
         if (runnable !=null){
             mHandler.removeCallbacks(runnable);
         }
-
-
         if (lastPostion == -1){
             if (mediaPlayer!=null){
 
@@ -964,6 +946,7 @@ public class ConservationController extends AppCompatActivity implements Message
                             if (_value){
                                 waitProgress.setVisibility(View.GONE);
                                 b.setVisibility(View.VISIBLE);
+                                lastPostion = -1;
                             }
                         }
                     });

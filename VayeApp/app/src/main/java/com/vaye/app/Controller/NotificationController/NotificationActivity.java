@@ -19,6 +19,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +45,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.rpc.Help;
+import com.vaye.app.Controller.ChatController.ChatActivity;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostAdapter.MajorPostAdapter;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
@@ -83,7 +85,10 @@ public class NotificationActivity extends AppCompatActivity {
     NestedScrollView scrollView;
     RecyclerView postList;
     ImageButton setting;
-    int requestSize = 0 , chatSize = 0 , friendSize = 0;
+    QBadgeView sohbetBadge =null;
+    QBadgeView arkadasBadge = null;
+    QBadgeView istekBadge = null;
+    int requestSize = 0 , chatSize = 0 ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -366,6 +371,16 @@ public class NotificationActivity extends AppCompatActivity {
 
 
     }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setChatBadgeCount();
+        getChatBadgeCount();
+        getBadgeCount();
+    }
+
     private void getBadgeCount(){
         BottomNavigationView view;
         view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
@@ -392,7 +407,35 @@ public class NotificationActivity extends AppCompatActivity {
                 }
             }
         });
-            setChatBadgeCount();
+
+    }
+    private void getChatBadgeCount(){
+        BottomNavigationView view;
+        view=(BottomNavigationView)findViewById(R.id.bottom_nav_bar);
+        BottomNavigationMenuView bottomNavigationMenuView =
+                (BottomNavigationMenuView) view.getChildAt(0);
+        final QBadgeView badge = new QBadgeView(this);
+        final View v = bottomNavigationMenuView.getChildAt(3);
+
+        DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid());
+        ref.addSnapshotListener(NotificationActivity.this,new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value!=null){
+                    if (value.getLong("totalBadge") != null){
+                        if (value.getLong("totalBadge").intValue() == 0){
+                            badge.hide(true);
+                        }else{
+
+                            badge.bindTarget(v).setBadgeTextSize(14,true).setBadgePadding(7,true)
+                                    .setBadgeBackgroundColor(Color.RED).setBadgeNumber(value.getLong("totalBadge").intValue());
+                        }
+                    }
+                }
+            }
+        });
+
+
     }
     private void setChatBadgeCount(){
         Query ref_msg_list = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
@@ -446,4 +489,5 @@ public class NotificationActivity extends AppCompatActivity {
         map.put("totalBadge",total);
         ref.set(map , SetOptions.merge());
     }
+
 }

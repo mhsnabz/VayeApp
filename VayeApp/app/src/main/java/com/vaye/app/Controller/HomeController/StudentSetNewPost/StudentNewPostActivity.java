@@ -20,6 +20,7 @@ import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -197,76 +198,89 @@ public class StudentNewPostActivity extends AppCompatActivity {
                     return;
                 }else {
                     WaitDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
-
-                    MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
+                    new Handler().postDelayed(new Runnable() {
                         @Override
-                        public void onCallback(ArrayList<LessonFallowerUser> users) {
-                            MajorPostService.shared().setNewPost(lessonModel.getLesson_key(), link, currentUser, postDate, users
-                                    , msgText, dataModel, lessonModel.getLessonName(), new TrueFalse<Boolean>() {
-                                        @Override
-                                        public void callBack(Boolean _value) {
+                        public void run() {
+                            Log.d(TAG, "run: " + "running notificaiton");
+                            MajorPostNS.shared().sendNewPostNotification(NotificationPostType.name.lessonPost,currentUser,lessonName,text.getText().toString(), MajorPostNotification.type.new_post,String.valueOf(postDate));
+                            for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
+                                String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                                UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser otherUser) {
+                                        if (otherUser != null){
+                                            if (otherUser.getShort_school().equals(currentUser.getShort_school()))
+                                            {
+                                                if (otherUser.getBolum().equals(currentUser.getBolum())){
+                                                    if (!currentUser.getUid().equals(otherUser.getUid())){
+                                                        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                                                .document(otherUser.getUid())
+                                                                .collection("notification")
+                                                                .document(notId);
+                                                        ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
+                                                        PushNotificationService.shared().sendPushNotification(notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
+                                                    }
 
-                                            MajorPostService.shared().moveSavedLinkOnpost(String.valueOf(postDate), currentUser, new TrueFalse<Boolean>() {
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                        }
+                    },3000);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "run: " + "running new post");
+                            MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
+                                @Override
+                                public void onCallback(ArrayList<LessonFallowerUser> users) {
+                                    MajorPostService.shared().setNewPost(lessonModel.getLesson_key(), link, currentUser, postDate, users
+                                            , msgText, dataModel, lessonModel.getLessonName(), new TrueFalse<Boolean>() {
                                                 @Override
                                                 public void callBack(Boolean _value) {
-                                                    if (_value){
 
-                                                        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                                                .document("lesson-post")
-                                                                .collection("post")
-                                                                .document(String.valueOf(postDate));
+                                                    MajorPostService.shared().moveSavedLinkOnpost(String.valueOf(postDate), currentUser, new TrueFalse<Boolean>() {
+                                                        @Override
+                                                        public void callBack(Boolean _value) {
+                                                            if (_value){
 
-                                                        Map<String , Object> mapObj = new HashMap<>();
-                                                        if (!dataModel.isEmpty()){
-                                                            mapObj.put("type","data");
+                                                                DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                                                        .document("lesson-post")
+                                                                        .collection("post")
+                                                                        .document(String.valueOf(postDate));
 
-                                                            for (int i = 0 ; i < dataModel.size() ; i ++){
-                                                                mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
-                                                                mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
-                                                                ref.set(mapObj,SetOptions.merge());
+                                                                Map<String , Object> mapObj = new HashMap<>();
+                                                                if (!dataModel.isEmpty()){
+                                                                    mapObj.put("type","data");
+
+                                                                    for (int i = 0 ; i < dataModel.size() ; i ++){
+                                                                        mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
+                                                                        mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
+                                                                        ref.set(mapObj,SetOptions.merge());
+
+                                                                    }
+
+                                                                }
+                                                                WaitDialog.dismiss();
+                                                                TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                                                TipDialog.dismiss(1400);
+                                                                finish();
+                                                                Helper.shared().back(StudentNewPostActivity.this);
+
 
                                                             }
-
                                                         }
-                                                        WaitDialog.dismiss();
-                                                        TipDialog.show(StudentNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
-                                                        TipDialog.dismiss(1400);
-                                                        finish();
-                                                        Helper.shared().back(StudentNewPostActivity.this);
-                                                        MajorPostNS.shared().sendNewPostNotification(NotificationPostType.name.lessonPost,currentUser,lessonName,text.getText().toString(), MajorPostNotification.type.new_post,String.valueOf(postDate));
-                                                        for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
-                                                            String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-                                                            UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
-                                                                @Override
-                                                                public void callback(OtherUser otherUser) {
-                                                                    if (otherUser != null){
-                                                                        if (otherUser.getShort_school().equals(currentUser.getShort_school()))
-                                                                        {
-                                                                            if (otherUser.getBolum().equals(currentUser.getBolum())){
-                                                                                if (!currentUser.getUid().equals(otherUser.getUid())){
-                                                                                    DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
-                                                                                            .document(otherUser.getUid())
-                                                                                            .collection("notification")
-                                                                                            .document(notId);
-                                                                                    ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
-                                                                                    PushNotificationService.shared().sendPushNotification(notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
-                                                                                }
+                                                    });
 
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            });
-                                                        }
-
-                                                    }
                                                 }
                                             });
-
-                                        }
-                                    });
+                                }
+                            });
                         }
-                    });
+                    },3000);
 
                 }
 

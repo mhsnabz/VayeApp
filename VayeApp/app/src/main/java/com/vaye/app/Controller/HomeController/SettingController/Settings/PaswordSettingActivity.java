@@ -78,6 +78,13 @@ public class PaswordSettingActivity extends AppCompatActivity {
 
             return;
         }
+        if (_newPass.length()< 5){
+            newPass.setError("Lütfen Daha Güçlü Bir Şifre Giriniz ");
+            newPass.requestFocus();
+            WaitDialog.dismiss();
+
+            return;
+        }
         if (_newPassAgain.isEmpty())
         {
             newPassAgain.setError("Şifrenizi Tekrar Giriniz");
@@ -116,8 +123,10 @@ public class PaswordSettingActivity extends AppCompatActivity {
                                 TipDialog.dismiss(1000);
                             }else {
                                 WaitDialog.dismiss();
-                                oldPass.setError("Şifreniz Doğru Değil");
-                                oldPass.requestFocus();
+                                newPass.setError("Şifreniz Doğru Değil");
+                                newPass.requestFocus();
+                                newPassAgain.setError("Şifreniz Doğru Değil");
+                                newPassAgain.requestFocus();
                             }
 
 
