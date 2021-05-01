@@ -29,6 +29,7 @@ import com.vaye.app.Controller.NotificationService.MajorPostNotificationService;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
+import com.vaye.app.Controller.NotificationService.PushNotificationType;
 import com.vaye.app.Interfaces.LessonFallowersCallback;
 import com.vaye.app.Interfaces.MajorPostFallower;
 import com.vaye.app.Interfaces.Notifications;
@@ -114,7 +115,7 @@ public class MajorPostService {
             mapLike.put("dislike",FieldValue.arrayRemove(currentUser.getUid()));
             ref.set(mapLike , SetOptions.merge());
             MajorPostNotificationService.shared().setPostLike(NotificationPostType.name.lessonPost,post,currentUser,post.getText(), MajorPostNotification.type.post_like);
-            PushNotificationService.shared().sendPushNotification(String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.like,currentUser.getName(),post.getText(),MajorPostNotification.descp.post_like,currentUser.getUid());
+            PushNotificationService.shared().sendPushNotification(PushNotificationType.like,String.valueOf(Calendar.getInstance().getTimeInMillis()),post.getSenderUid(),null,PushNotificationTarget.like,currentUser.getName(),post.getText(),MajorPostNotification.descp.post_like,currentUser.getUid());
         }
         else{
             post.getLikes().remove(currentUser.getUid());

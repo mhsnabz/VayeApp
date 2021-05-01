@@ -16,6 +16,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Controller.NotificationService.MajorPostNotification;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
+import com.vaye.app.Controller.NotificationService.PushNotificationType;
 import com.vaye.app.Interfaces.StringCompletion;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -59,7 +60,7 @@ public class MajorPostNS {
                                             .collection("notification")
                                             .document(String.valueOf(notId));
                                     ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
-                                    PushNotificationService.shared().sendPushNotification(notId, id.getId(), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
+                                    PushNotificationService.shared().sendPushNotification(PushNotificationType.lessonNotices,notId, id.getId(), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
                                 }
 
                         }
@@ -82,7 +83,7 @@ public class MajorPostNS {
                 ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
                 Log.d("TeacherNewPostActivity", "teacherNewPostNotification: " + "send notificaiton");
 
-                PushNotificationService.shared().sendPushNotification(notId, notificationGetter.get(i), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(PushNotificationType.lessonNotices, notId, notificationGetter.get(i), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
             }
         }
 

@@ -45,7 +45,7 @@ public class PushNotificationService {
 
     }
 
-    public void  sendPushNotification(String not_id , String getterUid , OtherUser otherUser , String  target
+    public void  sendPushNotification(String notificaitonType ,String not_id , String getterUid, OtherUser otherUser , String  target
     , String senderName , String mainText , String type , String senderUid ){
         DocumentReference db = FirebaseFirestore.getInstance().collection("notification").document(not_id);
         String title = senderName;
@@ -55,6 +55,12 @@ public class PushNotificationService {
         map.put("text",text);
         map.put("senderUid",senderUid);
         map.put("not_id",not_id);
+        map.put("type",notificaitonType);
+        map.put("getterUid",getterUid);
+        if (otherUser!=null){
+
+        }
+
         if (otherUser != null){
             if (otherUser.getTokenID() !=null && !otherUser.getTokenID().isEmpty()){
                 map.put("tokenId",otherUser.getTokenID());

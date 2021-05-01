@@ -17,6 +17,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.vaye.app.Controller.NotificationService.MainPostNotification;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
+import com.vaye.app.Controller.NotificationService.PushNotificationType;
 import com.vaye.app.Interfaces.MainPostFollowers;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.StringCompletion;
@@ -51,7 +52,7 @@ public class MainPostNS {
 
                 ref.set(Helper.shared().getDictionary(postType,type,post.getText(),currentUser,notificationId,null,post.getPostId(),null,null,post.getPostType()),SetOptions.merge());
 
-                PushNotificationService.shared().sendPushNotification(notificationId,post.getSenderUid(),null, PushNotificationTarget.like,currentUser.getName(),post.getText(), MainPostNotification.descp.post_like,currentUser.getUid());
+                PushNotificationService.shared().sendPushNotification(PushNotificationType.like,notificationId,post.getSenderUid(),null, PushNotificationTarget.like,currentUser.getName(),post.getText(), MainPostNotification.descp.post_like,currentUser.getUid());
 
             }
         }

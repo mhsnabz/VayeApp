@@ -60,6 +60,7 @@ import com.vaye.app.Controller.NotificationService.MajorPostNotification;
 import com.vaye.app.Controller.NotificationService.NotificationPostType;
 import com.vaye.app.Controller.NotificationService.PushNotificationService;
 import com.vaye.app.Controller.NotificationService.PushNotificationTarget;
+import com.vaye.app.Controller.NotificationService.PushNotificationType;
 import com.vaye.app.Interfaces.CompletionWithValue;
 import com.vaye.app.Interfaces.DataTypes;
 import com.vaye.app.Interfaces.DriveLinkNames;
@@ -277,7 +278,7 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                                                         .collection("notification")
                                                         .document(notId);
                                                 ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
-                                                PushNotificationService.shared().sendPushNotification(notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
+                                                PushNotificationService.shared().sendPushNotification(PushNotificationType.lessonNotices,notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
 
                                             }
 
