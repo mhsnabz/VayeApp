@@ -58,7 +58,7 @@ public class TeacherSetLessonAdapter extends RecyclerView.Adapter<RecyclerView.V
             @Override
             public void onClick(View view) {
                 WaitDialog.show((AppCompatActivity)context,"Ders Ekleniyor");
-                LessonSettingService.shared().addTeacherOnLesson(currentUser, model.getLessonName(), new TrueFalse<Boolean>() {
+                LessonSettingService.shared().addTeacherOnLesson(currentUser, model, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
                         if (_value){
@@ -85,7 +85,7 @@ public class TeacherSetLessonAdapter extends RecyclerView.Adapter<RecyclerView.V
             @Override
             public void onClick(View view) {
                 WaitDialog.show((AppCompatActivity)context,"Ders Siliniyor");
-                LessonSettingService.shared().removeTeacheronLesson(context,currentUser, model.getLessonName(), new TrueFalse<Boolean>() {
+                LessonSettingService.shared().removeTeacheronLesson(context,currentUser, model, new TrueFalse<Boolean>() {
                     @Override
                     public void callBack(Boolean _value) {
                         if (_value){

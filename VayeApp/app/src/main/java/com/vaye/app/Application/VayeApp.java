@@ -21,6 +21,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.OkHttp3Downloader;
@@ -30,6 +32,7 @@ import com.vaye.app.Services.MessageService;
 import com.vaye.app.Services.UserService;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,7 +97,7 @@ public class VayeApp  extends Application {
         dersler.add("YAPAY ZEKA VE UYGULAMALARI");
         dersler.add("ANTENLER VE PROPAGASYON");
 
-      //  setLesson();
+
         Picasso.Builder builder = new Picasso.Builder(this);
         builder.downloader(new OkHttp3Downloader(this,Integer.MAX_VALUE));
         Picasso built = builder.build();
@@ -206,8 +209,31 @@ public class VayeApp  extends Application {
         for (String item : dersler){
             map.put("lesson_key","empty");
             map.put("lessonName",item);
+            map.put("topic",String.valueOf(Calendar.getInstance().getTimeInMillis()));
             ref.document(item).set(map , SetOptions.merge());
         }
+    }
+    private void updateTopic(){
+        Query db = FirebaseFirestore.getInstance().collection("İSTE")
+                .document("lesson").collection("Bilgisayar Mühendisliği").whereEqualTo("teacherName","empty");
+        db.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().getDocuments().isEmpty()){
+                        return;
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            DocumentReference dbc = FirebaseFirestore.getInstance().collection("İSTE")
+                                    .document("lesson").collection("Bilgisayar Mühendisliği").document(item.getId());
+                            Map<String , String> map = new HashMap<>();
+                            map.put("topic",String.valueOf(Calendar.getInstance().getTimeInMillis()));
+                            dbc.set(map,SetOptions.merge());
+                        }
+                    }
+                }
+            }
+        });
     }
 
 }

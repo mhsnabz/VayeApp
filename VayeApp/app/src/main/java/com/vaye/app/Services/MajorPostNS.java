@@ -60,7 +60,6 @@ public class MajorPostNS {
                                             .collection("notification")
                                             .document(String.valueOf(notId));
                                     ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
-                                    PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.lessonNotices,notId, id.getId(), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
                                 }
 
                         }
@@ -83,7 +82,6 @@ public class MajorPostNS {
                 ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
                 Log.d("TeacherNewPostActivity", "teacherNewPostNotification: " + "send notificaiton");
 
-                PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.lessonNotices, notId, notificationGetter.get(i), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
             }
         }
 

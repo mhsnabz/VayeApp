@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -45,7 +46,7 @@ public class PushNotificationService {
 
     }
 
-    public void  sendPushNotification(CurrentUser currentUser,String notificaitonType ,String not_id , String getterUid, OtherUser otherUser , String  target
+    public void  sendPushNotification(String topic ,CurrentUser currentUser,String notificaitonType ,String not_id , String getterUid, OtherUser otherUser , String  target
     , String senderName , String mainText , String type , String senderUid ){
         DocumentReference db = FirebaseFirestore.getInstance().collection("notification").document(not_id);
         String title = senderName;
@@ -57,6 +58,8 @@ public class PushNotificationService {
         map.put("not_id",not_id);
         map.put("type",notificaitonType);
         map.put("getterUid",getterUid);
+        map.put("toTopic",topic);
+
         if (otherUser!=null){
             if (otherUser.getBlockByOtherUser().contains(senderUid) || otherUser.getBlockList().contains(senderUid)){
                 return;
@@ -225,6 +228,10 @@ public class PushNotificationService {
             });
         }*/
 
+    }
+
+    public void subsucribeTopic(String lessonName , String shortSchool , String bolum){
+        FirebaseMessaging.getInstance().subscribeToTopic("Message_Notification");
     }
 
     public void deleteAllLocalNotification(CurrentUser currentUser ){

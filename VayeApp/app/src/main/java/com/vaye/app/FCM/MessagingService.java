@@ -57,7 +57,7 @@ public class MessagingService extends FirebaseMessagingService {
     private void showNotification(RemoteMessage.Notification data, Map<String, String> remoteMessageData) {
         String title = data.getTitle();
         String text = data.getBody();
-
+        Log.d(TAG, "showNotification: " + remoteMessageData.get("type"));
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         if (sharedPreferences.getString("context", "") != null && sharedPreferences.getString("context", "").equals(active_context_name)){
             Log.d(TAG, "showNotification: " + sharedPreferences.getString("context", ""));

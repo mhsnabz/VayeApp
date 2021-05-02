@@ -219,7 +219,7 @@ public class StudentNewPostActivity extends AppCompatActivity {
                                                                 .collection("notification")
                                                                 .document(notId);
                                                         ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
-                                                        PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.lessonNotices,notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
+                                                        PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.lessonNotices,notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
                                                     }
 
                                                 }
@@ -234,6 +234,8 @@ public class StudentNewPostActivity extends AppCompatActivity {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
+
+                            PushNotificationService.shared().sendPushNotification(lessonModel.getTopic(),currentUser,PushNotificationType.lessonNotices,String.valueOf(Calendar.getInstance().getTimeInMillis()),"empty",null,PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text.getText().toString(),MajorPostNotification.descp.new_post,currentUser.getUid());
                             Log.d(TAG, "run: " + "running new post");
                             MajorPostService.shared().getLessonFallower(currentUser, lessonModel.getLessonName(), new MajorPostFallower() {
                                 @Override

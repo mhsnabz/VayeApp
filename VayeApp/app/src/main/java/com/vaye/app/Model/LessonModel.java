@@ -4,22 +4,19 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class LessonModel implements Parcelable {
-    //   var teacherEmail : String!
-    //    var teacherId : String!
-    //    var teacherName : String!
-    //    var lessonName : String!
-    //    var lesson_key : String!
-    String  teacherEmail,lesson_key,lessonName,teacherName,teacherId;
+
+    String  teacherEmail,lesson_key,lessonName,teacherName,teacherId,topic;
 
     public LessonModel() {
     }
 
-    public LessonModel(String teacherEmail, String lesson_key, String lessonName, String teacherName, String teacherId) {
+    public LessonModel(String teacherEmail, String lesson_key, String lessonName, String teacherName, String teacherId, String topic) {
         this.teacherEmail = teacherEmail;
         this.lesson_key = lesson_key;
         this.lessonName = lessonName;
         this.teacherName = teacherName;
         this.teacherId = teacherId;
+        this.topic = topic;
     }
 
     protected LessonModel(Parcel in) {
@@ -28,6 +25,7 @@ public class LessonModel implements Parcelable {
         lessonName = in.readString();
         teacherName = in.readString();
         teacherId = in.readString();
+        topic = in.readString();
     }
 
     public static final Creator<LessonModel> CREATOR = new Creator<LessonModel>() {
@@ -82,6 +80,14 @@ public class LessonModel implements Parcelable {
         this.teacherId = teacherId;
     }
 
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -94,5 +100,6 @@ public class LessonModel implements Parcelable {
         parcel.writeString(lessonName);
         parcel.writeString(teacherName);
         parcel.writeString(teacherId);
+        parcel.writeString(topic);
     }
 }

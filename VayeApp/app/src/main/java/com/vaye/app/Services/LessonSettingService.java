@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.CallBackCount;
@@ -83,7 +84,7 @@ public class LessonSettingService {
     public void addLesson(LessonModel model , CurrentUser currentUser , Activity activity , TrueFalse<Boolean> callBack){
         WaitDialog.show((AppCompatActivity) activity, "Ders Ekleniyor");
         Map<String  , Object> mapFollow =  new HashMap<>();
-
+        Map<String , Object> map = new HashMap<>();
         mapFollow.put("username",currentUser.getUsername());
         mapFollow.put("name",currentUser.getName());
         mapFollow.put("email",currentUser.getEmail());
@@ -94,6 +95,17 @@ public class LessonSettingService {
         }else {
             mapFollow.put("thumb_image","");
         }
+        if (model.getTopic()!=null && !model.getTopic().isEmpty()){
+            FirebaseMessaging.getInstance().subscribeToTopic(model.getTopic()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        Log.d(TAG, "onComplete: " + "subscribeToTopic : " + model.getTopic() );
+
+                    }
+                }
+            });
+        }
 
         DocumentReference refFallow = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("lesson")
@@ -101,12 +113,17 @@ public class LessonSettingService {
                 .document(model.getLessonName())
                 .collection("fallowers")
                 .document(currentUser.getUsername());
-        Map<String , Object> map = new HashMap<>();
+
         map.put("teacherName",model.getTeacherName());
         map.put("lesson_key",model.getLesson_key());
         map.put("teacherId",model.getTeacherId());
         map.put("teacherEmail",model.getTeacherEmail());
         map.put("lessonName",model.getLessonName());
+        if (model.getTopic()!=null && !model.getTopic().isEmpty()){
+            map.put("topic",model.getTopic());
+        }else{
+            map.put("topic","empty");
+        }
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("lesson")
@@ -233,6 +250,16 @@ public class LessonSettingService {
         //  let db = Firestore.firestore().collection("user")
         //            .document(currentUser.uid).collection("lesson")
         //            .document(lessonName!)
+        if (model.getTopic()!=null && !model.getTopic().isEmpty()){
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(model.getTopic()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        Log.d(TAG, "onComplete: " + "unsubscribeFromTopic : " + model.getTopic());
+                    }
+                }
+            });
+        }
         DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
                 .collection("lesson")
@@ -358,21 +385,32 @@ public class LessonSettingService {
     }
 
 
-    public void addTeacherOnLesson(CurrentUser currentUser , String lessonName , TrueFalse<Boolean> callback){
+    public void addTeacherOnLesson(CurrentUser currentUser , LessonModel lessonName , TrueFalse<Boolean> callback){
         Map<String , Object> map = new HashMap<>();
         map.put("teacherName",currentUser.getName());
         map.put("teacherId",currentUser.getUid());
         map.put("teacherEmail",currentUser.getEmail());
         map.put("lessonName",lessonName);
 
+        if (lessonName.getTopic()!=null && !lessonName.getTopic().isEmpty()){
+            FirebaseMessaging.getInstance().subscribeToTopic(lessonName.getTopic()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        map.put("topic",lessonName.getTopic());
+                        Log.d(TAG, "onComplete: " + "subscribeToTopic: " + lessonName.getTopic());
+                    }
+                }
+            });
+        }
         DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school()).document("lesson")
                 .collection(currentUser.getBolum())
-                .document(lessonName);
+                .document(lessonName.getLessonName());
         db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    setNotificationGetter(currentUser, lessonName, new TrueFalse<Boolean>() {
+                    setNotificationGetter(currentUser, lessonName.getLessonName(), new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
                             if (_value){
@@ -380,7 +418,7 @@ public class LessonSettingService {
                                 DocumentReference db = FirebaseFirestore.getInstance().collection("user")
                                         .document(currentUser.getUid())
                                         .collection("lesson")
-                                        .document(lessonName);
+                                        .document(lessonName.getLessonName());
                                 db.set(map,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
@@ -388,7 +426,7 @@ public class LessonSettingService {
                                             Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                                                     .document("lesson")
                                                     .collection(currentUser.getBolum())
-                                                    .document(lessonName)
+                                                    .document(lessonName.getLessonName())
                                                     .collection("lesson-post").limitToLast(30).orderBy("postId");
                                             ////user/2YZzIIAdcUfMFHnreosXZOTLZat1/lesson/Bilgisayar Programlama
                                             CollectionReference dbLesson = FirebaseFirestore.getInstance().collection("user")
@@ -404,7 +442,7 @@ public class LessonSettingService {
                                                             for (DocumentSnapshot item : task.getResult().getDocuments()) {
                                                                 Map<String  , String > lessonMap = new HashMap<>();
                                                                 lessonMap.put("postId",item.getId());
-                                                                lessonMap.put("lessonName",lessonName);
+                                                                lessonMap.put("lessonName",lessonName.getLessonName());
                                                                 dbLesson.document(item.getId()).set(lessonMap,SetOptions.merge());
                                                             }
                                                             callback.callBack(true);
@@ -440,38 +478,47 @@ public class LessonSettingService {
             }
         });
     }
-    public void removeTeacheronLesson(Context context, CurrentUser currentUser , String lessonName , TrueFalse<Boolean> callbaclk){
+    public void removeTeacheronLesson(Context context, CurrentUser currentUser , LessonModel lessonName , TrueFalse<Boolean> callbaclk){
         Map<String , Object> map = new HashMap<>();
         map.put("teacherName","empty");
         map.put("teacherId","empty");
         map.put("teacherEmail","empty");
         map.put("lessonName",lessonName);
-
+        if (lessonName.getTopic()!=null && !lessonName.getTopic().isEmpty()){
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(lessonName.getTopic()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                     if (task.isSuccessful()){
+                         Log.d(TAG, "onComplete: " + "unsubscribeFromTopic : " + lessonName.getTopic());
+                    }
+                }
+            });
+        }
         DocumentReference db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school()).document("lesson")
                 .collection(currentUser.getBolum())
-                .document(lessonName);
+                .document(lessonName.getLessonName());
         db.set(map , SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                          removeNotificationGetterList(currentUser, lessonName, new TrueFalse<Boolean>() {
+                          removeNotificationGetterList(currentUser, lessonName.getLessonName(), new TrueFalse<Boolean>() {
                               @Override
                               public void callBack(Boolean _value) {
-                                  getUserLessonPostId(currentUser, lessonName, new StringArrayListInterface() {
+                                  getUserLessonPostId(currentUser, lessonName.getLessonName(), new StringArrayListInterface() {
                                       @Override
                                       public void getArrayList(ArrayList<String> list) {
                                           removeAllPostId(currentUser, list, new TrueFalse<Boolean>() {
                                               @Override
                                               public void callBack(Boolean _value) {
                                                   if (_value){
-                                                      removeNotificationGetterList(currentUser, lessonName, new TrueFalse<Boolean>() {
+                                                      removeNotificationGetterList(currentUser, lessonName.getLessonName(), new TrueFalse<Boolean>() {
                                                           @Override
                                                           public void callBack(Boolean _value) {
                                                               if (_value){
                                                                   DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                                                                           .document(currentUser.getUid())
                                                                           .collection("lesson")
-                                                                          .document(lessonName);
+                                                                          .document(lessonName.getLessonName());
                                                                   ref.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                       @Override
                                                                       public void onComplete(@NonNull Task<Void> task) {

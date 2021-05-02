@@ -156,16 +156,16 @@ public class MessageService {
 
 
                     if (type.equals(MessageType.text)){
-                        PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_msg,currentUser.getName(),msg, MsgNotification.descp.new_msg,currentUser.getUid());
+                        PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_msg,currentUser.getName(),msg, MsgNotification.descp.new_msg,currentUser.getUid());
 
                     }else if (type.equals(MessageType.photo)){
-                        PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_image,currentUser.getName(),"Resim Gönderdi", MsgNotification.descp.new_image,currentUser.getUid());
+                        PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_image,currentUser.getName(),"Resim Gönderdi", MsgNotification.descp.new_image,currentUser.getUid());
 
                     }else if (type.equals(MessageType.audio)){
-                        PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_record,currentUser.getName(),"Ses Kaydı Gönderdi", MsgNotification.descp.new_record,currentUser.getUid());
+                        PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_record,currentUser.getName(),"Ses Kaydı Gönderdi", MsgNotification.descp.new_record,currentUser.getUid());
 
                     }else if (type.equals(MessageType.location)){
-                        PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_location,currentUser.getName(),"Konum Gönderdi", MsgNotification.descp.new_location,currentUser.getUid());
+                        PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_location,currentUser.getName(),"Konum Gönderdi", MsgNotification.descp.new_location,currentUser.getUid());
 
                     }
 
@@ -209,7 +209,7 @@ public class MessageService {
 
 
 
-                        PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_rqst,currentUser.getName(),"Size Mesaj Göndermek İstiyor", MsgNotification.descp.new_rqst,currentUser.getUid());
+                        PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.message,String.valueOf(Calendar.getInstance().getTimeInMillis()),otherUser.getUid(),otherUser, MsgNotification.type.new_rqst,currentUser.getName(),"Size Mesaj Göndermek İstiyor", MsgNotification.descp.new_rqst,currentUser.getUid());
 
 
             }
