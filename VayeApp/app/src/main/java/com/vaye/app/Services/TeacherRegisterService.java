@@ -191,6 +191,8 @@ public class TeacherRegisterService {
         map.put("linkedin","");
         map.put("github","");
         map.put("uid",taskUser.getUid());
+        map.put("blockList",FieldValue.arrayUnion());
+        map.put("blockByOtherUser",FieldValue.arrayUnion());
         db.set(map, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

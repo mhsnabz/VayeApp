@@ -33,6 +33,15 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
@@ -84,6 +93,7 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
     CurrentUser currentUser;
     OtherUser otherUser;
     String firstPage;
+    private InterstitialAd mInterstitialAd;
     SwipeRefreshLayout swipeRefreshLayout;
     ArrayList<MessagesModel> messagesList = new ArrayList<>();
     RecyclerView list;
@@ -94,6 +104,7 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
     String TAG = "RequestConservationActivity";
     OnOptionSelect optionSelect;
     BlockOptionSelect blockOptionSelect;
+    AdRequest adRequest;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +118,23 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
             otherUser = intentIncoming.getParcelableExtra("otherUser");
             setToolbar(otherUser);
             configureUI(otherUser);
+            adRequest = new AdRequest.Builder().build();
+            MobileAds.initialize(this, new OnInitializationCompleteListener() {
+                @Override
+                public void onInitializationComplete(InitializationStatus initializationStatus) {
+                    Log.d("---adMob", "onInitializationComplete: " + initializationStatus.getAdapterStatusMap());
+                }
+            });
+            if (adRequest !=null){
+                mainAds(adRequest);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showInterstitial();
 
+                    }
+                },3000);
+            }
 
             swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeAndRefresh);
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -120,6 +147,45 @@ public class RequestConservationActivity extends AppCompatActivity  implements M
         }
     }
 
+    private void mainAds(AdRequest adRequest){
+
+        com.google.android.gms.ads.interstitial.InterstitialAd.load(this,getResources().getString(R.string.gecis_unit_id),adRequest,new InterstitialAdLoadCallback(){
+            @Override
+            public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                mInterstitialAd =  interstitialAd;
+
+                mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        Log.d("---adMob", "onAdLoaded: " + "add loaded");
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.d("---adMob", loadAdError.getMessage());
+                mInterstitialAd = null;
+            }
+        });
+    }
+    private void showInterstitial() {
+        if (mInterstitialAd != null){
+            mInterstitialAd.show(RequestConservationActivity.this);
+        }
+    }
 
 
     private void setToolbar(OtherUser otherUser) {

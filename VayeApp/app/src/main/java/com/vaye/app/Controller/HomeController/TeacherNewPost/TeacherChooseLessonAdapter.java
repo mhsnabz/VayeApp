@@ -110,12 +110,14 @@ public class TeacherChooseLessonAdapter extends RecyclerView.Adapter<RecyclerVie
                             intent.putExtra("list", users);
                             intent.putExtra("times",times);
                             intent.putExtra("lesson_key",model.getLesson_key());
+                            intent.putExtra("topic",model.getTopic());
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         }else if (times > 1){
                             intent.putExtra("lessonname",lesson_name);
                             intent.putExtra("list", users);
                             intent.putExtra("times",times);
                             intent.putExtra("lesson_key","genel_duyuru");
+                            intent.putExtra("topic","empty");
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         }
 

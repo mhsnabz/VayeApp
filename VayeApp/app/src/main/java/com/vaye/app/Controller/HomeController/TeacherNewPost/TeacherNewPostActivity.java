@@ -20,6 +20,7 @@ import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.provider.MediaStore;
@@ -141,6 +142,7 @@ public class TeacherNewPostActivity extends AppCompatActivity {
     ArrayList<NewPostDataModel> dataModel = new ArrayList<>();
     ArrayList<String> lessonFallowerUsers = new ArrayList<>();
     NewPostAdapter adapter ;
+    String topic;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,7 +154,9 @@ public class TeacherNewPostActivity extends AppCompatActivity {
         if (extras != null){
             currentUser = intentIncoming.getParcelableExtra("currentUser");
             selectedLesson = intentIncoming.getStringExtra("selectedLesson");
-            lessonFallowerUsers = intentIncoming.getStringArrayListExtra("userList");
+            selectedLesson = intentIncoming.getStringExtra("selectedLesson");
+            topic = intentIncoming.getStringExtra("topic");
+
             showList = (TextView)findViewById(R.id.userList);
             showList.setText("("+lessonFallowerUsers.size() + ") Öğrenci Listesini Gör");
             showList.setOnClickListener(new View.OnClickListener() {
@@ -262,76 +266,89 @@ public class TeacherNewPostActivity extends AppCompatActivity {
                     return;
                 }else {
                     WaitDialog.show(TeacherNewPostActivity.this , "Gönderiniz Paylaşılıyor...");
-                    Log.d(TAG, "onClick: " + lessonFallowerUsers.size());
-                    for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
-                        String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
-                        UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
-                            @Override
-                            public void callback(OtherUser otherUser) {
-                                if (otherUser != null){
-                                    if (otherUser.getShort_school().equals(currentUser.getShort_school()))
-                                    {
-                                        if (otherUser.getBolum().equals(currentUser.getBolum())){
-                                            if (!currentUser.getUid().equals(otherUser.getUid())){
-                                                DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
-                                                        .document(otherUser.getUid())
-                                                        .collection("notification")
-                                                        .document(notId);
-                                                ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
-                                                PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.lessonNotices,notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "onClick: " + lessonFallowerUsers.size());
+                            for (String item : Helper.shared().getMentionedUser(text.getText().toString())){
+                                String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
+                                UserService.shared().getOtherUser_Mentioned(item, new OtherUserService() {
+                                    @Override
+                                    public void callback(OtherUser otherUser) {
+                                        if (otherUser != null){
+                                            if (otherUser.getShort_school().equals(currentUser.getShort_school()))
+                                            {
+                                                if (otherUser.getBolum().equals(currentUser.getBolum())){
+                                                    if (!currentUser.getUid().equals(otherUser.getUid())){
+                                                        DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
+                                                                .document(otherUser.getUid())
+                                                                .collection("notification")
+                                                                .document(notId);
+                                                        ref.set(Helper.shared().getDictionary(NotificationPostType.name.lessonPost,MajorPostNotification.type.new_mentioned_post,text.getText().toString(),currentUser,notId,null,String.valueOf(postDate),lessonName,null,null));
+                                                        PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.lessonNotices,notId, otherUser.getUid(), otherUser, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text.getText().toString(), MajorPostNotification.descp.new_mentioned_post, currentUser.getUid());
 
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    }
-                   // PushNotificationService.shared().sendPushNotification(currentUser,PushNotificationType.lessonNotices, notId, notificationGetter.get(i), null, PushNotificationTarget.newpost_lessonpost, currentUser.getName(), text, MajorPostNotification.descp.new_post, currentUser.getUid());
-
-                    MajorPostService.shared().teacherSetNewPost(selectedLesson, link, currentUser, postDate, lessonFallowerUsers
-                            , msgText, dataModel, lessonName, new TrueFalse<Boolean>() {
-                                @Override
-                                public void callBack(Boolean _value) {
-                                    if (_value){
-                                        MajorPostNS.shared().teacherNewPostNotification(lessonFallowerUsers, NotificationPostType.name.lessonPost, currentUser, lessonName, text.getText().toString(), MajorPostNotification.type.new_post, String.valueOf(postDate));
-                                        SystemClock.sleep(8000);
-
-                                        WaitDialog.dismiss();
-                                        TipDialog.show(TeacherNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
-                                        TipDialog.dismiss(1400);
-                                        finish();
-                                        Helper.shared().back(TeacherNewPostActivity.this);
-                                    }
-
-                                    MajorPostService.shared().moveSavedLinkOnpost(String.valueOf(postDate), currentUser, new TrueFalse<Boolean>() {
-                                        @Override
-                                        public void callBack(Boolean _value) {
-                                            if (_value){
-
-                                                DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
-                                                        .document("lesson-post")
-                                                        .collection("post")
-                                                        .document(String.valueOf(postDate));
-
-                                                Map<String , Object> mapObj = new HashMap<>();
-                                                if (!dataModel.isEmpty()){
-                                                    mapObj.put("type","data");
-
-                                                    for (int i = 0 ; i < dataModel.size() ; i ++){
-                                                        mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
-                                                        mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
-                                                        ref.set(mapObj,SetOptions.merge());
                                                     }
 
                                                 }
                                             }
                                         }
-                                    });
+                                    }
+                                });
+                            }
+                        }
+                    },5000);
+                   if (!topic.equals("empty")){
+                       PushNotificationService.shared().sendPushNotification(topic,currentUser,PushNotificationType.lessonNotices,String.valueOf(Calendar.getInstance().getTimeInMillis()),"empty",null,PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text.getText().toString(),MajorPostNotification.descp.new_post,currentUser.getUid());
 
-                                }
-                            });
+                   }
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        MajorPostService.shared().teacherSetNewPost(selectedLesson, link, currentUser, postDate, lessonFallowerUsers
+                                , msgText, dataModel, lessonName, new TrueFalse<Boolean>() {
+                                    @Override
+                                    public void callBack(Boolean _value) {
+                                        if (_value){
+                                            MajorPostNS.shared().teacherNewPostNotification(topic,lessonFallowerUsers, NotificationPostType.name.lessonPost, currentUser, lessonName, text.getText().toString(), MajorPostNotification.type.new_post, String.valueOf(postDate));
+                                            SystemClock.sleep(8000);
+
+                                            WaitDialog.dismiss();
+                                            TipDialog.show(TeacherNewPostActivity.this , "Gönderiniz Paylaşıldı", TipDialog.TYPE.SUCCESS);
+                                            TipDialog.dismiss(1400);
+                                            finish();
+                                            Helper.shared().back(TeacherNewPostActivity.this);
+                                        }
+
+                                        MajorPostService.shared().moveSavedLinkOnpost(String.valueOf(postDate), currentUser, new TrueFalse<Boolean>() {
+                                            @Override
+                                            public void callBack(Boolean _value) {
+                                                if (_value){
+
+                                                    DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                                            .document("lesson-post")
+                                                            .collection("post")
+                                                            .document(String.valueOf(postDate));
+
+                                                    Map<String , Object> mapObj = new HashMap<>();
+                                                    if (!dataModel.isEmpty()){
+                                                        mapObj.put("type","data");
+
+                                                        for (int i = 0 ; i < dataModel.size() ; i ++){
+                                                            mapObj.put("data",FieldValue.arrayUnion(dataModel.get(i).getFileUrl()));
+                                                            mapObj.put("thumbData",FieldValue.arrayUnion(dataModel.get(i).getThumb_url()));
+                                                            ref.set(mapObj,SetOptions.merge());
+                                                        }
+
+                                                    }
+                                                }
+                                            }
+                                        });
+
+                                    }
+                                });
+                    }
+                },3000);
+
 
                 }
             }

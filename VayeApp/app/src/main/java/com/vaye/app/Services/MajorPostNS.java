@@ -70,7 +70,7 @@ public class MajorPostNS {
         });
     }
 
-    public void teacherNewPostNotification(ArrayList<String> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId ){
+    public void teacherNewPostNotification(String topic,ArrayList<String> notificationGetter, String postType, CurrentUser currentUser, String lessonName , String text , String type , String postId ){
         String notId = String.valueOf(Calendar.getInstance().getTimeInMillis());
         for (int i = 0 ; i<notificationGetter.size() ; i++){
             if (!notificationGetter.get(i).equals(currentUser.getUid())){
@@ -81,6 +81,10 @@ public class MajorPostNS {
                         .document(String.valueOf(notId));
                 ref1.set(Helper.shared().getDictionary(postType,type,text,currentUser,postId,null,postId,lessonName,null,null) , SetOptions.merge());
                 Log.d("TeacherNewPostActivity", "teacherNewPostNotification: " + "send notificaiton");
+
+                if (topic.equals("empty")){
+                    PushNotificationService.shared().sendPushNotification("empty",currentUser,PushNotificationType.lessonNotices,String.valueOf(Calendar.getInstance().getTimeInMillis()),"empty",null,PushNotificationTarget.newpost_lessonpost,currentUser.getName(),text,MajorPostNotification.descp.new_post,currentUser.getUid());
+                }
 
             }
         }

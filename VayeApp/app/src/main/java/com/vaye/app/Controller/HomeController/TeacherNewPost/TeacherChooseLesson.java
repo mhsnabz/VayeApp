@@ -48,6 +48,7 @@ public class TeacherChooseLesson extends AppCompatActivity implements StringArra
     RecyclerView lessonList;
     Button devamEt;
     String lesson_key;
+    String topic;
     int size = 0;
     TeacherChooseLessonAdapter adapter;
     String selectedLesson;
@@ -126,6 +127,7 @@ public class TeacherChooseLesson extends AppCompatActivity implements StringArra
                 i.putExtra("currentUser",currentUser);
                 i.putExtra("selectedLesson",selectedLesson);
                 i.putExtra("lesson_key",lesson_key);
+                i.putExtra("topic",topic);
                 startActivity(i);
                 Helper.shared().go(TeacherChooseLesson.this);
                 Log.d(TAG, "onClick: list " + userUidList.size());
@@ -154,7 +156,7 @@ public class TeacherChooseLesson extends AppCompatActivity implements StringArra
             ArrayList<LessonFallowerUser> target = intent.getParcelableArrayListExtra("list");
             Set<LessonFallowerUser> unique = new LinkedHashSet<LessonFallowerUser>(target);
             lstContacts = new ArrayList<LessonFallowerUser>(unique);
-
+            topic = intent.getStringExtra("topic");
             if (intent.getIntExtra("times",0) == 1){
                 title.setText(intent.getStringExtra("lessonname"));
                 selectedLesson = intent.getStringExtra("lessonname");

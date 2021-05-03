@@ -55,6 +55,15 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -160,7 +169,7 @@ public class ConservationController extends AppCompatActivity implements Message
     String SDCardRoot = Environment.getExternalStorageDirectory()
             .toString();
     MessagesAdaper.OnItemClickListener onItemClickListener;
-
+    private InterstitialAd mInterstitialAd;
     CircleImageView profileImage;
     ProgressBar progressBar;
     TextView title;
@@ -193,6 +202,8 @@ public class ConservationController extends AppCompatActivity implements Message
     OnOptionSelect optionSelect;
     private static final int image_pick_request =600;
     private static final int DOCUMENT_PICK_CODE = 500;
+    AdRequest adRequest;
+    int adsCount = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -201,6 +212,26 @@ public class ConservationController extends AppCompatActivity implements Message
       /*  filename = Environment.getExternalStorageDirectory().getAbsolutePath();
         fileName += "/" + String.valueOf(Calendar.getInstance().getTimeInMillis()) + ".3gp";
         ;*/
+         adRequest = new AdRequest.Builder().build();
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                Log.d("---adMob", "onInitializationComplete: " + initializationStatus.getAdapterStatusMap());
+            }
+        });
+        if (messagesList!=null && messagesList.size() % 30 == 0){
+            Log.d(TAG, "show ads: line 555" + messagesList.size());
+            if (adRequest!=null){
+                mainAds(adRequest);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showInterstitial();
+                        adsCount += 1;
+                    }
+                },3000);
+            }
+        }
 
         optionSelect = this::onChoose;
         blockOptionSelect = this::onSelectOption;
@@ -284,6 +315,45 @@ public class ConservationController extends AppCompatActivity implements Message
             });
         }
 
+    }
+    private void mainAds(AdRequest adRequest){
+
+        com.google.android.gms.ads.interstitial.InterstitialAd.load(this,getResources().getString(R.string.gecis_unit_id),adRequest,new InterstitialAdLoadCallback(){
+            @Override
+            public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                mInterstitialAd =  interstitialAd;
+
+                mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        Log.d("---adMob", "onAdFailedToLoad: " + adError.getMessage());
+
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        Log.d("---adMob", "onAdLoaded: " + "add loaded");
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.d("---adMob", loadAdError.getMessage());
+                mInterstitialAd = null;
+            }
+        });
+    }
+    private void showInterstitial() {
+        if (mInterstitialAd != null){
+            mInterstitialAd.show(ConservationController.this);
+        }
     }
 
 
@@ -398,6 +468,23 @@ public class ConservationController extends AppCompatActivity implements Message
                         if (!task.getResult().getDocuments().isEmpty()) {
                             for (DocumentSnapshot item : task.getResult().getDocuments()) {
                                 messagesList.add(item.toObject(MessagesModel.class));
+                                if (messagesList!=null && messagesList.size() % 30 == 0 ){
+                                    if (messagesList.size() / 30 == adsCount){
+                                        Log.d(TAG, "show ads: line 497 " + messagesList.size());
+                                        if (adRequest !=null){
+                                            mainAds(adRequest);
+                                            new Handler().postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    showInterstitial();
+                                                    adsCount += 1;
+                                                }
+                                            },3000);
+                                        }
+                                    }
+
+
+                                }
                                 Collections.sort(messagesList, new Comparator<MessagesModel>() {
                                     public int compare(MessagesModel obj1, MessagesModel obj2) {
                                         return obj1.getId().compareTo(obj2.getId());
@@ -437,11 +524,32 @@ public class ConservationController extends AppCompatActivity implements Message
                             if (item.getDocument().getString("senderUid").equals(currentUser.getUid())) {
                                 scrollRecyclerViewToBottom(list);
                             }
+                            if (messagesList.size() % 30 == 0 ){
+                                if (messagesList!=null && messagesList.size() % 30 == 0 ){
+                                    if (messagesList.size() / 30 == adsCount){
+                                        Log.d(TAG, "show ads: line 497 " + messagesList.size());
+                                        if (adRequest !=null){
+                                            mainAds(adRequest);
+                                            new Handler().postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    showInterstitial();
+                                                    adsCount += 1;
+                                                }
+                                            },3000);
+                                        }
+                                    }
+
+
+                                }
+                            }
                         }
                         firstPage = messagesList.get(0).getId();
                     }
                     lastPage = value.getDocuments().get(value.getDocuments().size() - 1);
                 }
+
+
             }
         });
 
@@ -463,6 +571,9 @@ public class ConservationController extends AppCompatActivity implements Message
     @Override
     protected void onStart() {
         super.onStart();
+
+
+
         getCurrent();
         getAllMessages();
         DocumentReference setCurrentUserOnline = FirebaseFirestore.getInstance().collection("user")
