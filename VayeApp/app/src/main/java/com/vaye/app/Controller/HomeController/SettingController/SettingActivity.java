@@ -8,22 +8,26 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.kongzue.dialog.v3.WaitDialog;
 import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat;
+import com.vaye.app.BuildConfig;
+import com.vaye.app.Controller.HomeController.SettingController.Settings.BlocedUserActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.GizlilikActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.HizmetActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.PaswordSettingActivity;
-import com.vaye.app.Controller.NotificationController.NotificationSetting.NotificationSettingActivity;
 import com.vaye.app.Controller.ReportController.ReportActivity;
+import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
+import com.vaye.app.Services.UserService;
 import com.vaye.app.Util.Helper;
 
 public class SettingActivity extends AppCompatActivity {
     TextView toolbarTitle;
     Toolbar toolbar;
     CurrentUser currentUser;
-    TextView emailAdress,contackUs,insta,twit;
+    TextView blockedUser,contackUs,insta,twit,versiyon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,14 +43,31 @@ public class SettingActivity extends AppCompatActivity {
 
     }
     private void configureUI(CurrentUser currentUser){
-        emailAdress = (TextView)findViewById(R.id.emailAdress);
-        emailAdress.setText(currentUser.getEmail());
+        blockedUser = (TextView)findViewById(R.id.blockedUser);
+
         contackUs = (TextView)findViewById(R.id.contackUs);
         contackUs.setText("destek@vaye.app");
         insta = (TextView)findViewById(R.id.insta);
         twit = (TextView)findViewById(R.id.twit);
         twit.setText("@vaye.app");
         insta.setText("@vaye.app");
+        versiyon = (TextView)findViewById(R.id.versiyon);
+        versiyon.setText(BuildConfig.VERSION_NAME);
+        blockedUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WaitDialog.show(SettingActivity.this,null);
+                UserService.shared().getCurrentUser(currentUser.getUid(), new CurrentUserService() {
+                    @Override
+                    public void onCallback(CurrentUser user) {
+                        Intent i = new Intent(SettingActivity.this, BlocedUserActivity.class);
+                        i.putExtra("currentUser",user);
+                        startActivity(i);
+                        Helper.shared().go(SettingActivity.this);
+                    }
+                });
+            }
+        });
     }
     private void setToolbar() {
         toolbar = findViewById(R.id.toolbar);

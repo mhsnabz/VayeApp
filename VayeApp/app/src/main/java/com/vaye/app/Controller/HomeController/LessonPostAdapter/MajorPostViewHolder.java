@@ -2,7 +2,6 @@ package com.vaye.app.Controller.HomeController.LessonPostAdapter;
 
 import android.content.Context;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -20,7 +19,6 @@ import com.kongzue.dialog.v3.WaitDialog;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.vaye.app.Interfaces.DriveLinkNames;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.MajorPostService;
@@ -161,19 +159,19 @@ public class MajorPostViewHolder extends RecyclerView.ViewHolder{
 
     public void setDislike(ArrayList<String> dislikes , CurrentUser user , Context context){
         if (dislikes.contains(user.getUid())){
-            like.setImageDrawable( ContextCompat.getDrawable(context, R.drawable.like_unselected));
-            dislike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.dislike_selected));
+            like.setImageDrawable( ContextCompat.getDrawable(context, R.drawable.like_unselected_1));
+            dislike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.dislike_selected_2));
         }else{
-            dislike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.dislike));
+            dislike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.dislike_unselected));
 
         }
     }
     public void setLike(ArrayList<String> likes , CurrentUser user , Context context){
         if (likes.contains(user.getUid())){
-            like.setImageDrawable( ContextCompat.getDrawable(context, R.drawable.like));
-            dislike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.dislike));
+            like.setImageDrawable( ContextCompat.getDrawable(context, R.drawable.like_1));
+            dislike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.dislike_unselected));
         }else{
-            like.setImageDrawable( ContextCompat.getDrawable(context, R.drawable.like_unselected));
+            like.setImageDrawable( ContextCompat.getDrawable(context, R.drawable.like_unselected_1));
         }
     }
     public void setFav(ArrayList<String> favs , CurrentUser user , Context context){

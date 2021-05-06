@@ -341,9 +341,9 @@ public class ReplyActivity extends AppCompatActivity {
         username.setText(targetCommentModel.getUsername());
 
         if (targetCommentModel.getLikes().contains(currentUser.getUid())){
-            likeBtn.setImageResource(R.drawable.like);
+            likeBtn.setImageResource(R.drawable.like_1);
         }else{
-            likeBtn.setImageResource(R.drawable.like_unselected);
+            likeBtn.setImageResource(R.drawable.like_unselected_1);
         }
         profileImage = (CircleImageView)findViewById(R.id.profileImage);
         progressBar = (ProgressBar)findViewById(R.id.progress);

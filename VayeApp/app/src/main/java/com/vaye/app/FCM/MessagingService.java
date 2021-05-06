@@ -62,10 +62,43 @@ public class MessagingService extends FirebaseMessagingService {
         Log.d(TAG, "showNotification: " +title);
         Log.d(TAG, "showNotification: " +text);
         Log.d(TAG, "showNotification: " + remoteMessageData.get("type"));
-        if (remoteMessageData.get("type") != null && remoteMessageData.get("type").equals(PushNotificationType.message)){
-            if (sharedPreferences.getString("context", "") != null && sharedPreferences.getString("context", "").equals(active_context_name)){
-                Log.d(TAG, "showNotification: " + sharedPreferences.getString("context", ""));
-                return;
+        Log.d(TAG, "showNotification: " + remoteMessageData.get("senderUid"));
+        if (remoteMessageData.get("senderUid") == null && remoteMessageData.get("senderUid").equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+            return;
+        }else{
+            if (remoteMessageData.get("type") != null && remoteMessageData.get("type").equals(PushNotificationType.message)){
+                if (sharedPreferences.getString("context", "") != null && sharedPreferences.getString("context", "").equals(active_context_name)){
+                    Log.d(TAG, "showNotification: " + sharedPreferences.getString("context", ""));
+                    return;
+                }else{
+                    NotificationManager manager=(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    String channel = "com.vaye.app";
+                    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+                        Notification.Builder notificationBuilder =
+                                new Notification.Builder(getApplicationContext(), channel)
+                                        .setSmallIcon(R.drawable.notification_icon)
+                                        .setContentTitle(title)
+                                        .setContentText(text)
+                                        .setAutoCancel(true);
+                        NotificationChannel notificationChannel = new NotificationChannel(channel, "VayeApp", NotificationManager.IMPORTANCE_HIGH);
+                        notificationChannel.setDescription("VayeApp");
+                        notificationChannel.enableLights(true);
+                        notificationChannel.setLightColor(Color.BLUE);
+                        notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+                        notificationChannel.enableVibration(true);
+                        manager.createNotificationChannel(notificationChannel);
+                        manager.notify(new Random().nextInt(),notificationBuilder.build());
+                    }else{
+                        NotificationCompat.Builder notificationBuilder =
+                                new NotificationCompat.Builder(getApplicationContext())
+                                        .setSmallIcon(R.drawable.notification_icon)
+                                        .setContentTitle(title)
+                                        .setContentText(text)
+                                        .setAutoCancel(true)
+                                        .setPriority(Notification.PRIORITY_MAX);
+                        manager.notify(new Random().nextInt(),notificationBuilder.build());
+                    }
+                }
             }else{
                 NotificationManager manager=(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 String channel = "com.vaye.app";
@@ -95,35 +128,8 @@ public class MessagingService extends FirebaseMessagingService {
                     manager.notify(new Random().nextInt(),notificationBuilder.build());
                 }
             }
-        }else{
-            NotificationManager manager=(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            String channel = "com.vaye.app";
-            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-                Notification.Builder notificationBuilder =
-                        new Notification.Builder(getApplicationContext(), channel)
-                                .setSmallIcon(R.drawable.notification_icon)
-                                .setContentTitle(title)
-                                .setContentText(text)
-                                .setAutoCancel(true);
-                NotificationChannel notificationChannel = new NotificationChannel(channel, "VayeApp", NotificationManager.IMPORTANCE_HIGH);
-                notificationChannel.setDescription("VayeApp");
-                notificationChannel.enableLights(true);
-                notificationChannel.setLightColor(Color.BLUE);
-                notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
-                notificationChannel.enableVibration(true);
-                manager.createNotificationChannel(notificationChannel);
-                manager.notify(new Random().nextInt(),notificationBuilder.build());
-            }else{
-                NotificationCompat.Builder notificationBuilder =
-                        new NotificationCompat.Builder(getApplicationContext())
-                                .setSmallIcon(R.drawable.notification_icon)
-                                .setContentTitle(title)
-                                .setContentText(text)
-                                .setAutoCancel(true)
-                                .setPriority(Notification.PRIORITY_MAX);
-                manager.notify(new Random().nextInt(),notificationBuilder.build());
-            }
         }
+
 
 
     }

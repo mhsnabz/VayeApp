@@ -27,6 +27,7 @@ import com.kongzue.dialog.v3.CustomDialog;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.BlockOptionSelect;
+import com.vaye.app.Interfaces.CallBackCount;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
@@ -198,4 +199,32 @@ public class BlockService {
             }
         });
     }
+    public  void removeOnBlockList(CurrentUser currentUser , OtherUser otherUser ,  TrueFalse<Boolean> callback){
+        DocumentReference reference = FirebaseFirestore.getInstance().collection("user")
+                .document(currentUser.getUid());
+        Map<String , Object> map = new HashMap<>();
+        map.put("blockList",FieldValue.arrayRemove(otherUser.getUid()));
+        reference.set(map,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                DocumentReference db = FirebaseFirestore.getInstance().collection("user")
+                .document(otherUser.getUid());
+                Map<String , Object> objectMap = new HashMap<>();
+                map.put("blockByOtherUser",FieldValue.arrayRemove(currentUser.getUid()));
+                db.set(objectMap,SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                callback.callBack(true);
+                            }else{
+                                callback.callBack(false);
+                            }
+                    }
+                });
+                }
+            }
+        });
+    }
+
 }

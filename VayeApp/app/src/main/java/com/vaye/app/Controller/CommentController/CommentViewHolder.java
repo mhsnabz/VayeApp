@@ -83,9 +83,9 @@ public class CommentViewHolder extends RecyclerView.ViewHolder {
     }
     public void setLikeBtn(ArrayList<String> likes , CurrentUser currentUser){
         if (likes.contains(currentUser.getUid())) {
-            likeBtn.setImageResource(R.drawable.like);
+            likeBtn.setImageResource(R.drawable.like_1);
         }else{
-            likeBtn.setImageResource(R.drawable.like_unselected);
+            likeBtn.setImageResource(R.drawable.like_unselected_1);
         }
     }
 

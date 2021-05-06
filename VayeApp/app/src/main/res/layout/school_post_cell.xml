@@ -135,7 +135,7 @@
                 android:layout_height="20dp"
                 android:id="@+id/like"
                 android:background="@android:color/transparent"
-                android:src="@drawable/like"
+                android:src="@drawable/like_1"
                 android:scaleType="fitXY"
                 ></ImageButton>
             <TextView
@@ -162,7 +162,7 @@
                 android:layout_height="20dp"
                 android:id="@+id/dislike"
                 android:background="@android:color/transparent"
-                android:src="@drawable/dislike"
+                android:src="@drawable/dislike_unselected"
                 android:scaleType="fitXY"
                 ></ImageButton>
             <TextView
@@ -190,7 +190,7 @@
                 android:layout_height="20dp"
                 android:id="@+id/comment"
                 android:background="@android:color/transparent"
-                android:src="@drawable/chat"
+                android:src="@drawable/ic_chat"
                 android:scaleType="fitXY"
                 ></ImageButton>
             <TextView

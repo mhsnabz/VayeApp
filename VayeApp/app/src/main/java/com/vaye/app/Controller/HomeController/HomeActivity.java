@@ -43,6 +43,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.review.model.ReviewErrorCode;
+import com.google.android.play.core.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -128,7 +133,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     String TAG = "HomeActivity";
     private DrawerLayout drawer;
     Toolbar toolbar;
-    Button showProflie ,notButton, settingButton,exit ,homeButton2;
+    Button showProflie ,notButton, rateUs,settingButton,exit ,homeButton2;
     ImageButton edit;
     CircleImageView profileIamge;
     CurrentUser currentUser;
@@ -138,7 +143,9 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     RelativeLayout line1,line2;
     ViewPager viewPager;
     Uri image;
+    ReviewInfo rewiewInfo;
     KProgressHUD hud;
+    ReviewManager manager;
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
     private StorageReference imageStorage;
     ImageButton addLesson , notificationSetting , profileImageSetting;
@@ -324,6 +331,13 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
             }
         });
         notButton = (Button)headerview.findViewById(R.id.notButton2);
+        rateUs = (Button)headerview.findViewById(R.id.rateU2);
+        rateUs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rateFunc();
+            }
+        });
         settingButton = (Button)headerview.findViewById(R.id.settin2);
         settingButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -527,20 +541,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
             }
         });
 
-        FirebaseFirestore.getInstance().collection("user").orderBy("username").whereGreaterThanOrEqualTo("username","@a").whereLessThanOrEqualTo("username","@a"+'\uf8ff').get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    if (task.getResult().getDocuments().isEmpty()){
-                        Log.d(TAG, "onComplete: null" );
-                    }else{
-                        for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            Log.d(TAG, "onComplete: " + item.getString("name"));
-                        }
-                    }
-                }
-            }
-        });
+
 
     }
 
@@ -922,5 +923,34 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     public void onSelectOption(String target, OtherUser otherUser) {
         Log.d(TAG, "onSelectOption: " + target);
         Log.d(TAG, "onSelectOption: " + otherUser.getName());
+    }
+
+    private void rateFunc(){
+        manager = ReviewManagerFactory.create(HomeActivity.this);
+        com.google.android.play.core.tasks.Task<ReviewInfo> request = manager.requestReviewFlow();
+        request.addOnCompleteListener(new com.google.android.play.core.tasks.OnCompleteListener<ReviewInfo>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.play.core.tasks.Task<ReviewInfo> task) {
+                if (task.isSuccessful()){
+                    rewiewInfo = task.getResult();
+                    com.google.android.play.core.tasks.Task<Void> flow = manager.launchReviewFlow(HomeActivity.this,rewiewInfo);
+                    flow.addOnSuccessListener(new com.google.android.play.core.tasks.OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+
+                        }
+                    });
+                }else{
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vaye.app"));
+                    startActivity(browserIntent);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(Exception e) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vaye.app"));
+                startActivity(browserIntent);
+            }
+        });
     }
 }

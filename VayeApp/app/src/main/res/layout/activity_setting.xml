@@ -46,16 +46,16 @@
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:background="@android:color/transparent"
-                        android:src="@drawable/mail_setting"
+                        android:src="@drawable/block_user"
                         >
 
                     </ImageButton>
                     <TextView
-
+                        android:text="Engellediğin Kullanıcılar"
                         android:layout_marginLeft="12sp"
-                        android:id="@+id/emailAdress"
+                        android:id="@+id/blockedUser"
                         android:textSize="12sp"
-                        android:textColor="@color/black"
+                        android:textColor="@color/red"
                         android:fontFamily="@font/nunito_sans_semibold"
                         android:layout_width="match_parent"
                         android:clickable="true"
