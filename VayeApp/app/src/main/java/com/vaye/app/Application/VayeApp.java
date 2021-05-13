@@ -25,9 +25,11 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.protobuf.StringValue;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 import com.vaye.app.Interfaces.TrueFalse;
+import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Services.MessageService;
 import com.vaye.app.Services.UserService;
 
@@ -48,7 +50,7 @@ public class VayeApp  extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+      // setPost ();
         dersler.add("PROGRAMLAMA DİLLERİ");
         dersler.add("FİZİK II");
         dersler.add("MATEMATİK II");
@@ -197,6 +199,18 @@ public class VayeApp  extends Application {
 
     }
 
+    private void setPost(){
+        ///İSTE/lesson-post/post/1620061277104
+        Map<String , Object> map = new HashMap<>();
+        ///İSTE/lesson-post/post/0
+        CollectionReference ref = FirebaseFirestore.getInstance().collection("İSTE")
+                .document("lesson-post").collection("post");
+        for ( int i = 0 ; i < 50 ; i++){
+            ref.document(String.valueOf(i)).delete();
+        }
+
+
+    }
 
     private void setLesson(){
         Map<String , Object > map = new HashMap<>();

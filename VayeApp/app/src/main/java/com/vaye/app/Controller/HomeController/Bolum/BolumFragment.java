@@ -198,8 +198,8 @@ public class BolumFragment extends Fragment  implements  BlockOptionSelect {
            // isLoadMore = true;
             Query db = FirebaseFirestore.getInstance().collection("user")
                     .document(currentUser.getUid())
-                    .collection("lesson-post")
-                    .limit(5).orderBy("postId" , Query.Direction.DESCENDING).startAfter(lastPage);
+                    .collection("lesson-post").orderBy("postId", Query.Direction.DESCENDING).orderBy("postID", Query.Direction.DESCENDING)
+                    .limit(5).startAfter(lastPage);
 
 
 
@@ -313,9 +313,8 @@ public class BolumFragment extends Fragment  implements  BlockOptionSelect {
     private void getAllPost(CurrentUser currentUser){
         Query db = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid())
-                .collection("lesson-post")
-                .limit(5)
-                .orderBy("postId" , Query.Direction.DESCENDING);
+                .collection("lesson-post").orderBy("postId", Query.Direction.DESCENDING).orderBy("postID", Query.Direction.DESCENDING)
+                .limit(5);
 
             db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
                 @Override
@@ -384,9 +383,11 @@ public class BolumFragment extends Fragment  implements  BlockOptionSelect {
                                 }).addOnFailureListener(getActivity(), new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-
+                                        Log.d(TAG, "onFailure:  get all post" + e.getLocalizedMessage());
                                     }
                                 });
+                            }else{
+                                Log.d(TAG, "onSuccess: empty");
                             }
                         }
                     }else{
@@ -399,7 +400,7 @@ public class BolumFragment extends Fragment  implements  BlockOptionSelect {
             }).addOnFailureListener(getActivity(),new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-
+                    Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
                 }
             });
 

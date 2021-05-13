@@ -144,9 +144,9 @@ public class FollowersFragment extends Fragment  implements  BlockOptionSelect{
     private void loadMoreItem(CurrentUser currentUser) {
         if (lastPage!=null){
             Query db = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
-                    .collection("main-post")
+                    .collection("main-post").orderBy("postId", Query.Direction.DESCENDING).orderBy("postID", Query.Direction.DESCENDING)
                     .limit(5)
-                    .orderBy("postId",Query.Direction.DESCENDING).startAfter(lastPage);
+                    .startAfter(lastPage);
             db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -241,9 +241,9 @@ public class FollowersFragment extends Fragment  implements  BlockOptionSelect{
     private void getAllPost(CurrentUser currentUser) {
         ///user/VUSU6uA0odX7vuF5giXWbOUYzni1/main-post
         Query db = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid())
-                .collection("main-post")
-                .limit(5)
-                .orderBy("postId",Query.Direction.DESCENDING);
+                .collection("main-post").orderBy("postId", Query.Direction.DESCENDING).orderBy("postID", Query.Direction.DESCENDING)
+                .limit(5);
+
         db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
