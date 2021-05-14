@@ -12,6 +12,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
@@ -29,6 +31,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -42,6 +46,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -123,12 +128,14 @@ import com.vaye.app.SplashScreen.SplashScreen;
 import com.vaye.app.Util.BottomNavHelper;
 import com.vaye.app.Util.BottomSheetHelper.ProfileImageSettingAdapter;
 import com.vaye.app.Util.Helper;
+import com.vaye.app.Util.MaxHeightRecyclerView;
 import com.vaye.app.Util.RunTimePermissionHelper;
 
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -156,6 +163,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     ReviewInfo rewiewInfo;
     KProgressHUD hud;
     ReviewManager manager;
+    MaxHeightRecyclerView searchList;
     StorageTask<UploadTask.TaskSnapshot> uploadTask;
     private StorageReference imageStorage;
     ImageButton addLesson , notificationSetting , profileImageSetting;
@@ -169,6 +177,9 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     OnOptionSelect optionSelect;
     int selectedPostion = 0;
     CardView searchLayout;
+    ArrayList<OtherUser> list ;
+    SearchAdapter adapter ;
+    EditText searhBar;
    public   BlockOptionSelect blockOptionSelect;
     private PagerViewApadater pagerViewApadater;
     @Override
@@ -242,10 +253,46 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
 
         setSearchLayout();
 
+
+
     }
 
     //setSerchLayout
     void setSearchLayout(){
+        list = new ArrayList<>();
+        searchList  = (MaxHeightRecyclerView)findViewById(R.id.list);
+        searchList.setHasFixedSize(true);
+        searchList.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new SearchAdapter(list,this,currentUser);
+        searchList.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        searhBar = (EditText)findViewById(R.id.searchBar);
+        searhBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.d(TAG, "onTextChanged: " + charSequence.toString());
+                list.clear();
+
+                if (charSequence.toString().startsWith("@")){
+                    searhUserNam(charSequence.toString());
+                }else{
+
+
+                    searhName(charSequence.toString());
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
     }
     @SuppressLint("ResourceAsColor")
@@ -271,16 +318,72 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                 searhLay.setVisibility(false ? View.VISIBLE : View.GONE);
             }
         });
-        /*video.setRepeatCount(1);
-        image.setRepeatCount(1);
-        location.setRepeatCount(1);
-        cancel.setRepeatCount(1);
-        sound.setRepeatCount(1);
-        sound.playAnimation();
-        video.playAnimation();
-        image.playAnimation();
-        location.playAnimation();
-        cancel.playAnimation();*/
+
+    }
+    private void searhUserNam(String name){
+      //  list = new ArrayList<>();
+        Query ref = FirebaseFirestore.getInstance().collection("user")
+                .orderBy("username").whereGreaterThanOrEqualTo("username",name)
+                .whereLessThanOrEqualTo("username",name+"z").limit(10);
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                if (task.getResult().isEmpty()){
+                    Log.d(TAG, "onComplete: task empty");
+                }else{
+                  for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            if (!item.getId().equals(currentUser.getUid())){
+                                list.add(item.toObject(OtherUser.class));
+                                adapter.notifyDataSetChanged();
+                            }
+                        }  
+                }
+                    Log.d(TAG, "onComplete: " + task.getResult().getDocuments());
+                }
+
+            }
+        }).addOnFailureListener(new com.google.android.gms.tasks.OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: "+ e.getLocalizedMessage());
+            }
+        });
+    }
+    private void searhName(String name){
+        //  list = new ArrayList<>();
+        String output = "";
+        if (!name.isEmpty()){
+            output = name.substring(0, 1).toUpperCase() + name.substring(1);
+        }
+
+        Query ref = FirebaseFirestore.getInstance().collection("user")
+                .orderBy("name").whereGreaterThanOrEqualTo("name",output)
+                .whereLessThanOrEqualTo("name",output+"\uf8ff").limit(10);
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    if (task.getResult().isEmpty()){
+                        Log.d(TAG, "onComplete: task empty");
+                    }else{
+                        for (DocumentSnapshot item : task.getResult().getDocuments()){
+                            if (!item.getId().equals(currentUser.getUid())){
+                                list.add(item.toObject(OtherUser.class));
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+                    Log.d(TAG, "onComplete: " + task.getResult().getDocuments());
+                }
+
+            }
+        }).addOnFailureListener(new com.google.android.gms.tasks.OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: "+ e.getLocalizedMessage());
+            }
+        });
     }
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
