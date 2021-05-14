@@ -163,9 +163,8 @@ public class FoodMeFragment extends Fragment implements BlockOptionSelect {
 
             Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                     .document("main-post")
-                    .collection("food-me")
-                    .limit(5)
-                    .orderBy("postId",Query.Direction.DESCENDING).startAfter(lastPage);
+                    .collection("food-me").orderBy("postId", Query.Direction.DESCENDING).orderBy("postID", Query.Direction.DESCENDING)
+                    .limit(5).startAfter(lastPage);
             db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -266,9 +265,8 @@ public class FoodMeFragment extends Fragment implements BlockOptionSelect {
 
         Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("main-post")
-                .collection("food-me")
-                .limit(5)
-                .orderBy("postId",Query.Direction.DESCENDING);
+                .collection("food-me").orderBy("postId", Query.Direction.DESCENDING).orderBy("postID", Query.Direction.DESCENDING)
+                .limit(5);
         db.get().addOnSuccessListener(getActivity(), new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

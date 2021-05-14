@@ -6,6 +6,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -157,7 +158,9 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     private static final int camera_pick_request =800;
     private static final int CAMERA_REQUEST = 1888;
     OnOptionSelect optionSelect;
-  public   BlockOptionSelect blockOptionSelect;
+    int selectedPostion = 0;
+    CardView searchLayout;
+   public   BlockOptionSelect blockOptionSelect;
     private PagerViewApadater pagerViewApadater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,6 +200,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         bolumLbl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                selectedPostion = 0;
                 viewPager.setCurrentItem(0);
             }
         });
@@ -204,6 +208,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         schoolLbl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                selectedPostion = 1;
                 viewPager.setCurrentItem(1);
             }
         });
@@ -216,6 +221,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
 
             @Override
             public void onPageSelected(int position) {
+                selectedPostion = position;
                 changeTabs(position);
             }
 
@@ -225,10 +231,14 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
             }
         });
 
+        setSearchLayout();
 
     }
 
-
+    //setSerchLayout
+    void setSearchLayout(){
+        searchLayout = (CardView)findViewById(R.id.searhDialog);
+    }
 
 
     //TODO:--functions
@@ -244,10 +254,13 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         notificationSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(HomeActivity.this , SchoolPostNotificationActivity.class);
-                i.putExtra("currentUser",currentUser);
-                startActivity(i);
-                Helper.shared().go(HomeActivity.this);
+                if (selectedPostion == 1){
+                    Intent i = new Intent(HomeActivity.this , SchoolPostNotificationActivity.class);
+                    i.putExtra("currentUser",currentUser);
+                    startActivity(i);
+                    Helper.shared().go(HomeActivity.this);
+                }
+
             }
         });
         setSupportActionBar(toolbar);
@@ -355,14 +368,13 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         notButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(HomeActivity.this, NotificationSettingActivity.class);
-                i.putExtra("currentUser",currentUser);
-                startActivity(i);
-                Helper.shared().go(HomeActivity.this);
-                if (drawer.isDrawerOpen(GravityCompat.START)) {
-                    drawer.closeDrawer(GravityCompat.START);
-                }
-
+                    Intent i = new Intent(HomeActivity.this, NotificationSettingActivity.class);
+                    i.putExtra("currentUser",currentUser);
+                    startActivity(i);
+                    Helper.shared().go(HomeActivity.this);
+                    if (drawer.isDrawerOpen(GravityCompat.START)) {
+                        drawer.closeDrawer(GravityCompat.START);
+                    }
             }
         });
         showProflie.setOnClickListener(new View.OnClickListener() {
@@ -448,7 +460,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     private void changeTabs(int positon){
         if (positon == 0){
             addLesson.setVisibility(View.VISIBLE);
-            notificationSetting.setVisibility(View.GONE);
+            notificationSetting.setImageResource(R.drawable.search);
             title.setText(currentUser.getBolum());
             line1.setVisibility(View.VISIBLE);
             line2.setVisibility(View.GONE);
@@ -460,6 +472,7 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
         }else if (positon == 1){
             addLesson.setVisibility(View.GONE);
             notificationSetting.setVisibility(View.VISIBLE);
+            notificationSetting.setImageResource(R.drawable.more);
             title.setText(currentUser.getShort_school() + " Kulüpleri");
             line1.setVisibility(View.GONE);
             line2.setVisibility(View.VISIBLE);

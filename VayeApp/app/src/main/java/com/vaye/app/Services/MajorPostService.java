@@ -501,6 +501,8 @@ public class MajorPostService {
         map.put("comment",0);
         map.put("dislike",FieldValue.arrayUnion());
         map.put("post_ID",postId);
+        map.put("major",currentUser.getBolum());
+        map.put("school",currentUser.getShort_school());
         map.put("username",currentUser.getUsername());
         map.put("thumb_image",currentUser.getThumb_image());
         if (link == null || link.isEmpty()){
@@ -517,17 +519,18 @@ public class MajorPostService {
         myPost.put("postId",String.valueOf(postId));
         ref.set(myPost,SetOptions.merge());
 
-        setPostForLesson(datas,currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
+        setPostForLesson(postId,currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 if (_value){
-                    setPostForLessonFollower(currentUser.getUid(),lessonFallowerUsers, String.valueOf(postId), new TrueFalse<Boolean>() {
+                    setPostForLessonFollower(postId,currentUser.getUid(),lessonFallowerUsers, String.valueOf(postId), new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
                             DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                                     .document(currentUser.getUid()).collection("lesson-post").document(String.valueOf(postId));
                             HashMap<String , Object> stringObjectHashMap = new HashMap<>();
                             stringObjectHashMap.put("postId",String.valueOf(postId));
+                            stringObjectHashMap.put("postID",postId);
                             stringObjectHashMap.put("lessonName",lessonName);
                             ref.set(stringObjectHashMap,SetOptions.merge());
                             val.callBack(true);
@@ -562,6 +565,9 @@ public class MajorPostService {
         map.put("senderUid",currentUser.getUid());
         map.put("silent",FieldValue.arrayUnion());
         map.put("comment",0);
+        map.put("major",currentUser.getBolum());
+        map.put("school",currentUser.getShort_school());
+
         map.put("dislike",FieldValue.arrayUnion());
         map.put("post_ID",postId);
         map.put("username",currentUser.getUsername());
@@ -574,19 +580,17 @@ public class MajorPostService {
 
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                 .document(currentUser.getUid()).collection("my-post").document(String.valueOf(postId));
-        Map<String , String> myPost = new HashMap<>();
+        Map<String , Object> myPost = new HashMap<>();
         myPost.put("postId",String.valueOf(postId));
+        myPost.put("postID",postId);
         ref.set(myPost,SetOptions.merge());
-        setPostForLesson(datas,currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
+        setPostForLesson(postId,currentUser, map, lessonName, String.valueOf(postId), new TrueFalse<Boolean>() {
             @Override
             public void callBack(Boolean _value) {
                 if (_value){
-                    setPostForUser(lessonFallowerUsers, String.valueOf(postId), new TrueFalse<Boolean>() {
+                    setPostForUser(lessonName,currentUser,lessonFallowerUsers, postId,String.valueOf(postId), new TrueFalse<Boolean>() {
                         @Override
                         public void callBack(Boolean _value) {
-
-
-
                             val.callBack(true);
                         }
                     });
@@ -595,7 +599,7 @@ public class MajorPostService {
         });
     }
 
-    private void setPostForLesson(ArrayList<NewPostDataModel> datas,CurrentUser currentUser , Map<String, Object> dic , String lessonName , String  postId , TrueFalse<Boolean> val){
+    private void setPostForLesson(long postID,CurrentUser currentUser , Map<String, Object> dic , String lessonName , String  postId , TrueFalse<Boolean> val){
         //let db = Firestore.firestore().collection(short_school).document("lesson-post")
         //            .collection("post").document(postId)
         DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
@@ -613,9 +617,11 @@ public class MajorPostService {
                         .document(lessonName)
                         .collection("lesson-post")
                         .document(postId);
-                Map<String , String > postMap = new HashMap<>();
+                Map<String , Object > postMap = new HashMap<>();
                 postMap.put("postId",postId);
                 postMap.put("lessonName",lessonName);
+                postMap.put("postID",postID);
+                postMap.put("senderUid",currentUser.getUid());
                 reference.set(postMap,SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -625,9 +631,12 @@ public class MajorPostService {
             }
         });
     }
-    private void setPostForUser(ArrayList<LessonFallowerUser> userId , String postId , TrueFalse<Boolean> val){
-        Map<String  , String> map = new HashMap<>();
+    private void setPostForUser(String lessonName , CurrentUser currentUser,ArrayList<LessonFallowerUser> userId, long postID, String postId, TrueFalse<Boolean> val){
+        Map<String  , Object> map = new HashMap<>();
         map.put("postId",postId);
+        map.put("postID",postID);
+        map.put("senderUid",currentUser.getUid());
+        map.put("lessonName",lessonName);
         CollectionReference ref = FirebaseFirestore.getInstance().collection("user")  ;
         for (LessonFallowerUser user : userId){
             ref.document(user.getUid())
@@ -642,9 +651,11 @@ public class MajorPostService {
         }
     }
 
-    public void setPostForLessonFollower(String currentUserUid,ArrayList<String> userId , String postId , TrueFalse<Boolean> val){
-        Map<String  , String> map = new HashMap<>();
+    public void setPostForLessonFollower(long postID,String currentUserUid,ArrayList<String> userId , String postId , TrueFalse<Boolean> val){
+        Map<String  , Object> map = new HashMap<>();
         map.put("postId",postId);
+        map.put("postID",postID);
+        map.put("senderUid",currentUserUid);
         CollectionReference ref = FirebaseFirestore.getInstance().collection("user")  ;
         for (String user : userId){
             ref.document(user)

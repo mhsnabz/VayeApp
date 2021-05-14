@@ -168,9 +168,9 @@ public class MainPostNS {
         map.put("thumb_image",currentUser.getThumb_image());
         map.put("value",value);
 
-        setPostForCurrentUser( currentUser.getUid() ,String.valueOf(postId));
+        setPostForCurrentUser( currentUser.getUid(),postId ,String.valueOf(postId));
         setPostForUniversity(String.valueOf(postId),postType,currentUser.getShort_school());
-        setPostForFollowers(currentUser.getUid(),followers,String.valueOf(postId));
+        setPostForFollowers(currentUser.getUid(),postId,followers,String.valueOf(postId));
 
         DocumentReference reference = FirebaseFirestore.getInstance().collection("main-post")
                 .document("post").collection("post").document(String.valueOf(postId));
@@ -185,7 +185,7 @@ public class MainPostNS {
         });
     }
 
-    private void setPostForFollowers(String senderUid,ArrayList<String> followers,String postId) {
+    private void setPostForFollowers(String senderUid,long postID,ArrayList<String> followers,String postId) {
 
         for (String item : followers){
             DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
@@ -194,6 +194,7 @@ public class MainPostNS {
             Map<String ,String> map = new HashMap<>();
             map.put("postId",postId);
             map.put("senderUid",senderUid);
+            map.put("postID",senderUid);
             ref.set(map,SetOptions.merge());
         }
     }
@@ -212,7 +213,7 @@ public class MainPostNS {
 
     }
 
-    private void setPostForCurrentUser(String uid,String postId) {
+    private void setPostForCurrentUser(String uid,long postID,String postId) {
         //let db = Firestore.firestore().collection("user")
         //            .document(currentUser.uid).collection("user-main-post").document(postId)
         DocumentReference ref = FirebaseFirestore.getInstance().collection("user").document(uid).collection("user-main-post")
@@ -225,10 +226,11 @@ public class MainPostNS {
                 DocumentReference ref = FirebaseFirestore.getInstance().collection("user")
                         .document(uid).collection("main-post")
                         .document(String.valueOf(postId));
-                Map<String ,String> mapa = new HashMap<>();
+                Map<String ,Object> mapa = new HashMap<>();
                 mapa.put("postId",postId);
                 mapa.put("senderUid",uid);
-                ref.set(map,SetOptions.merge());
+                mapa.put("postID",postID);
+                ref.set(mapa,SetOptions.merge());
             }
         });
 

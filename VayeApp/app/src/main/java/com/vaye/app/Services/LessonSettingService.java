@@ -21,10 +21,13 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.kongzue.dialog.v3.TipDialog;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Interfaces.CallBackCount;
+import com.vaye.app.Interfaces.PostSenderList;
 import com.vaye.app.Interfaces.StringArrayListInterface;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.LessonModel;
+import com.vaye.app.Model.LessonPostModel;
+import com.vaye.app.Model.PostSenderInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,9 +139,9 @@ public class LessonSettingService {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
-                                    getAllPost(currentUser, model.getLessonName(), activity, new StringArrayListInterface() {
+                                    getAllPost(currentUser, model.getLessonName(), activity, new PostSenderList() {
                                         @Override
-                                        public void getArrayList(ArrayList<String> list) {
+                                        public void getPostSenderList(ArrayList<LessonPostModel> list) {
                                             if (list.isEmpty()){
                                                 setNotificationGetter(currentUser, model.getLessonName(), new TrueFalse<Boolean>() {
                                                     @Override
@@ -182,37 +185,43 @@ public class LessonSettingService {
             }
         });
     }
-    private void getAllPost(CurrentUser currentUser, String lessonName ,Activity activity, StringArrayListInterface list){
+    private void getAllPost(CurrentUser currentUser, String lessonName ,Activity activity, PostSenderList list){
         ArrayList<String> postId = new ArrayList<>();
+        ArrayList<LessonPostModel> posts = new ArrayList<>();
         Query db = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
                 .document("lesson-post")
                 .collection("post")
-                .whereEqualTo("lessonName" , lessonName).orderBy("postId").limitToLast(40);
+                .whereEqualTo("lessonName" , lessonName).orderBy("postId", Query.Direction.DESCENDING).orderBy("post_ID", Query.Direction.DESCENDING).limit(30);
         db.get().addOnCompleteListener(activity, new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.getResult().isEmpty()){
-                    list.getArrayList(postId);
+                  //  list.getArrayList(postId);
+                    list.getPostSenderList(posts);
 
                 }else {
+
                     for (DocumentSnapshot id : task.getResult().getDocuments()){
                         postId.add(id.getId());
+                        posts.add(id.toObject(LessonPostModel.class));
                         Log.d(TAG, "onComplete: " + id.getId());
                     }
-                    list.getArrayList(postId);
+                    list.getPostSenderList(posts);
                 }
             }
         });
 
     }
-    private void addAllLessonId(ArrayList<String> postId ,String lessonName, CurrentUser currentUser , TrueFalse<Boolean> completion){
+    private void addAllLessonId(ArrayList<LessonPostModel> postId ,String lessonName, CurrentUser currentUser , TrueFalse<Boolean> completion){
         //        //user/2YZzIIAdcUfMFHnreosXZOTLZat1/lesson-post/1599800825321
         CollectionReference ref = FirebaseFirestore.getInstance().collection("user").document(currentUser.getUid()).collection("lesson-post");
-        for (String id : postId){
-            Map<String , String> idMap = new HashMap<>();
+        for (LessonPostModel id : postId){
+            Map<String , Object> idMap = new HashMap<>();
             idMap.put("lessonName",lessonName);
-            idMap.put("postId",id);
-            ref.document(id).set(idMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            idMap.put("postId",id.getPostId());
+            idMap.put("postID",id.getPost_ID());
+            idMap.put("senderUid",id.getSenderUid());
+            ref.document(id.getPostId()).set(idMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isComplete()){
