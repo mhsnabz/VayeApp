@@ -16,6 +16,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,10 +29,18 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -237,10 +246,50 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
 
     //setSerchLayout
     void setSearchLayout(){
-        searchLayout = (CardView)findViewById(R.id.searhDialog);
+
     }
+    @SuppressLint("ResourceAsColor")
+    private void toggle(boolean show) {
+        searchLayout = (CardView)findViewById(R.id.searhDialog);
+        RelativeLayout searhLay = (RelativeLayout)findViewById(R.id.searhLayout);
+        ViewGroup parent = findViewById(R.id.topbar);
 
+        Transition transition = new Slide(Gravity.TOP);
+        transition.setDuration(0);
+        transition.addTarget(R.id.searhLayout);
 
+        TransitionManager.beginDelayedTransition(parent, transition);
+        searhLay.setVisibility(show ? View.VISIBLE : View.GONE);
+        searhLay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Transition transition = new Slide(Gravity.BOTTOM);
+                transition.setDuration(0);
+                transition.addTarget(R.id.searhLayout);
+
+                TransitionManager.beginDelayedTransition(parent, transition);
+                searhLay.setVisibility(false ? View.VISIBLE : View.GONE);
+            }
+        });
+        /*video.setRepeatCount(1);
+        image.setRepeatCount(1);
+        location.setRepeatCount(1);
+        cancel.setRepeatCount(1);
+        sound.setRepeatCount(1);
+        sound.playAnimation();
+        video.playAnimation();
+        image.playAnimation();
+        location.playAnimation();
+        cancel.playAnimation();*/
+    }
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (getCurrentFocus() != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+        return super.dispatchTouchEvent(ev);
+    }
     //TODO:--functions
     private void setUserProile(CurrentUser currentUser){
 
@@ -259,6 +308,8 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                     i.putExtra("currentUser",currentUser);
                     startActivity(i);
                     Helper.shared().go(HomeActivity.this);
+                }else{
+                    toggle(true);
                 }
 
             }

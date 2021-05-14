@@ -60,16 +60,10 @@
                         ></ImageButton>
                 </LinearLayout>
             </androidx.appcompat.widget.Toolbar>
-            <include layout="@layout/search_dialog"
-                android:id="@+id/searhDialog"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="4dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-               android:layout_below="@+id/toolbar"
-                android:visibility="gone"
-                ></include>
+
+
+
+
             <RelativeLayout
                 android:background="@color/white"
                 android:id="@+id/container"
@@ -150,6 +144,83 @@
             </RelativeLayout>
 
             <include layout="@layout/layout_bottom_navigationview"></include>
+            <RelativeLayout
+                android:visibility="gone"
+                android:background="#33000000"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/toolbar"
+                android:id="@+id/searhLayout"
+                >
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/searhDialog"
+
+                    android:visibility="visible"
+                    android:layout_marginLeft="10sp"
+                    android:layout_marginRight="10sp"
+                    android:layout_marginTop="4dp"
+                    >
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.textfield.TextInputEditText
+
+                            android:layout_width="match_parent"
+                            android:layout_height="35dp"
+                            android:layout_marginBottom="5dp"
+                            android:id="@+id/searh"
+                            android:background="@drawable/textview_back"
+                            android:maxLines="1"
+                            android:layout_alignParentTop="true"
+
+                            android:scrollbars="vertical"
+                            android:fontFamily="@font/nunito_semibold"
+                            android:hint="   Aa..."
+                            android:textSize="14sp"
+                            />
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0.4dp"
+                            android:layout_below="@id/searh"
+                            android:background="@android:color/darker_gray"
+                            android:id="@+id/line"
+                            ></RelativeLayout>
+                        <com.vaye.app.Util.MaxHeightRecyclerView
+                            android:layout_marginLeft="2dp"
+                            android:layout_marginRight="2dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/line"
+                            android:id="@+id/list"
+                            app:maxHeight = "200dp"
+                            ></com.vaye.app.Util.MaxHeightRecyclerView>
+                        <RelativeLayout
+                            android:layout_below="@id/list"
+                            android:background="@drawable/footer_back"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:layout_marginLeft="4dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginBottom="8dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true"
+                                android:id="@+id/desp"
+                                android:text="Arama yapmak için isim yada @kullanıcıAdı girin"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/nunito_sans_semibold"
+                                android:textSize="10sp"
+
+
+                                ></TextView>
+                        </RelativeLayout>
+
+                    </RelativeLayout>
+                </androidx.cardview.widget.CardView>
+            </RelativeLayout>
         </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
