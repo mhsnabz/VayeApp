@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.app.Notification;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,12 +16,15 @@ import android.widget.TextView;
 
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.StudentSetNewPost.StudentNewPostActivity;
+import com.vaye.app.Controller.NotificationService.PushNotificationType;
 import com.vaye.app.Interfaces.Notifications;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.NotificaitonService;
 import com.vaye.app.Util.Helper;
+
+import static com.vaye.app.Application.VayeApp.SHARED_PREFS;
 
 public class NotificationSettingActivity extends AppCompatActivity {
     CurrentUser currentUser;
@@ -107,6 +111,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                     public void callBack(Boolean _value) {
 
                        currentUser.setLessonNotices(b);
+                        setNotificaitonPref(PushNotificationType.lessonNotices,b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -120,6 +125,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
                         currentUser.setComment(b);
+                        setNotificaitonPref(PushNotificationType.comment,b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -133,6 +139,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
                         currentUser.setLike(b);
+                        setNotificaitonPref(PushNotificationType.like,b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -146,6 +153,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
                         currentUser.setFollow(b);
+                        setNotificaitonPref(PushNotificationType.follow,b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -159,6 +167,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
                     @Override
                     public void callBack(Boolean _value) {
                         currentUser.setMention(b);
+                        setNotificaitonPref("mention",b);
                         WaitDialog.dismiss();
                     }
                 });
@@ -166,7 +175,15 @@ public class NotificationSettingActivity extends AppCompatActivity {
         });
 
     }
+    public void setNotificaitonPref( String type ,Boolean val ) {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
+        editor.putBoolean(type,val);
+
+        editor.apply();
+
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();

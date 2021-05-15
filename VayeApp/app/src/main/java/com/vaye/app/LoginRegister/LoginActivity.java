@@ -113,11 +113,8 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onCallback(CurrentUser user) {
                                 if (user!=null){
-                                    Intent i = new Intent(LoginActivity.this , SplashScreen.class);
-                                    startActivity(i);
-                                    WaitDialog.dismiss();
-                                    finish();
-                                  /*  UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
+
+                                    UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -129,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 showDialog(task.getResult().getUser());
                                             }
                                         }
-                                    });*/
+                                    });
 
                                 }else{
                                     DocumentReference getPriority = FirebaseFirestore.getInstance().collection("priority")
@@ -337,7 +334,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     dialog.dismiss();
 
-                }).addButton("Vazgeç", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                }).addButton("Vazgeç", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
                     WaitDialog.dismiss();
                     dialog.dismiss();
 

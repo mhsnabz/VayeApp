@@ -2,15 +2,22 @@ package com.vaye.app.Controller.HomeController.SettingController;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat;
 import com.vaye.app.BuildConfig;
+import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.BlocedUserActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.GizlilikActivity;
 import com.vaye.app.Controller.HomeController.SettingController.Settings.HizmetActivity;
@@ -101,6 +108,57 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     public void rateUs(View view) {
+
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vaye.app"));
+        startActivity(browserIntent);
+       /* ReviewManager manager = ReviewManagerFactory.create(SettingActivity.this);
+            com.google.android.play.core.tasks.Task<ReviewInfo> request = manager.requestReviewFlow();
+            request.addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    // We can get the ReviewInfo object
+
+                    ReviewInfo reviewInfo = task.getResult();
+                    com.google.android.play.core.tasks.Task<Void> flow = manager.launchReviewFlow(SettingActivity.this, reviewInfo);
+                    flow.addOnCompleteListener(taskk -> {
+
+                        Log.d("SettingActivity", "rateFunc: succes");
+                        // The flow has finished. The API does not indicate whether the user
+                        // reviewed or not, or even whether the review dialog was shown. Thus, no
+                        // matter the result, we continue our app flow.
+                    });
+                } else {
+                    // There was some problem, log or handle the error code.
+                    ;
+                    Log.d("SettingActivity", "rateFunc: " +  task.getException());
+                }
+            });*/
+       /* request.addOnCompleteListener(new com.google.android.play.core.tasks.OnCompleteListener<ReviewInfo>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.play.core.tasks.Task<ReviewInfo> task) {
+                if (task.isSuccessful()){
+                  ReviewInfo rewiewInfo = task.getResult();
+                    com.google.android.play.core.tasks.Task<Void> flow = manager.launchReviewFlow(HomeActivity.this,rewiewInfo);
+                    flow.addOnSuccessListener(new com.google.android.play.core.tasks.OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+
+                        }
+                    });
+                }else{
+
+
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vaye.app"));
+                    startActivity(browserIntent);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(Exception e) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vaye.app"));
+                startActivity(browserIntent);
+            }
+        });*/
+
     }
 
     public void report(View view) {

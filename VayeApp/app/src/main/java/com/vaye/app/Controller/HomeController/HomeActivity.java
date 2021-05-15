@@ -61,7 +61,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
-import com.google.android.play.core.review.model.ReviewErrorCode;
+
 import com.google.android.play.core.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -333,9 +333,11 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                     Log.d(TAG, "onComplete: task empty");
                 }else{
                   for (DocumentSnapshot item : task.getResult().getDocuments()){
-                            if (!item.getId().equals(currentUser.getUid())){
-                                list.add(item.toObject(OtherUser.class));
+                            if (!item.getId().equals(currentUser.getUid()) ){
+                                if (!currentUser.getBlockList().contains(item.getId()) || !currentUser.getBlockByOtherUser().contains(item.getId()))
+                                {list.add(item.toObject(OtherUser.class));
                                 adapter.notifyDataSetChanged();
+                                }
                             }
                         }  
                 }
@@ -369,8 +371,10 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                     }else{
                         for (DocumentSnapshot item : task.getResult().getDocuments()){
                             if (!item.getId().equals(currentUser.getUid())){
-                                list.add(item.toObject(OtherUser.class));
-                                adapter.notifyDataSetChanged();
+                                if (!currentUser.getBlockList().contains(item.getId()) || !currentUser.getBlockByOtherUser().contains(item.getId()))
+                                {list.add(item.toObject(OtherUser.class));
+                                    adapter.notifyDataSetChanged();
+                                }
                             }
                         }
                     }
@@ -1093,13 +1097,36 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
     }
 
     private void rateFunc(){
-        manager = ReviewManagerFactory.create(HomeActivity.this);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vaye.app"));
+        startActivity(browserIntent);
+       /* manager = ReviewManagerFactory.create(HomeActivity.this);
         com.google.android.play.core.tasks.Task<ReviewInfo> request = manager.requestReviewFlow();
-        request.addOnCompleteListener(new com.google.android.play.core.tasks.OnCompleteListener<ReviewInfo>() {
+        request.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // We can get the ReviewInfo object
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                }
+                ReviewInfo reviewInfo = task.getResult();
+                com.google.android.play.core.tasks.Task<Void> flow = manager.launchReviewFlow(HomeActivity.this, reviewInfo);
+                flow.addOnCompleteListener(taskk -> {
+
+                    Log.d(TAG, "rateFunc: succes");
+                    // The flow has finished. The API does not indicate whether the user
+                    // reviewed or not, or even whether the review dialog was shown. Thus, no
+                    // matter the result, we continue our app flow.
+                });
+            } else {
+                // There was some problem, log or handle the error code.
+               ;
+                Log.d(TAG, "rateFunc: " +  task.getException());
+            }
+        });*/
+       /* request.addOnCompleteListener(new com.google.android.play.core.tasks.OnCompleteListener<ReviewInfo>() {
             @Override
             public void onComplete(@NonNull com.google.android.play.core.tasks.Task<ReviewInfo> task) {
                 if (task.isSuccessful()){
-                    rewiewInfo = task.getResult();
+                  ReviewInfo rewiewInfo = task.getResult();
                     com.google.android.play.core.tasks.Task<Void> flow = manager.launchReviewFlow(HomeActivity.this,rewiewInfo);
                     flow.addOnSuccessListener(new com.google.android.play.core.tasks.OnSuccessListener<Void>() {
                         @Override
@@ -1108,6 +1135,8 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                         }
                     });
                 }else{
+
+
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vaye.app"));
                     startActivity(browserIntent);
                 }
@@ -1118,6 +1147,6 @@ public class HomeActivity extends AppCompatActivity implements CompletionWithVal
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vaye.app"));
                 startActivity(browserIntent);
             }
-        });
+        });*/
     }
 }

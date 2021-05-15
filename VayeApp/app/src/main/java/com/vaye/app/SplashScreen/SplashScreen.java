@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -28,6 +29,7 @@ import com.kongzue.dialog.interfaces.OnDismissListener;
 import com.kongzue.dialog.v3.CustomDialog;
 import com.vaye.app.Application.OnClearFromRecentService;
 import com.vaye.app.Controller.HomeController.HomeActivity;
+import com.vaye.app.Controller.NotificationService.PushNotificationType;
 import com.vaye.app.Interfaces.CurrentUserService;
 import com.vaye.app.Interfaces.TaskUserHandler;
 import com.vaye.app.Interfaces.TrueFalse;
@@ -38,6 +40,10 @@ import com.vaye.app.Model.CurrentUser;
 import com.vaye.app.Model.TaskUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.UserService;
+
+import java.util.ArrayList;
+
+import static com.vaye.app.Application.VayeApp.SHARED_PREFS;
 
 public class SplashScreen extends AppCompatActivity {
     ImageView logo;
@@ -75,6 +81,14 @@ public class SplashScreen extends AppCompatActivity {
                                                     UserService.shared().getCurrentUser(currentUserUid, new CurrentUserService() {
                                                         @Override
                                                         public void onCallback(CurrentUser user) {
+                                                            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                                                            editor.putBoolean(PushNotificationType.lessonNotices,currentUser.getLessonNotices());
+                                                            editor.putBoolean(PushNotificationType.like,currentUser.getLike());
+                                                            editor.putBoolean(PushNotificationType.follow,currentUser.getFollow());
+                                                            editor.putBoolean(PushNotificationType.comment,currentUser.getComment());
+                                                            editor.apply();
                                                             Log.d("CurrentUserName", "onCallback: " + user.getName());
                                                             Intent i = new Intent(SplashScreen.this , HomeActivity.class);
                                                             i.putExtra("currentUser",user);
@@ -113,7 +127,10 @@ public class SplashScreen extends AppCompatActivity {
         };
         thread.start();
     }
+    public void setNotificaitonPref(ArrayList<String> type, Boolean val ) {
 
+
+    }
     private void checkIsCompelte(String uid){
         DocumentReference ref = FirebaseFirestore.getInstance().collection("priority")
                 .document(uid);
