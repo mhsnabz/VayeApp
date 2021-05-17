@@ -12,7 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kongzue.dialog.v3.WaitDialog;
 import com.vaye.app.Controller.HomeController.HomeActivity;
 import com.vaye.app.Controller.HomeController.LessonPostEdit.EditPostActivity;
@@ -22,11 +28,13 @@ import com.vaye.app.Interfaces.OtherUserService;
 import com.vaye.app.Interfaces.Report;
 import com.vaye.app.Interfaces.TrueFalse;
 import com.vaye.app.Model.CurrentUser;
+import com.vaye.app.Model.LessonModel;
 import com.vaye.app.Model.LessonPostModel;
 import com.vaye.app.Model.MainPostModel;
 import com.vaye.app.Model.OtherUser;
 import com.vaye.app.R;
 import com.vaye.app.Services.BlockService;
+import com.vaye.app.Services.LessonSettingService;
 import com.vaye.app.Services.MainPostService;
 import com.vaye.app.Services.MajorPostService;
 import com.vaye.app.Services.UserService;
@@ -180,7 +188,19 @@ public class MajorPostBottomAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         });
                     }
                     else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_dersi_takip_etmeyi_birak)){
-
+                        ///İSTE/lesson/Bilgisayar Mühendisliği/Bilgisayar Ağları
+                        DocumentReference ref = FirebaseFirestore.getInstance().collection(currentUser.getShort_school())
+                                .document("lesson").collection(currentUser.getBolum()).document(post.getLessonName());
+                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()){
+                                    LessonModel model = task.getResult().toObject(LessonModel.class);
+                                    LessonSettingService.shared().removeLesson(model,currentUser,(Activity)context);
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
                     }
                     else if (model.getItems().get(i).equals(BottomSheetActionTarget.bu_kullaniciyi_sikayet_et)){
                         Intent i = new Intent(context , ReportActivity.class);

@@ -102,9 +102,6 @@ public class VayeAppPlacePickerActivity extends AppCompatActivity implements OnM
 
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
-
-
-
         // Create a RectangularBounds object.
         RectangularBounds bounds = RectangularBounds.newInstance(
                 new LatLng(-33.880490, 151.184363),

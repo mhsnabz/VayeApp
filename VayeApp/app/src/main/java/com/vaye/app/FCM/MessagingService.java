@@ -63,8 +63,12 @@ public class MessagingService extends FirebaseMessagingService {
         Log.d(TAG, "showNotification: " +text);
         Log.d(TAG, "showNotification: " + remoteMessageData.get("type"));
         Log.d(TAG, "showNotification: " + remoteMessageData.get("senderUid"));
-        if (remoteMessageData.get("senderUid") == null && remoteMessageData.get("senderUid").equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-            return;
+        if (remoteMessageData.get("senderUid") == null)
+        {    return;
+
+        } else if( remoteMessageData.get("senderUid") != null && remoteMessageData.get("senderUid").equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+        {
+        return;
         }else{
             if (remoteMessageData.get("type") != null && remoteMessageData.get("type").equals(PushNotificationType.message)){
                 if (sharedPreferences.getString("context", "") != null && sharedPreferences.getString("context", "").equals(active_context_name)){

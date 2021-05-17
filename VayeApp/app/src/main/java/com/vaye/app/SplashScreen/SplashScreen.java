@@ -84,10 +84,10 @@ public class SplashScreen extends AppCompatActivity {
                                                             SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
                                                             SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                                                            editor.putBoolean(PushNotificationType.lessonNotices,currentUser.getLessonNotices());
-                                                            editor.putBoolean(PushNotificationType.like,currentUser.getLike());
-                                                            editor.putBoolean(PushNotificationType.follow,currentUser.getFollow());
-                                                            editor.putBoolean(PushNotificationType.comment,currentUser.getComment());
+                                                            editor.putBoolean(PushNotificationType.lessonNotices,user.getLessonNotices());
+                                                            editor.putBoolean(PushNotificationType.like,user.getLike());
+                                                            editor.putBoolean(PushNotificationType.follow,user.getFollow());
+                                                            editor.putBoolean(PushNotificationType.comment,user.getComment());
                                                             editor.apply();
                                                             Log.d("CurrentUserName", "onCallback: " + user.getName());
                                                             Intent i = new Intent(SplashScreen.this , HomeActivity.class);

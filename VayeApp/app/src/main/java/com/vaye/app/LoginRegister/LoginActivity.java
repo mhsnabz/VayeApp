@@ -114,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
                             public void onCallback(CurrentUser user) {
                                 if (user!=null){
 
-                                    UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
+                                   UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
                                         @Override
                                         public void callBack(Boolean _value) {
                                             if (_value){
@@ -255,6 +255,7 @@ public class LoginActivity extends AppCompatActivity {
                                                             UserService.shared().getTaskUser(task.getResult().getUser().getUid(), new TaskUserHandler() {
                                                                 @Override
                                                                 public void onCallback(TaskUser user) {
+
                                                                     UserService.shared().checkEmailVerfied(task.getResult().getUser(), new TrueFalse<Boolean>() {
                                                                         @Override
                                                                         public void callBack(Boolean _value) {
